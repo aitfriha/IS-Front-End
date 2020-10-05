@@ -1,0 +1,6 @@
+.auto-complete-multiline label + div input, .auto-complete-multiline label + div > div, .auto-complete-multiline label + div > select {
+    padding: 0!important;
+}
+.auto-complete-multiline {
+    margin-top: 16px!important;
+}

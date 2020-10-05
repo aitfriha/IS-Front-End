@@ -1,0 +1,10 @@
+.leaflet-container{
+    height: 400px;
+    width: 100%;
+}
+.MuiAutocomplete-endAdornment{
+    padding: 0!important;
+}
+.MuiDialogContent-root {
+    overflow-y: hidden!important;
+}

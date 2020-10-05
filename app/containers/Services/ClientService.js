@@ -1,0 +1,15 @@
+import axios from 'axios';
+import { API } from '../../config/apiUrl';
+
+class ClientService {
+    getClients = () => axios.get(`${API}/clients`);
+
+    saveClient = client => axios.post(`${API}/client`, client);
+
+    getClientsByCountry = country => axios.get(`${API}/clients-by-country/${country}`);
+
+    getClientsByCode = code => axios.get(`${API}/clients-by-code/${code}`);
+
+    deleteAlgorithm = algorithmId => axios.delete(`${API}/algorithm/delete/${algorithmId}`);
+}
+export default new ClientService();
