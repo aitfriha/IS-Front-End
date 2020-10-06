@@ -190,7 +190,7 @@ export const City = Loadable({
   loading: Loading
 });
 export const State = Loadable({
-  loader: () => import('./Pages/State'),
+  loader: () => import('./Pages/State/index'),
   loading: Loading
 });
 export const ContractStatus = Loadable({

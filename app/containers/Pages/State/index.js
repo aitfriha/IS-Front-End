@@ -1,85 +1,90 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
-import StateBlock from './StateBlock';
-import { Button, Grid, TextField, Typography } from '@material-ui/core';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import CountryService from '../../Services/CountryService';
+import csc from 'country-state-city';
+import MUIDataTable from 'mui-datatables';
+import {
+  Button, FormControl, withStyles,
+} from '@material-ui/core';
+import Select from 'react-select';
+import { Formik } from 'formik';
+import PropTypes from 'prop-types';
 import StateService from '../../Services/StateCountryService';
+import styles from '../StaffContract/people-jss';
 
-class StateCountry extends React.Component {
+
+class StateCountry extends Component {
+  countries = csc.getAllCountries();
+
+  updatedCountries = this.countries.map(country => ({
+    label: country.name,
+    value: country.id,
+    ...country
+  }));
+
+
   constructor(props) {
     super(props);
-    this.state = {
-      country: {},
-      stateName: '',
-      countries: [],
-      stateCountryId: '',
-      createOrUpdate: true,
-      states: []
-    }
-  }
-
-  componentDidMount() {
-    CountryService.getCountries().then(({ data }) => {
-      this.setState({ countries: data });
-    });
-    StateService.getStates().then(({ data }) => {
-      this.setState({ states: data });
-    });
-  }
-
-  handleChange = ev => {
-    this.setState({ [ev.target.name]: ev.target.value });
-  };
-
-  handleSubmitState = () => {
-    const { country, stateName, createOrUpdate, stateCountryId } = this.state;
-    const state = {
-      country,
-      stateName
+    this.editingPromiseResolve = () => {
     };
-    if (createOrUpdate) {
-      StateService.saveState(state).then(({ data }) => {
-        StateService.getStates().then(({ data }) => {
-          this.setState({ states: data, country: {}, stateName: '' });
-        });
-      });
-    } else {
-      StateService.updateState(stateCountryId, state).then(({ data }) => {
-        StateService.getStates().then(({ data }) => {
-          this.setState({ states: data, country: {}, stateName: '', createOrUpdate: true });
-        });
-      });
-    }
-  };
+    this.editingPromiseResolve2 = () => {
+    };
 
-  handleChangeCountry = (ev, value) => {
-    this.setState({ country: value });
-  };
+    this.state = {
+      columns: [
+        {
+          name: 'country',
+          label: 'Country',
+        },
+        {
+          name: 'state',
+          label: 'State',
 
-  handleCancel = () => {
-    this.setState({ createOrUpdate: true, country: {}, stateName: '' });
+        },
+        {
+          name: 'city',
+          label: 'City',
+        },
+      ],
+      data: [{ country: 'Morocco', state: 'Grand casablanca', city: 'El mohammadia' }],
+    };
   }
 
-  handleChangeSelectedSate = (stateCountry) => {
-    this.setState(
-      {
-        stateName: stateCountry.stateName,
-        country: stateCountry.country,
-        stateCountryId: stateCountry.stateCountryId,
-        createOrUpdate: false
-      });
-  };
+
+  updatedStates = countryId => csc.getStatesOfCountry(countryId).map(state => ({
+    label: state.name,
+    value: state.id,
+    ...state
+  }));
+
+  updatedCities = stateId => csc.getCitiesOfState(stateId).map(city => ({ label: city.name, value: city.id, ...city }));
+
+  /* const {
+    values, handleSubmit, setFieldValue, setValues
+  } = addressFromik; */
+
+  // useEffect(() => {}, [values]);
 
   render() {
     const title = brand.name + ' - State Country';
     const description = brand.desc;
-    const {
-      countries, country, createOrUpdate, stateName,
-      states
-    } = this.state;
+    const { classes } = this.props;
+    const { data, columns } = this.state;
+    const options = {
+      filter: true,
+      option: 'none',
+      filterType: 'dropdown',
+      responsive: 'stacked',
+      rowsPerPage: 10,
+      /*     customToolbar: () => (
+        <CustomToolbar
+          csvData={data}
+          url="/app/hh-rr/staff/create-staff"
+          tooltip="add new worker"
+        />
+      ) */
+    };
     return (
       <div>
         <Helmet>
@@ -90,99 +95,122 @@ class StateCountry extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="States" noMargin>
-          <Grid
-            container
-            spacing={3}
-            direction="row"
-            justify="center"
-            alignItems="center"
+        <PapperBlock title="States" desc="" noMargin>
+          <Formik
+            enableReinitialize
+            initialValues={{
+              country: null,
+              state: null,
+              city: null
+            }}
+            //  onSubmit: values => StateService.saveState((JSON.stringify(values))).then(({ data }) => {
+            onSubmit={async (values) => {
+              const datafinal = {
+                // country
+                countryName: values.country.name,
+                countryCode: values.country.sortname,
+                phonePrefix: values.country.phonecode,
+                // state
+                stateName: values.state.name,
+                // city
+                cityName: values.city.name,
+              };
+              console.log(datafinal);
+              // eslint-disable-next-line no-shadow,no-unused-vars
+              StateService.saveState(datafinal).then(({ data }) => {
+
+              });
+            }}
           >
-            <Grid
-              item
-              xs={12}
-              md={5}
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-              justify="center"
-              alignContent="center"
-              alignItems="center"
-            >
-              <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>State</Typography>
-              <div style={{ width: '80%' }}>
-                <TextField
-                  id="outlined-basic"
-                  label="State Name"
-                  variant="outlined"
-                  fullWidth
-                  required
-                  value={stateName}
-                  name="stateName"
-                  onChange={this.handleChange}
-                />
-              </div>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={5}
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-              justify="center"
-              alignContent="center"
-              alignItems="center"
-            >
-              <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>Country</Typography>
-              <div style={{ width: '80%' }}>
-                <Autocomplete
-                  id="combo-box-demo"
-                  value={country}
-                  options={countries}
-                  getOptionLabel={option => option.countryName}
-                  onChange={this.handleChangeCountry}
-                  renderInput={params => (
-                    <TextField
-                      fullWidth
-                      {...params}
-                      label="Select the country"
-                      variant="outlined"
+            {props => {
+              const {
+                values,
+                handleSubmit,
+                setFieldValue,
+              } = props;
+              return (
+                <form
+                  noValidate
+                  autoComplete="off"
+                  onSubmit={handleSubmit}
+                  encType="multipart/form-data"
+                >
+                  <FormControl className={classes.formControl} fullWidth>
+                    <Select
+                      id="country"
+                      name="country"
+                      label="country"
+                      options={this.updatedCountries}
+                      value={values.country}
+                      onChange={value => {
+                        setFieldValue('country', value);
+                        setFieldValue('state', null);
+                        setFieldValue('city', null);
+                      }}
+                      /*   onChange={value => {
+                        setValues({ country: value, state: null, city: null }, false);
+                      }} */
                     />
-                  )}
-                />
-              </div>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={7}
-              style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}
-            >
-              <Button
-                color="primary"
-                variant="contained"
-                size="medium"
-                onClick={this.handleSubmitState}
-              >
-                {
-                  createOrUpdate ? 'Save state' : 'Update State'
-                }
-              </Button>
-              {
-                !createOrUpdate ? (
-                  <Button
-                    color="secondary"
-                    variant="contained"
-                    size="medium"
-                    onClick={this.handleCancel}
-                  >
-                    Cancel
-                  </Button>
-                ) : (<div />)
-              }
-            </Grid>
-          </Grid>
-          <StateBlock  onSelected={this.handleChangeSelectedSate} states={states} />
+                  </FormControl>
+                  <p />
+                  <FormControl className={classes.formControl} fullWidth>
+                    <Select
+                      id="state"
+                      name="state"
+                      options={this.updatedStates(values.country ? values.country.value : null)}
+                      value={values.state}
+                      /*   onChange={value => {
+                        setValues({ state: value, city: null }, false);
+                      }} */
+                      onChange={value => {
+                        setFieldValue('state', value);
+                        setFieldValue('city', null);
+                      }}
+                    />
+                  </FormControl>
+                  <p />
+                  <FormControl className={classes.formControl} fullWidth>
+                    <Select
+                      id="city"
+                      name="city"
+                      options={this.updatedCities(values.state ? values.state.value : null)}
+                      value={values.city}
+                      // onChange={value => setFieldValue('city', value)}
+                      onChange={value => {
+                        setFieldValue('city', value);
+                      }}
+                    />
+                  </FormControl>
+                  <div className={classes.btnCenter} style={{ marginTop: 5 }}>
+                    <Button
+                      className={classes.textField}
+                      color="primary"
+                      variant="contained"
+                      size="small"
+                      type="submit"
+                    >
+                      Save
+                    </Button>
+                  </div>
+                  <div style={{ marginTop: 20 }}>
+                    <MUIDataTable
+                      title=""
+                      data={data}
+                      columns={columns}
+                      options={options}
+                    />
+                  </div>
+                  <p>{JSON.stringify(csc.get)}</p>
+                </form>
+              );
+            }}
+          </Formik>
         </PapperBlock>
       </div>
     );
   }
 }
-export default (StateCountry);
+StateCountry.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+export default withStyles(styles)(StateCountry);

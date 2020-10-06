@@ -6,10 +6,13 @@ class StateCountryService {
 
   getStatesByCountry = countryId => axios.get(`${API}/state-country-all-by-country/${countryId}`);
 
-  saveState = state => axios.post(`${API}/state-country-save`, state);
+  saveState = datafinal => axios.post(`${API}/city/add`, datafinal);
 
   updateState = (stateId, state) => axios.put(`${API}/state-country-update/${stateId}`, state);
 
   delete = stateId => axios.delete(`${API}/state-country-delete/${stateId}`);
+
+
+  saveCountryStateCity = state => axios.post(`${API}/country-statecity-save`, state);
 }
 export default new StateCountryService();
