@@ -8,6 +8,7 @@ import { fromJS } from 'immutable';
 import createSagaMiddleware from 'redux-saga';
 import createReducer from './reducers';
 import rootSaga from './rootSaga';
+
 export default function configureStore(initialState = {}, history) {
   let composeEnhancers = compose;
   const reduxSagaMonitorOptions = {};

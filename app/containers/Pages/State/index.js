@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
@@ -13,11 +13,10 @@ import PropTypes from 'prop-types';
 // import { isString } from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import StateService from '../../Services/StateCountryService';
 import styles from '../StaffContract/people-jss';
 import notification from '../../../components/Notification/Notification';
 import { addCity, getAllCitys } from '../../../redux/city/actions';
-class StateCountry extends Component {
+class StateCountry extends React.Component {
   countries = csc.getAllCountries();
 
   updatedCountries = this.countries.map(country => ({
@@ -31,26 +30,22 @@ class StateCountry extends Component {
     super(props);
     this.editingPromiseResolve = () => {
     };
-    this.editingPromiseResolve2 = () => {
-    };
-
     this.state = {
       columns: [
         {
-          name: 'country',
+          name: 'cityName',
           label: 'Country',
         },
         {
-          name: 'state',
+          name: 'stateName',
           label: 'State',
 
         },
         {
-          name: 'city',
-          label: 'City',
+          name: 'countryName',
+          label: 'Country',
         },
       ],
-      data: [{ country: 'Morocco', state: 'Grand casablanca', city: 'El mohammadia' }],
     };
   }
 
@@ -63,7 +58,6 @@ class StateCountry extends Component {
   componentDidMount() {
     // eslint-disable-next-line no-shadow
     const { getAllCitys } = this.props;
-    console.log(getAllCitys());
     getAllCitys();
   }
 
@@ -78,8 +72,13 @@ class StateCountry extends Component {
   render() {
     const title = brand.name + ' - State Country';
     const description = brand.desc;
-    const { classes } = this.props;
-    const { data, columns } = this.state;
+    // eslint-disable-next-line no-shadow
+    const {
+      // eslint-disable-next-line no-shadow
+      classes, allCitys, cityResponse, isLoading, errors, addCity
+    } = this.props;
+    console.log(allCitys);
+    const { columns } = this.state;
     const options = {
       filter: true,
       option: 'none',
@@ -94,6 +93,9 @@ class StateCountry extends Component {
         />
       ) */
     };
+    // Sent resolve to editing promises
+    (!isLoading && cityResponse) && this.editingPromiseResolve(cityResponse);
+    (!isLoading && !cityResponse) && this.editingPromiseResolve(errors);
     return (
       <div>
         <Helmet>
@@ -125,16 +127,14 @@ class StateCountry extends Component {
                 cityName: values.city.name,
               };
               console.log(datafinal);
-              // eslint-disable-next-line no-shadow,no-unused-vars
-              StateService.saveState(datafinal).then(({ data }) => {
-                notification('success', { status: 'OK', payload: 'city.added' });
-                /* if (isString(result)) {
-                  // Fetch data
-                  getAllMeasurementUnits();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                } */
+              const promise = new Promise((resolve) => {
+                // get client information
+                addCity(datafinal);
+                this.editingPromiseResolve = resolve;
+              });
+              promise.then((result) => {
+                console.log(result);
+                notification('success', { status: 'OK', result });
               });
             }}
           >
@@ -211,7 +211,7 @@ class StateCountry extends Component {
                   <div style={{ marginTop: 20 }}>
                     <MUIDataTable
                       title=""
-                      data={data}
+                      data={allCitys && allCitys}
                       columns={columns}
                       options={options}
                     />
@@ -229,6 +229,11 @@ class StateCountry extends Component {
 StateCountry.propTypes = {
   classes: PropTypes.object.isRequired,
   getAllCitys: PropTypes.func.isRequired,
+  allCitys: PropTypes.array.isRequired,
+  cityResponse: PropTypes.string.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  errors: PropTypes.object.isRequired,
+  addCity: PropTypes.func.isRequired,
 };
 const mapStateToProps = state => ({
   allCitys: state.getIn(['cities']).allCitys,
@@ -239,7 +244,6 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators({
   addCity,
   getAllCitys,
-
 }, dispatch);
 
 export default withStyles(styles)(connect(

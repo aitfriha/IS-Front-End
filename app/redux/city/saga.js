@@ -118,7 +118,6 @@ function* getAllCitys() {
       method: 'get',
       url: ENDPOINTS.CITY + '/all'
     });
-
     yield put({
       type: GET_ALL_CITYS_SUCCESS,
       payload: request.data.payload
