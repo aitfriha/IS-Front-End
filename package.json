@@ -206,7 +206,7 @@
     "tunnel-agent": "^0.6.0",
     "warning": "4.0.2",
     "xlsx": "^0.16.6",
-    "autoprefixer": "latest"
+    "autoprefixer": "^9.0.0"
   },
   "devDependencies": {
     "@babel/cli": "7.4.3",
