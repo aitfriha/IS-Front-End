@@ -10,10 +10,13 @@ import {
 import Select from 'react-select';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
+// import { isString } from 'lodash';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import StateService from '../../Services/StateCountryService';
 import styles from '../StaffContract/people-jss';
-
-
+import notification from '../../../components/Notification/Notification';
+import { addCity, getAllCitys } from '../../../redux/city/actions';
 class StateCountry extends Component {
   countries = csc.getAllCountries();
 
@@ -52,19 +55,25 @@ class StateCountry extends Component {
   }
 
 
-  updatedStates = countryId => csc.getStatesOfCountry(countryId).map(state => ({
-    label: state.name,
-    value: state.id,
-    ...state
-  }));
-
-  updatedCities = stateId => csc.getCitiesOfState(stateId).map(city => ({ label: city.name, value: city.id, ...city }));
-
   /* const {
     values, handleSubmit, setFieldValue, setValues
   } = addressFromik; */
 
   // useEffect(() => {}, [values]);
+  componentDidMount() {
+    // eslint-disable-next-line no-shadow
+    const { getAllCitys } = this.props;
+    console.log(getAllCitys());
+    getAllCitys();
+  }
+
+  updatedCities = stateId => csc.getCitiesOfState(stateId).map(city => ({ label: city.name, value: city.id, ...city }));
+
+  updatedStates = countryId => csc.getStatesOfCountry(countryId).map(state => ({
+    label: state.name,
+    value: state.id,
+    ...state
+  }));
 
   render() {
     const title = brand.name + ' - State Country';
@@ -118,7 +127,14 @@ class StateCountry extends Component {
               console.log(datafinal);
               // eslint-disable-next-line no-shadow,no-unused-vars
               StateService.saveState(datafinal).then(({ data }) => {
-
+                notification('success', { status: 'OK', payload: 'city.added' });
+                /* if (isString(result)) {
+                  // Fetch data
+                  getAllMeasurementUnits();
+                  notification('success', result);
+                } else {
+                  notification('danger', result);
+                } */
               });
             }}
           >
@@ -211,6 +227,22 @@ class StateCountry extends Component {
   }
 }
 StateCountry.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  getAllCitys: PropTypes.func.isRequired,
 };
-export default withStyles(styles)(StateCountry);
+const mapStateToProps = state => ({
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoading: state.getIn(['cities']).isLoading,
+  errors: state.getIn(['cities']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  addCity,
+  getAllCitys,
+
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StateCountry));

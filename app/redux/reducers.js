@@ -16,6 +16,7 @@ import SectorModule from './modules/sectorModule';
 import AreaModule from './modules/areaModule';
 import SectorConfigModule from './modules/sectorConfigModule';
 import FunctionalStructureConfigModule from './modules/functionalStructureConfigModule';
+import citysReducer from './city/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -32,6 +33,7 @@ export default function createReducer(injectedReducers = {}) {
     AreaModule,
     SectorConfigModule,
     FunctionalStructureConfigModule,
+    cities: citysReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers
