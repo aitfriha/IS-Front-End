@@ -1,60 +1,50 @@
+import { store } from 'react-notifications-component';
+import { isString, values } from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Snackbar from '@material-ui/core/Snackbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
 
-const styles = theme => ({
-  close: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-    padding: 0,
-  },
-});
+const backendErrorMessagesFormatter = (messageContent) => (
+  <ul>
+    {values(messageContent)
+      .map((message) => (
+        <li key={message}>
+          message
+        </li>
+      ))}
+  </ul>
+);
 
-function Notification(props) {
-  const handleClose = (event, reason) => {
-    const { close } = props;
-    if (reason === 'clickaway') {
-      return;
+export default function (type, messageContent) {
+  let title;
+
+  switch (type) {
+    case 'danger':
+      title = 'notification.error.title';
+      break;
+    case 'success':
+      title = 'notification.success.title';
+      break;
+    case 'warning':
+      title = 'notification.warning.title';
+      break;
+    case 'info':
+      title = 'notification.info.title';
+      break;
+    default:
+      break;
+  }
+
+  store.addNotification({
+    title,
+    message: isString(messageContent) ? (messageContent) : backendErrorMessagesFormatter(messageContent),
+    type,
+    insert: 'bottom',
+    container: 'bottom-left',
+    animationIn: ['bounceIn'],
+    animationOut: ['bounceOut'],
+    textTransform: 'capitalize',
+    dismiss: {
+      duration: 7000,
+      onScreen: true
     }
-    close('crudTableDemo');
-  };
-
-  const { classes, message } = props;
-  return (
-    <Snackbar
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
-      open={message !== ''}
-      autoHideDuration={3000}
-      onClose={() => handleClose()}
-      ContentProps={{
-        'aria-describedby': 'message-id',
-      }}
-      message={message}
-      action={[
-        <IconButton
-          key="close"
-          aria-label="Close"
-          color="inherit"
-          className={classes.close}
-          onClick={() => handleClose()}
-        >
-          <CloseIcon />
-        </IconButton>,
-      ]}
-    />
-  );
+  });
 }
-
-Notification.propTypes = {
-  classes: PropTypes.object.isRequired,
-  close: PropTypes.func.isRequired,
-  message: PropTypes.string.isRequired,
-};
-
-export default withStyles(styles)(Notification);

@@ -126,7 +126,6 @@ class StateCountry extends React.Component {
                 // city
                 cityName: values.city.name,
               };
-              console.log(datafinal);
               const promise = new Promise((resolve) => {
                 // get client information
                 addCity(datafinal);

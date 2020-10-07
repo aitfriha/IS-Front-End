@@ -206,7 +206,8 @@
     "tunnel-agent": "^0.6.0",
     "warning": "4.0.2",
     "xlsx": "^0.16.6",
-    "autoprefixer": "^9.0.0"
+    "autoprefixer": "^9.0.0",
+    "react-notifications-component": "^2.4.0"
   },
   "devDependencies": {
     "@babel/cli": "7.4.3",
