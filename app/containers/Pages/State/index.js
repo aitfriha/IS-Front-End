@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 // import { isString } from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { isString } from 'lodash';
 import styles from '../StaffContract/people-jss';
 import notification from '../../../components/Notification/Notification';
 import { addCity, getAllCitys } from '../../../redux/city/actions';
@@ -132,8 +133,11 @@ class StateCountry extends React.Component {
                 this.editingPromiseResolve = resolve;
               });
               promise.then((result) => {
-                console.log(result);
-                notification('success', { status: 'OK', result });
+                if (isString(result)) {
+                  notification('success', { status: 'OK', result });
+                } else {
+                  notification('danger', result);
+                }
               });
             }}
           >

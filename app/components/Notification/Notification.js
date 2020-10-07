@@ -7,7 +7,7 @@ const backendErrorMessagesFormatter = (messageContent) => (
     {values(messageContent)
       .map((message) => (
         <li key={message}>
-          message
+          {message}
         </li>
       ))}
   </ul>
@@ -18,16 +18,16 @@ export default function (type, messageContent) {
 
   switch (type) {
     case 'danger':
-      title = 'notification.error.title';
+      title = 'error';
       break;
     case 'success':
-      title = 'notification.success.title';
+      title = 'success';
       break;
     case 'warning':
-      title = 'notification.warning.title';
+      title = 'warning';
       break;
     case 'info':
-      title = 'notification.info.title';
+      title = 'info';
       break;
     default:
       break;
