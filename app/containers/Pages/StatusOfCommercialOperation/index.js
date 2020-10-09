@@ -16,6 +16,12 @@ import {
 } from '../../../redux/commercialOperationStatus/actions';
 
 const styles = {
+  MuiIcon: {
+    root: {
+      fontSize: '0.4rem', // <-- Or "1.3rem", "1.2rem" If you want a smaller icon
+      color: 'red'
+    }
+  }
 };
 
 class StatusOfCommercialOperation extends React.Component {
