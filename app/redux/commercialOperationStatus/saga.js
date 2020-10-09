@@ -44,13 +44,13 @@ function* addCommercialOperationStatus(action) {
 function* updateCommercialOperationStatus(action) {
   try {
     const {
-      isicWithId
+      commercialOperationStatusWithId
     } = action;
 
     const request = yield axios({
       method: 'post',
       url: ENDPOINTS.COMMERCIALOPERATIONSTATUS + '/update',
-      data: isicWithId
+      data: commercialOperationStatusWithId
     });
 
     yield put({

@@ -12,17 +12,10 @@ import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
   addCommercialOperationStatus,
-  getAllCommercialOperationStatus
+  getAllCommercialOperationStatus, updateCommercialOperationStatus
 } from '../../../redux/commercialOperationStatus/actions';
 
-const styles = {
-  MuiIcon: {
-    root: {
-      fontSize: '0.4rem', // <-- Or "1.3rem", "1.2rem" If you want a smaller icon
-      color: 'red'
-    }
-  }
-};
+const styles = {};
 
 class StatusOfCommercialOperation extends React.Component {
   constructor(props) {
@@ -35,21 +28,22 @@ class StatusOfCommercialOperation extends React.Component {
           // eslint-disable-next-line no-useless-concat
           title: 'Name' + '*',
           field: 'name',
-          // cellStyle: { width: 155, maxWidth: 155 },
-          // headerStyle: { width: 180, maxWidth: 180 }
+          /* cellStyle: { width: 100, maxWidth: 100 },
+          headerStyle: { width: 130, maxWidth: 130 } */
         },
         {
           // eslint-disable-next-line no-useless-concat
           title: 'Percentage' + '*',
           field: 'percentage',
-          // cellStyle: { width: 155, maxWidth: 155 },
-          // headerStyle: { width: 180, maxWidth: 180 }
+          type: 'numeric',
+          /* cellStyle: { width: 155, maxWidth: 155 },
+          headerStyle: { width: 180, maxWidth: 180 } */
         },
         {
           title: 'Description',
           field: 'description',
-          // cellStyle: { width: 155, maxWidth: 155 },
-        //  headerStyle: { width: 180, maxWidth: 180 }
+          /* cellStyle: { width: 155, maxWidth: 155 },
+          headerStyle: { width: 100, maxWidth: 180 } */
         }
       ]
     };
@@ -69,7 +63,7 @@ class StatusOfCommercialOperation extends React.Component {
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss
+      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus
     } = this.props;
     (!isLoading && commercialOperationStatusResponse) && this.editingPromiseResolve(commercialOperationStatusResponse);
     (!isLoading && !commercialOperationStatusResponse) && this.editingPromiseResolve(errors);
@@ -117,10 +111,9 @@ class StatusOfCommercialOperation extends React.Component {
                   notification('danger', result);
                 }
               }),
-              // eslint-disable-next-line no-unused-vars
               onRowUpdate: (newData) => new Promise((resolve) => {
-                // update measurement unit action
-                // updateMeasurementUnit(newData);
+                // update CommercialOperationStatus unit action
+                updateCommercialOperationStatus(newData);
                 this.editingPromiseResolve = resolve;
               }).then((result) => {
                 if (isString(result)) {
@@ -161,6 +154,7 @@ StatusOfCommercialOperation.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   errors: PropTypes.object.isRequired,
   addCommercialOperationStatus: PropTypes.func.isRequired,
+  updateCommercialOperationStatus: PropTypes.func.isRequired,
 };
 const mapStateToProps = state => ({
   allCommercialOperationStatuss: state.getIn(['commercialOperationStatus']).allCommercialOperationStatuss,
@@ -171,6 +165,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialOperationStatus,
   addCommercialOperationStatus,
+  updateCommercialOperationStatus,
 }, dispatch);
 
 export default withStyles(styles)(connect(

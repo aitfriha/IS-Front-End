@@ -224,12 +224,12 @@ const applicationTheme = (color, mode, direction) => ({
       },
     },
     // //xaid
-    /*    MuiIcon: {
+    MuiIcon: {
       root: {
         fontSize: '1.3rem', // <-- Or "1.3rem", "1.2rem" If you want a smaller icon
-        color: 'red'
+        color: '#65819D'
       }
-    }, */
+    },
     MuiInputAdornment: {
       root: {
         alignItems: 'flex-end',
@@ -273,6 +273,11 @@ const applicationTheme = (color, mode, direction) => ({
       head: {
         fontWeight: 600,
       },
+      // xaid
+      alignRight: {
+        textAlign: 'left',
+        flexDirection: 'inherit'
+      }
     },
     MuiListItemText: {
       root: {
