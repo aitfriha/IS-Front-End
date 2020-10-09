@@ -68,12 +68,12 @@ function* updateCommercialOperationStatus(action) {
 function* deleteCommercialOperationStatus(action) {
   try {
     const {
-      isicId
+      commercialOperationStatusId
     } = action;
 
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.COMMERCIALOPERATIONSTATUS + '/delete/' + isicId
+      url: ENDPOINTS.COMMERCIALOPERATIONSTATUS + '/delete/' + commercialOperationStatusId
     });
 
     yield put({

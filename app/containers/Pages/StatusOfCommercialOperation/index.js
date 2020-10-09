@@ -11,7 +11,7 @@ import { isString } from 'lodash';
 import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
-  addCommercialOperationStatus,
+  addCommercialOperationStatus, deleteCommercialOperationStatus,
   getAllCommercialOperationStatus, updateCommercialOperationStatus
 } from '../../../redux/commercialOperationStatus/actions';
 
@@ -63,7 +63,7 @@ class StatusOfCommercialOperation extends React.Component {
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus
+      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus, deleteCommercialOperationStatus
     } = this.props;
     (!isLoading && commercialOperationStatusResponse) && this.editingPromiseResolve(commercialOperationStatusResponse);
     (!isLoading && !commercialOperationStatusResponse) && this.editingPromiseResolve(errors);
@@ -124,15 +124,14 @@ class StatusOfCommercialOperation extends React.Component {
                   notification('danger', result);
                 }
               }),
-              // eslint-disable-next-line no-unused-vars
               onRowDelete: oldData => new Promise((resolve) => {
-                // delete WaterContract action
-                // deleteWaterContract(oldData.waterContractId);
+                // delete CommercialOperationStatus action
+                deleteCommercialOperationStatus(oldData.commercialOperationStatusId);
                 this.editingPromiseResolve = resolve;
               }).then((result) => {
                 if (isString(result)) {
                   // Fetch data
-                  // getAllWaterContracts();
+                  getAllCommercialOperationStatus();
                   notification('success', result);
                 } else {
                   notification('danger', result);
@@ -155,6 +154,7 @@ StatusOfCommercialOperation.propTypes = {
   errors: PropTypes.object.isRequired,
   addCommercialOperationStatus: PropTypes.func.isRequired,
   updateCommercialOperationStatus: PropTypes.func.isRequired,
+  deleteCommercialOperationStatus: PropTypes.func.isRequired
 };
 const mapStateToProps = state => ({
   allCommercialOperationStatuss: state.getIn(['commercialOperationStatus']).allCommercialOperationStatuss,
@@ -166,6 +166,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialOperationStatus,
   addCommercialOperationStatus,
   updateCommercialOperationStatus,
+  deleteCommercialOperationStatus
 }, dispatch);
 
 export default withStyles(styles)(connect(
