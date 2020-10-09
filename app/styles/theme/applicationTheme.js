@@ -228,6 +228,8 @@ const applicationTheme = (color, mode, direction) => ({
         alignItems: 'flex-end',
         paddingLeft: 0,
         paddingRight: 0,
+        // xaid
+        height: 24,
         '& button': {
           width: 32,
           height: 32,

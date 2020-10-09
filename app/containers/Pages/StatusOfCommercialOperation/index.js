@@ -2,49 +2,71 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
-import { Button, Grid, TextField, Typography } from '@material-ui/core';
-import StatusOfCommercialOperationBlock from './Block';
+import withStyles from '@material-ui/core/styles/withStyles';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import MaterialTable from 'material-table';
+import { isString } from 'lodash';
+import notification from '../../../components/Notification/Notification';
+// import styles from '../StaffContract/people-jss';
+import {
+  addCommercialOperationStatus,
+  getAllCommercialOperationStatus
+} from '../../../redux/commercialOperationStatus/actions';
+
+const styles = {
+};
 
 class StatusOfCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
-      statusName: '',
-      statusId: '',
-      createOrUpdate: true,
-      status: [],
-      statusDescription: ''
-    }
+      columns: [
+        {
+          // eslint-disable-next-line no-useless-concat
+          title: 'Name' + '*',
+          field: 'name',
+          // cellStyle: { width: 155, maxWidth: 155 },
+          // headerStyle: { width: 180, maxWidth: 180 }
+        },
+        {
+          // eslint-disable-next-line no-useless-concat
+          title: 'Percentage' + '*',
+          field: 'percentage',
+          // cellStyle: { width: 155, maxWidth: 155 },
+          // headerStyle: { width: 180, maxWidth: 180 }
+        },
+        {
+          title: 'Description',
+          field: 'description',
+          // cellStyle: { width: 155, maxWidth: 155 },
+        //  headerStyle: { width: 180, maxWidth: 180 }
+        }
+      ]
+    };
   }
 
-  handleChange = ev => {
-    this.setState({ [ev.target.name]: ev.target.value });
-  };
-
-  handleSubmitStatus = () => {
-    const { statusName, statusDescription, status } = this.state;
-    this.setState({ status: [...status, { statusName, statusDescription }], statusDescription: '', statusName: '' })
-  };
-
-  handleCancel = () => {
-    this.setState({ createOrUpdate: true, statusDescription: '', statusName: '' });
+  componentDidMount() {
+    // eslint-disable-next-line no-shadow
+    const { getAllCommercialOperationStatus } = this.props;
+    getAllCommercialOperationStatus();
   }
-
-  handleChangeSelectedStatus = (status) => {
-    this.setState(
-      {
-        statusName: status.statusName,
-        statusDescription: status.statusDescription,
-        createOrUpdate: false
-      });
-  };
 
   render() {
     const title = brand.name + ' - Status Of Commercial Operation';
     const description = brand.desc;
     const {
-      status, createOrUpdate, statusName, statusDescription
+      columns
     } = this.state;
+    const {
+      // eslint-disable-next-line no-shadow
+      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss
+    } = this.props;
+    (!isLoading && commercialOperationStatusResponse) && this.editingPromiseResolve(commercialOperationStatusResponse);
+    (!isLoading && !commercialOperationStatusResponse) && this.editingPromiseResolve(errors);
     return (
       <div>
         <Helmet>
@@ -55,93 +77,97 @@ class StatusOfCommercialOperation extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Status Of Commercial Operation" noMargin>
-          <Grid
-            container
-            spacing={3}
-            direction="row"
-            justify="center"
-            alignItems="center"
-          >
-            <Grid
-              item
-              xs={12}
-              md={5}
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-              justify="center"
-              alignContent="center"
-              alignItems="center"
-            >
-              <Typography variant="subtitle2" color="primary" style={{ width: '20%' }}>Status of Commercial Operation</Typography>
-              <div style={{ width: '75%' }}>
-                <TextField
-                  id="outlined-basic"
-                  label="Status Name"
-                  variant="outlined"
-                  fullWidth
-                  required
-                  value={statusName}
-                  name="statusName"
-                  onChange={this.handleChange}
-                />
-              </div>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={5}
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-              justify="center"
-              alignContent="center"
-              alignItems="center"
-            >
-              <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>Description</Typography>
-              <div style={{ width: '80%' }}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  variant="outlined"
-                  required
-                  value={statusDescription}
-                  name="statusDescription"
-                  onChange={this.handleChange}
-                />
-              </div>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={7}
-              style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}
-            >
-              <Button
-                color="primary"
-                variant="contained"
-                size="medium"
-                onClick={this.handleSubmitStatus}
-              >
-                {
-                  createOrUpdate ? 'Save Status' : 'Update Status'
+        <PapperBlock title="Status Of Commercial Operation" desc="" noMargin>
+          {/* <StatusOfCommercialOperationBlock onSelected={this.handleChangeSelectedStatus} status={status} /> */}
+          <MaterialTable
+            title=""
+            columns={columns}
+            data={allCommercialOperationStatuss && allCommercialOperationStatuss}
+            options={{
+              exportFileName: 'Commercial Operation List',
+              // filtering: true,
+              // draggable: true,
+              exportButton: true,
+              pageSize: 10,
+              // grouping: true,
+              actionsCellStyle: {
+              //  paddingLeft: 30,
+                // width: 120,
+                //   maxWidth: 120,
+              },
+              actionsColumnIndex: -1
+            }}
+            editable={{
+              onRowAdd: newData => new Promise((resolve) => {
+                // add measurement unit action
+                addCommercialOperationStatus(newData);
+                this.editingPromiseResolve = resolve;
+              }).then((result) => {
+                if (isString(result)) {
+                  // Fetch data
+                  getAllCommercialOperationStatus();
+                  notification('success', result);
+                } else {
+                  notification('danger', result);
                 }
-              </Button>
-              {
-                !createOrUpdate ? (
-                  <Button
-                    color="secondary"
-                    variant="contained"
-                    size="medium"
-                    onClick={this.handleCancel}
-                  >
-                    Cancel
-                  </Button>
-                ) : (<div />)
-              }
-            </Grid>
-          </Grid>
-          <StatusOfCommercialOperationBlock  onSelected={this.handleChangeSelectedStatus} status={status} />
+              }),
+              // eslint-disable-next-line no-unused-vars
+              onRowUpdate: (newData) => new Promise((resolve) => {
+                // update measurement unit action
+                // updateMeasurementUnit(newData);
+                this.editingPromiseResolve = resolve;
+              }).then((result) => {
+                if (isString(result)) {
+                  // Fetch data
+                  getAllCommercialOperationStatus();
+                  notification('success', result);
+                } else {
+                  notification('danger', result);
+                }
+              }),
+              // eslint-disable-next-line no-unused-vars
+              onRowDelete: oldData => new Promise((resolve) => {
+                // delete WaterContract action
+                // deleteWaterContract(oldData.waterContractId);
+                this.editingPromiseResolve = resolve;
+              }).then((result) => {
+                if (isString(result)) {
+                  // Fetch data
+                  // getAllWaterContracts();
+                  notification('success', result);
+                } else {
+                  notification('danger', result);
+                }
+              }),
+            }}
+          />
         </PapperBlock>
       </div>
     );
   }
 }
-export default (StatusOfCommercialOperation);
+StatusOfCommercialOperation.propTypes = {
+  // eslint-disable-next-line react/no-unused-prop-types
+  classes: PropTypes.object.isRequired,
+  getAllCommercialOperationStatus: PropTypes.func.isRequired,
+  allCommercialOperationStatuss: PropTypes.array.isRequired,
+  commercialOperationStatusResponse: PropTypes.string.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  errors: PropTypes.object.isRequired,
+  addCommercialOperationStatus: PropTypes.func.isRequired,
+};
+const mapStateToProps = state => ({
+  allCommercialOperationStatuss: state.getIn(['commercialOperationStatus']).allCommercialOperationStatuss,
+  commercialOperationStatusResponse: state.getIn(['commercialOperationStatus']).commercialOperationStatusResponse,
+  isLoading: state.getIn(['commercialOperationStatus']).isLoading,
+  errors: state.getIn(['commercialOperationStatus']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCommercialOperationStatus,
+  addCommercialOperationStatus,
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StatusOfCommercialOperation));

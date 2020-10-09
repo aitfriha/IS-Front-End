@@ -35,7 +35,7 @@ class StateCountry extends React.Component {
       columns: [
         {
           name: 'cityName',
-          label: 'Country',
+          label: 'City',
         },
         {
           name: 'stateName',
@@ -76,7 +76,7 @@ class StateCountry extends React.Component {
     // eslint-disable-next-line no-shadow
     const {
       // eslint-disable-next-line no-shadow
-      classes, allCitys, cityResponse, isLoading, errors, addCity
+      classes, allCitys, cityResponse, isLoading, errors, addCity, getAllCitys
     } = this.props;
     console.log(allCitys);
     const { columns } = this.state;
@@ -134,7 +134,8 @@ class StateCountry extends React.Component {
               });
               promise.then((result) => {
                 if (isString(result)) {
-                  notification('success', { status: 'OK', result });
+                  notification('success', result);
+                  getAllCitys();
                 } else {
                   notification('danger', result);
                 }
