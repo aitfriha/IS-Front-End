@@ -18,7 +18,7 @@ export default function (type, messageContent) {
 
   switch (type) {
     case 'danger':
-      title = 'error';
+      title = 'Warning';
       break;
     case 'success':
       title = 'success';

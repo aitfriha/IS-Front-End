@@ -167,9 +167,10 @@ class StateCountry extends React.Component {
                         setFieldValue('state', null);
                         setFieldValue('city', null);
                       }}
+                      placeholder="Country"
                       /*   onChange={value => {
-                        setValues({ country: value, state: null, city: null }, false);
-                      }} */
+                          setValues({ country: value, state: null, city: null }, false);
+                        }} */
                     />
                   </FormControl>
                   <p />
@@ -182,6 +183,7 @@ class StateCountry extends React.Component {
                       /*   onChange={value => {
                         setValues({ state: value, city: null }, false);
                       }} */
+                      placeholder="state"
                       onChange={value => {
                         setFieldValue('state', value);
                         setFieldValue('city', null);
@@ -196,6 +198,7 @@ class StateCountry extends React.Component {
                       options={this.updatedCities(values.state ? values.state.value : null)}
                       value={values.city}
                       // onChange={value => setFieldValue('city', value)}
+                      placeholder="City"
                       onChange={value => {
                         setFieldValue('city', value);
                       }}

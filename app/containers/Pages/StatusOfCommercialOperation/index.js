@@ -33,7 +33,7 @@ class StatusOfCommercialOperation extends React.Component {
         },
         {
           // eslint-disable-next-line no-useless-concat
-          title: 'Percentage' + '*',
+          title: 'Percentage in % ' + '*',
           field: 'percentage',
           type: 'numeric',
           /* cellStyle: { width: 155, maxWidth: 155 },
