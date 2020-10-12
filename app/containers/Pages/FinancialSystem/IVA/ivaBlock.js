@@ -30,6 +30,13 @@ class IvaBlock extends React.Component {
           }
         },
         {
+          label: 'State',
+          name: 'state',
+          options: {
+            filter: true
+          }
+        },
+        {
           label: 'I.V.A Value (%)',
           name: 'ivaValue',
           options: {
@@ -97,17 +104,28 @@ class IvaBlock extends React.Component {
         {
           ivaCode: '1',
           country: 'Morocco',
+          state: 'Tanger-Tetouan',
           ivaValue: '2.5',
-          startingDate: '01/01',
-          endingDate: '31/12',
+          startingDate: '01/01/2018',
+          endingDate: '31/12/2024',
           electronicInvoice: 'No'
         },
         {
           ivaCode: '2',
           country: 'Spain',
+          state: 'Malaga',
           ivaValue: '1.5',
-          startingDate: '01/01',
-          endingDate: '31/12',
+          startingDate: '01/01/2019',
+          endingDate: '31/12/2019',
+          electronicInvoice: 'Yes'
+        },
+        {
+          ivaCode: '3',
+          country: 'Spain',
+          state: 'Madrid',
+          ivaValue: '1.5',
+          startingDate: '01/01/2020',
+          endingDate: '',
           electronicInvoice: 'Yes'
         }];
       const options = {

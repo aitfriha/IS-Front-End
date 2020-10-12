@@ -6,7 +6,7 @@ import ContractBlock from './ContractBlock';
 
 class Contract extends React.Component {
   render() {
-    const title = brand.name + ' - Contracts';
+    const title = brand.name + ' - Client Contracts';
     const description = brand.desc;
     return (
       <div>
@@ -18,7 +18,7 @@ class Contract extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Contracts" icon="ios-paper" noMargin overflowX>
+        <PapperBlock title="Client Contracts" icon="ios-paper" noMargin overflowX>
           <ContractBlock />
         </PapperBlock>
       </div>
