@@ -174,7 +174,7 @@ class AddClient extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="New Client" desc="Please, Fill in the all field" icon="ios-person">
+        <PapperBlock title="New Client" desc="Please, Fill in the all field **" icon="ios-person">
           <Grid
             container
             spacing={10}
