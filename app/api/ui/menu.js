@@ -47,32 +47,32 @@ module.exports = [
         icon: 'ios-newspaper-outline',
         keyParent: 'commercial',
         child: [
+          /*         {
+                   key: 'countries',
+                   name: 'Countries',
+                   link: '/app/configurations/country'
+                 }, */
           {
-            key: 'countries',
-            name: 'Countries',
-            link: '/app/configurations/country'
-          },
-          {
-            key: 'states',
-            name: 'States',
+            key: 'States',
+            name: 'County State City',
             link: '/app/gestion-commercial/states'
           },
-          {
+          /*          {
             key: 'cities',
             name: 'Cities',
             link: '/app/gestion-commercial/cities'
-          },
-        {
-          key: 'status_of_commercial_operation',
+          }, */
+          {
+            key: 'status_of_commercial_operation',
             name: 'Status of Commercial Operation',
-          link: '/app/gestion-commercial/status'
-        },
+            link: '/app/gestion-commercial/status'
+          },
           {
             key: 'contact_by_operation_status',
             name: 'Contact by Operation Status',
             link: '/app/gestion-commercial/contact-by-Operation'
           },
-        {
+          {
             key: 'service_type',
             name: 'Service Type',
             link: '/app/gestion-commercial/service-type',
@@ -84,11 +84,11 @@ module.exports = [
             link: '/app/gestion-commercial/sectors',
             icon: 'ios-people-outline'
           },
-          {
+          /* {
             key: 'countries',
             name: 'Countries',
             link: '/app/configurations/country'
-          }
+          } */
         ]
       }
     ]
