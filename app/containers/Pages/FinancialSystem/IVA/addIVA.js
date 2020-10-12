@@ -20,7 +20,9 @@ class AddIVA extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      codeIVA: '',
       country: '',
+      state: '',
       ivaValue: '',
       startingDate: '',
       endingDate: '',
@@ -47,6 +49,19 @@ class AddIVA extends React.Component {
   }
 
   render() {
+    const states = [
+      {
+        value: '1',
+        label: 'Madrid',
+      },
+      {
+        value: '1',
+        label: 'Barcelona',
+      },
+      {
+        value: '1',
+        label: 'Malaga',
+      }];
     const countries = [
       {
         value: '1',
@@ -73,11 +88,7 @@ class AddIVA extends React.Component {
     const { desc } = brand;
     // eslint-disable-next-line react/prop-types
     const {
-      country,
-      ivaValue,
-      startingDate,
-      endingDate,
-      electronicInvoice
+      country, state, ivaValue, startingDate, endingDate, electronicInvoice, codeIVA
     } = this.state;
     const { classes } = this.props;
     return (
@@ -105,7 +116,7 @@ class AddIVA extends React.Component {
           </Grid>
           <Grid
             container
-            spacing={2}
+            spacing={3}
             alignItems="flex-start"
             direction="row"
             justify="center"
@@ -114,6 +125,19 @@ class AddIVA extends React.Component {
               <Typography variant="subtitle2" component="h2" color="primary">
                 I.V.A Information
               </Typography>
+            </Grid>
+            <Grid item xs={12} md={2} sm={2}>
+              <TextField
+                id="codeIVA"
+                label="I.V.A Code"
+                variant="outlined"
+                name="codeIVA"
+                value={codeIVA}
+                required
+                fullWidth
+                onChange={this.handleChange}
+                className={classes.textField}
+              />
             </Grid>
             <Grid item xs={12} md={4} sm={4}>
               <FormControl fullWidth required>
@@ -134,6 +158,24 @@ class AddIVA extends React.Component {
               </FormControl>
             </Grid>
             <Grid item xs={12} md={4} sm={4}>
+              <FormControl fullWidth required>
+                <InputLabel>Select the State</InputLabel>
+                <Select
+                  name="state"
+                  value={state}
+                  onChange={this.handleChange}
+                >
+                  {
+                    states.map((clt) => (
+                      <MenuItem key={clt.value} value={clt.value}>
+                        {clt.label}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2} sm={2}>
               <TextField
                 id="ivaValue"
                 label="I.V.A Value %"
@@ -146,15 +188,14 @@ class AddIVA extends React.Component {
                 className={classes.textField}
               />
             </Grid>
-            <Grid item xs={12} sm={4} md={4}>
-              <br />
+            <Grid item xs={12}>
               <FormControlLabel
                 id="electronicInvoice"
                 name="electronicInvoice"
                 value={electronicInvoice}
                 control={<Checkbox color="primary" onChange={this.handleCheck} />}
                 label="Electronic Invoice"
-                labelPlacement="start"
+                labelPlacement="end"
               />
             </Grid>
             <Grid item xs={12} md={12} sm={12}>
@@ -188,7 +229,6 @@ class AddIVA extends React.Component {
                 variant="outlined"
                 name="endingDate"
                 value={endingDate}
-                required
                 fullWidth
                 onChange={this.handleChange}
                 className={classes.textField}

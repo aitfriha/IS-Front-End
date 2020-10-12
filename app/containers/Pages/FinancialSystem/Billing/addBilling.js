@@ -14,13 +14,8 @@ import {
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
-import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
 import history from '../../../../utils/history';
 
 class AddBilling extends React.Component {
@@ -36,7 +31,8 @@ class AddBilling extends React.Component {
       purchaseOrderNumber: '',
       totalEuro: 0,
       totalLocal: 0,
-      iva: '',
+      ivaCountry: '',
+      ivaState: '',
       valueIVALocal: 0,
       valueIVAEuro: 0,
       totalIVAEuro: 0,
@@ -44,6 +40,7 @@ class AddBilling extends React.Component {
       totalAmountEuro: 0,
       totalAmountLocal: 0,
       localCurrency: '',
+      nbrConcepts: ['1'],
       items: [],
       desc: '',
       descTotalUSD: 0
@@ -60,6 +57,23 @@ class AddBilling extends React.Component {
 
     handleGoBack = () => {
       history.push('/app/gestion-financial/Billing');
+    }
+
+    handleOpenConcept = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newElement = this.state.nbrConcepts.length + 1;
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.nbrConcepts.push(newElement);
+      this.setState({ openDoc: true });
+    }
+
+    handleDeleteConcept = (row) => {
+    // eslint-disable-next-line react/destructuring-assignment
+      if (this.state.nbrConcepts.length > 1) {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs = this.state.nbrConcepts.filter(rows => rows !== row);
+        this.setState({ nbrConcepts: newDocs });
+      }
     }
 
     render() {
@@ -108,6 +122,15 @@ class AddBilling extends React.Component {
           value: '2',
           label: 'SSRS Tool',
         }];
+      const purchaseOrders = [
+        {
+          value: '1',
+          label: '2154',
+        },
+        {
+          value: '2',
+          label: '2184',
+        }];
       const currencies = [
         {
           value: '1',
@@ -153,7 +176,7 @@ class AddBilling extends React.Component {
           label: 'MAD',
         }
       ];
-      const ivas = [
+      const ivaContries = [
         {
           value: '1',
           label: 'SPAIN',
@@ -166,10 +189,23 @@ class AddBilling extends React.Component {
           value: '3',
           label: 'MOROCCO',
         }];
+      const ivaStates = [
+        {
+          value: '1',
+          label: 'Madrid',
+        },
+        {
+          value: '2',
+          label: 'Barcelona',
+        },
+        {
+          value: '3',
+          label: 'Malaga',
+        }];
       const {
         code, billingDate, contractor,
-        client, commercialOperation, clientContractSigned, purchaseOrderNumber,
-        totalEuro, totalLocal, iva, valueIVALocal, valueIVAEuro, totalIVAEuro, totalIVALocal, totalAmountEuro, totalAmountLocal, localCurrency, items, desc, descTotalUSD
+        client, commercialOperation, clientContractSigned, purchaseOrderNumber, nbrConcepts,
+        totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalIVAEuro, totalIVALocal, totalAmountEuro, totalAmountLocal, localCurrency, items, desc, descTotalUSD
       } = this.state;
       const title = brand.name + ' - Add New Bill';
       const description = brand.desc;
@@ -207,7 +243,7 @@ class AddBilling extends React.Component {
                 direction="row"
                 justify="space-around"
               >
-                <Grid item xs={12} md={4} sm={4}>
+                <Grid item xs={12} md={3} sm={3}>
                   <FormControl fullWidth required>
                     <InputLabel>Select Code</InputLabel>
                     <Select
@@ -225,7 +261,7 @@ class AddBilling extends React.Component {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} md={4} sm={4}>
+                <Grid item xs={12} md={3} sm={3}>
                   <TextField
                     id="billingDate"
                     label="Invoice Date"
@@ -240,7 +276,7 @@ class AddBilling extends React.Component {
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={4} sm={4}>
+                <Grid item xs={12} md={3} sm={3}>
                   <FormControl fullWidth required>
                     <InputLabel>Select Contractor</InputLabel>
                     <Select
@@ -327,78 +363,81 @@ class AddBilling extends React.Component {
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={5} sm={5}>
-                <TextField
-                  id="purchaseOrderNumber"
-                  label="Purchase Order Number"
-                  name="purchaseOrderNumber"
-                  value={purchaseOrderNumber}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  required
-                />
+                <FormControl fullWidth required>
+                  <InputLabel>Select Purchase Order Number</InputLabel>
+                  <Select
+                    name="purchaseOrderNumber"
+                    value={purchaseOrderNumber}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      purchaseOrders.map((type) => (
+                        <MenuItem key={type.value} value={type.value}>
+                          {type.label}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             <br />
             <Typography variant="subtitle2" component="h2" color="primary">
-                        Concept Of The Invoice
+                        Concepts Of The Invoice
             </Typography>
-            <div>
-              <br />
-              <ExpansionPanel>
-                <ExpansionPanelSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  // aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography>Item 1 </Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                  <Grid
-                    container
-                    spacing={2}
-                    alignItems="flex-start"
-                    direction="row"
-                    justify="space-around"
-                  >
-                    <Grid item xs={7}>
-                      <TextField
-                        id="desc"
-                        label="Description"
-                        name="desc"
-                        value={desc}
-                        multiline
-                        rows={2}
-                        onChange={this.handleChange}
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <TextField
-                        id="TotalUSD"
-                        label="Total USD in EURO"
-                        name="descTotalUSD"
-                        value={descTotalUSD}
-                        type="number"
-                        onChange={this.handleChange}
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                  </Grid>
-                </ExpansionPanelDetails>
-                <ExpansionPanelActions>
-                  <IconButton size="small" color="primary" onClick={() => this.handleAddPenalty()}>
+            <br />
+            {nbrConcepts.map((row) => (
+              <Grid
+                container
+                spacing={4}
+                alignItems="flex-start"
+                direction="row"
+              >
+                <Grid item xs={0} />
+                <Grid item xs={1} align="center">
+                  <Typography variant="subtitle2" component="h3" color="grey">
+                    <br />
+                    Item
+                    {' '}
+                    { row }
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    id="desc"
+                    label="Description"
+                    name="desc"
+                    value={desc}
+                    multiline
+                    rows={1}
+                    onChange={this.handleChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <TextField
+                    id="TotalUSD"
+                    label="Amount in Currency"
+                    name="descTotalUSD"
+                    value={descTotalUSD}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+                <Grid xs={1}>
+                  <br />
+                  <IconButton size="medium" color="primary" onClick={() => this.handleOpenConcept()}>
                     <AddIcon />
                   </IconButton>
-                  <IconButton size="small" color="primary" onClick={() => this.handleDeletePenalty()}>
+                  <IconButton size="small" color="primary" onClick={() => this.handleDeleteConcept(row)}>
                     <DeleteIcon />
                   </IconButton>
-                </ExpansionPanelActions>
-              </ExpansionPanel>
-            </div>
-            <br />
+                </Grid>
+              </Grid>
+            ))}
             <br />
             <Typography variant="subtitle2" component="h2" color="primary">
                         Economic Value Of The Bill
@@ -414,7 +453,7 @@ class AddBilling extends React.Component {
               <Grid item xs={12} md={6}>
                 <br />
                 <Typography variant="subtitle2" component="h2" color="primary">
-                        Total Amount
+                        Total Amount Net
                 </Typography>
               </Grid>
               <Grid item md={3} />
@@ -471,16 +510,16 @@ class AddBilling extends React.Component {
                 </Typography>
               </Grid>
               <Grid item md={3} />
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} md={3} sm={3}>
                 <FormControl fullWidth required>
                   <InputLabel>Select I.V.A Country</InputLabel>
                   <Select
-                    name="iva"
-                    value={iva}
+                    name="ivaCountry"
+                    value={ivaCountry}
                     onChange={this.handleChange}
                   >
                     {
-                      ivas.map((clt) => (
+                      ivaContries.map((clt) => (
                         <MenuItem key={clt.value} value={clt.value}>
                           {clt.label}
                         </MenuItem>
@@ -489,7 +528,25 @@ class AddBilling extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} md={3} sm={3}>
+                <FormControl fullWidth required>
+                  <InputLabel>Select State</InputLabel>
+                  <Select
+                    name="ivaState"
+                    value={ivaState}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      ivaStates.map((clt) => (
+                        <MenuItem key={clt.value} value={clt.value}>
+                          {clt.label}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3} sm={3}>
                 <TextField
                   id="totalIVALocal"
                   label="I.V.A Value in Local Currency"
@@ -503,7 +560,7 @@ class AddBilling extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} md={3} sm={3}>
                 <TextField
                   id="totalIVAEuro"
                   label="I.V.A Value in EURO"
@@ -517,7 +574,7 @@ class AddBilling extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={2} sm={2} />
+              <Grid item md={2} />
               <Grid item xs={12} md={4} sm={4}>
                 <TextField
                   id="totalIVALocal"
@@ -550,7 +607,7 @@ class AddBilling extends React.Component {
               <Grid item md={0} />
               <Grid item xs={12} md={6}>
                 <Typography variant="subtitle2" component="h2" color="primary">
-                        Total Amount Net
+                        Total Amount
                 </Typography>
               </Grid>
               <Grid item md={3} />
