@@ -25,12 +25,13 @@ import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import AddressBlock from '../Address';
 import SectorBlock from '../Sector';
+import { addClient } from '../../../redux/actions/clientActions';
 import history from '../../../utils/history';
 import styles from './clients-jss';
+import CountryConfigService from '../../Services/CountryConfigService';
 import ClientService from '../../Services/ClientService';
-import { getAllCountry } from '../../../redux/country/actions';
-import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 
 const filter = createFilterOptions();
 class AddClient extends React.Component {
@@ -64,9 +65,14 @@ class AddClient extends React.Component {
   }
 
   componentDidMount() {
-    // eslint-disable-next-line no-shadow
-    const { getAllCountry } = this.props;
-    getAllCountry();
+    CountryConfigService.getCountryConfig().then(({ data }) => {
+      this.setState({ countries: data });
+    });
+    ClientService.getClients().then(({ data }) => {
+      const clients = [];
+      data.forEach(client => clients.push({ title: client.name }));
+      this.setState({ clients });
+    });
   }
 
   handleChange = (ev) => {
@@ -148,24 +154,16 @@ class AddClient extends React.Component {
     this.readURI(e);
   };
 
-  handleChangeCountry = (ev, value) => {
-    const { getAllStateByCountry } = this.props;
-    getAllStateByCountry(value.countryId);
-  };
-
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
-    const {
-      classes, errors, isLoading, countryResponse, allCountrys, allStateCountrys
-    } = this.props;
+    const { classes } = this.props;
     const {
       multinational, isActive, country,
       countries,
       name, webSite, type, logo, clients,
       phone, email
     } = this.state;
-
     return (
       <div>
         <Helmet>
@@ -341,35 +339,7 @@ class AddClient extends React.Component {
             <Grid item xs={12} md={3}>
               <Chip label="Clients Address" avatar={<Avatar>S</Avatar>} color="primary" />
               <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
-              <Autocomplete
-                id="combo-box-demo"
-                options={allCountrys}
-                getOptionLabel={option => option.countryName}
-                onChange={this.handleChangeCountry}
-                renderInput={params => (
-                  <TextField
-                    fullWidth
-                    {...params}
-                    label="Choose the country"
-                    variant="outlined"
-                  />
-                )}
-              />
-              <Autocomplete
-                id="combo-box-demo"
-                options={allStateCountrys}
-                getOptionLabel={option => option.stateName}
-                onChange={this.handleChangeState}
-                style={{ marginTop: 15 }}
-                renderInput={params => (
-                  <TextField
-                    fullWidth
-                    {...params}
-                    label="Choose the state"
-                    variant="outlined"
-                  />
-                )}
-              />
+              <AddressBlock onChangeInput={this.handleChange} />
             </Grid>
             <Grid item xs={12} md={6}>
               <Chip label="Client Sectors" avatar={<Avatar>A</Avatar>} color="primary" />
@@ -388,28 +358,13 @@ class AddClient extends React.Component {
 AddClient.propTypes = {
   classes: PropTypes.object.isRequired,
   add: PropTypes.func.isRequired,
-  getAllCountry: PropTypes.func.isRequired,
-  allCountrys: PropTypes.array.isRequired,
-  allStateCountrys: PropTypes.array.isRequired,
 };
-const mapStateToProps = state => ({
-  allCountrys: state.getIn(['countries']).allCountrys,
-  countryResponse: state.getIn(['countries']).countryResponse,
-  isLoading: state.getIn(['countries']).isLoading,
-  errors: state.getIn(['countries']).errors,
-  //
-  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
-  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
-  isLoadingState: state.getIn(['stateCountries']).isLoading,
-  errorsState: state.getIn(['stateCountries']).errors
-
+const mapDispatchToProps = dispatch => ({
+  add: bindActionCreators(addClient, dispatch),
 });
-const mapDispatchToProps = dispatch => bindActionCreators({
-  getAllCountry,
-  getAllStateByCountry,
-}, dispatch);
 
-export default withStyles(styles)(connect(
-  mapStateToProps,
+const AddClientMapped = connect(
+  null,
   mapDispatchToProps
-)(AddClient));
+)(AddClient);
+export default withStyles(styles)(AddClientMapped);

@@ -13,7 +13,11 @@ import {
   GET_ALL_STATECOUNTRYS_SUCCESS,
   UPDATE_STATECOUNTRY,
   UPDATE_STATECOUNTRY_FAILURE,
-  UPDATE_STATECOUNTRY_SUCCESS
+  UPDATE_STATECOUNTRY_SUCCESS,
+  GET_ALL_STATECOUNTRYSBYCOUNTRY,
+  GET_ALL_STATECOUNTRYSBYCOUNTRY_SUCCESS,
+  GET_ALL_STATECOUNTRYSBYCOUNTRY_FAILURE
+
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -107,11 +111,33 @@ function* getAllStateCountry() {
   }
 }
 
+function* getAllStateByCountry(action) {
+  try {
+    const {
+      countryWithId
+    } = action;
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.STATECOUNTRY + '/statesByCountry/'+ countryWithId
+    });
+    yield put({
+      type: GET_ALL_STATECOUNTRYSBYCOUNTRY_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_STATECOUNTRYSBYCOUNTRY_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* stateCountrySaga() {
   yield all([
     takeLatest(ADD_STATECOUNTRY, addStateCountry),
     takeLatest(UPDATE_STATECOUNTRY, updateStateCountry),
     takeLatest(DELETE_STATECOUNTRY, deleteStateCountry),
     takeLatest(GET_ALL_STATECOUNTRYS, getAllStateCountry),
+    takeLatest(GET_ALL_STATECOUNTRYSBYCOUNTRY, getAllStateByCountry),
   ]);
 }

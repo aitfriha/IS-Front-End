@@ -2,7 +2,8 @@ import {
   ADD_STATECOUNTRY,
   DELETE_STATECOUNTRY,
   GET_ALL_STATECOUNTRYS,
-  UPDATE_STATECOUNTRY
+  UPDATE_STATECOUNTRY,
+  GET_ALL_STATECOUNTRYSBYCOUNTRY
 } from './constants';
 
 export const addStateCountry = (stateCountry) => ({
@@ -22,4 +23,9 @@ export const deleteStateCountry = (stateCountryId) => ({
 
 export const getAllStateCountry = () => ({
   type: GET_ALL_STATECOUNTRYS,
+});
+
+export const getAllStateByCountry = (countryWithId) => ({
+  type: GET_ALL_STATECOUNTRYSBYCOUNTRY,
+  countryWithId
 });

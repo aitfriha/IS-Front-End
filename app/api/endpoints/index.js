@@ -7,6 +7,7 @@ const ENDPOINTS = {
     TRANSLATE_SENTENCE: '/api/translation/translateSentence'
   },
   COUNTRY: 'http://localhost:9000/api/county',
+  STATECOUNTRY: 'http://localhost:9000/api/stateCountry',
   CITY: 'http://localhost:9000/api/city',
   COMMERCIALOPERATIONSTATUS: 'http://localhost:9000/api/commercialOperationStatus',
   COMMERCIALSERVICETYPE: 'http://localhost:9000/api/commercialServiceType',

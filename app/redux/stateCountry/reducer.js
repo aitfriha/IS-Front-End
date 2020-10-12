@@ -10,7 +10,11 @@ import {
   GET_ALL_STATECOUNTRYS_SUCCESS,
   UPDATE_STATECOUNTRY,
   UPDATE_STATECOUNTRY_FAILURE,
-  UPDATE_STATECOUNTRY_SUCCESS
+  UPDATE_STATECOUNTRY_SUCCESS,
+
+  GET_ALL_STATECOUNTRYSBYCOUNTRY,
+  GET_ALL_STATECOUNTRYSBYCOUNTRY_SUCCESS,
+  GET_ALL_STATECOUNTRYSBYCOUNTRY_FAILURE,
 } from './constants';
 
 const initialState = {
@@ -24,6 +28,7 @@ export default function stateCountryReducer(state = initialState, action) {
   switch (action.type) {
     // TRIGGERING ACTIONS
     case GET_ALL_STATECOUNTRYS:
+    case GET_ALL_STATECOUNTRYSBYCOUNTRY:
     case ADD_STATECOUNTRY:
     case UPDATE_STATECOUNTRY:
     case DELETE_STATECOUNTRY:
@@ -45,6 +50,7 @@ export default function stateCountryReducer(state = initialState, action) {
       };
 
     case GET_ALL_STATECOUNTRYS_SUCCESS:
+    case GET_ALL_STATECOUNTRYSBYCOUNTRY_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -52,8 +58,10 @@ export default function stateCountryReducer(state = initialState, action) {
         stateCountryResponse: ''
       };
 
+
       // FAILURE ACTIONS
     case GET_ALL_STATECOUNTRYS_FAILURE:
+    case GET_ALL_STATECOUNTRYSBYCOUNTRY_FAILURE:
     case ADD_STATECOUNTRY_FAILURE:
     case UPDATE_STATECOUNTRY_FAILURE:
     case DELETE_STATECOUNTRY_FAILURE:
