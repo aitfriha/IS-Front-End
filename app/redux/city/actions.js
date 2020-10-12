@@ -3,8 +3,10 @@ import {
   IMPORT_CITY,
   DELETE_CITY,
   GET_ALL_CITYS,
-  UPDATE_CITY
+  UPDATE_CITY,
+  GET_ALL_CITYBYSTATE
 } from './constants';
+
 
 export const addCity = (city) => ({
   type: ADD_CITY,
@@ -28,3 +30,9 @@ export const deleteCity = (cityId) => ({
 export const getAllCitys = () => ({
   type: GET_ALL_CITYS,
 });
+
+export const getAllCityByState = (stateWithId) => ({
+  type: GET_ALL_CITYBYSTATE,
+  stateWithId
+});
+

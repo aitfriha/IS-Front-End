@@ -31,6 +31,7 @@ import styles from './clients-jss';
 import ClientService from '../../Services/ClientService';
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
 
 const filter = createFilterOptions();
 class AddClient extends React.Component {
@@ -153,11 +154,16 @@ class AddClient extends React.Component {
     getAllStateByCountry(value.countryId);
   };
 
+  handleChangeState = (ev, value) => {
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, errors, isLoading, countryResponse, allCountrys, allStateCountrys
+      classes, errors, isLoading, countryResponse, allCountrys, allStateCountrys, allCitys
     } = this.props;
     const {
       multinational, isActive, country,
@@ -370,6 +376,21 @@ class AddClient extends React.Component {
                   />
                 )}
               />
+              <Autocomplete
+                id="combo-box-demo"
+                options={allCitys}
+                getOptionLabel={option => option.cityName}
+                onChange={this.handleChangeCity}
+                style={{ marginTop: 15 }}
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Choose the city"
+                    variant="outlined"
+                  />
+                )}
+              />
             </Grid>
             <Grid item xs={12} md={6}>
               <Chip label="Client Sectors" avatar={<Avatar>A</Avatar>} color="primary" />
@@ -397,16 +418,22 @@ const mapStateToProps = state => ({
   countryResponse: state.getIn(['countries']).countryResponse,
   isLoading: state.getIn(['countries']).isLoading,
   errors: state.getIn(['countries']).errors,
-  //
+  // state
   allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
   stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
   isLoadingState: state.getIn(['stateCountries']).isLoading,
-  errorsState: state.getIn(['stateCountries']).errors
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors
 
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
   getAllStateByCountry,
+  getAllCityByState
 }, dispatch);
 
 export default withStyles(styles)(connect(
