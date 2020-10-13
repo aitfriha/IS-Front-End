@@ -40,6 +40,7 @@ class AddClient extends React.Component {
     this.state = {
       name: { title: '' },
       city: '',
+      cityId: '',
       multinational: false,
       isActive: true,
       country: {},
@@ -84,44 +85,36 @@ class AddClient extends React.Component {
 
   handleSubmitClient = () => {
     const {
-      multinational,
-      isActive,
-      country,
       name,
-      city,
+      email,
+      phone,
+      webSite,
+      cityId,
       sectorsConfig,
       type,
       logo,
-      adCountry,
+      isActive,
       postCode,
+      multinational,
       address,
-      adCity,
-      state,
-      email,
-      phone
     } = this.state;
     const client = {
+      name: name.title,
+      email,
+      phone,
+      webSite,
+      logo,
       multinational: multinational ? 'Yes' : 'No',
       isActive: isActive ? 'Yes' : 'No',
-      city,
-      name: name.title,
-      logo,
       type,
-      country: country.country.countryName,
-      countryLeader: country.leader.name,
+      cityId,
+      address,
+      postCode,
+      // countryLeader: country.leader.name,
       sectorLeader: sectorsConfig.leader,
       sector1: sectorsConfig.primarySector,
       sector2: sectorsConfig.secondarySector,
-      sector3: sectorsConfig.thirdSector,
-      address: {
-        country: adCountry,
-        address,
-        postCode,
-        state,
-        city: adCity
-      },
-      email,
-      phone
+      sector3: sectorsConfig.thirdSector
     };
     console.log(client);
     ClientService.saveClient(client).then(({ data }) => {
@@ -157,6 +150,15 @@ class AddClient extends React.Component {
   handleChangeState = (ev, value) => {
     const { getAllCityByState } = this.props;
     getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ cityId: value.cityId });
+  };
+
+  handleChange= (ev, value) => {
+    console.log(ev.target.name);
+    this.setState({ [ev.target.name]: ev.target.value });
   };
 
   render() {
@@ -390,6 +392,26 @@ class AddClient extends React.Component {
                     variant="outlined"
                   />
                 )}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Name of address"
+                variant="outlined"
+                name="address"
+                fullWidth
+                required
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Post Code"
+                variant="outlined"
+                fullWidth
+                required
+                name="postCode"
+                className={classes.textField}
+                onChange={this.handleChange}
               />
             </Grid>
             <Grid item xs={12} md={6}>
