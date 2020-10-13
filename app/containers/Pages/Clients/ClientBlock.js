@@ -160,13 +160,13 @@ class ClientBlock extends React.Component {
     getAllClient();
   }
 
-  handleAssignment = (tableMeta) => {
+  /* handleAssignment = (tableMeta) => {
     const { data } = this.state;
     const { add, back } = this.props;
     const row = data[tableMeta.rowIndex];
     add(row);
     back('assignment');
-  };
+  }; */
 
   render() {
     const {
@@ -194,7 +194,7 @@ class ClientBlock extends React.Component {
 }
 ClientBlock.propTypes = {
   classes: PropTypes.object.isRequired,
-  add: PropTypes.func.isRequired,
+  //add: PropTypes.func.isRequired,
   back: PropTypes.func.isRequired,
   addClientCommercial: PropTypes.func.isRequired,
   updateClient: PropTypes.func.isRequired,

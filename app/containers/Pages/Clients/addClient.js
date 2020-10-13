@@ -453,7 +453,7 @@ class AddClient extends React.Component {
 }
 AddClient.propTypes = {
   classes: PropTypes.object.isRequired,
-  add: PropTypes.func.isRequired,
+  //add: PropTypes.func.isRequired,
   getAllCountry: PropTypes.func.isRequired,
   allCountrys: PropTypes.array.isRequired,
   allStateCountrys: PropTypes.array.isRequired,

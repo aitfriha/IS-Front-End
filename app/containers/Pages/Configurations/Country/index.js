@@ -72,7 +72,7 @@ class Country extends React.Component {
   getCountryConfig = () => {
     CountryConfigService.getCountryConfig().then(({ data }) => {
       const datas = [];
-      console.log(data);
+
       data.forEach(da => {
         const dat = da;
         const country = {
@@ -84,6 +84,8 @@ class Country extends React.Component {
         };
         datas.push(country);
       });
+      console.log("************************************");
+      console.log(datas);
       this.setState({ data: datas });
     });
   };
@@ -117,7 +119,7 @@ class Country extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Countries" desc="" icon="ios-settings">
+        <PapperBlock title="Countries*" desc="" icon="ios-settings">
           <MUIDataTable title="Countries Configuration" data={data} columns={columns} options={options} />
         </PapperBlock>
       </div>
