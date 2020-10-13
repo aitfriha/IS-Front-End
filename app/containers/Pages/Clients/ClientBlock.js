@@ -8,10 +8,12 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Avatar from '@material-ui/core/Avatar';
-import { addClient } from '../../../redux/actions/clientActions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import styles from './clients-jss';
-import ClientService from '../../Services/ClientService';
+
+import {
+  deleteClient, getAllClient, updateClient, addClientCommercial
+} from '../../../redux/client/actions';
 
 class ClientBlock extends React.Component {
   constructor(props) {
@@ -55,7 +57,7 @@ class ClientBlock extends React.Component {
         },
         {
           label: 'Code Client',
-          name: 'codeClient',
+          name: 'code',
           options: {
             filter: true,
           }
@@ -153,9 +155,9 @@ class ClientBlock extends React.Component {
   }
 
   componentDidMount() {
-    ClientService.getClients().then(({ data }) => {
-      this.setState({ data });
-    });
+    // eslint-disable-next-line no-shadow
+    const { getAllClient } = this.props;
+    getAllClient();
   }
 
   handleAssignment = (tableMeta) => {
@@ -167,6 +169,10 @@ class ClientBlock extends React.Component {
   };
 
   render() {
+    const {
+      // eslint-disable-next-line no-shadow
+      errors, isLoading, clientResponse, allClients
+    } = this.props;
     const { data, columns } = this.state;
     const options = {
       filter: true,
@@ -181,7 +187,7 @@ class ClientBlock extends React.Component {
 
     return (
       <div>
-        <MUIDataTable title="The Clients List" data={data} columns={columns} options={options} />
+        <MUIDataTable title="The Clients List" data={allClients && allClients} columns={columns} options={options} />
       </div>
     );
   }
@@ -190,13 +196,27 @@ ClientBlock.propTypes = {
   classes: PropTypes.object.isRequired,
   add: PropTypes.func.isRequired,
   back: PropTypes.func.isRequired,
+  addClientCommercial: PropTypes.func.isRequired,
+  updateClient: PropTypes.func.isRequired,
+  deleteClient: PropTypes.func.isRequired,
+  getAllClient: PropTypes.func.isRequired,
+  allClients: PropTypes.array.isRequired,
 };
-const mapDispatchToProps = dispatch => ({
-  add: bindActionCreators(addClient, dispatch),
-});
-const ClientBlockMapped = connect(
-  null,
-  mapDispatchToProps
-)(ClientBlock);
 
-export default withStyles(styles)(ClientBlockMapped);
+const mapStateToProps = state => ({
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoading: state.getIn(['clients']).isLoading,
+  errors: state.getIn(['clients']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  addClientCommercial,
+  updateClient,
+  deleteClient,
+  getAllClient
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ClientBlock));

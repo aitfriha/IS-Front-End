@@ -2,7 +2,7 @@ import { all, put } from 'redux-saga/effects';
 import axios from 'axios';
 import { takeLatest } from '@redux-saga/core/effects';
 import {
-  ADD_CLIENT,
+  ADD_CLIENT_COMMERCIAL,
   ADD_CLIENT_FAILURE,
   ADD_CLIENT_SUCCESS,
   DELETE_CLIENT,
@@ -19,7 +19,8 @@ import {
 import ENDPOINTS from '../../api/endpoints';
 
 
-function* addClient(action) {
+function* addClientCommercial(action) {
+  console.log('RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR');
   try {
     const { client } = action;
     const request = yield axios({
@@ -109,7 +110,7 @@ function* getAllClient() {
 
 export default function* clientSaga() {
   yield all([
-    takeLatest(ADD_CLIENT, addClient),
+    takeLatest(ADD_CLIENT_COMMERCIAL, addClientCommercial),
     takeLatest(UPDATE_CLIENT, updateClient),
     takeLatest(DELETE_CLIENT, deleteClient),
     takeLatest(GET_ALL_CLIENTS, getAllClient),

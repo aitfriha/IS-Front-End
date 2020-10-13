@@ -25,6 +25,7 @@ import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { isString } from 'lodash';
 import SectorBlock from '../Sector';
 import history from '../../../utils/history';
 import styles from './clients-jss';
@@ -32,11 +33,15 @@ import ClientService from '../../Services/ClientService';
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
+import { addClientCommercial, getAllClient } from '../../../redux/client/actions';
+import notification from '../../../components/Notification/Notification';
 
 const filter = createFilterOptions();
 class AddClient extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
       name: { title: '' },
       city: '',
@@ -84,6 +89,7 @@ class AddClient extends React.Component {
   };
 
   handleSubmitClient = () => {
+    const { addClientCommercial } = this.props;
     const {
       name,
       email,
@@ -117,10 +123,26 @@ class AddClient extends React.Component {
       sector3: sectorsConfig.thirdSector
     };
     console.log(client);
-    ClientService.saveClient(client).then(({ data }) => {
+    /** */
+    const promise = new Promise((resolve) => {
+      // get client information
+      console.log(addClientCommercial);
+      addClientCommercial(client);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllClient();
+      } else {
+        notification('danger', result);
+      }
+    });
+    /** */
+    /* ClientService.saveClient(client).then(({ data }) => {
       console.log(data);
       history.push('/app/configurations/assignments/commercial-assignment', { type: 'assignment' });
-    });
+    }); */
   };
 
   handleCheck = (sectorsConfig) => {
@@ -165,7 +187,7 @@ class AddClient extends React.Component {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, errors, isLoading, countryResponse, allCountrys, allStateCountrys, allCitys
+      classes, allCountrys, allStateCountrys, allCitys, clientResponse, isLoadingClient, errorsClient
     } = this.props;
     const {
       multinational, isActive, country,
@@ -173,7 +195,8 @@ class AddClient extends React.Component {
       name, webSite, type, logo, clients,
       phone, email
     } = this.state;
-
+    (!isLoadingClient && clientResponse) && this.editingPromiseResolve(clientResponse);
+    (!isLoadingClient && !clientResponse) && this.editingPromiseResolve(errorsClient);
     return (
       <div>
         <Helmet>
@@ -449,13 +472,20 @@ const mapStateToProps = state => ({
   allCitys: state.getIn(['cities']).allCitys,
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
-  errorsCity: state.getIn(['cities']).errors
+  errorsCity: state.getIn(['cities']).errors,
+  // client
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoadingClient: state.getIn(['clients']).isLoading,
+  errorsClient: state.getIn(['clients']).errors
 
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
   getAllStateByCountry,
-  getAllCityByState
+  getAllCityByState,
+  addClientCommercial,
+  getAllClient
 }, dispatch);
 
 export default withStyles(styles)(connect(

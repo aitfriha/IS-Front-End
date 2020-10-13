@@ -1,5 +1,5 @@
 import {
-  ADD_CLIENT,
+  ADD_CLIENT_COMMERCIAL,
   ADD_CLIENT_FAILURE,
   ADD_CLIENT_SUCCESS,
   DELETE_CLIENT,
@@ -24,7 +24,7 @@ export default function clientReducer(state = initialState, action) {
   switch (action.type) {
     // TRIGGERING ACTIONS
     case GET_ALL_CLIENTS:
-    case ADD_CLIENT:
+    case ADD_CLIENT_COMMERCIAL:
     case UPDATE_CLIENT:
     case DELETE_CLIENT:
       return {

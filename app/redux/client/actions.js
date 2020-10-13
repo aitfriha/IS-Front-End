@@ -1,12 +1,12 @@
 import {
-  ADD_CLIENT,
+  ADD_CLIENT_COMMERCIAL,
   DELETE_CLIENT,
   GET_ALL_CLIENTS,
   UPDATE_CLIENT
 } from './constants';
 
-export const addClient = (client) => ({
-  type: ADD_CLIENT,
+export const addClientCommercial = (client) => ({
+  type: ADD_CLIENT_COMMERCIAL,
   client
 });
 
