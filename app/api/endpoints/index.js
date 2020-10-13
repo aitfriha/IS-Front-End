@@ -11,6 +11,7 @@ const ENDPOINTS = {
   CITY: 'http://localhost:9000/api/city',
   COMMERCIALOPERATIONSTATUS: 'http://localhost:9000/api/commercialOperationStatus',
   COMMERCIALSERVICETYPE: 'http://localhost:9000/api/commercialServiceType',
+  CLIENT: 'http://localhost:9000/api/client',
   CONTRACTING: {
     APPLICATIONS: '/api/applications',
     CONTRACTS: '/api/contract',
