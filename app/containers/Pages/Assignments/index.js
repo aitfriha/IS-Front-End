@@ -46,6 +46,7 @@ class Assignments extends React.Component {
     this.getClientAddresses();
     this.getClientAssignment();
     this.getCommercials();
+    console.log('Assignments Assignments');
   }
 
   getClientAddresses = () => {

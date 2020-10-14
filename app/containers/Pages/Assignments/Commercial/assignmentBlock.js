@@ -95,6 +95,7 @@ class AssignmentBlock extends React.Component {
         // dragMoveListener from the dragging demo above
         listeners: { move: this.dragMoveListener }
       });
+    this.getStaffByContract();
   }
 
   dragMoveListener = event => {
@@ -116,15 +117,41 @@ class AssignmentBlock extends React.Component {
     this.setState({ lastId: null });
   };
 
+  getStaffByContract = () => {
+    const { client } = this.props;
+    if (client.codeClient != 'MOR-001') {
+      PeopleService.getPeopleByCountry(client.address.city.stateCountry.country.countryId).then(({ data }) => {
+        data.forEach(people => {
+          AssignmentService.getAssignmentByPeople(people._id).then(res => {
+            const assigns = res.data;
+            let nbrRes = 0;
+            let nbrAss = 0;
+            if (assigns.length > 0) {
+              assigns.forEach(elm => {
+                if (elm.type === 'Responsible Commercial') {
+                  nbrRes += 1;
+                } else {
+                  nbrAss += 1;
+                }
+              });
+            }
+            people.nbrRes = nbrRes;
+            people.nbrAss = nbrAss;
+          });
+        });
+        this.setState({ peoples: data });
+      });
+    }
+  }
+
   getClientAddresses = () => {
-    console.log('cou cou cou cou cou cou');
     const { client } = this.props;
     AddressService.getClientAddresses(client.clientId).then(({ data }) => {
       this.setState({ address: data });
     });
     PeopleService.getPeopleByCountry(client.address.country.countryId).then(({ data }) => {
       data.forEach(people => {
-        AssignmentService.getAssignmentByPeople(people.peopleId).then(res => {
+        AssignmentService.getAssignmentByPeople(people._id).then(res => {
           const assigns = res.data;
           let nbrRes = 0;
           let nbrAss = 0;
@@ -161,7 +188,7 @@ class AssignmentBlock extends React.Component {
 
   getClientAssignment = () => {
     const { client } = this.props;
-    AssignmentService.getClientAssignment(client.clientId).then(({ data }) => {
+    AssignmentService.getClientAssignment(client._id).then(({ data }) => {
       const assignments = data;
       const responsibleAssignments = [];
       const assistantAssignments = [];
@@ -172,6 +199,7 @@ class AssignmentBlock extends React.Component {
           assistantAssignments.push(assignment);
         }
       });
+      console.log('responsibleAssignments: ',responsibleAssignments);
       this.setState({ responsibleAssignments, assistantAssignments });
     });
   };
@@ -241,12 +269,13 @@ class AssignmentBlock extends React.Component {
     } = this.state;
     const { client } = this.props;
     const id = lastId.split('-')[1];
-    const people = peoples.find((pe) => pe.peopleId === id);
+    console.log('ID ID ID ID',id);
+    const staff = peoples.find((pe) => pe._id === id);
     const assignment = {
       type,
       startDate: format(new Date(startDate), 'yyyy-MM-dd'),
       endDate: '',
-      people,
+      staff,
       client
     };
     AssignmentService.saveAssignment(assignment).then(() => {
@@ -365,7 +394,7 @@ class AssignmentBlock extends React.Component {
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">City:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary">{client.city.cityName}</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary" />
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Multinational:</Typography>
@@ -432,8 +461,8 @@ class AssignmentBlock extends React.Component {
                 <Grid container spacing={3} justify="center" style={{ display: 'flex' }}>
                   {
                     peoples.map((people) => (
-                      <Tooltip title={this.handleTooltip(people)} enterDelay={500} leaveDelay={200} key={people.peopleId} placement="right" arrow>
-                        <Card className={classes.root} id={'element-' + people.peopleId} variant="elevation">
+                      <Tooltip title={this.handleTooltip(people)} enterDelay={500} leaveDelay={200} key={people._id} placement="right" arrow>
+                        <Card className={classes.root} id={'element-' + people._id} variant="elevation">
                           <CardContent>
                             <Avatar alt="User Name" src={people.photo} className={classes.medium} />
                           </CardContent>
