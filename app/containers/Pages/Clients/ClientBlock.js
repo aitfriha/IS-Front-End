@@ -169,6 +169,7 @@ class ClientBlock extends React.Component {
   }; */
 
   render() {
+    console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     const {
       // eslint-disable-next-line no-shadow
       errors, isLoading, clientResponse, allClients

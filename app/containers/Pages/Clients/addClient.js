@@ -114,7 +114,7 @@ class AddClient extends React.Component {
       isActive: isActive ? 'Yes' : 'No',
       type,
       cityId,
-      address,
+      addressName:address,
       postCode,
       // countryLeader: country.leader.name,
       sectorLeader: sectorsConfig.leader,

@@ -117,6 +117,7 @@ class AssignmentBlock extends React.Component {
   };
 
   getClientAddresses = () => {
+    console.log('cou cou cou cou cou cou');
     const { client } = this.props;
     AddressService.getClientAddresses(client.clientId).then(({ data }) => {
       this.setState({ address: data });
@@ -177,7 +178,6 @@ class AssignmentBlock extends React.Component {
 
   getCommercials = () => {
     CommercialService.getCommercials().then(({ data }) => {
-      console.log(data);
       this.setState({ commercials: data });
     });
   };
@@ -311,6 +311,8 @@ class AssignmentBlock extends React.Component {
       startDate,
       workers
     } = this.state;
+    console.log('peoples', peoples);
+
     return (
       <div>
         <div className={classes.divCenter}>
@@ -318,6 +320,7 @@ class AssignmentBlock extends React.Component {
             {client.name}
           </Typography>
         </div>
+
         <div>
           <div className={classes.divSpace}>
             <Button color="primary" size="small" className={classes.buttonLink} variant="text" startIcon={<KeyboardBackspaceIcon color="secondary" />} onClick={() => this.handleBack('clients')}>
@@ -338,7 +341,7 @@ class AssignmentBlock extends React.Component {
                 <Typography variant="h6" component="h6" color="textPrimary" align="center">General</Typography>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Client Code:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary">{client.codeClient}</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary">{client.code}</Typography>
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Name:</Typography>
@@ -362,7 +365,7 @@ class AssignmentBlock extends React.Component {
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">City:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary">{client.city}</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary">{client.city.cityName}</Typography>
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Multinational:</Typography>
@@ -439,7 +442,7 @@ class AssignmentBlock extends React.Component {
                     ))
                   }
                 </Grid>
-                <Grid className={classes.dropzone}  style={{ marginTop: '100px' }} container spacing={3} justify="center">
+                <Grid className={classes.dropzone} style={{ marginTop: '100px' }} container spacing={3} justify="center">
                   <Grid
                     id="dropzone"
                     item
@@ -507,9 +510,13 @@ class AssignmentBlock extends React.Component {
           className={classes.container}
         >
           <DialogTitle id="alert-dialog-slide-title">Assign</DialogTitle>
+
           <DialogContent>
+
             <FormControl fullWidth required>
+
               <InputLabel>Type of assignment</InputLabel>
+
               <Select
                 name="type"
                 value={type}
@@ -522,6 +529,7 @@ class AssignmentBlock extends React.Component {
                   Assistant Commercial
                 </MenuItem>
               </Select>
+
             </FormControl>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -550,7 +558,7 @@ class AssignmentBlock extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <Notification message={notifMessage} close={this.closeNotif} />
+        {/* <Notification message={notifMessage} close={this.closeNotif} /> */}
       </div>
     );
   }
