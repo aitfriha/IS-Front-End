@@ -96,6 +96,7 @@ class AssignmentBlock extends React.Component {
         listeners: { move: this.dragMoveListener }
       });
     this.getStaffByContract();
+    this.getClientAssignment();
   }
 
   dragMoveListener = event => {
@@ -199,7 +200,7 @@ class AssignmentBlock extends React.Component {
           assistantAssignments.push(assignment);
         }
       });
-      console.log('responsibleAssignments: ',responsibleAssignments);
+      console.log('responsibleAssignments: ', responsibleAssignments);
       this.setState({ responsibleAssignments, assistantAssignments });
     });
   };
@@ -267,9 +268,10 @@ class AssignmentBlock extends React.Component {
     const {
       lastId, type, peoples, startDate
     } = this.state;
+    console.log(format(new Date(startDate), 'yyyy-MM-dd'));
     const { client } = this.props;
     const id = lastId.split('-')[1];
-    console.log('ID ID ID ID',id);
+    console.log('ID ID ID ID', id);
     const staff = peoples.find((pe) => pe._id === id);
     const assignment = {
       type,
@@ -307,9 +309,9 @@ class AssignmentBlock extends React.Component {
           {' '}
           {bull}
           {' '}
-          {people.lastName}
+          {people.name}
           {' '}
-          {people.firstName}
+          {people.fatherFamilyname}
           {' '}
         </Typography>
         <Typography variant="subtitle2">
