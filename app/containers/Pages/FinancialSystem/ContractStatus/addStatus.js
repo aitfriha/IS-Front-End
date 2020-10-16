@@ -12,19 +12,31 @@ import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import history from '../../../../utils/history';
 import styles from '../../Companies/companies-jss';
+import ContractStatusService from '../../../Services/ContractStatusService';
 
 class AddStatus extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      statusCode: '',
+      statusCode: 0,
       statusName: '',
       description: ''
     };
   }
 
     handleSubmit = () => {
-      history.push('/app/gestion-financial/Contract-Status');
+      const {
+        statusCode, statusName, description
+      } = this.state;
+      const ContractStatus = {
+        statusCode, statusName, description
+      };
+      if (statusCode !== '10') {
+        ContractStatusService.saveContractStatus(ContractStatus).then(result => {
+          console.log(result);
+        });
+        history.push('/app/gestion-financial/Contract-Status');
+      }
     }
 
     handleGoBack = () => {

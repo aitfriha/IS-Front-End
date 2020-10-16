@@ -492,6 +492,64 @@ class AddContract extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
+              {openDoc === false ? (
+                <div />
+              ) : (
+                <FormControl fullWidth required>
+                  <br />
+                  <input
+                    style={{ display: 'none' }}
+                    id="outlined-button-file-2"
+                    type="file"
+                    onClick={this.handleChangeFile.bind(this)}
+                  />
+                  <FormLabel htmlFor="outlined-button-file-2">
+                    {/* eslint-disable-next-line react/destructuring-assignment */}
+                    {this.state.contractDocumentations.map((row) => (
+                      <Grid
+                        container
+                        spacing={3}
+                        alignItems="flex-start"
+                        direction="row"
+                      >
+                        <Grid item xs={3}>
+                          <br />
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            component="span"
+                            startIcon={<Image color="primary" />}
+                          >
+                                Documentation File
+                          </Button>
+                        </Grid>
+                        <Grid xs={4}>
+                          <TextField
+                            id="contractDocDescreption"
+                            label="Description"
+                            name="contractDocDescreption"
+                            value={contractDocDescreption}
+                            onChange={this.handleChange}
+                            fullWidth
+                            required
+                          />
+                        </Grid>
+                        <Grid xs={1}>
+                          <br />
+                          <IconButton size="medium" color="primary" onClick={() => this.handleOpenDoc3()}>
+                            <AddIcon />
+                          </IconButton>
+                          <IconButton size="small" color="primary" onClick={() => this.handleDeleteDoc3(row)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
+                  </FormLabel>
+                </FormControl>
+              )}
+              <br />
+              <br />
               <Grid item xs={12}>
                 <Typography variant="subtitle2" component="h2" color="primary">
                   Functional Structure Assigned
@@ -621,63 +679,6 @@ class AddContract extends React.Component {
                 />
               </Grid>
             </Grid>
-            {openDoc === false ? (
-              <div />
-            ) : (
-              <FormControl fullWidth required>
-                <br />
-                <input
-                  style={{ display: 'none' }}
-                  id="outlined-button-file-2"
-                  type="file"
-                  onClick={this.handleChangeFile.bind(this)}
-                />
-                <FormLabel htmlFor="outlined-button-file-2">
-                  {/* eslint-disable-next-line react/destructuring-assignment */}
-                  {this.state.contractDocumentations.map((row) => (
-                    <Grid
-                      container
-                      spacing={3}
-                      alignItems="flex-start"
-                      direction="row"
-                    >
-                      <Grid item xs={3}>
-                        <br />
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          component="span"
-                          startIcon={<Image color="primary" />}
-                        >
-                                    Documentation File
-                        </Button>
-                      </Grid>
-                      <Grid xs={4}>
-                        <TextField
-                          id="contractDocDescreption"
-                          label="Description"
-                          name="contractDocDescreption"
-                          value={contractDocDescreption}
-                          onChange={this.handleChange}
-                          fullWidth
-                          required
-                        />
-                      </Grid>
-                      <Grid xs={1}>
-                        <br />
-                        <IconButton size="medium" color="primary" onClick={() => this.handleOpenDoc3()}>
-                          <AddIcon />
-                        </IconButton>
-                        <IconButton size="small" color="primary" onClick={() => this.handleDeleteDoc3(row)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Grid>
-                    </Grid>
-                  ))}
-                </FormLabel>
-              </FormControl>
-            )}
-            <br />
             <br />
           </div>
           <Typography variant="subtitle2" component="h2" color="primary">

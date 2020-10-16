@@ -44,9 +44,9 @@ class AddFinancialCompany extends React.Component {
       this.readURI(e);
     };
 
-  handleSubmit = () => {
-    history.push('/app/gestion-financial/Company');
-  }
+    handleSubmit = () => {
+      history.push('/app/gestion-financial/Company');
+    }
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
