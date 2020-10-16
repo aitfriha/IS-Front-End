@@ -38,7 +38,7 @@ class AssignBlock extends React.Component {
               {data.map((row) => (
                 <TableRow key={row.assignmentId}>
                   <TableCell component="th" scope="row">
-                    {row.staff.name + ' ' + row.staff.motherFamilyName}
+                    {row.staff.name + ' ' + row.staff.fatherFamilyname}
                   </TableCell>
                   <TableCell align="right">{format(new Date(row.startDate), 'dd/MM/yyyy')}</TableCell>
                   <TableCell align="right">{ row.endDate ? format(new Date(row.endDate), 'dd/MM/yyyy') : '-' }</TableCell>
