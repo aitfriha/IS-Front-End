@@ -207,7 +207,8 @@
     "warning": "4.0.2",
     "xlsx": "^0.16.6",
     "autoprefixer": "^9.0.0",
-    "react-notifications-component": "^2.4.0"
+    "react-notifications-component": "^2.4.0",
+    "react-papaparse": "^3.8.0"
   },
   "devDependencies": {
     "@babel/cli": "7.4.3",
