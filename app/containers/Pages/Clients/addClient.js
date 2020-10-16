@@ -25,21 +25,27 @@ import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import AddressBlock from '../Address';
+import { isString } from 'lodash';
 import SectorBlock from '../Sector';
-import { addClient } from '../../../redux/actions/clientActions';
 import history from '../../../utils/history';
 import styles from './clients-jss';
-import CountryConfigService from '../../Services/CountryConfigService';
 import ClientService from '../../Services/ClientService';
+import { getAllCountry } from '../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
+import { addClientCommercial, getAllClient } from '../../../redux/client/actions';
+import notification from '../../../components/Notification/Notification';
 
 const filter = createFilterOptions();
 class AddClient extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
       name: { title: '' },
       city: '',
+      cityId: '',
       multinational: false,
       isActive: true,
       country: {},
@@ -65,14 +71,9 @@ class AddClient extends React.Component {
   }
 
   componentDidMount() {
-    CountryConfigService.getCountryConfig().then(({ data }) => {
-      this.setState({ countries: data });
-    });
-    ClientService.getClients().then(({ data }) => {
-      const clients = [];
-      data.forEach(client => clients.push({ title: client.name }));
-      this.setState({ clients });
-    });
+    // eslint-disable-next-line no-shadow
+    const { getAllCountry } = this.props;
+    getAllCountry();
   }
 
   handleChange = (ev) => {
@@ -88,51 +89,60 @@ class AddClient extends React.Component {
   };
 
   handleSubmitClient = () => {
+    const { addClientCommercial } = this.props;
     const {
-      multinational,
-      isActive,
-      country,
       name,
-      city,
+      email,
+      phone,
+      webSite,
+      cityId,
       sectorsConfig,
       type,
       logo,
-      adCountry,
+      isActive,
       postCode,
+      multinational,
       address,
-      adCity,
-      state,
-      email,
-      phone
     } = this.state;
     const client = {
+      name: name.title,
+      email,
+      phone,
+      webSite,
+      logo,
       multinational: multinational ? 'Yes' : 'No',
       isActive: isActive ? 'Yes' : 'No',
-      city,
-      name: name.title,
-      logo,
       type,
-      country: country.country.countryName,
-      countryLeader: country.leader.name,
+      cityId,
+      addressName:address,
+      postCode,
+      // countryLeader: country.leader.name,
       sectorLeader: sectorsConfig.leader,
       sector1: sectorsConfig.primarySector,
       sector2: sectorsConfig.secondarySector,
-      sector3: sectorsConfig.thirdSector,
-      address: {
-        country: adCountry,
-        address,
-        postCode,
-        state,
-        city: adCity
-      },
-      email,
-      phone
+      sector3: sectorsConfig.thirdSector
     };
     console.log(client);
-    ClientService.saveClient(client).then(({ data }) => {
+    /** */
+    const promise = new Promise((resolve) => {
+      // get client information
+      console.log(addClientCommercial);
+      addClientCommercial(client);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllClient();
+      } else {
+        notification('danger', result);
+      }
+    });
+    /** */
+    /* ClientService.saveClient(client).then(({ data }) => {
       console.log(data);
       history.push('/app/configurations/assignments/commercial-assignment', { type: 'assignment' });
-    });
+    }); */
   };
 
   handleCheck = (sectorsConfig) => {
@@ -154,16 +164,39 @@ class AddClient extends React.Component {
     this.readURI(e);
   };
 
+  handleChangeCountry = (ev, value) => {
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ cityId: value.cityId });
+  };
+
+  handleChange= (ev, value) => {
+    console.log(ev.target.name);
+    this.setState({ [ev.target.name]: ev.target.value });
+  };
+
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
-    const { classes } = this.props;
+    const {
+      classes, allCountrys, allStateCountrys, allCitys, clientResponse, isLoadingClient, errorsClient
+    } = this.props;
     const {
       multinational, isActive, country,
       countries,
       name, webSite, type, logo, clients,
       phone, email
     } = this.state;
+    (!isLoadingClient && clientResponse) && this.editingPromiseResolve(clientResponse);
+    (!isLoadingClient && !clientResponse) && this.editingPromiseResolve(errorsClient);
     return (
       <div>
         <Helmet>
@@ -174,7 +207,7 @@ class AddClient extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="New Client" desc="Please, Fill in the all field" icon="ios-person">
+        <PapperBlock title="New Client" desc="Please, Fill in the all field **" icon="ios-person">
           <Grid
             container
             spacing={10}
@@ -339,7 +372,70 @@ class AddClient extends React.Component {
             <Grid item xs={12} md={3}>
               <Chip label="Clients Address" avatar={<Avatar>S</Avatar>} color="primary" />
               <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
-              <AddressBlock onChangeInput={this.handleChange} />
+              <Autocomplete
+                id="combo-box-demo"
+                options={allCountrys}
+                getOptionLabel={option => option.countryName}
+                onChange={this.handleChangeCountry}
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Choose the country"
+                    variant="outlined"
+                  />
+                )}
+              />
+              <Autocomplete
+                id="combo-box-demo"
+                options={allStateCountrys}
+                getOptionLabel={option => option.stateName}
+                onChange={this.handleChangeState}
+                style={{ marginTop: 15 }}
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Choose the state"
+                    variant="outlined"
+                  />
+                )}
+              />
+              <Autocomplete
+                id="combo-box-demo"
+                options={allCitys}
+                getOptionLabel={option => option.cityName}
+                onChange={this.handleChangeCity}
+                style={{ marginTop: 15 }}
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Choose the city"
+                    variant="outlined"
+                  />
+                )}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Name of address"
+                variant="outlined"
+                name="address"
+                fullWidth
+                required
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Post Code"
+                variant="outlined"
+                fullWidth
+                required
+                name="postCode"
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
             </Grid>
             <Grid item xs={12} md={6}>
               <Chip label="Client Sectors" avatar={<Avatar>A</Avatar>} color="primary" />
@@ -357,14 +453,42 @@ class AddClient extends React.Component {
 }
 AddClient.propTypes = {
   classes: PropTypes.object.isRequired,
-  add: PropTypes.func.isRequired,
+  //add: PropTypes.func.isRequired,
+  getAllCountry: PropTypes.func.isRequired,
+  allCountrys: PropTypes.array.isRequired,
+  allStateCountrys: PropTypes.array.isRequired,
 };
-const mapDispatchToProps = dispatch => ({
-  add: bindActionCreators(addClient, dispatch),
-});
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+  // client
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoadingClient: state.getIn(['clients']).isLoading,
+  errorsClient: state.getIn(['clients']).errors
 
-const AddClientMapped = connect(
-  null,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState,
+  addClientCommercial,
+  getAllClient
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
   mapDispatchToProps
-)(AddClient);
-export default withStyles(styles)(AddClientMapped);
+)(AddClient));

@@ -4,7 +4,7 @@ import { API } from '../../config/apiUrl';
 class StateCountryService {
   getStates = () => axios.get(`${API}/state-country-all`);
 
-  getStatesByCountry = countryId => axios.get(`${API}/state-country-all-by-country/${countryId}`);
+  getStatesByCountry = countryId => axios.get(`${API}/stateCountry/${countryId}`);
 
   saveState = datafinal => axios.post(`${API}/city/add`, datafinal);
 

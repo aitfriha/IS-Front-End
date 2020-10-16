@@ -13,7 +13,11 @@ import {
   GET_ALL_CITYS_SUCCESS,
   UPDATE_CITY,
   UPDATE_CITY_FAILURE,
-  UPDATE_CITY_SUCCESS
+  UPDATE_CITY_SUCCESS,
+
+  GET_ALL_CITYBYSTATE,
+  GET_ALL_CITYBYSTATE_SUCCESS,
+  GET_ALL_CITYBYSTATE_FAILURE,
 } from './constants';
 
 const initialState = {
@@ -27,6 +31,7 @@ export default function citysReducer(state = initialState, action) {
   switch (action.type) {
     // TRIGGERING ACTIONS
     case GET_ALL_CITYS:
+    case GET_ALL_CITYBYSTATE:
     case ADD_CITY:
     case IMPORT_CITY:
     case UPDATE_CITY:
@@ -50,6 +55,7 @@ export default function citysReducer(state = initialState, action) {
       };
 
     case GET_ALL_CITYS_SUCCESS:
+    case GET_ALL_CITYBYSTATE_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -59,6 +65,7 @@ export default function citysReducer(state = initialState, action) {
 
       // FAILURE ACTIONS
     case GET_ALL_CITYS_FAILURE:
+    case GET_ALL_CITYBYSTATE_FAILURE:
     case ADD_CITY_FAILURE:
     case IMPORT_CITY_FAILURE:
     case UPDATE_CITY_FAILURE:

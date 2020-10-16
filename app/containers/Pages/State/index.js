@@ -4,6 +4,7 @@ import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
 import csc from 'country-state-city';
 import MUIDataTable from 'mui-datatables';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import {
   Button, FormControl, withStyles,
 } from '@material-ui/core';
@@ -14,9 +15,17 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { isString } from 'lodash';
+import { CSVReader } from 'react-papaparse';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import MaterialTable, { MTableToolbar } from 'material-table';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 import styles from '../StaffContract/people-jss';
 import notification from '../../../components/Notification/Notification';
-import { addCity, getAllCitys } from '../../../redux/city/actions';
+import { addCity, getAllCitys, importCity } from '../../../redux/city/actions';
+import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
+const buttonRef = React.createRef();
+const fs = require('fs');
 class StateCountry extends React.Component {
   countries = csc.getAllCountries();
 
@@ -33,9 +42,10 @@ class StateCountry extends React.Component {
     };
     this.state = {
       columns: [
+
         {
-          name: 'cityName',
-          label: 'City',
+          name: 'countryName',
+          label: 'Country',
         },
         {
           name: 'stateName',
@@ -43,9 +53,25 @@ class StateCountry extends React.Component {
 
         },
         {
-          name: 'countryName',
-          label: 'Country',
+          name: 'cityName',
+          label: 'City',
         },
+
+      ],
+      columns2: [
+        {
+          title: 'Country',
+          field: 'countryName',
+        },
+        {
+          title: 'State',
+          field: 'stateName',
+
+        },
+        {
+          title: 'City',
+          field: 'cityName',
+        }
       ],
     };
   }
@@ -70,6 +96,55 @@ class StateCountry extends React.Component {
     ...state
   }));
 
+  handleOpenDialog = (e) => {
+    // Note that the ref is set async, so it might be null at some point
+    if (buttonRef.current) {
+      buttonRef.current.open(e);
+    }
+  }
+
+  handleOnFileLoad = (data) => {
+    const {
+      // eslint-disable-next-line no-shadow
+      getAllCitys, importCity
+    } = this.props;
+    // country
+    const newData = [];
+
+    data.forEach(
+      (val) => {
+        if (val.data[0] !== '') {
+          newData.push(Object.assign({ countryName: val.data[0] }, { phonePrefix: val.data[1] }, { countryCode: val.data[2] }, { stateName: val.data[3] }, { cityName: val.data[4] }));
+        }
+      }
+    );
+    const promise = new Promise((resolve) => {
+      importCity(newData.slice(1));
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      notification('success', result);
+      getAllCitys();
+    });
+  }
+
+  handleOnError = (err, file, inputElem, reason) => {
+    console.log(err);
+  }
+
+  handleOnRemoveFile = (data) => {
+    console.log('---------------------------');
+    console.log(data);
+    console.log('---------------------------');
+  }
+
+  handleRemoveFile = (e) => {
+    // Note that the ref is set async, so it might be null at some point
+    if (buttonRef.current) {
+      buttonRef.current.removeFile(e);
+    }
+  }
+
   render() {
     const title = brand.name + ' - State Country';
     const description = brand.desc;
@@ -79,20 +154,21 @@ class StateCountry extends React.Component {
       classes, allCitys, cityResponse, isLoading, errors, addCity, getAllCitys
     } = this.props;
     console.log(allCitys);
-    const { columns } = this.state;
+    const { columns, columns2 } = this.state;
     const options = {
       filter: true,
       option: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
-      /*     customToolbar: () => (
+      customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          exportFileName="Coutries States Cities"
+          csvData={allCitys && allCitys}
           url="/app/hh-rr/staff/create-staff"
           tooltip="add new worker"
         />
-      ) */
+      )
     };
     // Sent resolve to editing promises
     (!isLoading && cityResponse) && this.editingPromiseResolve(cityResponse);
@@ -107,7 +183,70 @@ class StateCountry extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="States" desc="" noMargin>
+        <PapperBlock title="Counries States Cities" desc="" noMargin>
+          {/*   <CSVReader
+            ref={buttonRef}
+            onFileLoad={this.handleOnFileLoad}
+            noClick
+            noDrag
+            onRemoveFile={this.handleOnRemoveFile}
+          >
+            {({ file }) => (
+              <aside
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  marginBottom: 10,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  color="default"
+                  component="span"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={this.handleOpenDialog}
+                  style={{
+                    marginRight: 10
+                  }}
+                >
+                  import
+                </Button>
+                <div
+                  style={{
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    borderColor: '#ccc',
+                    height: 36,
+                    lineHeight: 1.5,
+                    marginTop: 1,
+                    marginBottom: 5,
+                    paddingLeft: 13,
+                    paddingTop: 3,
+                    width: '60%'
+                  }}
+                >
+                  {file && file.name}
+                </div>
+                <Button
+                  style={{
+                    borderRadius: 0,
+                    marginLeft: 0,
+                    marginRight: 0,
+                    paddingLeft: 20,
+                    paddingRight: 20
+                  }}
+                  type="button"
+                  className={classes.heightImport}
+                  onClick={this.handleRemoveFile}
+                >
+                   <FormattedMessage
+                    id="button.remove.label"
+                  />
+                  remove
+                </Button>
+              </aside>
+            )}
+          </CSVReader> */}
           <Formik
             enableReinitialize
             initialValues={{
@@ -215,12 +354,135 @@ class StateCountry extends React.Component {
                       Save
                     </Button>
                   </div>
-                  <div style={{ marginTop: 20 }}>
+                  {/*                  <div style={{ marginTop: 20 }}>
                     <MUIDataTable
                       title=""
                       data={allCitys && allCitys}
                       columns={columns}
                       options={options}
+                    />
+                  </div> */}
+                  <div style={{ marginTop: 20 }}>
+                    <MaterialTable
+                      title=""
+                      columns={columns2}
+                      data={allCitys && allCitys}
+                      actions={[
+                        {
+                          icon: 'save_alt',
+                          tooltip: 'Export excel',
+                          isFreeAction: true,
+                          onClick: () => {
+                            const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                            const fileExtension = '.xlsx';
+                            const ws = XLSX.utils.json_to_sheet(allCitys);
+                            const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+                            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                            const data1 = new Blob([excelBuffer], { type: fileType });
+                            FileSaver.saveAs(data1, 'Country State City' + fileExtension);
+                          }
+                        }
+                      ]}
+                      options={{
+                        exportFileName: 'page.isic.title',
+                        importFileName: 'page.national.title',
+                        filtering: true,
+                        grouping: true,
+                        exportButton: false,
+                        importButton: true,
+                        draggable: true,
+                        pageSize: 10,
+                        actionsCellStyle: {
+                          paddingLeft: 30,
+                          width: 120,
+                          maxWidth: 120,
+                        },
+                        exportCsv: (columns2, data) => {
+                          const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                          const fileExtension = '.xlsx';
+                          console.log(data);
+                          const ws = XLSX.utils.json_to_sheet(data);
+                          const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+                          const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                          const data1 = new Blob([excelBuffer], { type: fileType });
+                          FileSaver.saveAs(data1, 'Country State City' + fileExtension);
+                        }
+                      }}
+                      components={{
+                        Toolbar: props => (
+                          <div>
+                            <MTableToolbar {...props} />
+                            <div style={{
+                              padding: '-50px 50px', marginTop: '-42px', marginLeft: '20px', marginBottom: '20px', width: '50%'
+                            }}
+                            >
+                              <CSVReader
+                                ref={buttonRef}
+                                onFileLoad={this.handleOnFileLoad}
+                                noClick
+                                noDrag
+                                onRemoveFile={this.handleOnRemoveFile}
+                              >
+                                {({ file }) => (
+                                  <aside
+                                    style={{
+                                      display: 'flex',
+                                      flexDirection: 'row',
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      component="span"
+                                      className={classes.heightImport}
+                                      startIcon={<CloudUploadIcon />}
+                                      onClick={this.handleOpenDialog}
+                                      style={{
+                                        marginRight: 10
+                                      }}
+                                    >
+
+                                        Import
+
+                                    </Button>
+                                    <div
+                                      style={{
+                                        borderWidth: 1,
+                                        borderStyle: 'solid',
+                                        borderColor: '#ccc',
+                                        height: 36,
+                                        lineHeight: 1.5,
+                                        marginTop: 1,
+                                        marginBottom: 5,
+                                        paddingLeft: 13,
+                                        paddingTop: 3,
+                                        width: '60%'
+                                      }}
+                                    >
+                                      {file && file.name}
+                                    </div>
+                                    <Button
+                                      style={{
+                                        borderRadius: 0,
+                                        marginLeft: 0,
+                                        marginRight: 0,
+                                        paddingLeft: 20,
+                                        paddingRight: 20
+                                      }}
+                                      type="button"
+                                      className={classes.heightImport}
+                                      onClick={this.handleRemoveFile}
+                                    >
+                                      remove
+                                    </Button>
+                                  </aside>
+                                )}
+                              </CSVReader>
+                            </div>
+                          </div>
+                        ),
+                      }}
                     />
                   </div>
                   <p>{JSON.stringify(csc.get)}</p>
@@ -251,6 +513,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators({
   addCity,
   getAllCitys,
+  importCity,
 }, dispatch);
 
 export default withStyles(styles)(connect(

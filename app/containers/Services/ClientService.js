@@ -6,9 +6,9 @@ class ClientService {
 
     saveClient = client => axios.post(`${API}/client`, client);
 
-    getClientsByCountry = country => axios.get(`${API}/clients-by-country/${country}`);
+    getClientsByCountry = country => axios.get(`${API}/client/clients-by-country/${country}`);
 
-    getClientsByCode = code => axios.get(`${API}/clients-by-code/${code}`);
+    getClientsByCode = code => axios.get(`${API}/client/clients-by-code/${code}`);
 
     deleteAlgorithm = algorithmId => axios.delete(`${API}/algorithm/delete/${algorithmId}`);
 }

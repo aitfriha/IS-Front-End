@@ -90,12 +90,12 @@ class Commercial extends React.Component {
 
   handleClients = () => {
     const { country } = this.state;
-    console.log(country);
+    console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr');
     ClientService.getClientsByCountry(country).then((res) => {
       console.log(res);
       if (res.data.length > 0) {
         const clients = [];
-        res.data.forEach(client => clients.push(client.codeClient + '~' + client.name));
+        res.data.forEach(client => clients.push(client.code + '~' + client.name));
         this.setState({ clients, type: 'clients' });
       } else {
         this.openNotif('No Clients in this country');
@@ -122,7 +122,7 @@ class Commercial extends React.Component {
 
   getCommercials = () => {
     CommercialService.getCommercials().then(({ data }) => {
-      console.log(data);
+      console.log('getCommercialsgetCommercialsgetCommercialsgetCommercialsgetCommercials',data);
       this.setState({ commercials: data });
     });
   };
@@ -157,7 +157,7 @@ class Commercial extends React.Component {
       type, countries, country,
       notifMessage, client, clients
     } = this.state;
-    console.log('client => ', client);
+ console.log('clients', clients);
     return (
       <div>
         <Helmet>
@@ -264,7 +264,7 @@ class Commercial extends React.Component {
             </div>
           </Slide>
 
-          <Notification message={notifMessage} close={this.closeNotif} />
+         {/*<Notification message={notifMessage} close={this.closeNotif} />*/}
         </PapperBlock>
       </div>
     );

@@ -16,10 +16,15 @@ import {
   GET_ALL_CITYS_SUCCESS,
   UPDATE_CITY,
   UPDATE_CITY_FAILURE,
-  UPDATE_CITY_SUCCESS
+  UPDATE_CITY_SUCCESS,
+
+  GET_ALL_CITYBYSTATE,
+  GET_ALL_CITYBYSTATE_SUCCESS,
+  GET_ALL_CITYBYSTATE_FAILURE,
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
+
 
 
 function* addCity(action) {
@@ -130,6 +135,28 @@ function* getAllCitys() {
   }
 }
 
+function* getAllCityByState(action) {
+  try {
+    const {
+      stateWithId
+    } = action;
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.CITY + '/citiesByState/'+ stateWithId
+    });
+    yield put({
+      type: GET_ALL_CITYBYSTATE_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_CITYBYSTATE_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
+
 export default function* citysSaga() {
   yield all([
     takeLatest(ADD_CITY, addCity),
@@ -137,5 +164,6 @@ export default function* citysSaga() {
     takeLatest(UPDATE_CITY, updateCity),
     takeLatest(DELETE_CITY, deleteCity),
     takeLatest(GET_ALL_CITYS, getAllCitys),
+    takeLatest(GET_ALL_CITYBYSTATE, getAllCityByState),
   ]);
 }

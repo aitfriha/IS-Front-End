@@ -19,6 +19,9 @@ import FunctionalStructureConfigModule from './modules/functionalStructureConfig
 import citysReducer from './city/reducer';
 import commercialOperationStatusReducer from './commercialOperationStatus/reducer';
 import commercialServiceTypeReducer from './serviceType/reducer';
+import stateCountryReducer from './stateCountry/reducer';
+import countryReducer from './country/reducer';
+import clientReducer from './client/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -38,11 +41,13 @@ export default function createReducer(injectedReducers = {}) {
     cities: citysReducer,
     commercialOperationStatus: commercialOperationStatusReducer,
     commercialServiceType: commercialServiceTypeReducer,
+    stateCountries: stateCountryReducer,
+    countries: countryReducer,
+    clients: clientReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers
   });
-  console.log(citysReducer);
   // Wrap the root reducer and return a new root reducer with router state
   const mergeWithRouterState = connectRouter(history);
   return mergeWithRouterState(rootReducer);
