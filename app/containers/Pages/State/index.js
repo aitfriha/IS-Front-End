@@ -4,7 +4,7 @@ import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
 import csc from 'country-state-city';
 import MUIDataTable from 'mui-datatables';
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
+// import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import {
   Button, FormControl, withStyles,
 } from '@material-ui/core';
@@ -76,14 +76,7 @@ class StateCountry extends React.Component {
     };
   }
 
-
-  /* const {
-    values, handleSubmit, setFieldValue, setValues
-  } = addressFromik; */
-
-  // useEffect(() => {}, [values]);
   componentDidMount() {
-    // eslint-disable-next-line no-shadow
     const { getAllCitys } = this.props;
     getAllCitys();
   }
@@ -133,9 +126,6 @@ class StateCountry extends React.Component {
   }
 
   handleOnRemoveFile = (data) => {
-    console.log('---------------------------');
-    console.log(data);
-    console.log('---------------------------');
   }
 
   handleRemoveFile = (e) => {
@@ -153,7 +143,7 @@ class StateCountry extends React.Component {
       // eslint-disable-next-line no-shadow
       classes, allCitys, cityResponse, isLoading, errors, addCity, getAllCitys
     } = this.props;
-    console.log(allCitys);
+
     const { columns, columns2 } = this.state;
     const options = {
       filter: true,
@@ -396,16 +386,6 @@ class StateCountry extends React.Component {
                           paddingLeft: 30,
                           width: 120,
                           maxWidth: 120,
-                        },
-                        exportCsv: (columns2, data) => {
-                          const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-                          const fileExtension = '.xlsx';
-                          console.log(data);
-                          const ws = XLSX.utils.json_to_sheet(data);
-                          const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-                          const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                          const data1 = new Blob([excelBuffer], { type: fileType });
-                          FileSaver.saveAs(data1, 'Country State City' + fileExtension);
                         }
                       }}
                       components={{
