@@ -18,7 +18,8 @@ import 'sanitize.css/sanitize.css';
 // Import root app
 import App from 'containers/App';
 import './styles/layout/base.scss';
-
+import ReactNotification from 'react-notifications-component';
+import 'react-notifications-component/dist/theme.css';
 // Import Language Provider
 import LanguageProvider from 'containers/LanguageProvider';
 
@@ -44,6 +45,7 @@ const render = messages => {
     <Provider store={store}>
       <LanguageProvider messages={messages}>
         <ConnectedRouter history={history}>
+          <ReactNotification />
           <App />
         </ConnectedRouter>
       </LanguageProvider>

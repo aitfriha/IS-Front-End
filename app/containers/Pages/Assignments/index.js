@@ -46,6 +46,7 @@ class Assignments extends React.Component {
     this.getClientAddresses();
     this.getClientAssignment();
     this.getCommercials();
+    console.log('Assignments Assignments');
   }
 
   getClientAddresses = () => {
@@ -196,7 +197,7 @@ class Assignments extends React.Component {
               <AssignBlock
                 data={responsibleAssignments}
                 commercials={commercials}
-                title="commercial Responsible assignment"
+                title="commercial Responsible assignment*"
                 type="Responsible Commercial"
                 submitAssign={this.handleSubmitAssign}
               />

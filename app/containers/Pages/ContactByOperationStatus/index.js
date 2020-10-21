@@ -2,7 +2,9 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
-import { Button, Grid, TextField, Typography } from '@material-ui/core';
+import {
+  Button, Grid, TextField, Typography
+} from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import AutoCompleteMultiLineDisabled from './AutoCompleteWithDisabled';
 import ContactByOperationStatusBlock from './Block';
@@ -12,11 +14,10 @@ class ContactByOperationStatus extends React.Component {
     super(props);
     this.state = {
       statusName: '',
-      statusId: '',
       createOrUpdate: true,
       contacts: [],
       statusDescription: ''
-    }
+    };
   }
 
   handleChange = ev => {
@@ -25,7 +26,7 @@ class ContactByOperationStatus extends React.Component {
 
   handleSubmitStatus = () => {
     const { statusName, statusDescription, contacts } = this.state;
-    this.setState({ contacts: [...contacts, { statusName, statusDescription }], statusDescription: '', statusName: '' })
+    this.setState({ contacts: [...contacts, { statusName, statusDescription }], statusDescription: '', statusName: '' });
   };
 
   handleCancel = () => {
@@ -42,7 +43,7 @@ class ContactByOperationStatus extends React.Component {
   };
 
   render() {
-    const title = brand.name + ' - Status Of Commercial Operation';
+    const title = brand.name + ' - Contact by Operation';
     const description = brand.desc;
     const {
       contacts, createOrUpdate, statusName, statusDescription
@@ -50,51 +51,51 @@ class ContactByOperationStatus extends React.Component {
 
     const data1 = [
       {
-        label: "Qualification Process Contact "
+        label: 'Qualification Process Contact '
       },
       {
-        label: "Contact Of Decision maker"
+        label: 'Contact Of Decision maker'
       },
       {
-        label: "Contact of Technical Leader"
+        label: 'Contact of Technical Leader'
       },
       {
-        label: "Contact of person close to the decision maker"
+        label: 'Contact of person close to the decision maker'
       },
       {
-        label: "Other Contact 1"
+        label: 'Other Contact 1'
       },
       {
-        label: "Other Contact 2"
+        label: 'Other Contact 2'
       },
       {
-        label: "Other Contact 3"
+        label: 'Other Contact 3'
       },
       {
-        label: "Procurement Department Contact"
+        label: 'Procurement Department Contact'
       },
       {
-        label: "Contact 1"
+        label: 'Contact 1'
       },
       {
-        label: "Contact 2"
+        label: 'Contact 2'
       },
       {
-        label: "Contact 3"
+        label: 'Contact 3'
       },
       {
-        label: "Legal Area"
+        label: 'Legal Area'
       },
       {
-        label: "Contact 1"
+        label: 'Contact 1'
       },
       {
-        label: "Contact 2"
+        label: 'Contact 2'
       },
       {
-        label: "Contact 3"
+        label: 'Contact 3'
       }
-    ]
+    ];
     return (
       <div>
         <Helmet>
@@ -105,7 +106,7 @@ class ContactByOperationStatus extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Status Of Commercial Operation" noMargin>
+        <PapperBlock title="Contact by Operation" noMargin>
           <Grid
             container
             spacing={3}
@@ -207,7 +208,7 @@ class ContactByOperationStatus extends React.Component {
               }
             </Grid>
           </Grid>
-          <ContactByOperationStatusBlock  onSelected={this.handleChangeSelectedStatus} contacts={contacts} />
+          <ContactByOperationStatusBlock onSelected={this.handleChangeSelectedStatus} contacts={contacts} />
         </PapperBlock>
       </div>
     );

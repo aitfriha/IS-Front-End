@@ -17,6 +17,8 @@ class AssignBlock extends React.Component {
     const {
       classes, title, data
     } = this.props;
+    console.log('AssignBlockAssignBlockAssignBlockAssignBlockAssignBlock')
+    console.log(data)
     return (
       <React.Fragment>
         <Typography variant="subtitle2" component="h2" color="primary">
@@ -36,7 +38,7 @@ class AssignBlock extends React.Component {
               {data.map((row) => (
                 <TableRow key={row.assignmentId}>
                   <TableCell component="th" scope="row">
-                    {row.people.lastName + ' ' + row.people.firstName}
+                    {row.staff.name + ' ' + row.staff.fatherFamilyname}
                   </TableCell>
                   <TableCell align="right">{format(new Date(row.startDate), 'dd/MM/yyyy')}</TableCell>
                   <TableCell align="right">{ row.endDate ? format(new Date(row.endDate), 'dd/MM/yyyy') : '-' }</TableCell>

@@ -237,7 +237,7 @@ class BillingBlock extends React.Component {
       return (
         <div>
           <MUIDataTable
-            title="The Contracts List"
+            title="The Bills List"
             data={datas}
             columns={columns}
             options={options}

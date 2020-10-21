@@ -5,14 +5,13 @@ import { PapperBlock } from 'dan-components';
 import MUIDataTable from 'mui-datatables';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { withStyles } from '@material-ui/core/styles';
-import CountryConfigService from '../../../Services/CountryConfigService';
-import CountryService from '../../../Services/CountryService';
-import CustomToolbar from './customToolbar';
 import IconButton from '@material-ui/core/IconButton';
-import styles from './country-jss';
-import Avatar from '@material-ui/core/Avatar';
-import { format } from "date-fns";
+import { format } from 'date-fns';
 import { TableCell } from '@material-ui/core';
+import CountryConfigService from '../../../Services/CountryConfigService';
+
+import CustomToolbar from './customToolbar';
+import styles from './country-jss';
 
 class Country extends React.Component {
   constructor(props) {
@@ -39,13 +38,11 @@ class Country extends React.Component {
           name: 'startDate',
           options: {
             filter: false,
-            customBodyRender: (value) => {
-              return (
-                <React.Fragment>
-                  <TableCell align="right">{format(new Date(value), 'dd/MM/yyyy')}</TableCell>
-                </React.Fragment>
-              )
-            }
+            customBodyRender: (value) => (
+              <React.Fragment>
+                <TableCell align="right">{format(new Date(value), 'dd/MM/yyyy')}</TableCell>
+              </React.Fragment>
+            )
           }
         },
         {
@@ -57,16 +54,13 @@ class Country extends React.Component {
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 <IconButton onClick={() => console.log(value, tableMeta)}>
-                  <DeleteIcon color="primary"/>
+                  <DeleteIcon color="primary" />
                 </IconButton>
               </React.Fragment>
             )
           }
         },
       ],
-      lat: 51.505,
-      lng: -0.09,
-      zoom: 13,
       error: false
     };
   }
@@ -78,7 +72,7 @@ class Country extends React.Component {
   getCountryConfig = () => {
     CountryConfigService.getCountryConfig().then(({ data }) => {
       const datas = [];
-      console.log(data);
+
       data.forEach(da => {
         const dat = da;
         const country = {
@@ -90,6 +84,8 @@ class Country extends React.Component {
         };
         datas.push(country);
       });
+      console.log("************************************");
+      console.log(datas);
       this.setState({ data: datas });
     });
   };
@@ -123,7 +119,7 @@ class Country extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Countries" desc="" icon="ios-settings">
+        <PapperBlock title="Countries*" desc="" icon="ios-settings">
           <MUIDataTable title="Countries Configuration" data={data} columns={columns} options={options} />
         </PapperBlock>
       </div>

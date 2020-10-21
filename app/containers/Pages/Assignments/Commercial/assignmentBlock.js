@@ -95,6 +95,8 @@ class AssignmentBlock extends React.Component {
         // dragMoveListener from the dragging demo above
         listeners: { move: this.dragMoveListener }
       });
+    this.getStaffByContract();
+    this.getClientAssignment();
   }
 
   dragMoveListener = event => {
@@ -116,6 +118,33 @@ class AssignmentBlock extends React.Component {
     this.setState({ lastId: null });
   };
 
+  getStaffByContract = () => {
+    const { client } = this.props;
+    if (client.codeClient != 'MOR-001') {
+      PeopleService.getPeopleByCountry(client.address.city.stateCountry.country.countryId).then(({ data }) => {
+        data.forEach(people => {
+          AssignmentService.getAssignmentByPeople(people._id).then(res => {
+            const assigns = res.data;
+            let nbrRes = 0;
+            let nbrAss = 0;
+            if (assigns.length > 0) {
+              assigns.forEach(elm => {
+                if (elm.type === 'Responsible Commercial') {
+                  nbrRes += 1;
+                } else {
+                  nbrAss += 1;
+                }
+              });
+            }
+            people.nbrRes = nbrRes;
+            people.nbrAss = nbrAss;
+          });
+        });
+        this.setState({ peoples: data });
+      });
+    }
+  }
+
   getClientAddresses = () => {
     const { client } = this.props;
     AddressService.getClientAddresses(client.clientId).then(({ data }) => {
@@ -123,7 +152,7 @@ class AssignmentBlock extends React.Component {
     });
     PeopleService.getPeopleByCountry(client.address.country.countryId).then(({ data }) => {
       data.forEach(people => {
-        AssignmentService.getAssignmentByPeople(people.peopleId).then(res => {
+        AssignmentService.getAssignmentByPeople(people._id).then(res => {
           const assigns = res.data;
           let nbrRes = 0;
           let nbrAss = 0;
@@ -160,7 +189,7 @@ class AssignmentBlock extends React.Component {
 
   getClientAssignment = () => {
     const { client } = this.props;
-    AssignmentService.getClientAssignment(client.clientId).then(({ data }) => {
+    AssignmentService.getClientAssignment(client._id).then(({ data }) => {
       const assignments = data;
       const responsibleAssignments = [];
       const assistantAssignments = [];
@@ -171,13 +200,13 @@ class AssignmentBlock extends React.Component {
           assistantAssignments.push(assignment);
         }
       });
+      console.log('responsibleAssignments: ', responsibleAssignments);
       this.setState({ responsibleAssignments, assistantAssignments });
     });
   };
 
   getCommercials = () => {
     CommercialService.getCommercials().then(({ data }) => {
-      console.log(data);
       this.setState({ commercials: data });
     });
   };
@@ -239,14 +268,16 @@ class AssignmentBlock extends React.Component {
     const {
       lastId, type, peoples, startDate
     } = this.state;
+    console.log(format(new Date(startDate), 'yyyy-MM-dd'));
     const { client } = this.props;
     const id = lastId.split('-')[1];
-    const people = peoples.find((pe) => pe.peopleId === id);
+    console.log('ID ID ID ID', id);
+    const staff = peoples.find((pe) => pe._id === id);
     const assignment = {
       type,
       startDate: format(new Date(startDate), 'yyyy-MM-dd'),
       endDate: '',
-      people,
+      staff,
       client
     };
     AssignmentService.saveAssignment(assignment).then(() => {
@@ -278,9 +309,9 @@ class AssignmentBlock extends React.Component {
           {' '}
           {bull}
           {' '}
-          {people.lastName}
+          {people.name}
           {' '}
-          {people.firstName}
+          {people.fatherFamilyname}
           {' '}
         </Typography>
         <Typography variant="subtitle2">
@@ -311,6 +342,8 @@ class AssignmentBlock extends React.Component {
       startDate,
       workers
     } = this.state;
+    console.log('peoples', peoples);
+
     return (
       <div>
         <div className={classes.divCenter}>
@@ -318,6 +351,7 @@ class AssignmentBlock extends React.Component {
             {client.name}
           </Typography>
         </div>
+
         <div>
           <div className={classes.divSpace}>
             <Button color="primary" size="small" className={classes.buttonLink} variant="text" startIcon={<KeyboardBackspaceIcon color="secondary" />} onClick={() => this.handleBack('clients')}>
@@ -338,7 +372,7 @@ class AssignmentBlock extends React.Component {
                 <Typography variant="h6" component="h6" color="textPrimary" align="center">General</Typography>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Client Code:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary">{client.codeClient}</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary">{client.code}</Typography>
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Name:</Typography>
@@ -362,7 +396,7 @@ class AssignmentBlock extends React.Component {
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">City:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary">{client.city}</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary" />
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Multinational:</Typography>
@@ -429,8 +463,8 @@ class AssignmentBlock extends React.Component {
                 <Grid container spacing={3} justify="center" style={{ display: 'flex' }}>
                   {
                     peoples.map((people) => (
-                      <Tooltip title={this.handleTooltip(people)} enterDelay={500} leaveDelay={200} key={people.peopleId} placement="right" arrow>
-                        <Card className={classes.root} id={'element-' + people.peopleId} variant="elevation">
+                      <Tooltip title={this.handleTooltip(people)} enterDelay={500} leaveDelay={200} key={people._id} placement="right" arrow>
+                        <Card className={classes.root} id={'element-' + people._id} variant="elevation">
                           <CardContent>
                             <Avatar alt="User Name" src={people.photo} className={classes.medium} />
                           </CardContent>
@@ -439,7 +473,7 @@ class AssignmentBlock extends React.Component {
                     ))
                   }
                 </Grid>
-                <Grid className={classes.dropzone}  style={{ marginTop: '100px' }} container spacing={3} justify="center">
+                <Grid className={classes.dropzone} style={{ marginTop: '100px' }} container spacing={3} justify="center">
                   <Grid
                     id="dropzone"
                     item
@@ -507,9 +541,13 @@ class AssignmentBlock extends React.Component {
           className={classes.container}
         >
           <DialogTitle id="alert-dialog-slide-title">Assign</DialogTitle>
+
           <DialogContent>
+
             <FormControl fullWidth required>
+
               <InputLabel>Type of assignment</InputLabel>
+
               <Select
                 name="type"
                 value={type}
@@ -522,6 +560,7 @@ class AssignmentBlock extends React.Component {
                   Assistant Commercial
                 </MenuItem>
               </Select>
+
             </FormControl>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -550,7 +589,7 @@ class AssignmentBlock extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <Notification message={notifMessage} close={this.closeNotif} />
+        {/* <Notification message={notifMessage} close={this.closeNotif} /> */}
       </div>
     );
   }

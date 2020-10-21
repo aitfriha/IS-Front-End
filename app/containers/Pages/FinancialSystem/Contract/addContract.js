@@ -20,6 +20,8 @@ import FormLabel from '@material-ui/core/FormLabel';
 import { Image } from '@material-ui/icons';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
 import history from '../../../../utils/history';
 import Converter from '../../../../components/CurrencyConverter/Converter';
 
@@ -30,12 +32,16 @@ class AddContract extends React.Component {
       client: '',
       operation: '',
       company: '',
-      state: '',
+      state: 1,
       clientContractSigned: '',
       taxeIdentityNumber: '',
       addressOfBill: '',
       countryOfBill: '',
+      stateOfBill: '',
       cityOfBill: '',
+      level1: '',
+      level2: '',
+      level3: '',
       signedDate: '',
       startDate: '',
       endDate: '',
@@ -43,6 +49,15 @@ class AddContract extends React.Component {
       amountEuro: '',
       amountLocal: '',
       currency: '',
+      paymentsBDDays: '',
+      nbrConcepts: ['1'],
+      conceptType: 0,
+      conceptValue: '',
+      conceptValueLocal: '',
+      conceptValueEuro: '',
+      conceptCurrency: '',
+      conceptTotalAmount: 0,
+      conceptTotalAmountEuro: 0,
       penalties: '',
       penaltyQuantity: '',
       penaltyValue: 0,
@@ -52,6 +67,7 @@ class AddContract extends React.Component {
       penaltyMaxType: '',
       penaltiesListe: [''],
       purchaseOrder: 0,
+      purchaseOrders: ['1'],
       purchaseOrderNumber: 0,
       purchaseOrderReceiveDate: '',
       insure: '',
@@ -63,6 +79,8 @@ class AddContract extends React.Component {
       insureDocumentation: '',
       insureDocumentations: ['1'],
       contractDocumentations: ['1'],
+      contractDocDescreption: '',
+      radio: '',
       open: false,
       open2: false,
       open3: false,
@@ -97,6 +115,18 @@ class AddContract extends React.Component {
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const ok4 = !this.state.open4;
     this.setState({ open4: ok4 });
+  }
+
+  handleCheck5 = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const ok = !this.state.open5;
+    this.setState({ open5: ok });
+  }
+
+  handleCheck6 = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const ok = !this.state.open6;
+    this.setState({ open6: ok });
   }
 
   handleOpenDoc3 = () => {
@@ -150,6 +180,22 @@ class AddContract extends React.Component {
     }
   }
 
+  handleOpenConcept = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const newElement = this.state.nbrConcepts.length + 1;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.state.nbrConcepts.push(newElement);
+    this.setState({ openDoc: true });
+  }
+
+  handleDeleteConcept = (row) => {
+    // eslint-disable-next-line react/destructuring-assignment
+    if (this.state.nbrConcepts.length > 1) {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs = this.state.nbrConcepts.filter(rows => rows !== row);
+      this.setState({ nbrConcepts: newDocs });
+    }
+  }
 
   handleAddPenalty = () => {
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -165,6 +211,23 @@ class AddContract extends React.Component {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.penaltiesListe.filter(rows => rows !== row);
       this.setState({ penaltiesListe: newDocs });
+    }
+  }
+
+  handleOpenPurchase = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const newElement = this.state.purchaseOrders.length + 1;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.state.purchaseOrders.push(newElement);
+    this.setState({ openDoc: true });
+  }
+
+  handleDeletePurchase = (row) => {
+    // eslint-disable-next-line react/destructuring-assignment
+    if (this.state.purchaseOrders.length > 1) {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs = this.state.purchaseOrders.filter(rows => rows !== row);
+      this.setState({ purchaseOrders: newDocs });
     }
   }
 
@@ -193,6 +256,42 @@ class AddContract extends React.Component {
 
   render() {
     console.log(this.state);
+    const Level1 = [
+      {
+        value: 1,
+        label: 'Gestion',
+      },
+      {
+        value: 2,
+        label: 'Commercial',
+      }];
+    const Level2 = [
+      {
+        value: 1,
+        label: 'Assistant',
+      },
+      {
+        value: 2,
+        label: 'Human Resources',
+      }];
+    const conceptTypes = [
+      {
+        value: 1,
+        label: 'Percentage % ',
+      },
+      {
+        value: 2,
+        label: 'Amount',
+      }];
+    const operations = [
+      {
+        value: '1',
+        label: 'Operation 1',
+      },
+      {
+        value: '2',
+        label: 'Operation 2',
+      }];
     const MaxValue = [
       {
         value: '1',
@@ -281,7 +380,12 @@ class AddContract extends React.Component {
         label: 'FINISHED PENDING PAYMENT',
       }];
     const {
-      client, operation, company, state, clientContractSigned, taxeIdentityNumber, countryOfBill, cityOfBill, addressOfBill, signedDate, startDate, endDate, finalReelDate, penaltyMaxType, amountEuro, amountLocal, currency, penalties, penaltyQuantity, penaltyValue, penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, openDoc
+      client, operation, company, state, clientContractSigned, taxeIdentityNumber, nbrConcepts, radio,
+      conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptCurrency, conceptTotalAmount, conceptTotalAmountEuro,
+      countryOfBill, stateOfBill, cityOfBill, addressOfBill, signedDate, startDate, endDate, finalReelDate,
+      penaltyMaxType, amountEuro, amountLocal, currency, paymentsBDDays, penalties, penaltyQuantity, penaltyValue,
+      penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, purchaseOrders,
+      insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption
     } = this.state;
     const title = brand.name + ' - Blank Page';
     const description = brand.desc;
@@ -295,7 +399,7 @@ class AddContract extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Contract " desc="Create new contract  " icon="ios-add-circle">
+        <PapperBlock title="Client Contracts " desc="Create new client contract " icon="ios-add-circle">
           <Grid container spacing={1}>
             <Grid item xs={11} />
             <Grid item xs={1}>
@@ -309,22 +413,6 @@ class AddContract extends React.Component {
           </Typography>
           <br />
           <div>
-            <div align="center">
-              <Grid item xs={12} sm={8} md={8} alignItems="flex-start" align="center">
-                <TextField
-                  id="nameOperation"
-                  label="Operation Name"
-                  name="nameOperation"
-                  value={operation}
-                  onChange={this.handleChange}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  fullWidth
-                  required
-                />
-              </Grid>
-            </div>
             <Grid
               container
               spacing={2}
@@ -332,7 +420,7 @@ class AddContract extends React.Component {
               direction="row"
               justify="space-around"
             >
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} md={3} sm={3}>
                 <FormControl fullWidth required>
                   <InputLabel>Select the client</InputLabel>
                   <Select
@@ -350,9 +438,27 @@ class AddContract extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} sm={3} md={3} alignItems="flex-start">
                 <FormControl fullWidth required>
-                  <InputLabel>Select the Company</InputLabel>
+                  <InputLabel>Select Operation</InputLabel>
+                  <Select
+                    name="operation"
+                    value={operation}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      operations.map((clt) => (
+                        <MenuItem key={clt.value} value={clt.value}>
+                          {clt.label}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3} sm={3}>
+                <FormControl fullWidth required>
+                  <InputLabel>Select Client Company Name</InputLabel>
                   <Select
                     name="company"
                     value={company}
@@ -368,7 +474,7 @@ class AddContract extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} md={3} sm={3}>
                 <FormControl fullWidth required>
                   <InputLabel>Select State</InputLabel>
                   <Select
@@ -386,6 +492,137 @@ class AddContract extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
+              {openDoc === false ? (
+                <div />
+              ) : (
+                <FormControl fullWidth required>
+                  <br />
+                  <input
+                    style={{ display: 'none' }}
+                    id="outlined-button-file-2"
+                    type="file"
+                    onClick={this.handleChangeFile.bind(this)}
+                  />
+                  <FormLabel htmlFor="outlined-button-file-2">
+                    {/* eslint-disable-next-line react/destructuring-assignment */}
+                    {this.state.contractDocumentations.map((row) => (
+                      <Grid
+                        container
+                        spacing={3}
+                        alignItems="flex-start"
+                        direction="row"
+                      >
+                        <Grid item xs={3}>
+                          <br />
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            component="span"
+                            startIcon={<Image color="primary" />}
+                          >
+                                Documentation File
+                          </Button>
+                        </Grid>
+                        <Grid xs={4}>
+                          <TextField
+                            id="contractDocDescreption"
+                            label="Description"
+                            name="contractDocDescreption"
+                            value={contractDocDescreption}
+                            onChange={this.handleChange}
+                            fullWidth
+                            required
+                          />
+                        </Grid>
+                        <Grid xs={1}>
+                          <br />
+                          <IconButton size="medium" color="primary" onClick={() => this.handleOpenDoc3()}>
+                            <AddIcon />
+                          </IconButton>
+                          <IconButton size="small" color="primary" onClick={() => this.handleDeleteDoc3(row)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
+                  </FormLabel>
+                </FormControl>
+              )}
+              <br />
+              <br />
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" component="h2" color="primary">
+                  Functional Structure Assigned
+                </Typography>
+              </Grid>
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+                justify="space-around"
+              >
+                <Grid item xs={12} sm={4} md={4}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select Level 1</InputLabel>
+                    <Select
+                      name="level1"
+                      value={level1}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        Level1.map((clt) => (
+                          <MenuItem key={clt.value} value={clt.value}>
+                            {clt.label}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4} md={4}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select Level 2</InputLabel>
+                    <Select
+                      name="level2"
+                      value={level2}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        Level2.map((clt) => (
+                          <MenuItem key={clt.value} value={clt.value}>
+                            {clt.label}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4} md={4}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select Level 3</InputLabel>
+                    <Select
+                      name="level3"
+                      value={level3}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        Level2.map((clt) => (
+                          <MenuItem key={clt.value} value={clt.value}>
+                            {clt.label}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" component="h2" color="primary">
+                  Taxe Identity
+                </Typography>
+              </Grid>
               <Grid item xs={12} md={3} sm={3}>
                 <TextField
                   id="taxeIdentityNumber"
@@ -397,7 +634,7 @@ class AddContract extends React.Component {
                   required
                 />
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
+              {/*   <Grid item xs={12} md={3} sm={3}>
                 <TextField
                   id="addressOfBill"
                   label="Full Address Of Bill"
@@ -407,13 +644,24 @@ class AddContract extends React.Component {
                   fullWidth
                   required
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={12} md={3} sm={3}>
                 <TextField
                   id="countryOfBill"
                   label=" Country Of Bill "
                   name="countryOfBill"
                   value={countryOfBill}
+                  onChange={this.handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} md={3} sm={3}>
+                <TextField
+                  id="stateOfBill"
+                  label="State Of Bill "
+                  name="stateOfBill"
+                  value={stateOfBill}
                   onChange={this.handleChange}
                   fullWidth
                   required
@@ -431,52 +679,6 @@ class AddContract extends React.Component {
                 />
               </Grid>
             </Grid>
-            {openDoc === false ? (
-              <div />
-            ) : (
-              <FormControl fullWidth required>
-                <br />
-                <input
-                  style={{ display: 'none' }}
-                  id="outlined-button-file-2"
-                  type="file"
-                  onClick={this.handleChangeFile.bind(this)}
-                />
-                <FormLabel htmlFor="outlined-button-file-2">
-                  {/* eslint-disable-next-line react/destructuring-assignment */}
-                  {this.state.contractDocumentations.map((row) => (
-                    <div>
-                      <Grid
-                        container
-                        spacing={1}
-                        alignItems="flex-start"
-                        direction="row"
-                      >
-                        <Grid item xs={3}>
-                          <Button
-                            fullWidth
-                            variant="outlined"
-                            component="span"
-                            startIcon={<Image color="primary" />}
-                          >
-                                    Documentation
-                          </Button>
-                        </Grid>
-                        <Grid xs={1}>
-                          <IconButton size="medium" color="primary" onClick={() => this.handleOpenDoc3()}>
-                            <AddIcon />
-                          </IconButton>
-                          <IconButton size="small" color="primary" onClick={() => this.handleDeleteDoc3(row)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
-                    </div>
-                  ))}
-                </FormLabel>
-              </FormControl>
-            )}
-            <br />
             <br />
           </div>
           <Typography variant="subtitle2" component="h2" color="primary">
@@ -538,7 +740,7 @@ class AddContract extends React.Component {
             <Grid item xs={12} sm={7} md={5}>
               <TextField
                 id="finalReelDate"
-                label="Reel end Date"
+                label="Reel End Date"
                 type="date"
                 name="finalReelDate"
                 value={finalReelDate}
@@ -560,13 +762,168 @@ class AddContract extends React.Component {
           <br />
           <Grid
             container
-            spacing={2}
+            spacing={1}
             alignItems="flex-start"
             direction="row"
             justify="space-around"
           >
-            <Grid>
+            <Grid item xs={6}>
               <Converter Title="Contract Trade Volume  " />
+            </Grid>
+            <Grid item xs={5}>
+              <br />
+              <TextField
+                id="paymentsBDDays"
+                label="Payments BD per Day"
+                type="number"
+                name="paymentsBDDays"
+                value={paymentsBDDays}
+                onChange={this.handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <Typography variant="subtitle2" component="h2" color="primary">
+            Method of Payment
+          </Typography>
+          <br />
+          {nbrConcepts.map((row) => (
+            <Grid
+              container
+              spacing={1}
+              alignItems="flex-start"
+              direction="row"
+            >
+              <Grid item xs={1} align="center">
+                <Typography variant="subtitle2" component="h3" color="grey">
+                  <br />
+                  Concept
+                  {' '}
+                  { row }
+                </Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <FormControl fullWidth required>
+                  <InputLabel>Select Type</InputLabel>
+                  <Select
+                    name="conceptType"
+                    value={conceptType}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      conceptTypes.map((clt) => (
+                        <MenuItem key={clt.value} value={clt.value}>
+                          {clt.label}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  id="conceptValue"
+                  label="Concept Value"
+                  type="number"
+                  name="conceptValue"
+                  value={conceptValue}
+                  onChange={this.handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              {conceptType === 2 ? (
+                <Grid item xs={2} />
+              ) : (
+                <Grid item xs={2}>
+                  <TextField
+                    id="conceptValueLocal"
+                    label="Concept Value in Currency"
+                    name="conceptValueLocal"
+                    value={conceptValueLocal}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+              )}
+              <Grid item xs={1}>
+                <TextField
+                  id="conceptCurrency"
+                  label="Currency"
+                  name="conceptCurrency"
+                  value={conceptCurrency}
+                  onChange={this.handleChange}
+                  fullWidth
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  id="conceptValueEuro"
+                  label="Concept Value in EURO"
+                  name="conceptValueEuro"
+                  value={conceptValueEuro}
+                  type="number"
+                  onChange={this.handleChange}
+                  fullWidth
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid xs={1}>
+                <br />
+                <IconButton size="medium" color="primary" onClick={() => this.handleOpenConcept()}>
+                  <AddIcon />
+                </IconButton>
+                <IconButton size="small" color="primary" onClick={() => this.handleDeleteConcept(row)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+          ))}
+          <Grid
+            container
+            spacing={1}
+            alignItems="flex-start"
+            direction="row"
+          >
+            <Grid item xs={12} sm={3} md={3} />
+            <Grid item xs={12} sm={3} md={3} align="center">
+              <TextField
+                id="conceptTotalAmount"
+                label="Concept Total Amount in currency"
+                name="conceptTotalAmount"
+                value={conceptTotalAmount}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={3} md={3} align="center">
+              <TextField
+                id="conceptTotalAmountEuro"
+                label="Concept Total Amount in Euro"
+                name="conceptTotalAmountEuro"
+                value={conceptTotalAmountEuro}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
             </Grid>
           </Grid>
           <br />
@@ -667,26 +1024,40 @@ class AddContract extends React.Component {
                 name="purchaseOrder"
                 value={purchaseOrder}
                 control={<Checkbox color="primary" onChange={this.handleCheck2} />}
-                label="PurchaseOrder"
+                label="Purchase Order"
                 labelPlacement="start"
               />
               {open2 === false ? (
                 <div />
               ) : (
                 <div>
-                  <TextField
-                    id="purchaseOrderNumber"
-                    label="Number of Purchase Order"
-                    type="number"
-                    name="purchaseOrderNumber"
-                    value={purchaseOrderNumber}
-                    onChange={this.handleChange}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    fullWidth
-                    required
-                  />
+                  {purchaseOrders.map((row) => (
+                    <Grid container spacing={2}>
+                      <Grid item xs={8}>
+                        <TextField
+                          id="purchaseOrderNumber"
+                          label={'Purchase Order ' + row}
+                          type="number"
+                          name="purchaseOrderNumber"
+                          value={purchaseOrderNumber}
+                          onChange={this.handleChange}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <br />
+                        <IconButton size="small" color="primary" onClick={() => this.handleOpenPurchase()}>
+                          <AddIcon />
+                        </IconButton>
+                        <IconButton size="small" color="primary" onClick={() => this.handleDeletePurchase(row)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  ))}
                   <TextField
                     id="purchaseOrderReceiveDate"
                     label="Purchase Order Receive Date"
@@ -735,46 +1106,78 @@ class AddContract extends React.Component {
                 label="Proposal"
                 labelPlacement="start"
               />
-              <br />
-              <br />
               {open3 === false ? (
                 <div />
               ) : (
-                <FormControl>
-                  <input
-                    style={{ display: 'none' }}
-                    id="outlined-button-file-2"
-                    type="file"
-                    onClick={this.handleChangeFile.bind(this)}
-                  />
-                  <FormLabel htmlFor="outlined-button-file-2">
-                    {/* eslint-disable-next-line react/destructuring-assignment */}
-                    {this.state.proposalDocumentations.map((row) => (
-                      <div>
-                        <Grid container>
-                          <Grid item xs={9}>
-                            <Button
-                              fullWidth
-                              variant="outlined"
-                              component="span"
-                              startIcon={<Image color="primary" />}
-                            >
-                                  Documentation
-                            </Button>
-                          </Grid>
-                          <Grid item x={3}>
-                            <IconButton size="small" color="primary" onClick={() => this.handleOpenDoc2()}>
-                              <AddIcon />
-                            </IconButton>
-                            <IconButton size="small" color="primary" onClick={() => this.handleDeleteDoc2(row)}>
-                              <DeleteIcon />
-                            </IconButton>
+                <FormControl component="fieldset">
+                  <RadioGroup aria-label="gender" name="radio" value={radio} onChange={this.handleChange}>
+                    <FormControlLabel value="oneProposal" control={<Radio />} label="Technical & Economical" />
+                    {radio === 'oneProposal' ? (
+                      <FormControl>
+                        <input
+                          style={{ display: 'none' }}
+                          id="outlined-button-file-2"
+                          type="file"
+                          onClick={this.handleChangeFile.bind(this)}
+                        />
+                        <Grid container spacing={2}>
+                          <Grid item xs={12}>
+                            <FormLabel htmlFor="outlined-button-file-11">
+                              <Button
+                                fullWidth
+                                variant="outlined"
+                                component="span"
+                                startIcon={<Image color="primary" />}
+                              >
+                                     Proposal File
+                              </Button>
+                            </FormLabel>
                           </Grid>
                         </Grid>
-                        <br />
-                      </div>
-                    ))}
-                  </FormLabel>
+                      </FormControl>
+                    ) : (
+                      <div />
+                    )}
+                    <FormControlLabel value="separatedProposal" control={<Radio />} label="Separated Proposals" />
+                    {radio === 'separatedProposal' ? (
+                      <FormControl>
+                        <input
+                          style={{ display: 'none' }}
+                          id="outlined-button-file-2"
+                          type="file"
+                          onClick={this.handleChangeFile.bind(this)}
+                        />
+                        <Grid container spacing={2}>
+                          <Grid item xs={12}>
+                            <FormLabel htmlFor="outlined-button-file-22">
+                              <Button
+                                fullWidth
+                                variant="outlined"
+                                component="span"
+                                startIcon={<Image color="primary" />}
+                              >
+                                    Technical Proposal
+                              </Button>
+                            </FormLabel>
+                          </Grid>
+                          <Grid item xs={12}>
+                            <FormLabel htmlFor="outlined-button-file-33">
+                              <Button
+                                fullWidth
+                                variant="outlined"
+                                component="span"
+                                startIcon={<Image color="primary" />}
+                              >
+                                    Economical Proposal
+                              </Button>
+                            </FormLabel>
+                          </Grid>
+                        </Grid>
+                      </FormControl>
+                    ) : (
+                      <div />
+                    )}
+                  </RadioGroup>
                 </FormControl>
               )}
             </Grid>
@@ -809,7 +1212,7 @@ class AddContract extends React.Component {
                     penaltiesListe.map((row) => (
                       <Grid container spacing={4}>
                         <Grid item xs={1} />
-                        <Grid item xs={3}>
+                        <Grid item xs={2}>
                           <FormControl fullWidth required>
                             <InputLabel>Select Quantity</InputLabel>
                             <Select
@@ -877,7 +1280,7 @@ class AddContract extends React.Component {
                             </Select>
                           </FormControl>
                         </Grid>
-                        <Grid item x={2}>
+                        <Grid item xs={2}>
                           <br />
                           <IconButton size="small" color="primary" onClick={() => this.handleAddPenalty()}>
                             <AddIcon />

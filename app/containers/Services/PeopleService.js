@@ -6,6 +6,6 @@ class PeopleService {
 
   savePeople = (people) => axios.post(`${API}/people-add`, people);
 
-  getPeopleByCountry = (countryId) => axios.get(`${API}/people-country/${countryId}`);
+  getPeopleByCountry = (countryId) => axios.get(`${API}/staff/staffBycountry/${countryId}`);
 }
 export default new PeopleService();
