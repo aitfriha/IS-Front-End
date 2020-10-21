@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
@@ -11,14 +11,17 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  withStyles,
+  makeStyles,
   Button
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import styles from './absenceType-jss';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import AbsenceTypeService from '../../Services/AbsenceTypeService';
+
+const useStyles = makeStyles(styles);
 
 class AbsenceType extends React.Component {
   state = {
@@ -53,6 +56,26 @@ class AbsenceType extends React.Component {
       }
     },
     {
+      label: 'Country',
+      name: 'state',
+      options: {
+        customBodyRender: (value, data) => {
+          console.log(data);
+          return <React.Fragment>{value.country.countryName}</React.Fragment>;
+        }
+      }
+    },
+    {
+      label: 'State',
+      name: 'state',
+      options: {
+        customBodyRender: (value, data) => {
+          console.log(data);
+          return <React.Fragment>{value.stateName}</React.Fragment>;
+        }
+      }
+    },
+    {
       label: ' ',
       name: ' ',
       options: {
@@ -72,7 +95,6 @@ class AbsenceType extends React.Component {
 
   componentDidMount() {
     AbsenceTypeService.getAllAbsenceTypes().then(({ data }) => {
-      console.log(data);
       this.setState({
         data
       });
@@ -87,7 +109,13 @@ class AbsenceType extends React.Component {
     const {
       code, name, description, data, absenceTypeIndex
     } = this.state;
-    const absenceType = { code, name, description };
+    const { state } = data[absenceTypeIndex];
+    const absenceType = {
+      code,
+      name,
+      description,
+      state
+    };
     console.log(data[absenceTypeIndex]);
     AbsenceTypeService.updateAbsenceType(
       data[absenceTypeIndex].absenceTypeId,
@@ -228,7 +256,7 @@ class AbsenceType extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <PapperBlock title="Types of Absence" icon="ios-paper-outline" noMargin>
+        <PapperBlock title="Types of absence" icon="ios-paper-outline" noMargin>
           <MUIDataTable
             title=""
             data={data}
@@ -241,8 +269,8 @@ class AbsenceType extends React.Component {
   }
 }
 
-AbsenceType.propTypes = {
-  classes: PropTypes.object.isRequired
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AbsenceType changeTheme={changeTheme} classes={classes} />;
 };
-
-export default withStyles(styles)(AbsenceType);

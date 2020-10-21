@@ -5,7 +5,7 @@ import amber from '@material-ui/core/colors/amber';
 import grey from '@material-ui/core/colors/grey';
 
 const categoryWidth = 100;
-const listWidth = 180;
+const listWidth = 200;
 
 const styles = theme => ({
   bigSidebar: {
@@ -19,7 +19,10 @@ const styles = theme => ({
       content: '""',
       width: '100%',
       height: '100%',
-      backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.background.paper, 0.75) : fade(theme.palette.background.paper, 0.9),
+      backgroundColor:
+        theme.palette.type === 'dark'
+          ? fade(theme.palette.background.paper, 0.75)
+          : fade(theme.palette.background.paper, 0.9),
       boxShadow: theme.shade.light,
       backdropFilter: 'saturate(180%) blur(20px)',
       position: 'absolute',
@@ -30,7 +33,7 @@ const styles = theme => ({
   category: {
     width: categoryWidth,
     '& $fixedWrap': {
-      paddingBottom: theme.spacing(8),
+      paddingBottom: theme.spacing(8)
     }
   },
   icon: {},
@@ -42,16 +45,16 @@ const styles = theme => ({
     overflow: 'auto',
     height: '100%',
     '&::-webkit-scrollbar': {
-      width: 8,
+      width: 8
     },
     '&::-webkit-scrollbar-thumb': {
       borderRadius: 12,
-      backgroundColor: 'rgba(0,0,0,0)',
+      backgroundColor: 'rgba(0,0,0,0)'
     },
     '&:hover': {
       '&::-webkit-scrollbar-thumb': {
         backgroundColor: 'rgba(0,0,0,0.2)',
-        border: '1px solid rgba(255,255,255,0.3)',
+        border: '1px solid rgba(255,255,255,0.3)'
       }
     }
   },
@@ -59,23 +62,23 @@ const styles = theme => ({
     textAlign: 'center',
     width: '100%',
     padding: theme.spacing(0.5),
-    marginBottom: theme.spacing(1),
+    marginBottom: theme.spacing(1)
   },
   statusMenu: {
     '& ul': {
-      paddingTop: 0,
+      paddingTop: 0
     },
     '& li': {
       width: 180
     }
   },
   swipeDrawerPaper: {
-    width: categoryWidth + listWidth,
+    width: categoryWidth + listWidth
   },
   profile: {
     borderBottom: `1px solid ${theme.palette.divider}`,
     paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
+    paddingBottom: theme.spacing(2)
   },
   name: {
     textAlign: 'left',
@@ -96,7 +99,7 @@ const styles = theme => ({
     '&$pinned': {
       position: 'absolute',
       bottom: 3,
-      left: 60,
+      left: 60
     }
   },
   online: {
@@ -120,7 +123,7 @@ const styles = theme => ({
     marginBottom: theme.spacing(1),
     borderRadius: 4,
     '&:hover': {
-      background: theme.palette.action.hover,
+      background: theme.palette.action.hover
     },
     '&$active': {
       '&:before': {
@@ -134,8 +137,11 @@ const styles = theme => ({
         background: fade(theme.palette.primary.main, 0.5)
       },
       '& $icon, $text': {
-        color: theme.palette.type === 'dark' ? theme.palette.primary.main : theme.palette.primary.main,
-      },
+        color:
+          theme.palette.type === 'dark'
+            ? theme.palette.primary.main
+            : theme.palette.primary.main
+      }
     },
     '& $icon': {
       color: fade(theme.palette.text.secondary, 0.54),
@@ -159,17 +165,17 @@ const styles = theme => ({
     marginTop: -10,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+      duration: theme.transitions.duration.leavingScreen
     }),
     '& > ul': {
       width: listWidth,
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(1),
-      paddingBottom: theme.spacing(8),
+      paddingBottom: theme.spacing(8)
     },
     '& $icon': {
       color: fade(theme.palette.text.secondary, 0.54),
-      fontSize: 14,
+      fontSize: 14
     },
     '& $text': {
       paddingLeft: 0,
@@ -192,17 +198,29 @@ const styles = theme => ({
         minWidth: 'auto'
       },
       '&$active': {
-        backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.primary.main, 0.24) : theme.palette.primary.light,
+        backgroundColor:
+          theme.palette.type === 'dark'
+            ? fade(theme.palette.primary.main, 0.24)
+            : theme.palette.primary.light,
         '& $icon': {
-          color: theme.palette.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+          color:
+            theme.palette.type === 'dark'
+              ? theme.palette.primary.light
+              : theme.palette.primary.dark
         },
         '& $text': {
           '& span': {
-            color: theme.palette.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+            color:
+              theme.palette.type === 'dark'
+                ? theme.palette.primary.light
+                : theme.palette.primary.dark
           }
         },
         '&:hover': {
-          backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.secondary.light, 0.24) : fade(theme.palette.secondary.light, 0.24),
+          backgroundColor:
+            theme.palette.type === 'dark'
+              ? fade(theme.palette.secondary.light, 0.24)
+              : fade(theme.palette.secondary.light, 0.24)
         }
       }
     }
@@ -213,7 +231,7 @@ const styles = theme => ({
     overflowX: 'hidden',
     '& ul': {
       position: 'relative'
-    },
+    }
   },
   userShifted: {
     marginTop: theme.spacing(7),

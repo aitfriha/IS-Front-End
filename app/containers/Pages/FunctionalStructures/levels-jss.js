@@ -22,6 +22,20 @@ const styles = theme => ({
       }
     }
   },
+  divInline: {
+    display: 'flex',
+    justifyContent: 'right',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10
+  },
+  divInlineLeft: {
+    display: 'flex',
+    justifyContent: 'left',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10
+  },
   divRight: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -83,10 +97,11 @@ const styles = theme => ({
   buttonLink: {
     background: 'none',
     padding: 0,
+    margin: 8,
     textTransform: 'none',
     transition: 'color ease 0.3s',
     fontWeight: theme.typography.fontWeightRegular,
-    fontSize: '0.875rem',
+    fontSize: '1rem',
     '&:hover': {
       background: 'none',
       color: theme.palette.secondary.main

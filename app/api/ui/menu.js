@@ -62,17 +62,17 @@ module.exports = [
             name: 'Cities',
             link: '/app/gestion-commercial/cities'
           },
-        {
-          key: 'status_of_commercial_operation',
+          {
+            key: 'status_of_commercial_operation',
             name: 'Status of Commercial Operation',
-          link: '/app/gestion-commercial/status'
-        },
+            link: '/app/gestion-commercial/status'
+          },
           {
             key: 'contact_by_operation_status',
             name: 'Contact by Operation Status',
             link: '/app/gestion-commercial/contact-by-Operation'
           },
-        {
+          {
             key: 'service_type',
             name: 'Service Type',
             link: '/app/gestion-commercial/service-type',
@@ -205,6 +205,12 @@ module.exports = [
             key: 'contractType',
             name: 'Types of contract',
             link: '/app/hh-rr/ContractType',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'legalCategoryType',
+            name: 'Types of legal category',
+            link: '/app/hh-rr/LegalCategoryType',
             icon: 'ios-paper-outline'
           },
           {

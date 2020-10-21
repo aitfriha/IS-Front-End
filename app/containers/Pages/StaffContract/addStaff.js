@@ -420,6 +420,7 @@ class AddStaff extends React.Component {
                     getOptionLabel={option => option.countryName}
                     onChange={this.handleChangeBirthCountry}
                     style={{ marginTop: 25 }}
+                    clearOnEscape
                     renderInput={params => (
                       <TextField
                         fullWidth

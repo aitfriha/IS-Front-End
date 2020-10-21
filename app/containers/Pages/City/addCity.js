@@ -61,10 +61,10 @@ class AddCity extends React.Component {
           >
             <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>City</Typography>
             <div style={{ width: '35%' }}>
-              <AutoComplete value={this.handleValueChange} placeholder="City Name" data={servicesTypes} type="city" />
+              <AutoComplete value={this.handleValueChange} placeholder="City Name" data={servicesTypes} type="city" attribute="cityName" />
             </div>
             <div style={{ width: '35%' }}>
-              <AutoComplete value={this.handleValueChange} placeholder="state" data={servicesTypes} type="state" />
+              <AutoComplete value={this.handleValueChange} placeholder="state" data={servicesTypes} type="state" attribute="stateName" />
             </div>
           </Grid>
           <Grid

@@ -114,6 +114,7 @@ class AddressBlock extends React.Component {
           options={countries}
           getOptionLabel={option => option.countryName}
           onChange={this.handleChangeCountry}
+          clearOnEscape
           renderInput={params => (
             <TextField
               fullWidth
@@ -130,6 +131,7 @@ class AddressBlock extends React.Component {
           getOptionLabel={option => option.stateName}
           onChange={this.handleChangeState}
           style={{ marginTop: 15 }}
+          clearOnEscape
           renderInput={params => (
             <TextField
               fullWidth
@@ -146,6 +148,7 @@ class AddressBlock extends React.Component {
           getOptionLabel={option => option.cityName}
           onChange={this.handleChangeCity}
           style={{ marginTop: 15 }}
+          clearOnEscape
           renderInput={params => (
             <TextField
               fullWidth

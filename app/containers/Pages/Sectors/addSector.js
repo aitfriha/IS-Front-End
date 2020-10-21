@@ -1,10 +1,7 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import {
-  Grid,
-  TextField,
-  Button,
-  Typography
+  Grid, TextField, Button, Typography
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import styles from './sectors-jss';
@@ -31,7 +28,7 @@ class AddSector extends React.Component {
       sector3: '',
       sectors1: [],
       sectors2: [],
-      sectors3: [],
+      sectors3: []
     };
   }
 
@@ -105,7 +102,10 @@ class AddSector extends React.Component {
     const { classes, sectorsConfig } = this.props;
     console.log(sectorsConfig);
     const {
-      description1, sectors1, sectors2, sectors3,
+      description1,
+      sectors1,
+      sectors2,
+      sectors3,
       sector1,
       sector2,
       sector3,
@@ -130,9 +130,21 @@ class AddSector extends React.Component {
             alignContent="center"
             alignItems="center"
           >
-            <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>First Sector</Typography>
+            <Typography
+              variant="subtitle2"
+              color="primary"
+              style={{ width: '12%' }}
+            >
+              First Sector
+            </Typography>
             <div style={{ width: '35%' }}>
-              <AutoComplete value={this.handleValueChange} placeholder="First Sector Name" data={sectors1} type="sector1" />
+              <AutoComplete
+                value={this.handleValueChange}
+                placeholder="First Sector Name"
+                data={sectors1}
+                type="sector1"
+                attribute="name"
+              />
             </div>
             <TextField
               id="outlined-basic"
@@ -155,9 +167,21 @@ class AddSector extends React.Component {
             alignContent="center"
             alignItems="center"
           >
-            <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>Second Sector</Typography>
+            <Typography
+              variant="subtitle2"
+              color="primary"
+              style={{ width: '12%' }}
+            >
+              Second Sector
+            </Typography>
             <div style={{ width: '35%' }}>
-              <AutoComplete value={this.handleValueChange} placeholder="Second Sector Name" data={sectors2} type="sector2" />
+              <AutoComplete
+                value={this.handleValueChange}
+                placeholder="Second Sector Name"
+                data={sectors2}
+                type="sector2"
+                attribute="name"
+              />
             </div>
             <TextField
               id="outlined-basic"
@@ -180,9 +204,21 @@ class AddSector extends React.Component {
             alignContent="center"
             alignItems="center"
           >
-            <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>Third Sector</Typography>
+            <Typography
+              variant="subtitle2"
+              color="primary"
+              style={{ width: '12%' }}
+            >
+              Third Sector
+            </Typography>
             <div style={{ width: '35%' }}>
-              <AutoComplete value={this.handleValueChange} placeholder="Third Sector Name" data={sectors3} type="sector3" />
+              <AutoComplete
+                value={this.handleValueChange}
+                placeholder="Third Sector Name"
+                data={sectors3}
+                type="sector3"
+                attribute="name"
+              />
             </div>
             <TextField
               id="outlined-basic"
@@ -200,7 +236,11 @@ class AddSector extends React.Component {
             item
             xs={12}
             md={7}
-            style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: 12
+            }}
           >
             <Button
               color="primary"
@@ -223,7 +263,7 @@ AddSector.propTypes = {
   newAdd: PropTypes.func.isRequired
 };
 const mapStateToProps = state => ({
-  sectorsConfig: state.get('SectorConfigModule').toJS().sectorsConfig,
+  sectorsConfig: state.get('SectorConfigModule').toJS().sectorsConfig
 });
 const mapDispatchToProps = dispatch => ({
   addNew: bindActionCreators(addSectorConfig, dispatch)

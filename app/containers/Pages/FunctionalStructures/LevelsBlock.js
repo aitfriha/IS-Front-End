@@ -1,16 +1,16 @@
 import React from 'react';
 import MUIDataTable from 'mui-datatables';
 import { withStyles } from '@material-ui/core/styles';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
+import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import {
   Button,
-  TableCell,
-  TableRow,
+  Collapse,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,21 +18,26 @@ import {
   Typography,
   Tooltip,
   Avatar,
-  Divider
+  Divider,
+  Paper
 } from '@material-ui/core';
 import interact from 'interactjs';
-import { setLevelConfig } from '../../../redux/actions/FunctionalStructureConfigActions';
 import styles from './levels-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
+import FunctionalStructureConfigService from '../../Services/FunctionalStructureConfigService';
 import FunctionalStructureService from '../../Services/FunctionalStructureService';
 import StaffService from '../../Services/StaffService';
 
 class LevelsBlock extends React.Component {
   state = {
-    data: [],
-    levelId: '',
+    levelsData: [],
+    level: {},
+    levels: [],
+    index1: -1,
+    index2: -1,
     staffs: [],
     staffAssigned: [],
+    staffNotAssigned: [],
     isDialogOpen: false
   };
 
@@ -59,18 +64,17 @@ class LevelsBlock extends React.Component {
       }
     },
     {
-      name: 'Staff',
+      label: 'Is production level?',
+      name: 'isProductionLevel',
       options: {
-        filter: false,
-        sort: false,
-        empty: true,
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <Button onClick={() => this.handleOpenDialog(value, tableMeta)}>
-              Show Staff
-            </Button>
-          </React.Fragment>
-        )
+        filter: true
+      }
+    },
+    {
+      label: 'Is commercial level?',
+      name: 'isCommercialLevel',
+      options: {
+        filter: true
       }
     },
     {
@@ -92,11 +96,6 @@ class LevelsBlock extends React.Component {
   ];
 
   componentDidMount() {
-    FunctionalStructureService.getLevels().then(({ data }) => {
-      this.setState({
-        data
-      });
-    });
     this.updateData();
     interact('[id^=staffDropzone]').dropzone({
       accept: '[id^=levelElement]',
@@ -209,9 +208,7 @@ class LevelsBlock extends React.Component {
   };
 
   addStaffToLevel = event => {
-    const {
-      staffs, staffAssigned, data, levelId
-    } = this.state;
+    const { staffs, staffAssigned, level } = this.state;
     const item = event.relatedTarget;
     item.classList.remove('dragging', 'cannot-drop');
     /* console.log('event');
@@ -225,23 +222,18 @@ class LevelsBlock extends React.Component {
     console.log('event');
     console.log(event);
     console.log(event.relatedTarget.id.substr(12)); */
-    if (data[levelId].type === 'Level 3' || staffAssigned.length === 0) {
-      const draggedId = parseInt(event.relatedTarget.id.substr(12));
-      staffAssigned.push(staffs[draggedId]);
-      staffs.splice(draggedId, 1);
-
-      this.setState({
-        staffs,
-        staffAssigned
-      });
-    } else {
-      item.setAttribute('data-x', 0);
-      item.setAttribute('data-y', 0);
-    }
+    const draggedId = parseInt(event.relatedTarget.id.substr(12));
+    staffAssigned.push(staffs[draggedId]);
+    staffs.splice(draggedId, 1);
+    console.log(staffs);
+    this.setState({
+      staffs,
+      staffAssigned
+    });
   };
 
   removeStaffFromLevel = event => {
-    const { staffs, staffAssigned } = this.state;
+    const { staffs, staffAssigned, staffNotAssigned } = this.state;
     const item = event.relatedTarget;
     item.classList.remove('dragging', 'cannot-drop');
     console.log('event');
@@ -257,23 +249,27 @@ class LevelsBlock extends React.Component {
     const draggedId = parseInt(event.relatedTarget.id.substr(12));
     console.log('drop id 2');
     staffs.push(staffAssigned[draggedId]);
+    staffNotAssigned.push(staffAssigned[draggedId]);
     staffAssigned.splice(draggedId, 1);
 
     this.setState({
       staffs,
-      staffAssigned
+      staffAssigned,
+      staffNotAssigned
     });
   };
 
-  handleOpenDialog = (value, tableMeta) => {
-    const { data } = this.state;
-    console.log(tableMeta);
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
-    console.log(data[index]);
-    StaffService.getStaffsByLevel(data[index].levelId).then(({ data }) => {
+  handleOpenDialog = level => {
+    StaffService.getStaffsByLevel(level.levelId).then(({ data }) => {
+      console.log(data);
+      data.sort((a, b) => {
+        const textA = a.firstName.toUpperCase();
+        const textB = b.firstName.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+      console.log(data);
       this.setState({
-        levelId: index,
+        level,
         isDialogOpen: true,
         staffAssigned: data
       });
@@ -289,13 +285,13 @@ class LevelsBlock extends React.Component {
 
   handleSave = () => {
     const {
-      data, staffAssigned, staffs, levelId
+      level, staffAssigned, staffs, staffNotAssigned
     } = this.state;
-    const items = [data[levelId], staffAssigned, staffs];
+    const items = [level, staffAssigned, staffNotAssigned];
     const items2 = {
-      level: data[levelId],
+      level,
       staffAssigned,
-      staffNotAssigned: staffs
+      staffNotAssigned
     };
     StaffService.assignLevelToStaff(items).then(() => {
       this.handleClose();
@@ -304,33 +300,73 @@ class LevelsBlock extends React.Component {
 
   updateData = () => {
     FunctionalStructureService.getLevels().then(({ data }) => {
-      this.setState({ data });
+      console.log(data);
+      this.setState({
+        levelsData: data
+      });
+    });
+    FunctionalStructureService.getLevelByType('Level 1').then(({ data }) => {
+      console.log(data);
+      this.setState({
+        levels: data
+      });
     });
     StaffService.getNotAssignedStaffs().then(({ data }) => {
+      console.log(data);
+      data.sort((a, b) => {
+        const textA = a.firstName.toUpperCase();
+        const textB = b.firstName.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+      console.log(data);
       this.setState({ staffs: data });
     });
+  };
+
+  handleExpandClick = (index, level) => {
+    if (level === 'Level 1') {
+      this.setState({
+        index1: index,
+        index2: -1
+      });
+    } else {
+      this.setState({
+        index2: index
+      });
+    }
   };
 
   render() {
     const { classes } = this.props;
     const {
-      data, isDialogOpen, staffs, staffAssigned
+      levelsData,
+      isDialogOpen,
+      staffs,
+      staffAssigned,
+      level,
+      levels,
+      index1,
+      index2
     } = this.state;
     const options = {
       filter: true,
-      selectableRows: false,
+      selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={levelsData}
           url="/app/hh-rr/functionalStructure/create-level"
           tooltip="add new Level"
         />
       )
     };
-
+    levels.sort((a, b) => {
+      const textA = a.name.toUpperCase();
+      const textB = b.name.toUpperCase();
+      return textA < textB ? -1 : textA > textB ? 1 : 0;
+    });
     return (
       <div>
         <Dialog
@@ -343,13 +379,83 @@ class LevelsBlock extends React.Component {
           fullWidth
           maxWidth="sm"
         >
-          <DialogTitle id="alert-dialog-title">Level's Staff</DialogTitle>
+          <DialogTitle id="alert-dialog-title">{level.name}</DialogTitle>
           <DialogContent>
             <Typography
               variant="subtitle1"
               style={{
                 fontFamily: 'sans-serif , Arial',
-                fontSize: '20px'
+                fontSize: '17px'
+              }}
+              color="primary"
+            >
+              Description :
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              style={{
+                color: '#000',
+                fontFamily: 'sans-serif , Arial',
+                fontSize: '17px',
+                opacity: 0.7
+              }}
+            >
+              {level.description || 'empty'}
+            </Typography>
+            <div className={classes.divInline}>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px'
+                }}
+                color="primary"
+              >
+                Is it production level :
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px',
+                  opacity: 0.7,
+                  marginLeft: 10
+                }}
+              >
+                {level.isProductionLevel}
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px',
+                  marginLeft: 20
+                }}
+                color="primary"
+              >
+                Is it commercial level :
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px',
+                  opacity: 0.7,
+                  marginLeft: 10
+                }}
+              >
+                {level.isCommercialLevel}
+              </Typography>
+            </div>
+
+            <Typography
+              variant="subtitle1"
+              style={{
+                fontFamily: 'sans-serif , Arial',
+                fontSize: '20px',
+                marginTop: 10
               }}
               color="primary"
             >
@@ -453,12 +559,132 @@ class LevelsBlock extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <MUIDataTable
-          title=""
-          data={data}
-          columns={this.columns}
-          options={options}
-        />
+        <PapperBlock
+          title="Functional Structure Levels Table"
+          icon="md-menu"
+          noMargin
+        >
+          <MUIDataTable
+            title=""
+            data={levelsData}
+            columns={this.columns}
+            options={options}
+          />
+        </PapperBlock>
+        <PapperBlock
+          title="Functional Structure Levels Tree"
+          icon="md-menu"
+          noMargin
+        >
+          {levels ? (
+            levels.map((level1, indexLevel1) => (
+              <div style={{ width: '100%' }}>
+                <Paper
+                  elevation={1}
+                  style={{
+                    width: '100%',
+                    marginTop: '10px',
+                    paddingLeft: '2%'
+                  }}
+                >
+                  <div className={classes.divSpace}>
+                    <Button
+                      className={classes.buttonLink}
+                      onClick={() => this.handleOpenDialog(level1)}
+                    >
+                      {level1.name}
+                    </Button>
+                    <Button
+                      name="personalInformation"
+                      style={{ backgroundColor: 'transparent' }}
+                      disableRipple
+                      endIcon={
+                        indexLevel1 === index1 ? (
+                          <ExpandLessOutlinedIcon />
+                        ) : (
+                          <ExpandMoreOutlinedIcon />
+                        )
+                      }
+                      onClick={() => this.handleExpandClick(indexLevel1, level1.type)
+                      }
+                    />
+                  </div>
+                </Paper>
+                <Collapse in={indexLevel1 === index1}>
+                  {level1.childs ? (
+                    level1.childs.map((level2, indexLevel2) => (
+                      <div>
+                        <Paper
+                          elevation={1}
+                          style={{
+                            width: '100%',
+                            paddingLeft: '30%'
+                          }}
+                        >
+                          <div className={classes.divSpace}>
+                            <Button
+                              className={classes.buttonLink}
+                              onClick={() => this.handleOpenDialog(level2)}
+                            >
+                              {level2.name}
+                            </Button>
+                            <Button
+                              name="personalInformation"
+                              style={{
+                                backgroundColor: 'transparent'
+                              }}
+                              disableRipple
+                              endIcon={
+                                indexLevel2 === index2 ? (
+                                  <ExpandLessOutlinedIcon />
+                                ) : (
+                                  <ExpandMoreOutlinedIcon />
+                                )
+                              }
+                              onClick={() => this.handleExpandClick(indexLevel2, level2.type)
+                              }
+                            />
+                          </div>
+                        </Paper>
+                        <Collapse in={indexLevel2 === index2}>
+                          {level2.childs ? (
+                            level2.childs.map((level3, indexLevel2) => (
+                              <div>
+                                <Paper
+                                  elevation={1}
+                                  style={{
+                                    width: '100%',
+                                    paddingLeft: '60%'
+                                  }}
+                                >
+                                  <div className={classes.divSpace}>
+                                    <Button
+                                      className={classes.buttonLink}
+                                      onClick={() => this.handleOpenDialog(level3)
+                                      }
+                                    >
+                                      {level3.name}
+                                    </Button>
+                                  </div>
+                                </Paper>
+                              </div>
+                            ))
+                          ) : (
+                            <div />
+                          )}
+                        </Collapse>
+                      </div>
+                    ))
+                  ) : (
+                    <div />
+                  )}
+                </Collapse>
+              </div>
+            ))
+          ) : (
+            <div />
+          )}
+        </PapperBlock>
       </div>
     );
   }

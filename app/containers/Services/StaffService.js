@@ -1,12 +1,18 @@
 import axios from 'axios';
 import { API } from '../../config/apiUrl';
 
+const config = {
+  headers: {
+    'content-type': 'multipart/form-data'
+  }
+};
+
 class StaffService {
   getStaffs = () => axios.get(`${API}/staff-all`);
 
   getNotAssignedStaffs = () => axios.get(`${API}/staff-no-assigned`);
 
-  saveStaff = staff => axios.post(`${API}/staff-add`, staff);
+  saveStaff = data => axios.post(`${API}/staff-add`, data, config);
 
   assignLevelToStaff = objects => axios.post(`${API}/assign-level-staff`, objects);
 

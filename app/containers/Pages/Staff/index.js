@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
-import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import { Slide } from '@material-ui/core';
 import StaffBlock from './StaffBlock';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import StaffProfile from './StaffProfile';
 
 class Staff extends React.Component {
@@ -13,6 +12,11 @@ class Staff extends React.Component {
     isShowProfile: false,
     staff: {}
   };
+
+  componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
+  }
 
   showStaffProfile = (isShowProfile, staff) => {
     this.setState({
@@ -64,8 +68,8 @@ class Staff extends React.Component {
     );
   }
 }
-Staff.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 
-export default Staff;
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  return <Staff changeTheme={changeTheme} />;
+};
