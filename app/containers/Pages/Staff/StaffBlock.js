@@ -52,7 +52,7 @@ class StaffBlock extends React.Component {
           }
         },
         {
-          name: 'company',
+          name: 'companyName',
           label: 'Company',
           options: {
             filter: true
@@ -101,10 +101,15 @@ class StaffBlock extends React.Component {
           }
         },
         {
-          name: 'functionalLevel',
+          name: 'level',
           label: 'Functional level',
           options: {
-            filter: true
+            customBodyRender: (value, data) => {
+              console.log(data);
+              return (
+                <React.Fragment>{value ? value.name : 'none'}</React.Fragment>
+              );
+            }
           }
         },
 
@@ -150,7 +155,7 @@ class StaffBlock extends React.Component {
     const { data, columns } = this.state;
     const options = {
       filter: true,
-      selectableRows: false,
+      selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,

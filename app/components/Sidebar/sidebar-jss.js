@@ -4,13 +4,10 @@ import red from '@material-ui/core/colors/red';
 import amber from '@material-ui/core/colors/amber';
 import grey from '@material-ui/core/colors/grey';
 
-const drawerWidth = 240;
+const drawerWidth = 300;
 const styles = theme => ({
   user: {
     justifyContent: 'center'
-  },
-  drawer: {
-    width: drawerWidth
   },
   drawerPaper: {
     position: 'relative',
@@ -19,23 +16,24 @@ const styles = theme => ({
     border: 'none',
     background: 'none',
     color: theme.palette.text.primary,
+    width: drawerWidth,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+      duration: theme.transitions.duration.enteringScreen
+    })
   },
   swipeDrawerPaper: {
-    width: drawerWidth,
+    width: drawerWidth
   },
   opened: {
     '& $primary, & $icon': {
-      color: theme.palette.primary.main,
+      color: theme.palette.primary.main
     },
     '&:before': {
       content: '""',
       position: 'absolute',
       width: 5,
-      height: theme.spacing(6),
+      height: theme.spacing(5),
       top: 0,
       left: 0,
       background: fade(theme.palette.primary.main, 0.5)
@@ -48,14 +46,14 @@ const styles = theme => ({
     background: theme.palette.background.paper,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+      duration: theme.transitions.duration.leavingScreen
     }),
     '& $user': {
       justifyContent: 'flex-start'
     },
     '& $bigAvatar': {
       width: 40,
-      height: 40,
+      height: 40
     },
     '& nav': {
       display: 'none'
@@ -85,31 +83,36 @@ const styles = theme => ({
     '& $menuContainer': {
       '&$menuContainer': {
         paddingTop: theme.spacing(10),
-        paddingBottom: 0,
+        paddingBottom: 0
       }
-    },
+    }
   },
   drawerInner: {
     // Make the items inside not wrap when transitioning:
     height: '100%',
     position: 'fixed',
-    backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.background.paper, 0.75) : fade(theme.palette.background.paper, 0.9),
-    boxShadow: theme.shade.light,
-    backdropFilter: 'saturate(180%) blur(20px)'
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? fade(theme.palette.background.paper, 0.75)
+        : fade(theme.palette.background.paper, 0.95),
+    boxShadow: theme.shade.light
   },
   drawerInnerMobile: {
     // Make the items inside not wrap when transitioning:
     height: '100%',
-    backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.background.paper, 0.75) : fade(theme.palette.background.paper, 0.95),
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? fade(theme.palette.background.paper, 0.75)
+        : fade(theme.palette.background.paper, 0.95)
   },
   drawerHeader: {
     padding: '0',
     zIndex: 1,
     position: 'relative',
-    ...theme.mixins.toolbar,
+    ...theme.mixins.toolbar
   },
   avatar: {
-    margin: 10,
+    margin: 10
   },
   bigAvatar: {
     width: 80,
@@ -119,17 +122,17 @@ const styles = theme => ({
   brandBar: {
     transition: theme.transitions.create(['width', 'margin', 'background'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.enteringScreen
     }),
     '&:after': {
       transition: theme.transitions.create(['box-shadow'], {
         easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
+        duration: theme.transitions.duration.enteringScreen
+      })
     }
   },
   darker: {
-    background: 'none',
+    background: 'none'
   },
   nested: {
     paddingTop: theme.spacing(0.5),
@@ -141,7 +144,7 @@ const styles = theme => ({
   },
   child: {
     '& a': {
-      paddingLeft: theme.spacing(6),
+      paddingLeft: theme.spacing(6)
     }
   },
   title: {
@@ -164,26 +167,38 @@ const styles = theme => ({
     }
   },
   active: {
-    backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.primary.main, 0.24) : theme.palette.primary.light,
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? fade(theme.palette.primary.main, 0.24)
+        : theme.palette.primary.light,
     '& $primary': {
-      color: theme.palette.type === 'dark' ? theme.palette.common.white : theme.palette.primary.dark,
+      color:
+        theme.palette.type === 'dark'
+          ? theme.palette.common.white
+          : theme.palette.primary.dark
     },
     '& $icon svg': {
-      fill: theme.palette.primary.dark,
+      fill: theme.palette.primary.dark
     },
     '&:hover, &:focus': {
-      backgroundColor: theme.palette.type === 'dark' ? fade(theme.palette.primary.main, 0.24) : theme.palette.primary.light,
+      backgroundColor:
+        theme.palette.type === 'dark'
+          ? fade(theme.palette.primary.main, 0.24)
+          : theme.palette.primary.light
     }
   },
   nolist: {
-    listStyle: 'none',
+    listStyle: 'none'
   },
   primary: {
     whiteSpace: 'nowrap'
   },
   icon: {
     minWidth: theme.spacing(5),
-    fill: theme.palette.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+    fill:
+      theme.palette.type === 'dark'
+        ? theme.palette.primary.light
+        : theme.palette.primary.dark
   },
   iconed: {},
   head: {
@@ -192,15 +207,17 @@ const styles = theme => ({
     borderRadius: `0 ${theme.spacing(3)}px ${theme.spacing(3)}px 0`,
     paddingLeft: theme.spacing(3),
     '&$iconed': {
-      paddingLeft: theme.spacing(3),
+      paddingLeft: theme.spacing(3)
     },
     '& svg[class^="MuiSvgIcon"]': {
       left: -10,
       position: 'relative'
-    },
+    }
   },
   headCapital: {
-    padding: `${theme.spacing(1)}px 0 ${theme.spacing(1)}px ${theme.spacing(9)}px`,
+    padding: `${theme.spacing(1)}px 0 ${theme.spacing(1)}px ${theme.spacing(
+      9
+    )}px`,
     left: theme.spacing(1) * -2,
     position: 'relative',
     textTransform: 'uppercase',
@@ -217,10 +234,11 @@ const styles = theme => ({
     position: 'fixed',
     [theme.breakpoints.up('lg')]: {
       background: 'none',
-      position: 'absolute',
+      position: 'absolute'
     },
+    bottom: 0,
     left: theme.spacing(3),
-    lineHeight: '24px',
+    lineHeight: '24px'
   },
   brand: {
     display: 'flex',
@@ -231,13 +249,13 @@ const styles = theme => ({
     position: 'relative',
     textDecoration: 'none',
     fontSize: 16,
-    margin: 0,
+    margin: '0px 0px 20px',
     fontWeight: 500,
     color: theme.palette.text.primary,
     '& img': {
       width: 30,
-      marginRight: 10,
-    },
+      marginRight: 10
+    }
   },
   brandBig: {
     paddingTop: theme.spacing(4),
@@ -250,7 +268,7 @@ const styles = theme => ({
       fontSize: 18,
       marginTop: theme.spacing(2),
       fontWeight: 500,
-      color: theme.palette.text.primary,
+      color: theme.palette.text.primary
     }
   },
   profile: {
@@ -271,7 +289,7 @@ const styles = theme => ({
       textOverflow: 'ellipsis',
       overflow: 'hidden',
       whiteSpace: 'nowrap',
-      width: 110
+      width: '100%'
     },
     '& button': {
       fontSize: 12,
@@ -283,7 +301,7 @@ const styles = theme => ({
       textTransform: 'capitalize',
       padding: 0,
       minHeight: 20,
-      marginTop: 4,
+      marginTop: 4
     }
   },
   statusMenu: {
@@ -335,7 +353,7 @@ const styles = theme => ({
     '&$rounded': {
       paddingRight: theme.spacing(1.5),
       '& a': {
-        borderRadius: `0 ${theme.spacing(3)}px ${theme.spacing(3)}px 0`,
+        borderRadius: `0 ${theme.spacing(3)}px ${theme.spacing(3)}px 0`
       },
       '& $opened': {
         '&:before': {
@@ -344,16 +362,16 @@ const styles = theme => ({
       }
     },
     '&::-webkit-scrollbar': {
-      width: 8,
+      width: 8
     },
     '&::-webkit-scrollbar-thumb': {
       borderRadius: 12,
-      backgroundColor: 'rgba(0,0,0,0)',
+      backgroundColor: 'rgba(0,0,0,0)'
     },
     '&:hover': {
       '&::-webkit-scrollbar-thumb': {
         backgroundColor: 'rgba(0,0,0,0.3)',
-        border: '1px solid rgba(255,255,255,0.4)',
+        border: '1px solid rgba(255,255,255,0.4)'
       }
     }
   },

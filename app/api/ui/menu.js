@@ -83,7 +83,7 @@ module.exports = [
             name: 'Sectors',
             link: '/app/gestion-commercial/sectors',
             icon: 'ios-people-outline'
-          },
+          }
           /* {
             key: 'countries',
             name: 'Countries',
@@ -205,6 +205,12 @@ module.exports = [
             key: 'contractType',
             name: 'Types of contract',
             link: '/app/hh-rr/ContractType',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'legalCategoryType',
+            name: 'Types of legal category',
+            link: '/app/hh-rr/LegalCategoryType',
             icon: 'ios-paper-outline'
           },
           {

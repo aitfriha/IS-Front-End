@@ -4,7 +4,9 @@ import { API } from '../../config/apiUrl';
 class AbsenceTypeService {
   getAllAbsenceTypes = () => axios.get(`${API}/absenceType-all`);
 
-  saveAbsenceType = absenceType => axios.post(`${API}/absenceType-save`, absenceType);
+  getAllByState = stateId => axios.get(`${API}/absenceType-all-by-state/${stateId}`);
+
+  saveAbsenceType = (absenceType, stateCountryId) => axios.post(`${API}/absenceType-save/${stateCountryId}`, absenceType);
 
   updateAbsenceType = (absenceTypeId, absenceType) => axios.put(`${API}/absenceType-update/${absenceTypeId}`, absenceType);
 

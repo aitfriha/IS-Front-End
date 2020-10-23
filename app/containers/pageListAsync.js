@@ -105,6 +105,14 @@ export const AddContractType = Loadable({
   loader: () => import('./Pages/ContractType/addContractType'),
   loading: Loading
 });
+export const LegalCategoryType = Loadable({
+  loader: () => import('./Pages/LegalCategoryType'),
+  loading: Loading
+});
+export const AddLegalCategoryType = Loadable({
+  loader: () => import('./Pages/LegalCategoryType/addLegalCategoryType'),
+  loading: Loading
+});
 export const AbsenceType = Loadable({
   loader: () => import('./Pages/AbsenceType'),
   loading: Loading
@@ -203,25 +211,25 @@ export const AddContractStatus = Loadable({
 });
 export const StatusOfCommercialOperation = Loadable({
   loader: () => import('./Pages/StatusOfCommercialOperation'),
-  loading: Loading,
+  loading: Loading
 });
 export const Billing = Loadable({
   loader: () => import('./Pages/FinancialSystem/Billing'),
-  loading: Loading,
+  loading: Loading
 });
 export const AddBilling = Loadable({
   loader: () => import('./Pages/FinancialSystem/Billing/addBilling'),
-  loading: Loading,
+  loading: Loading
 });
 export const IVA = Loadable({
   loader: () => import('./Pages/FinancialSystem/IVA'),
-  loading: Loading,
+  loading: Loading
 });
 export const AddIVA = Loadable({
   loader: () => import('./Pages/FinancialSystem/IVA/addIVA'),
-  loading: Loading,
+  loading: Loading
 });
 export const ContactByOperationStatus = Loadable({
   loader: () => import('./Pages/ContactByOperationStatus'),
-  loading: Loading,
+  loading: Loading
 });

@@ -39,7 +39,7 @@ const styles = theme => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: 20,
     width: '100%'
   },
   divInline: {
@@ -49,6 +49,14 @@ const styles = theme => ({
     flexDirection: 'row',
     marginBottom: 10,
     width: '50%'
+  },
+  divEconomicInline: {
+    display: 'flex',
+    justifyContent: 'right',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 15,
+    width: '100%'
   },
   iconButton: {
     display: 'flex',
@@ -235,12 +243,35 @@ const styles = theme => ({
     height: theme.spacing(20),
     boxShadow: theme.glow.light
   },
+  uploadAvatarEmpty: {
+    alignItems: 'center',
+    textAlign: 'center',
+    margin: '0 auto',
+    width: theme.spacing(15),
+    height: theme.spacing(15),
+    boxShadow: '1px 1px 20px #DF1010'
+  },
+  uploadAvatarDone: {
+    alignItems: 'center',
+    textAlign: 'center',
+    margin: '0 auto',
+    width: theme.spacing(15),
+    height: theme.spacing(15),
+    boxShadow: '1px 1px 20px #0BA21B'
+  },
+  uploadText: {
+    color: '#000',
+    fontFamily: 'sans-serif , Arial',
+    fontSize: 12,
+    fontWeight: 'bold',
+    opacity: 0.6
+  },
   uploadIcon: {
     alignItems: 'center',
     textAlign: 'center',
     margin: '0 auto',
-    width: theme.spacing(8),
-    height: theme.spacing(8)
+    width: theme.spacing(5),
+    height: theme.spacing(5)
   },
   btnCenter: {
     display: 'flex',
@@ -250,6 +281,18 @@ const styles = theme => ({
   root: {
     flexGrow: 1,
     marginBottom: '10px'
+  },
+  economicTypography: {
+    color: '#000',
+    fontFamily: 'sans-serif , Arial',
+    fontSize: '17px',
+    opacity: 0.7
+  },
+  economicHistoryTypography: {
+    color: '#FF0000',
+    fontFamily: 'sans-serif , Arial',
+    fontSize: '17px',
+    opacity: 0.7
   }
 });
 export default styles;

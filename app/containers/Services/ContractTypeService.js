@@ -4,7 +4,9 @@ import { API } from '../../config/apiUrl';
 class ContractTypeService {
   getAllContractTypes = () => axios.get(`${API}/contractType-all`);
 
-  saveContractType = contractType => axios.post(`${API}/contractType-save`, contractType);
+  getAllByState = stateId => axios.get(`${API}/contractType-all-by-state/${stateId}`);
+
+  saveContractType = (contractType, stateCountryId) => axios.post(`${API}/contractType-save/${stateCountryId}`, contractType);
 
   updateContractType = (contractTypeId, contractType) => axios.put(`${API}/contractType-update/${contractTypeId}`, contractType);
 

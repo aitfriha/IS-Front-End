@@ -153,6 +153,7 @@
     "minimist": "1.2.0",
     "moment": "^2.22.2",
     "mui-datatables": "^2.13.1",
+    "net": "^1.0.2",
     "profile-picture": "git+https://github.com/dsalvagni/react-profile-picture.git",
     "prop-types": "15.7.2",
     "rcolor": "^1.0.1",

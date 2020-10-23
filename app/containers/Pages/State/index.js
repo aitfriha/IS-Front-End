@@ -365,7 +365,10 @@ class StateCountry extends React.Component {
                           onClick: () => {
                             const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                             const fileExtension = '.xlsx';
+                              console.log(allCitys);
                             const ws = XLSX.utils.json_to_sheet(allCitys);
+                              ws["F1"]="";
+                            console.log(ws);
                             const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
                             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                             const data1 = new Blob([excelBuffer], { type: fileType });

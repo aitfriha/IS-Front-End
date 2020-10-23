@@ -17,15 +17,23 @@ import {
   Typography,
   Paper,
   Tab,
-  Tabs
+  Tabs,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Divider
 } from '@material-ui/core';
 import Ionicon from 'react-ionicons';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import PropTypes from 'prop-types';
 import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import styles from './staff-jss';
-import FunctionalStructureConfigService from '../../Services/FunctionalStructureConfigService';
+import FunctionalStructureService from '../../Services/FunctionalStructureService';
 import avatarApi from '../../../api/images/avatars';
+import StaffProfileEconomicContractInformation from './StaffProfileEconomicContractInformation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   pdfjs.version
@@ -36,6 +44,7 @@ export class StaffProfile extends Component {
     value: 0,
     isOpenDocument: false,
     documentType: '',
+    docExtension: '',
     numPages: null,
     pageNumber: 1,
     functionalStructureTree: {}
@@ -47,28 +56,31 @@ export class StaffProfile extends Component {
     if (staff.level && !functionalStructureTree.level1) {
       const { type } = staff.level;
       console.log(type);
-      if (type === 'Level 1') {
-        this.setState({
-          functionalStructureTree: { level1: staff.level.name }
-        });
-      } else if (type === 'Level 2') {
-        const tree = {
-          level1: staff.level.parent.name,
-          level2: staff.level.name
-        };
-        this.setState({
-          functionalStructureTree: tree
-        });
-      } else if (type === 'Level 3') {
-        FunctionalStructureConfigService.getLevelConfigByLevel3(
-          staff.level.name
-        ).then(({ data }) => {
+      FunctionalStructureService.getLevelTree(staff.level.levelId).then(
+        ({ data }) => {
           console.log(data);
+          let tree = {};
+          if (type === 'Level 1') {
+            tree = {
+              level1: data[0].name
+            };
+          } else if (type === 'Level 2') {
+            tree = {
+              level1: data[0].name,
+              level2: data[1].name
+            };
+          } else if (type === 'Level 3') {
+            tree = {
+              level1: data[0].name,
+              level2: data[1].name,
+              level3: data[2].name
+            };
+          }
           this.setState({
-            functionalStructureTree: data[0]
+            functionalStructureTree: tree
           });
-        });
-      }
+        }
+      );
     }
     console.log(staff.staffContract.contractDoc);
   }
@@ -81,7 +93,7 @@ export class StaffProfile extends Component {
 
   handleDownload = () => {
     const { staff } = this.props;
-    const { documentType } = this.state;
+    const { documentType, docExtension } = this.state;
     let doc = null;
     let docName = null;
     if (documentType === 'contract') {
@@ -89,16 +101,45 @@ export class StaffProfile extends Component {
       docName = `${staff.firstName}-${staff.fatherFamilyName}-${
         staff.motherFamilyName
       }_Contract`;
-    } else {
+    } else if (documentType === 'internalRules') {
       doc = staff.staffContract.internalRulesDoc;
       docName = `${staff.firstName}-${staff.fatherFamilyName}-${
         staff.motherFamilyName
       }_Internal-Rules`;
+    } else if (documentType === 'preContract') {
+      doc = staff.staffContract.preContractDoc;
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
+      }_PreContract`;
+    } else if (documentType === 'ID Card') {
+      doc = staff.staffDocuments.find(doc => doc.name === 'ID Card').document;
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
+      }_ID_Card`;
+    } else if (documentType === 'Passport') {
+      doc = staff.staffDocuments.find(doc => doc.name === 'Passport').document;
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
+      }_Passport`;
+    } else if (documentType === 'Professional ID Card') {
+      doc = staff.staffDocuments.find(
+        doc => doc.name === 'Professional ID Card'
+      ).document;
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
+      }_Professional_ID_Card`;
+    } else if (documentType === 'Health National Security Card') {
+      doc = staff.staffDocuments.find(
+        doc => doc.name === 'Health National Security Card'
+      ).document;
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
+      }_Health-National-Security-Card`;
     }
-    const documentBase64 = this.fileToBase64(doc);
 
+    const documentBase64 = this.fileToBase64(doc);
     const documentBlob = new Blob([documentBase64], {
-      type: 'application/pdf'
+      type: this.handleFileDataType(docExtension)
     });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(documentBlob);
@@ -117,10 +158,11 @@ export class StaffProfile extends Component {
     });
   };
 
-  handleOpenDialog = documentType => {
+  handleOpenDialog = (documentType, docExtension) => {
     this.setState({
       isOpenDocument: true,
-      documentType
+      documentType,
+      docExtension
     });
   };
 
@@ -141,17 +183,72 @@ export class StaffProfile extends Component {
     return bytes;
   };
 
+  handleFileDataType = ext => {
+    switch (ext) {
+      case 'pdf':
+        return 'application/pdf';
+      case 'jpg':
+        return 'image/jpeg';
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'tiff':
+        return 'image/tiff';
+    }
+  };
+
+  renderFile = () => {
+    const { staff } = this.props;
+    const { documentType, docExtension } = this.state;
+    switch (documentType) {
+      case 'contract':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffContract.contractDoc
+        }`;
+      case 'internalRules':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffContract.internalRulesDoc
+        }`;
+      case 'preContract':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffContract.preContractDoc
+        }`;
+      case 'ID Card':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffDocuments.find(doc => doc.name === 'ID Card').document
+        }`;
+      case 'Passport':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffDocuments.find(doc => doc.name === 'Passport').document
+        }`;
+      case 'Professional ID Card':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffDocuments.find(doc => doc.name === 'Professional ID Card')
+            .document
+        }`;
+      case 'Health National Security Card':
+        return `data:${this.handleFileDataType(docExtension)};base64,${
+          staff.staffDocuments.find(
+            doc => doc.name === 'Health National Security Card'
+          ).document
+        }`;
+      default:
+        return '';
+    }
+  };
+
   render() {
     const { classes, staff } = this.props;
     const {
       value,
       isOpenDocument,
-      documentType,
       numPages,
       pageNumber,
-      functionalStructureTree
+      functionalStructureTree,
+      docExtension
     } = this.state;
-    console.log(functionalStructureTree);
+    console.log(staff.staffDocuments);
     return (
       <div>
         <Dialog
@@ -166,50 +263,21 @@ export class StaffProfile extends Component {
         >
           <DialogTitle id="SaveFormula">Document preview</DialogTitle>
           <DialogContent>
-            <div>
+            {docExtension === 'pdf' ? (
               <Document
-                file={`data:application/pdf;base64,${
-                  documentType === 'contract'
-                    ? staff.staffContract.contractDoc
-                    : staff.staffContract.internalRulesDoc
-                }`}
+                file={this.renderFile()}
                 onLoadSuccess={this.onDocumentLoadSuccess}
                 onLoadError={console.error}
               >
                 <Page pageNumber={pageNumber} />
               </Document>
-            </div>
-            <div>
-              Page
-              {' '}
-              {pageNumber}
-              {' '}
-of
-              {' '}
-              {numPages}
-            </div>
-            <div>
-              Page
-              {' '}
-              {pageNumber}
-              {' '}
-of
-              {' '}
-              {numPages}
-            </div>
-            <div>
-              Page
-              {' '}
-              {pageNumber}
-              {' '}
-of
-              {' '}
-              {numPages}
-            </div>
+            ) : (
+              <img src={this.renderFile()} alt="Document" />
+            )}
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={this.handleDialogClose} color="primary">
-              Cancel
+              Close
             </Button>
             <Button onClick={this.handleDownload} color="primary">
               Download
@@ -264,7 +332,11 @@ of
             </div>
             <Paper
               elevation={2}
-              style={{ padding: 20, width: '100%', marginTop: 30 }}
+              style={{
+                padding: 20,
+                width: '100%',
+                marginTop: 30
+              }}
             >
               <Typography
                 variant="subtitle1"
@@ -284,7 +356,7 @@ of
                   style={{
                     fontFamily: 'sans-serif , Arial',
                     fontSize: '17px',
-                    marginTop: 20
+                    marginTop: 10
                   }}
                   color="secondary"
                 >
@@ -398,7 +470,12 @@ of
             </Paper>
             <Paper
               elevation={2}
-              style={{ padding: 20, width: '100%', marginTop: 15 }}
+              style={{
+                padding: 20,
+                width: '100%',
+                height: '300px',
+                marginTop: 15
+              }}
             >
               <Typography
                 variant="subtitle1"
@@ -432,7 +509,7 @@ of
                   color: '#000',
                   fontFamily: 'sans-serif , Arial',
                   fontSize: '17px',
-                  marginTop: 10
+                  marginTop: 30
                 }}
               >
                 {functionalStructureTree.level1
@@ -445,7 +522,7 @@ of
                   color: '#000',
                   fontFamily: 'sans-serif , Arial',
                   fontSize: '17px',
-                  marginTop: 10,
+                  marginTop: 20,
                   marginLeft: 40
                 }}
               >
@@ -459,7 +536,7 @@ of
                   color: '#000',
                   fontFamily: 'sans-serif , Arial',
                   fontSize: '17px',
-                  marginTop: 10,
+                  marginTop: 20,
                   marginLeft: 80
                 }}
               >
@@ -514,7 +591,7 @@ of
                       display: 'flex',
                       justifyContent: 'Left',
                       width: '100%',
-                      marginTop: 20
+                      marginTop: 10
                     }}
                   >
                     <div className={classes.divInline}>
@@ -530,7 +607,7 @@ of
                           }}
                           color="secondary"
                         >
-                          {'Name :  '}
+                          {'Company :  '}
                         </Typography>
                         <Typography
                           variant="subtitle1"
@@ -541,9 +618,7 @@ of
                             opacity: 0.7
                           }}
                         >
-                          {`${staff.firstName} ${staff.fatherFamilyName} ${
-                            staff.motherFamilyName
-                          }`}
+                          {staff.companyName}
                         </Typography>
                       </div>
                     </div>
@@ -581,7 +656,7 @@ of
                       display: 'flex',
                       justifyContent: 'Left',
                       width: '100%',
-                      marginTop: 20
+                      marginTop: 10
                     }}
                   >
                     <div className={classes.divInline}>
@@ -646,7 +721,7 @@ of
                       display: 'flex',
                       justifyContent: 'Left',
                       width: '100%',
-                      marginTop: 20
+                      marginTop: 10
                     }}
                   >
                     <div className={classes.divInline}>
@@ -712,7 +787,7 @@ of
                       fontFamily: 'sans-serif , Arial',
                       fontSize: '20px',
                       fontWeight: 'bold',
-                      marginTop: 20
+                      marginTop: 10
                     }}
                     color="secondary"
                   >
@@ -723,7 +798,7 @@ of
                       display: 'flex',
                       justifyContent: 'Left',
                       width: '100%',
-                      marginTop: 20
+                      marginTop: 10
                     }}
                   >
                     <div className={classes.divInline}>
@@ -788,7 +863,7 @@ of
                       display: 'flex',
                       justifyContent: 'Left',
                       width: '100%',
-                      marginTop: 20
+                      marginTop: 10
                     }}
                   >
                     <div className={classes.divInline}>
@@ -848,6 +923,60 @@ of
                       </div>
                     </div>
                   </div>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '20px',
+                      fontWeight: 'bold',
+                      marginTop: 10
+                    }}
+                    color="secondary"
+                  >
+                    Document :
+                  </Typography>
+                  <Table className={classes.table} aria-label="">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">Name</TableCell>
+                        <TableCell align="right">Number</TableCell>
+                        <TableCell align="right">Expedition Date</TableCell>
+                        <TableCell align="right">Expiration Date</TableCell>
+                        <TableCell />
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {staff.staffDocuments ? (
+                        staff.staffDocuments.map(row => (
+                          <TableRow key={row.staffDocumentsId}>
+                            <TableCell component="th" scope="row">
+                              {row.name}
+                            </TableCell>
+                            <TableCell align="right">{row.number}</TableCell>
+                            <TableCell align="right">
+                              {row.expeditionDate}
+                            </TableCell>
+                            <TableCell align="right">
+                              {row.expirationDate}
+                            </TableCell>
+                            <TableCell align="right">
+                              <IconButton
+                                onClick={() => this.handleOpenDialog(
+                                  row.name,
+                                  row.docExtension
+                                )
+                                }
+                              >
+                                <VisibilityIcon color="gray" />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow />
+                      )}
+                    </TableBody>
+                  </Table>
                 </Paper>
                 <Paper
                   elevation={2}
@@ -956,7 +1085,7 @@ of
                           }}
                           color="secondary"
                         >
-                          {'Town Country :  '}
+                          {'Town Contract :  '}
                         </Typography>
                         <Typography
                           variant="subtitle1"
@@ -984,7 +1113,7 @@ of
                           }}
                           color="secondary"
                         >
-                          {'Personal Number :  '}
+                          {'Employee Number :  '}
                         </Typography>
                         <Typography
                           variant="subtitle1"
@@ -1168,7 +1297,8 @@ of
                         <Button
                           variant="subtitle1"
                           className={classes.buttonLink}
-                          onClick={() => this.handleOpenDialog('contract')}
+                          onClick={() => this.handleOpenDialog('contract', 'pdf')
+                          }
                         >
                           {`${staff.firstName}-${staff.fatherFamilyName}-${
                             staff.motherFamilyName
@@ -1194,7 +1324,8 @@ of
                         <Button
                           variant="subtitle1"
                           className={classes.buttonLink}
-                          onClick={() => this.handleOpenDialog('internalRules')}
+                          onClick={() => this.handleOpenDialog('internalRules', 'pdf')
+                          }
                         >
                           {`${staff.firstName}-${staff.fatherFamilyName}-${
                             staff.motherFamilyName
@@ -1203,6 +1334,57 @@ of
                       </div>
                     </div>
                   </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'Left',
+                      width: '100%',
+                      marginTop: 20
+                    }}
+                  >
+                    <div className={classes.divInline}>
+                      <Avatar>
+                        <Ionicon icon="md-document" />
+                      </Avatar>
+                      <div style={{ marginLeft: 20 }}>
+                        <Typography
+                          variant="subtitle1"
+                          style={{
+                            fontFamily: 'sans-serif , Arial',
+                            fontSize: '17px'
+                          }}
+                          color="secondary"
+                        >
+                          {'PreContract :  '}
+                        </Typography>
+                        <Button
+                          variant="subtitle1"
+                          className={classes.buttonLink}
+                          onClick={() => this.handleOpenDialog('preContract', 'pdf')
+                          }
+                        >
+                          {`${staff.firstName}-${staff.fatherFamilyName}-${
+                            staff.motherFamilyName
+                          }_PreContract`}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Paper>
+
+                <Paper
+                  elevation={2}
+                  style={{
+                    padding: 50,
+                    width: '100%',
+                    height: '100%'
+                  }}
+                  id="2"
+                  hidden={value !== 2}
+                >
+                  <StaffProfileEconomicContractInformation
+                    data={staff.staffEconomicContractInformation}
+                  />
                 </Paper>
               </div>
             </div>
