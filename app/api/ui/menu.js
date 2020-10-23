@@ -152,7 +152,7 @@ module.exports = [
           {
             key: 'currencyManagement',
             name: 'Currency Management',
-            link: '/app/gestion-financial/Company/Currency-Management',
+            link: '/app/gestion-financial/Currency-Management',
             icon: 'ios-cash-outline'
           },
           {

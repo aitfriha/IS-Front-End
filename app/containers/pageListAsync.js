@@ -233,3 +233,11 @@ export const ContactByOperationStatus = Loadable({
   loader: () => import('./Pages/ContactByOperationStatus'),
   loading: Loading
 });
+export const Currency = Loadable({
+  loader: () => import('./Pages/FinancialSystem/CurrencyManagement'),
+  loading: Loading
+});
+export const AddCurrency = Loadable({
+  loader: () => import('./Pages/FinancialSystem/CurrencyManagement/addCurrency'),
+  loading: Loading
+});

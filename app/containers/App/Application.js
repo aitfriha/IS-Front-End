@@ -47,6 +47,8 @@ import {
   AddBilling,
   IVA,
   AddIVA,
+  Currency,
+  AddCurrency,
   StatusOfCommercialOperation,
   ContractType,
   AddContractType,
@@ -258,6 +260,8 @@ function Application(props) {
         />
         <Route exact path="/app/gestion-financial/IVA" component={IVA} />
         <Route exact path="/app/gestion-financial/Add-IVA" component={AddIVA} />
+        <Route exact path="/app/gestion-financial/Currency-Management" component={Currency} />
+        <Route exact path="/app/gestion-financial/Add-Currency" component={AddCurrency} />
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>
