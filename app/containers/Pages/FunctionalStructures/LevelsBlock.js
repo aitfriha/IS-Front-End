@@ -19,12 +19,19 @@ import {
   Tooltip,
   Avatar,
   Divider,
-  Paper
+  Paper,
+  TextField,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio
 } from '@material-ui/core';
 import interact from 'interactjs';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import styles from './levels-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
-import FunctionalStructureConfigService from '../../Services/FunctionalStructureConfigService';
+import AutoComplete from '../../../components/AutoComplete';
 import FunctionalStructureService from '../../Services/FunctionalStructureService';
 import StaffService from '../../Services/StaffService';
 
@@ -38,7 +45,16 @@ class LevelsBlock extends React.Component {
     staffs: [],
     staffAssigned: [],
     staffNotAssigned: [],
-    isDialogOpen: false
+    isStaffAssignation: false,
+    isLevelEdit: false,
+    isLevelDelete: false,
+    leader: null,
+    oldLeader: null,
+    newLeader: null,
+    description: '',
+    levelName: '',
+    isProductionLevel: '',
+    isCommercialLevel: ''
   };
 
   columns = [
@@ -81,12 +97,12 @@ class LevelsBlock extends React.Component {
       label: ' ',
       name: ' ',
       options: {
-        customBodyRender: value => (
+        customBodyRender: (value, tableMeta) => (
           <React.Fragment>
-            <IconButton onClick={() => console.log(value)}>
+            <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
               <EditIcon color="secondary" />
             </IconButton>
-            <IconButton onClick={() => console.log(value)}>
+            <IconButton onClick={() => this.handleOpenDelete(tableMeta)}>
               <DeleteIcon color="primary" />
             </IconButton>
           </React.Fragment>
@@ -259,8 +275,8 @@ class LevelsBlock extends React.Component {
     });
   };
 
-  handleOpenDialog = level => {
-    StaffService.getStaffsByLevel(level.levelId).then(({ data }) => {
+  handleOpenAssignation = level => {
+    StaffService.getStaffsByLevel(level.levelId, 'no').then(({ data }) => {
       console.log(data);
       data.sort((a, b) => {
         const textA = a.firstName.toUpperCase();
@@ -270,16 +286,63 @@ class LevelsBlock extends React.Component {
       console.log(data);
       this.setState({
         level,
-        isDialogOpen: true,
+        isStaffAssignation: true,
         staffAssigned: data
+      });
+    });
+    StaffService.getStaffsByLevel(level.levelId, 'yes').then(({ data }) => {
+      console.log(data);
+      this.setState({
+        leader: data[0]
       });
     });
   };
 
+  handleOpenEdit = tableMeta => {
+    const { levelsData, staffs } = this.state;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+      + tableMeta.rowIndex;
+    console.log(levelsData[index]);
+    StaffService.getStaffsByLevel(levelsData[index].levelId, 'yes').then(
+      ({ data }) => {
+        console.log(data);
+        const staffList = staffs;
+        if (data[0]) {
+          staffList.push(data[0]);
+        }
+        this.setState({
+          oldLeader: data[0],
+          newLeader: data[0],
+          level: levelsData[index],
+          levelName: levelsData[index].name,
+          description: levelsData[index].description,
+          isProductionLevel: levelsData[index].isProductionLevel,
+          isCommercialLevel: levelsData[index].isCommercialLevel,
+          isLevelEdit: true,
+          staffs: staffList
+        });
+      }
+    );
+  };
+
+  handleOpenDelete = tableMeta => {
+    const { levelsData } = this.state;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+      + tableMeta.rowIndex;
+    this.setState({
+      level: levelsData[index],
+      isLevelDelete: true
+    });
+  };
+
+  handleD;
+
   handleClose = () => {
     this.updateData();
     this.setState({
-      isDialogOpen: false
+      isStaffAssignation: false,
+      isLevelEdit: false,
+      isLevelDelete: false
     });
   };
 
@@ -336,17 +399,93 @@ class LevelsBlock extends React.Component {
     }
   };
 
+  handleValueChange = (value, type) => {
+    this.setState({ [type]: value });
+  };
+
+  handleChangeLeader = (ev, value) => {
+    this.setState({ newLeader: value });
+  };
+
+  handleChange = ev => {
+    this.setState({ [ev.target.name]: ev.target.value });
+    if (ev.target.name === 'isProductionLevel' && ev.target.value === 'yes') {
+      this.setState({
+        isCommercialLevel: 'no'
+      });
+    } else if (
+      ev.target.name === 'isCommercialLevel'
+      && ev.target.value === 'yes'
+    ) {
+      this.setState({
+        isProductionLevel: 'no'
+      });
+    }
+  };
+
+  getLevels = () => {
+    const { level, levelsData } = this.state;
+    if (level) {
+      console.log(levelsData.filter(lvl => lvl.type === level.type));
+      return levelsData.filter(lvl => lvl.type === level.type);
+    }
+    return [];
+  };
+
+  handleUpdateLevel = () => {
+    const {
+      levelName,
+      description,
+      isProductionLevel,
+      isCommercialLevel,
+      oldLeader,
+      newLeader,
+      level
+    } = this.state;
+
+    const objects = [];
+    objects.push(oldLeader);
+    objects.push(newLeader);
+    const lvl = {
+      name: levelName,
+      description,
+      type: level.type,
+      isProductionLevel,
+      isCommercialLevel
+    };
+    objects.push(lvl);
+    FunctionalStructureService.updateLevel(objects, level.levelId).then(() => {
+      this.handleClose();
+    });
+  };
+
+  handleDeleteLevel = () => {
+    const { level } = this.state;
+
+    FunctionalStructureService.deleteLevel(level.levelId).then(() => {
+      this.handleClose();
+    });
+  };
+
   render() {
     const { classes } = this.props;
     const {
       levelsData,
-      isDialogOpen,
+      isStaffAssignation,
+      isLevelEdit,
+      isLevelDelete,
       staffs,
       staffAssigned,
       level,
       levels,
       index1,
-      index2
+      index2,
+      leader,
+      newLeader,
+      levelName,
+      description,
+      isProductionLevel,
+      isCommercialLevel
     } = this.state;
     const options = {
       filter: true,
@@ -370,7 +509,129 @@ class LevelsBlock extends React.Component {
     return (
       <div>
         <Dialog
-          open={isDialogOpen}
+          open={isLevelDelete}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">Edit Level</DialogTitle>
+          <DialogContent>
+            <Typography
+              variant="subtitle1"
+              style={{
+                fontFamily: 'sans-serif , Arial',
+                fontSize: '17px'
+              }}
+            >
+              Are you sure you want to delete this level with all sub-levels?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.handleDeleteLevel}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={isLevelEdit}
+          disableBackdropClick
+          disableEscapeKeyDown
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">Edit Level</DialogTitle>
+          <DialogContent>
+            <div style={{ width: '100%' }}>
+              <AutoComplete
+                value={this.handleValueChange}
+                placeholder="Level Name"
+                data={this.getLevels()}
+                type="levelName"
+                attribute="name"
+              />
+            </div>
+            <TextField
+              id="outlined-basic"
+              label="Description"
+              variant="outlined"
+              name="description"
+              value={description}
+              fullWidth
+              required
+              className={classes.textField}
+              onChange={this.handleChange}
+              style={{ marginBottom: 10 }}
+            />
+            <Autocomplete
+              id="combo-box-demo"
+              value={newLeader}
+              options={staffs}
+              getOptionLabel={option => `${option.firstName} ${option.fatherFamilyName} ${
+                option.motherFamilyName
+              }`
+              }
+              getOptionSelected={(option, value) => option.staffId === value.staffId
+              }
+              onChange={this.handleChangeLeader}
+              style={{ width: '100%', marginTop: 7, marginBottom: 10 }}
+              clearOnEscape
+              renderInput={params => (
+                <TextField
+                  fullWidth
+                  {...params}
+                  label="Leader"
+                  variant="outlined"
+                />
+              )}
+            />
+            <FormControl component="fieldset" fullWidth>
+              <FormLabel component="legend">Is it production level?</FormLabel>
+              <RadioGroup
+                aria-label="isProductionLevel"
+                name="isProductionLevel"
+                value={isProductionLevel}
+                onChange={this.handleChange}
+              >
+                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio />} label="No" />
+              </RadioGroup>
+            </FormControl>
+            <FormControl component="fieldset" fullWidth>
+              <FormLabel component="legend">Is it Commercial level?</FormLabel>
+              <RadioGroup
+                aria-label="isCommercialLevel"
+                name="isCommercialLevel"
+                value={isCommercialLevel}
+                onChange={this.handleChange}
+              >
+                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio />} label="No" />
+              </RadioGroup>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onClick={this.handleUpdateLevel}
+              disabled={!levelName || !newLeader}
+            >
+              Update
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={isStaffAssignation}
           disableBackdropClick
           disableEscapeKeyDown
           onClose={this.handleClose}
@@ -449,7 +710,45 @@ class LevelsBlock extends React.Component {
                 {level.isCommercialLevel}
               </Typography>
             </div>
-
+            <div className={classes.divInline}>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px'
+                }}
+                color="primary"
+              >
+                Leader :
+              </Typography>
+              {leader ? (
+                <Tooltip
+                  title={`${leader.firstName} ${leader.fatherFamilyName} ${
+                    leader.motherFamilyName
+                  }`}
+                >
+                  <Avatar
+                    className={classes.avatar}
+                    alt={leader.firstName}
+                    src={leader.photo}
+                    style={{ marginLeft: 20 }}
+                  />
+                </Tooltip>
+              ) : (
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    color: '#000',
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px',
+                    opacity: 0.7,
+                    marginLeft: 10
+                  }}
+                >
+                  none
+                </Typography>
+              )}
+            </div>
             <Typography
               variant="subtitle1"
               style={{
@@ -464,7 +763,7 @@ class LevelsBlock extends React.Component {
             <Divider variant="fullWidth" style={{ marginBottom: '10px' }} />
             <div
               style={{
-                height: '200px',
+                height: '175px',
                 width: '100%',
                 marginBottom: 10,
                 border: '1px solid gray',
@@ -513,7 +812,7 @@ class LevelsBlock extends React.Component {
             <Divider variant="fullWidth" style={{ marginBottom: '10px' }} />
             <div
               style={{
-                height: '200px',
+                height: '175px',
                 width: '100%',
                 border: '1px solid gray',
                 display: 'flex',
@@ -590,7 +889,7 @@ class LevelsBlock extends React.Component {
                   <div className={classes.divSpace}>
                     <Button
                       className={classes.buttonLink}
-                      onClick={() => this.handleOpenDialog(level1)}
+                      onClick={() => this.handleOpenAssignation(level1)}
                     >
                       {level1.name}
                     </Button>
@@ -624,7 +923,7 @@ class LevelsBlock extends React.Component {
                           <div className={classes.divSpace}>
                             <Button
                               className={classes.buttonLink}
-                              onClick={() => this.handleOpenDialog(level2)}
+                              onClick={() => this.handleOpenAssignation(level2)}
                             >
                               {level2.name}
                             </Button>
@@ -660,7 +959,7 @@ class LevelsBlock extends React.Component {
                                   <div className={classes.divSpace}>
                                     <Button
                                       className={classes.buttonLink}
-                                      onClick={() => this.handleOpenDialog(level3)
+                                      onClick={() => this.handleOpenAssignation(level3)
                                       }
                                     >
                                       {level3.name}

@@ -1085,7 +1085,7 @@ export class StaffProfile extends Component {
                           }}
                           color="secondary"
                         >
-                          {'Town Country :  '}
+                          {'Town Contract :  '}
                         </Typography>
                         <Typography
                           variant="subtitle1"
@@ -1113,7 +1113,7 @@ export class StaffProfile extends Component {
                           }}
                           color="secondary"
                         >
-                          {'Personal Number :  '}
+                          {'Employee Number :  '}
                         </Typography>
                         <Typography
                           variant="subtitle1"

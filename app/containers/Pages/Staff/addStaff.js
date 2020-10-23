@@ -179,6 +179,7 @@ class AddStaff extends React.Component {
       companyMobilePhone,
       emergencyContactPhone
     } = this.state;
+    console.log(ev);
     if (ev.target.name === 'adCountry') {
       this.setState({
         personalPhone: ev.target.value.phonePrefix + personalPhone,
@@ -377,6 +378,7 @@ class AddStaff extends React.Component {
         type: 'application/json'
       })
     );
+    console.log(city);
     staffData.append(
       'city',
       new Blob([JSON.stringify(city)], {
@@ -430,13 +432,6 @@ class AddStaff extends React.Component {
     staffData.append(
       'staffDocumentsList',
       new Blob([JSON.stringify(staffDocumentsList)], {
-        type: 'application/json'
-      })
-    );
-
-    staffData.append(
-      'city',
-      new Blob([JSON.stringify(city)], {
         type: 'application/json'
       })
     );
@@ -1775,7 +1770,7 @@ class AddStaff extends React.Component {
                     <div className={classes.divSpace} style={{ width: '100%' }}>
                       <TextField
                         id="outlined-basic"
-                        label="Personal Number"
+                        label="Employee Number"
                         variant="outlined"
                         name="personalNumber"
                         style={{ width: '30%' }}

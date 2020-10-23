@@ -16,6 +16,8 @@ class StaffService {
 
   assignLevelToStaff = objects => axios.post(`${API}/assign-level-staff`, objects);
 
-  getStaffsByLevel = levelId => axios.get(`${API}/get-staff-by-level/${levelId}`);
+  getStaffsByLevel = (levelId, isLeader) => axios.get(
+    `${API}/get-staff-by-level/levelId=${levelId}&isLeader=${isLeader}/`
+  );
 }
 export default new StaffService();

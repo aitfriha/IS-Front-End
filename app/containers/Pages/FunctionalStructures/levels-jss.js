@@ -24,7 +24,7 @@ const styles = theme => ({
   },
   divInline: {
     display: 'flex',
-    justifyContent: 'right',
+    justifyContent: 'left',
     alignItems: 'center',
     flexDirection: 'row',
     marginBottom: 10
@@ -236,7 +236,6 @@ const styles = theme => ({
   avatar: {
     alignItems: 'center',
     textAlign: 'center',
-    margin: '0 auto',
     width: theme.spacing(9),
     height: theme.spacing(9),
     boxShadow: theme.glow.light

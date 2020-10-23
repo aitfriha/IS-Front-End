@@ -87,9 +87,12 @@ class AddLevel extends React.Component {
       staffsOptions1: [],
       staffsOptions2: [],
       staffsOptions3: [],
-      leader1: {},
-      leader2: {},
-      leader3: {}
+      leader1: null,
+      leader2: null,
+      leader3: null,
+      level1exist: false,
+      level2exist: false,
+      level3exist: false
     };
   }
 
@@ -183,9 +186,14 @@ class AddLevel extends React.Component {
       isProductionLevel3,
       isCommercialLevel1,
       isCommercialLevel2,
-      isCommercialLevel3
+      isCommercialLevel3,
+      leader1,
+      leader2,
+      leader3
     } = this.state;
     const objects = [];
+    const leaders = [leader1, leader2, leader3];
+    objects.push(leaders);
     if (level1) {
       const lvl1 = {
         name: level1,
@@ -233,15 +241,26 @@ class AddLevel extends React.Component {
   };
 
   handleValueChange = (value, type) => {
+    if (type === 'level1') {
+      this.setState({
+        level1exist: false
+      });
+    } else if (type === 'level2') {
+      this.setState({
+        level2exist: false
+      });
+    } else if (type === 'level3') {
+      this.setState({
+        level3exist: false
+      });
+    }
     this.setState({ [type]: value });
   };
 
   handleChangeLeader1 = (ev, value) => {
-    console.log(value);
-    this.setState({ leader1: value });
-    /* , () => {
+    this.setState({ leader1: value }, () => {
       this.updateStaffComboLists();
-    } */
+    });
   };
 
   handleChangeLeader2 = (ev, value) => {
@@ -260,17 +279,60 @@ class AddLevel extends React.Component {
     const {
       staffs, leader1, leader2, leader3
     } = this.state;
-    let list1 = staffs.filter(obj => obj.staffId !== leader2.staffId);
-    list1 = list1.filter(obj => obj.staffId !== leader3.staffId);
-    let list2 = staffs.filter(obj => obj.staffId !== leader1.staffId);
-    list2 = list2.filter(obj => obj.staffId !== leader3.staffId);
-    let list3 = staffs.filter(obj => obj.staffId !== leader1.staffId);
-    list3 = list3.filter(obj => obj.staffId !== leader2.staffId);
+    let list1 = JSON.parse(JSON.stringify(staffs));
+    let list2 = JSON.parse(JSON.stringify(staffs));
+    let list3 = JSON.parse(JSON.stringify(staffs));
+
+    if (leader1 !== null) {
+      list2 = staffs.filter(obj => obj.staffId !== leader1.staffId);
+      list3 = staffs.filter(obj => obj.staffId !== leader1.staffId);
+    }
+    if (leader2 !== null) {
+      list1 = staffs.filter(obj => obj.staffId !== leader2.staffId);
+      list3 = list3.filter(obj => obj.staffId !== leader2.staffId);
+    }
+    if (leader3 !== null) {
+      list1 = list1.filter(obj => obj.staffId !== leader3.staffId);
+      list2 = list2.filter(obj => obj.staffId !== leader3.staffId);
+    }
     this.setState({
       staffsOptions1: list1,
       staffsOptions2: list2,
       staffsOptions3: list3
     });
+  };
+
+  check = () => {
+    const {
+      level1, level2, level3, leader1, leader2, leader3
+    } = this.state;
+    if (
+      (level1 && leader1)
+      || (level1 && leader1 && level2 && leader2)
+      || (level1 && leader1 && level2 && leader2 && level3 && leader3)
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  choosedSuggestion = level => {
+    const { data } = this.state;
+    console.log(level);
+    if (level.type === 'Level 1') {
+      this.setState({
+        level1exist: true
+      });
+    } else if (level.type === 'Level 2') {
+      this.setState({
+        level2exist: true
+      });
+    }
+    if (level.type === 'Level 3') {
+      this.setState({
+        level3exist: true
+      });
+    }
   };
 
   render() {
@@ -280,9 +342,6 @@ class AddLevel extends React.Component {
       levels1,
       levels2,
       levels3,
-      level1,
-      level2,
-      level3,
       description2,
       description3,
       isProductionLevel1,
@@ -297,7 +356,10 @@ class AddLevel extends React.Component {
       leader3,
       staffsOptions1,
       staffsOptions2,
-      staffsOptions3
+      staffsOptions3,
+      level1exist,
+      level2exist,
+      level3exist
     } = this.state;
     const options = {
       filter: true,
@@ -351,6 +413,7 @@ class AddLevel extends React.Component {
                   data={levels1}
                   type="level1"
                   attribute="name"
+                  choosedSuggestion={this.choosedSuggestion}
                 />
               </div>
               <TextField
@@ -363,6 +426,7 @@ class AddLevel extends React.Component {
                 required
                 className={classes.textField}
                 onChange={this.handleChange}
+                disabled={level1exist}
               />
               <Autocomplete
                 id="combo-box-demo"
@@ -372,9 +436,12 @@ class AddLevel extends React.Component {
                   option.motherFamilyName
                 }`
                 }
+                getOptionSelected={(option, value) => option.staffId === value.staffId
+                }
                 onChange={this.handleChangeLeader1}
                 style={{ width: '17%', marginTop: 7 }}
                 clearOnEscape
+                disabled={level1exist}
                 renderInput={params => (
                   <TextField
                     fullWidth
@@ -385,7 +452,7 @@ class AddLevel extends React.Component {
                 )}
               />
               <div style={{ width: '15%' }}>
-                <FormControl component="fieldset">
+                <FormControl component="fieldset" disabled={level1exist}>
                   <FormLabel component="legend">
                     Is it production level?
                   </FormLabel>
@@ -409,7 +476,7 @@ class AddLevel extends React.Component {
                 </FormControl>
               </div>
               <div style={{ width: '15%' }}>
-                <FormControl component="fieldset">
+                <FormControl component="fieldset" disabled={level1exist}>
                   <FormLabel component="legend">
                     Is it Commercial level?
                   </FormLabel>
@@ -456,6 +523,7 @@ class AddLevel extends React.Component {
                   data={levels2}
                   type="level2"
                   attribute="name"
+                  choosedSuggestion={this.choosedSuggestion}
                 />
               </div>
               <TextField
@@ -468,6 +536,7 @@ class AddLevel extends React.Component {
                 required
                 className={classes.textField}
                 onChange={this.handleChange}
+                disabled={level2exist}
               />
               <Autocomplete
                 id="combo-box-demo"
@@ -477,9 +546,12 @@ class AddLevel extends React.Component {
                   option.motherFamilyName
                 }`
                 }
+                getOptionSelected={(option, value) => option.staffId === value.staffId
+                }
                 onChange={this.handleChangeLeader2}
                 style={{ width: '17%', marginTop: 7 }}
                 clearOnEscape
+                disabled={level2exist}
                 renderInput={params => (
                   <TextField
                     fullWidth
@@ -490,7 +562,7 @@ class AddLevel extends React.Component {
                 )}
               />
               <div style={{ width: '15%' }}>
-                <FormControl component="fieldset">
+                <FormControl component="fieldset" disabled={level2exist}>
                   <FormLabel component="legend">
                     Is it production level?
                   </FormLabel>
@@ -514,7 +586,7 @@ class AddLevel extends React.Component {
                 </FormControl>
               </div>
               <div style={{ width: '15%' }}>
-                <FormControl component="fieldset">
+                <FormControl component="fieldset" disabled={level2exist}>
                   <FormLabel component="legend">
                     Is it Commercial level?
                   </FormLabel>
@@ -561,6 +633,7 @@ class AddLevel extends React.Component {
                   data={levels3}
                   type="level3"
                   attribute="name"
+                  choosedSuggestion={this.choosedSuggestion}
                 />
               </div>
               <TextField
@@ -573,6 +646,7 @@ class AddLevel extends React.Component {
                 required
                 className={classes.textField}
                 onChange={this.handleChange}
+                disabled={level3exist}
               />
               <Autocomplete
                 id="combo-box-demo"
@@ -582,9 +656,12 @@ class AddLevel extends React.Component {
                   option.motherFamilyName
                 }`
                 }
+                getOptionSelected={(option, value) => option.staffId === value.staffId
+                }
                 onChange={this.handleChangeLeader3}
                 style={{ width: '17%', marginTop: 7 }}
                 clearOnEscape
+                disabled={level3exist}
                 renderInput={params => (
                   <TextField
                     fullWidth
@@ -595,7 +672,7 @@ class AddLevel extends React.Component {
                 )}
               />
               <div style={{ width: '15%' }}>
-                <FormControl component="fieldset">
+                <FormControl component="fieldset" disabled={level3exist}>
                   <FormLabel component="legend">
                     Is it production level?
                   </FormLabel>
@@ -619,7 +696,7 @@ class AddLevel extends React.Component {
                 </FormControl>
               </div>
               <div style={{ width: '15%' }}>
-                <FormControl component="fieldset">
+                <FormControl component="fieldset" disabled={level3exist}>
                   <FormLabel component="legend">
                     Is it Commercial level?
                   </FormLabel>
@@ -658,9 +735,7 @@ class AddLevel extends React.Component {
                 variant="contained"
                 size="medium"
                 onClick={this.handleSubmitLevel}
-                disabled={
-                  !level1 || (!level2 && level3) || (!level1 && !level2)
-                }
+                disabled={this.check()}
               >
                 Save Level
               </Button>
