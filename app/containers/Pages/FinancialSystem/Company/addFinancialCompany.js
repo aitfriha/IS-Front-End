@@ -12,9 +12,16 @@ import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import AddressBlock from '../../Address';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import history from '../../../../utils/history';
 import styles from '../../Companies/companies-jss';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
+import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
+import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 
 class AddFinancialCompany extends React.Component {
   constructor(props) {
@@ -24,9 +31,34 @@ class AddFinancialCompany extends React.Component {
       email: '',
       phone1: '',
       phone2: '',
-      logo: ''
+      logo: '',
+      currentCity: '',
+      postCode: '',
+      fullAddress: ''
     };
   }
+
+  componentDidMount() {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
+  }
+
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ currentCity: value.cityId });
+  };
 
   // eslint-disable-next-line react/sort-comp
   readURI(e) {
@@ -45,6 +77,19 @@ class AddFinancialCompany extends React.Component {
     };
 
     handleSubmit = () => {
+      const {
+        name, email, phone1, phone2, logo, postCode, currentCity, fullAddress
+      } = this.state;
+      const city = { _id: currentCity };
+      const address = {
+        postCode, city, fullAddress
+      };
+      const FinancialCompany = {
+        name, email, phone1, phone2, logo, address
+      };
+      FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
+        console.log(result);
+      });
       history.push('/app/gestion-financial/Company');
     }
 
@@ -52,7 +97,15 @@ class AddFinancialCompany extends React.Component {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
+    handleGoBack = () => {
+      history.push('/app/gestion-financial/Company');
+    }
+
     render() {
+      const {
+        // eslint-disable-next-line react/prop-types
+        allCountrys, allStateCountrys, allCitys
+      } = this.props;
       console.log(this.state);
       const title = brand.name + ' - Companies';
       const description = brand.desc;
@@ -62,6 +115,8 @@ class AddFinancialCompany extends React.Component {
         email,
         phone1,
         phone2,
+        postCode,
+        fullAddress
       } = this.state;
       const { classes } = this.props;
       return (
@@ -155,10 +210,75 @@ class AddFinancialCompany extends React.Component {
                   </FormLabel>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={4}>
-                <Chip label="Company Address" avatar={<Avatar>A</Avatar>} color="primary" />
+              <Grid item xs={12} md={3}>
+                <Chip label="Company Address" avatar={<Avatar>S</Avatar>} color="primary" />
                 <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
-                <AddressBlock onChangeInput={this.handleChange} />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCountrys}
+                  getOptionLabel={option => option.countryName}
+                  onChange={this.handleChangeCountry}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allStateCountrys}
+                  getOptionLabel={option => option.stateName}
+                  onChange={this.handleChangeState}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the state"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCitys}
+                  getOptionLabel={option => option.cityName}
+                  onChange={this.handleChangeCity}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the city"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <TextField
+                  id="fullAddress"
+                  label="Name of address"
+                  variant="outlined"
+                  name="fullAddress"
+                  value={fullAddress}
+                  fullWidth
+                  required
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Post Code"
+                  variant="outlined"
+                  fullWidth
+                  value={postCode}
+                  required
+                  name="postCode"
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
               </Grid>
               <Grid
                 item
@@ -169,7 +289,7 @@ class AddFinancialCompany extends React.Component {
                 <Button
                   size="small"
                   color="inherit"
-                  onClick={this.handleSubmit}
+                  onClick={this.handleGoBack}
                 >
                     Cancel
                 </Button>
@@ -191,4 +311,31 @@ class AddFinancialCompany extends React.Component {
 AddFinancialCompany.propTypes = {
   classes: PropTypes.object.isRequired
 };
-export default withStyles(styles)(AddFinancialCompany);
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState,
+  addClientCommercial,
+  getAllClient
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddFinancialCompany));

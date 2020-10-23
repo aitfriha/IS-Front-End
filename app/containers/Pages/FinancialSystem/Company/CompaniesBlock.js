@@ -4,26 +4,43 @@ import { withStyles } from '@material-ui/core/styles';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Image } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, TextField
 } from '@material-ui/core';
-import { addCompany } from '../../../../redux/actions/companyActions';
-import styles from './companies-jss';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Chip from '@material-ui/core/Chip';
+import Avatar from '@material-ui/core/Avatar';
+import Divider from '@material-ui/core/Divider';
+import FormLabel from '@material-ui/core/FormLabel';
+import { Image } from '@material-ui/icons';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
-import mylogo from '../../../../../public/images/logo.png';
-import mylogo2 from '../../../../../public/images/pp_boy.svg';
-import EditCompany from './EditCompany';
+import styles from './companies-jss';
 
 class CompaniesBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      financialCompanyId: '',
+      name: '',
+      email: '',
+      phone1: '',
+      phone2: '',
+      logo: '',
+      address: [],
+      postCode: '',
+      fullAddress: '',
       openPopUp: false,
-      data: [],
+      currentCity: '',
+      addressId: '',
+      datas: [],
       columns: [
         {
           name: 'logo',
@@ -64,28 +81,56 @@ class CompaniesBlock extends React.Component {
           label: 'Address',
           name: 'address',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address.fullAddress
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Country',
-          name: 'country',
+          name: 'address',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address.city.stateCountry.country.countryName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'city',
+          name: 'address',
           label: 'City',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address.city.cityName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'state',
+          name: 'address',
           label: 'State',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address.city.stateCountry.stateName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -95,73 +140,139 @@ class CompaniesBlock extends React.Component {
             filter: false,
             sort: false,
             empty: true,
-            customBodyRender: () => (
-              <div>
-                <Grid container spacing={1}>
-                  <Grid item xs={4}>
-                    <IconButton onClick={() => this.handleDetails()}>
-                      <DetailsIcon color="secondary" />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </div>
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                  <DetailsIcon color="secondary" />
+                </IconButton>
+                <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                  <DeleteIcon color="primary" />
+                </IconButton>
+              </React.Fragment>
             )
           }
         }
       ]
     };
+    FinancialCompanyService.getCompany().then(result => {
+      console.log(result);
+      this.setState({ datas: result.data });
+    });
   }
 
   // eslint-disable-next-line react/sort-comp
-  handleDetails = () => {
-    this.setState({ openPopUp: true });
+  handleDetails = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].financialCompanyId;
+    FinancialCompanyService.getCompanyById(id).then(result => {
+      console.log(result.data);
+      this.setState({
+        financialCompanyId: result.data._id,
+        name: result.data.name,
+        email: result.data.email,
+        phone1: result.data.phone1,
+        phone2: result.data.phone2,
+        logo: result.data.logo,
+        address: result.data.address,
+        addressId: result.data.address.addressId,
+        postCode: result.data.address.postCode,
+        fullAddress: result.data.address.fullAddress,
+        openPopUp: true
+      });
+    });
   }
+
+  handleDelete = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].financialCompanyId;
+    FinancialCompanyService.deleteCompany(id).then(result => {
+      console.log(result.data);
+      this.setState({ datas: result.data });
+    });
+  };
+
+  handleSave = () => {
+    const {
+      financialCompanyId, name, email, phone1, phone2, logo, currentCity, postCode, fullAddress, addressId
+    } = this.state;
+    const city = { _id: currentCity };
+    const address = {
+      addressId, postCode, city, fullAddress
+    };
+    const FinancialCompany = {
+      financialCompanyId, name, email, phone1, phone2, logo, address
+    };
+
+    FinancialCompanyService.updateCompany(FinancialCompany).then(result => {
+      this.setState({ datas: result.data, openPopUp: false });
+    });
+  };
 
   handleClose = () => {
     this.setState({ openPopUp: false });
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    FinancialCompanyService.getCompany().then(result => {
+      console.log(result);
+      this.setState({ datas: result.data });
+    });
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
+  }
+
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ currentCity: value.cityId });
+  };
+
+  handleChange = (ev) => {
+    this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  // eslint-disable-next-line react/sort-comp
+  readURI(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      console.log(e.target.files);
+      reader.onload = function (ev) {
+        this.setState({ logo: ev.target.result });
+      }.bind(this);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  }
+
+  handleChangeLogo = e => {
+    this.readURI(e);
+  };
 
   render() {
     console.log(this.state);
-    const { data, columns, openPopUp } = this.state;
-    const datas = [
-      {
-        name: 'CBD SYSTEMS',
-        email: 'cbd@cbdsystems.com',
-        phone1: '+212 625845225',
-        phone2: '+212 514144141',
-        // eslint-disable-next-line jsx-a11y/alt-text
-        logo: <Image source={mylogo} />,
-        address: '15 Office Building, Charles Street',
-        country: 'France',
-        city: 'Paris',
-        state: 'Paris'
-      },
-      {
-        name: 'SLS CONNECTIVITY',
-        email: 'sls@connect.com',
-        phone1: '+212 695959895',
-        phone2: '+212 514151612',
-        // eslint-disable-next-line jsx-a11y/alt-text
-        logo: <Image source={mylogo} />,
-        address: '15 Office Building, Hassan 2 Street',
-        country: 'Morroco',
-        city: 'Tanger',
-        state: 'Tanger-Tétouan'
-      },
-      {
-        name: 'Peformance Market ',
-        email: 'direction@performancemarket.com',
-        phone1: '+212 611213141',
-        phone2: '+212 505153055',
-        logo: <Image source={mylogo2} />,
-        address: '18 Office Building, Peace Street',
-        country: 'United kingdom',
-        city: 'London',
-        state: 'London'
-      }];
+    const {
+      // eslint-disable-next-line react/prop-types
+      allCountrys, allStateCountrys, allCitys
+    } = this.props;
+    const {
+      datas, columns, openPopUp,
+      name, email, phone1, phone2,
+      postCode, fullAddress
+    } = this.state;
     const options = {
       filter: true,
       selectableRows: false,
@@ -170,7 +281,7 @@ class CompaniesBlock extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={datas}
           url="/app/gestion-financial/Company/Add-Company"
           tooltip="add new Company"
         />
@@ -187,15 +298,168 @@ class CompaniesBlock extends React.Component {
         />
         <Dialog
           open={openPopUp}
+          keepMounted
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
-          fullWidth=""
-          maxWidth=""
+          fullWidth="md"
+          maxWidth="md"
         >
           <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
           <DialogContent dividers>
-            <EditCompany />
+            <Grid
+              container
+              spacing={2}
+              alignItems="flex-start"
+              direction="row"
+              justify="center"
+            >
+              <Grid item xs={12} md={4}>
+                <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Name"
+                      variant="outlined"
+                      name="name"
+                      value={name}
+                      required
+                      fullWidth
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Email"
+                      variant="outlined"
+                      name="email"
+                      value={email}
+                      required
+                      fullWidth
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="outlined-basic"
+                      label="General Phone 1"
+                      variant="outlined"
+                      name="phone1"
+                      value={phone1}
+                      required
+                      fullWidth
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="outlined-basic"
+                      label="General Phone 2"
+                      variant="outlined"
+                      name="phone2"
+                      value={phone2}
+                      required
+                      fullWidth
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl>
+                      <input
+                        style={{ display: 'none' }}
+                        id="outlined-button-file-2"
+                        type="file"
+                        onChange={this.handleChangeLogo.bind(this)}
+                      />
+                      <FormLabel htmlFor="outlined-button-file-2">
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          component="span"
+                          startIcon={<Image color="primary" />}
+                        >
+                      Photo
+                        </Button>
+                      </FormLabel>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Chip label="Company Address" avatar={<Avatar>S</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCountrys}
+                  getOptionLabel={option => option.countryName}
+                  onChange={this.handleChangeCountry}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allStateCountrys}
+                  getOptionLabel={option => option.stateName}
+                  onChange={this.handleChangeState}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the state"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCitys}
+                  getOptionLabel={option => option.cityName}
+                  onChange={this.handleChangeCity}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the city"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <br />
+                <TextField
+                  id="fullAddress"
+                  label="Name of address"
+                  variant="outlined"
+                  name="fullAddress"
+                  value={fullAddress}
+                  fullWidth
+                  required
+                  onChange={this.handleChange}
+                />
+                <br />
+                <br />
+                <TextField
+                  id="outlined-basic"
+                  label="Post Code"
+                  variant="outlined"
+                  fullWidth
+                  value={postCode}
+                  required
+                  name="postCode"
+                  onChange={this.handleChange}
+                />
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleClose}>
@@ -204,7 +468,7 @@ class CompaniesBlock extends React.Component {
             <Button
               variant="contained"
               color="primary"
-              onClick={this.handleClose}
+              onClick={this.handleSave}
             >
               save
             </Button>
@@ -223,12 +487,29 @@ CompaniesBlock.propTypes = {
   back: PropTypes.func.isRequired
 };
 
-const mapDispatchToProps = dispatch => ({
-  add: bindActionCreators(addCompany, dispatch)
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
 });
-const CompaniesBlockMapped = connect(
-  null,
-  mapDispatchToProps
-)(CompaniesBlock);
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState,
+}, dispatch);
 
-export default withStyles(styles)(CompaniesBlockMapped);
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CompaniesBlock));

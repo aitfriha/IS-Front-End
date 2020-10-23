@@ -1,10 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -44,6 +40,7 @@ class AddressBlock extends React.Component {
   handleChangeCountry = (ev, value) => {
     console.log(value);
     StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
+      console.log(data);
       const { onChangeInput } = this.props;
       const target = {
         target: {
