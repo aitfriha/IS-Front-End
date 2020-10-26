@@ -115,6 +115,7 @@ class AddFinancialCompany extends React.Component {
         email,
         phone1,
         phone2,
+        logo,
         postCode,
         fullAddress
       } = this.state;
@@ -209,6 +210,11 @@ class AddFinancialCompany extends React.Component {
                     </Button>
                   </FormLabel>
                 </FormControl>
+                {
+                  logo ? (
+                    <Avatar alt="User Name" src={logo} className={classes.large} />
+                  ) : (<div />)
+                }
               </Grid>
               <Grid item xs={12} md={3}>
                 <Chip label="Company Address" avatar={<Avatar>S</Avatar>} color="primary" />

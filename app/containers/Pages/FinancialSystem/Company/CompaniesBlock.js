@@ -46,7 +46,15 @@ class CompaniesBlock extends React.Component {
           name: 'logo',
           label: 'Logo',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => {
+              const { classes } = this.props;
+              return (
+                <React.Fragment>
+                  <Avatar alt="User Name" src={value} className={classes.medium} />
+                </React.Fragment>
+              );
+            }
           }
         },
         {
@@ -85,7 +93,7 @@ class CompaniesBlock extends React.Component {
             customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  address.fullAddress
+                  address ? address.fullAddress : ''
                 }
               </React.Fragment>
             )
@@ -99,7 +107,7 @@ class CompaniesBlock extends React.Component {
             customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  address.city.stateCountry.country.countryName
+                  address ? address.city.stateCountry.country.countryName : ' '
                 }
               </React.Fragment>
             )
@@ -113,7 +121,7 @@ class CompaniesBlock extends React.Component {
             customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  address.city.cityName
+                  address ? address.city.cityName : ' '
                 }
               </React.Fragment>
             )
@@ -127,7 +135,7 @@ class CompaniesBlock extends React.Component {
             customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  address.city.stateCountry.stateName
+                  address ? address.city.stateCountry.stateName : ' '
                 }
               </React.Fragment>
             )
@@ -270,7 +278,7 @@ class CompaniesBlock extends React.Component {
     } = this.props;
     const {
       datas, columns, openPopUp,
-      name, email, phone1, phone2,
+      name, email, phone1, phone2, logo,
       postCode, fullAddress
     } = this.state;
     const options = {
@@ -385,6 +393,11 @@ class CompaniesBlock extends React.Component {
                         </Button>
                       </FormLabel>
                     </FormControl>
+                    {
+                      logo ? (
+                        <Avatar alt="User Name" src={logo} />
+                      ) : (<div />)
+                    }
                   </Grid>
                 </Grid>
               </Grid>
