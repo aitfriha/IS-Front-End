@@ -164,7 +164,7 @@ module.exports = [
           {
             key: 'typeOfRetentoins',
             name: 'Types of Retentions',
-            link: '/app/gestion-financial/Company/IVA',
+            link: '/app/gestion-financial/Retention',
             icon: 'ios-cash-outline'
           }
         ]
