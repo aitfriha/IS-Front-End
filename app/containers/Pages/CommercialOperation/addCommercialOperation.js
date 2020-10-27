@@ -30,6 +30,7 @@ import {
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import { isString } from 'lodash';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Contact from './contact';
 import Transition from '../../../components/Transition/transition';
 import Converter from '../../../components/CurrencyConverter/Converter';
@@ -117,6 +118,14 @@ class AddCommercialOperation extends React.Component {
       this.setState({ contractDate });
     };
 
+  handleChangeMultiple = (event, value) => {
+    let serviceType=[];
+    for (const key in value) {
+      serviceType.push(value[key].serviceTypeId);
+    }
+    console.log(serviceType);
+    this.setState({ serviceTypeId:serviceType});
+  };
 
     handleCreate = () => {
       const { addCommercialOperation } = this.props;
@@ -125,6 +134,7 @@ class AddCommercialOperation extends React.Component {
         nameOperation,
         statusOperation,
         descriptionOperation,
+        serviceTypeId,
         plannedDateQ,
         commercialFlowQ,
         paymentDate,
@@ -137,6 +147,7 @@ class AddCommercialOperation extends React.Component {
         name: nameOperation,
         stateId: statusOperation,
         description: descriptionOperation,
+        serviceTypeId,
         plannedDateQ,
         commercialFlowQ,
         paymentDate,
@@ -376,7 +387,17 @@ class AddCommercialOperation extends React.Component {
                     Commercial Activity Type
                 </Typography>
                 <div style={{ width: '85%' }}>
-                  <AutoCompleteMultiLine data={allCommercialServiceType} />
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    className="auto-complete-multiline"
+                    options={allCommercialServiceType}
+                    getOptionLabel={(option) => option.name}
+                    onChange={this.handleChangeMultiple}
+                    renderInput={(params) => (
+                      <TextField {...params} variant="outlined" label="Service Type" />
+                    )}
+                  />
                 </div>
               </Grid>
               <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">

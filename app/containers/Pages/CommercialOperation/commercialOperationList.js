@@ -71,7 +71,7 @@ class commercialOperationList extends React.Component {
           }
         },
         {
-          name: 'type',
+          name: 'serviceTypeName',
           label: 'Service Type',
           options: {
             filter: true,
