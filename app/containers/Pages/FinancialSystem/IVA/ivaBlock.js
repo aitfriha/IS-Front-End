@@ -8,27 +8,33 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   Grid,
-  InputLabel, MenuItem,
-  Select,
   TextField,
   Typography
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { bindActionCreators } from 'redux';
+import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import IvaService from '../../../Services/IvaService';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
+import styles from '../../Companies/companies-jss';
 
 class IvaBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      ivaId: '',
       ivaCode: '',
       country: '',
       state: '',
-      ivaValue: '',
+      value: '',
       startingDate: '',
       endingDate: '',
       electronicInvoice: false,
@@ -44,16 +50,30 @@ class IvaBlock extends React.Component {
         },
         {
           label: 'Country',
-          name: 'country',
+          name: 'stateCountry',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (stateCountry) => (
+              <React.Fragment>
+                {
+                  stateCountry.country.countryName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'State',
-          name: 'state',
+          name: 'stateCountry',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (stateCountry) => (
+              <React.Fragment>
+                {
+                  stateCountry.stateName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -67,14 +87,28 @@ class IvaBlock extends React.Component {
           label: 'Starting Date',
           name: 'startingDate',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Ending Date',
           name: 'endingDate',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value ? value.toString().slice(0, 10) : ' '
+                }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -112,9 +146,16 @@ class IvaBlock extends React.Component {
         }
       ]
     };
+  }
+
+  componentDidMount() {
     IvaService.getIva().then(result => {
+      console.log(result);
       this.setState({ datas: result.data });
     });
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
   }
 
     // eslint-disable-next-line react/sort-comp
@@ -124,17 +165,20 @@ class IvaBlock extends React.Component {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].ivaId;
       IvaService.getIvaById(id).then(result => {
-        console.log(result.data);
         this.setState({
+          ivaId: result.data._id,
           ivaCode: result.data.ivaCode,
-          country: result.data.country,
-          state: result.data.state,
-          ivaValue: result.data.value,
+          state: result.data.stateCountry._id,
+          stateName: result.data.stateCountry.stateName,
+          stateCountry: result.data.stateCountry.country.countryId,
+          value: result.data.value,
           startingDate: result.data.startingDate.substr(0, 10),
           endingDate: result.data.endingDate !== null ? result.data.endingDate.substr(0, 10) : '',
           electronicInvoice: result.data.electronicInvoice,
           openPopUp: true
         });
+        console.log(this.state);
+        console.log(this.props);
       });
     }
 
@@ -144,15 +188,15 @@ class IvaBlock extends React.Component {
 
     handleSave = () => {
       const {
-        country, state, ivaValue, startingDate, endingDate, electronicInvoice, ivaCode
+        state, value, startingDate, endingDate, electronicInvoice, ivaCode, ivaId
       } = this.state;
+      const stateCountry = { _id: state };
       const Iva = {
-        country, state, ivaValue, startingDate, endingDate, electronicInvoice, ivaCode
+        ivaId, ivaCode, value, startingDate, endingDate, electronicInvoice, stateCountry
       };
       IvaService.updateIva(Iva).then(result => {
-        this.setState({ datas: result.data });
+        this.setState({ datas: result.data, openPopUp: false });
       });
-      this.setState({ openPopUp: false });
     };
 
     handleDelete = (tableMeta) => {
@@ -165,6 +209,19 @@ class IvaBlock extends React.Component {
       });
     };
 
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+    this.setState({ state: value.stateCountryId });
+  };
+
     handleClose = () => {
       this.setState({ openPopUp: false });
     };
@@ -176,42 +233,12 @@ class IvaBlock extends React.Component {
     }
 
     render() {
-      const states = [
-        {
-          value: 'Madrid',
-          label: 'Madrid',
-        },
-        {
-          value: 'Barcelona',
-          label: 'Barcelona',
-        },
-        {
-          value: 'Malaga',
-          label: 'Malaga',
-        }];
-      const countries = [
-        {
-          value: 'Spain',
-          label: 'Spain',
-        },
-        {
-          value: 'UK',
-          label: 'UK',
-        },
-        {
-          value: 'Russia',
-          label: 'Russia',
-        },
-        {
-          value: 'France',
-          label: 'France',
-        },
-        {
-          value: 'Italie',
-          label: 'Italie',
-        }];
       const {
-        columns, openPopUp, datas, country, state, ivaValue, startingDate, endingDate, electronicInvoice, ivaCode
+        // eslint-disable-next-line react/prop-types
+        allCountrys, allStateCountrys
+      } = this.props;
+      const {
+        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode
       } = this.state;
       const options = {
         filter: true,
@@ -275,49 +302,47 @@ class IvaBlock extends React.Component {
                     />
                   </Grid>
                   <Grid item xs={12} md={4} sm={4}>
-                    <FormControl fullWidth required>
-                      <InputLabel>Select the Country</InputLabel>
-                      <Select
-                        name="country"
-                        value={country}
-                        onChange={this.handleChange}
-                      >
-                        {
-                          countries.map((clt) => (
-                            <MenuItem key={clt.value} value={clt.value}>
-                              {clt.label}
-                            </MenuItem>
-                          ))
-                        }
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      id="combo-box-demo"
+                      options={allCountrys}
+                      getOptionLabel={option => option.countryName}
+                      onChange={this.handleChangeCountry}
+                      style={{ marginTop: 15 }}
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the country"
+                          variant="outlined"
+                        />
+                      )}
+                    />
                   </Grid>
                   <Grid item xs={12} md={4} sm={4}>
-                    <FormControl fullWidth required>
-                      <InputLabel>Select the State</InputLabel>
-                      <Select
-                        name="state"
-                        value={state}
-                        onChange={this.handleChange}
-                      >
-                        {
-                          states.map((clt) => (
-                            <MenuItem key={clt.value} value={clt.value}>
-                              {clt.label}
-                            </MenuItem>
-                          ))
-                        }
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      id="combo-box-demo"
+                      options={allStateCountrys}
+                      getOptionLabel={option => option.stateName}
+                      onChange={this.handleChangeState}
+                      style={{ marginTop: 15 }}
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the state"
+                          variant="outlined"
+                        />
+                      )}
+                    />
                   </Grid>
                   <Grid item xs={12} md={2} sm={2}>
                     <br />
                     <TextField
-                      id="ivaValue"
+                      id="value"
                       label="I.V.A Value %"
                       variant="outlined"
-                      name="ivaValue"
-                      value={ivaValue}
+                      name="value"
+                      value={value}
                       required
                       fullWidth
                       onChange={this.handleChange}
@@ -390,5 +415,28 @@ class IvaBlock extends React.Component {
       );
     }
 }
-
-export default IvaBlock;
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState
+}, dispatch);
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(IvaBlock));

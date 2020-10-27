@@ -11,67 +11,51 @@ import {
   DialogActions,
   TextField,
   makeStyles,
-  Button
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import styles from './legalCategoryType-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
-import styles from './contractType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
-import ContractTypeService from '../../Services/ContractTypeService';
+import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 
 const useStyles = makeStyles(styles);
 
-class ContractType extends React.Component {
+class LegalCategoryType extends React.Component {
   state = {
     data: [],
-    code: '',
     name: '',
-    description: '',
+    functions: '',
+    companyName: '',
     isDialogOpen: false,
-    contractTypeIndex: 0
+    legalCategoryTypeIndex: 0
   };
 
   columns = [
     {
-      name: 'code',
-      label: 'Code',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Name',
       name: 'name',
+      label: 'Name',
       options: {
         filter: true
       }
     },
     {
-      label: 'Description',
-      name: 'description',
+      label: 'Functions',
+      name: 'functions',
       options: {
         filter: true
       }
     },
     {
-      label: 'Country',
-      name: 'state',
+      label: 'Company',
+      name: 'companyName',
       options: {
-        customBodyRender: (value, data) => {
-          console.log(data);
-          return <React.Fragment>{value.country.countryName}</React.Fragment>;
-        }
-      }
-    },
-    {
-      label: 'State',
-      name: 'state',
-      options: {
-        customBodyRender: (value, data) => {
-          console.log(data);
-          return <React.Fragment>{value.stateName}</React.Fragment>;
-        }
+        filter: true
       }
     },
     {
@@ -93,9 +77,7 @@ class ContractType extends React.Component {
   ];
 
   componentDidMount() {
-    const { changeTheme } = this.props;
-    changeTheme('blueCyanTheme');
-    ContractTypeService.getAllContractTypes().then(({ data }) => {
+    LegalCategoryTypeService.getAllLegalCategoryTypes().then(({ data }) => {
       this.setState({
         data
       });
@@ -108,26 +90,24 @@ class ContractType extends React.Component {
 
   handleUpdate = () => {
     const {
-      code, name, description, data, contractTypeIndex
-    } = this.state;
-    const { state } = data[contractTypeIndex];
-    const contractType = {
-      code,
       name,
-      description,
-      state
-    };
-    console.log(data[contractTypeIndex]);
-    ContractTypeService.updateContractType(
-      data[contractTypeIndex].contractTypeId,
-      contractType
+      functions,
+      companyName,
+      data,
+      legalCategoryTypeIndex
+    } = this.state;
+    const legalCategoryType = { name, functions, companyName };
+    console.log(data[legalCategoryTypeIndex]);
+    LegalCategoryTypeService.updateLegalCategoryType(
+      data[legalCategoryTypeIndex].legalCategoryTypeId,
+      legalCategoryType
     ).then(() => {
       const types = JSON.parse(JSON.stringify(data));
-      types[contractTypeIndex] = {
-        ...types[contractTypeIndex],
-        code,
+      types[legalCategoryTypeIndex] = {
+        ...types[legalCategoryTypeIndex],
         name,
-        description
+        functions,
+        companyName
       };
       console.log(types);
       this.setState({
@@ -142,10 +122,10 @@ class ContractType extends React.Component {
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     this.setState({
-      contractTypeIndex: index,
-      code: data[index].code,
+      legalCategoryTypeIndex: index,
       name: data[index].name,
-      description: data[index].description,
+      functions: data[index].functions,
+      companyName: data[index].companyName,
       isDialogOpen: true
     });
   };
@@ -160,21 +140,21 @@ class ContractType extends React.Component {
     const { data } = this.state;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    ContractTypeService.deleteContractType(data[index].contractTypeId).then(
-      () => {
-        this.setState({
-          data: data.length > 1 ? data.splice(index, 1) : []
-        });
-      }
-    );
+    LegalCategoryTypeService.deleteLegalCategoryType(
+      data[index].legalCategoryTypeId
+    ).then(() => {
+      this.setState({
+        data: data.length > 1 ? data.splice(index, 1) : []
+      });
+    });
   };
 
   render() {
     const { classes } = this.props;
     const {
-      data, code, name, description, isDialogOpen
+      data, name, functions, companyName, isDialogOpen
     } = this.state;
-    const title = brand.name + ' - Types of staff contract';
+    const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
       filter: true,
@@ -185,12 +165,24 @@ class ContractType extends React.Component {
       customToolbar: () => (
         <CustomToolbar
           csvData={data}
-          url="/app/hh-rr/contractType/create-contract-type"
-          tooltip="add new staff contract type"
+          url="/app/hh-rr/legalCategoryType/create-legal-category-type"
+          tooltip="add new legal category type"
         />
       )
     };
-
+    const companies = [
+      { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
+      {
+        name: 'Implemental Systems',
+        phone: '+21265482154',
+        email: 'implemental@gmail.com'
+      },
+      {
+        name: 'International GDE',
+        phone: '+21265482154',
+        email: 'internationalgde@gmail.com'
+      }
+    ];
     return (
       <div>
         <Helmet>
@@ -212,20 +204,9 @@ class ContractType extends React.Component {
           maxWidth="sm"
         >
           <DialogTitle id="alert-dialog-title">
-            Edit Staff Contract Type
+            Edit Legal Category Type
           </DialogTitle>
           <DialogContent>
-            <TextField
-              id="outlined-basic"
-              label="Code"
-              variant="outlined"
-              name="code"
-              value={code}
-              fullWidth
-              required
-              className={classes.textField}
-              onChange={this.handleChange}
-            />
             <TextField
               id="outlined-basic"
               label="Name"
@@ -239,14 +220,29 @@ class ContractType extends React.Component {
             />
             <TextField
               id="outlined-basic"
-              label="Description"
+              label="Functions"
               variant="outlined"
-              name="description"
-              value={description}
+              name="functions"
+              value={functions}
               fullWidth
+              required
               className={classes.textField}
               onChange={this.handleChange}
             />
+            <FormControl className={classes.formControl} fullWidth>
+              <InputLabel>Company</InputLabel>
+              <Select
+                name="companyName"
+                value={companyName}
+                onChange={this.handleChange}
+              >
+                {companies.map(company => (
+                  <MenuItem key={company.name} value={company.name}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button autoFocus color="primary" onClick={this.handleClose}>
@@ -255,14 +251,14 @@ class ContractType extends React.Component {
             <Button
               color="primary"
               onClick={this.handleUpdate}
-              disabled={!code || !name}
+              disabled={!functions || !name || !companyName}
             >
               Update
             </Button>
           </DialogActions>
         </Dialog>
         <PapperBlock
-          title="Types of staff contract"
+          title="Types of Legal Category"
           icon="ios-paper-outline"
           noMargin
         >
@@ -281,5 +277,5 @@ class ContractType extends React.Component {
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <ContractType changeTheme={changeTheme} classes={classes} />;
+  return <LegalCategoryType changeTheme={changeTheme} classes={classes} />;
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import MUIDataTable from 'mui-datatables';
-import { withStyles } from '@material-ui/core/styles';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -8,55 +7,32 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, TextField
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Chip from '@material-ui/core/Chip';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
-import FormLabel from '@material-ui/core/FormLabel';
-import { Image } from '@material-ui/icons';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import RetentionService from '../../../Services/RetentionService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
-import styles from './companies-jss';
 
-class CompaniesBlock extends React.Component {
+class RetentionBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      financialCompanyId: '',
+      retentionId: '',
       name: '',
-      email: '',
-      phone1: '',
-      phone2: '',
-      logo: '',
-      address: [],
-      postCode: '',
-      fullAddress: '',
+      description: '',
       openPopUp: false,
       currentCity: '',
       addressId: '',
+      address: [],
       datas: [],
       columns: [
-        {
-          name: 'logo',
-          label: 'Logo',
-          options: {
-            filter: true,
-            customBodyRender: (value) => {
-              const { classes } = this.props;
-              return (
-                <React.Fragment>
-                  <Avatar alt="User Name" src={value} className={classes.medium} />
-                </React.Fragment>
-              );
-            }
-          }
-        },
         {
           name: 'name',
           label: 'Name',
@@ -65,38 +41,10 @@ class CompaniesBlock extends React.Component {
           }
         },
         {
-          name: 'email',
-          label: 'Email',
+          name: 'description',
+          label: 'Description',
           options: {
             filter: true
-          }
-        },
-        {
-          label: 'Phone 1',
-          name: 'phone1',
-          options: {
-            filter: true
-          }
-        },
-        {
-          label: 'Phone 2',
-          name: 'phone2',
-          options: {
-            filter: true
-          }
-        },
-        {
-          label: 'Address',
-          name: 'address',
-          options: {
-            filter: true,
-            customBodyRender: (address) => (
-              <React.Fragment>
-                {
-                  address ? address.fullAddress : ''
-                }
-              </React.Fragment>
-            )
           }
         },
         {
@@ -107,21 +55,7 @@ class CompaniesBlock extends React.Component {
             customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  address ? address.city.stateCountry.country.countryName : ' '
-                }
-              </React.Fragment>
-            )
-          }
-        },
-        {
-          name: 'address',
-          label: 'City',
-          options: {
-            filter: true,
-            customBodyRender: (address) => (
-              <React.Fragment>
-                {
-                  address ? address.city.cityName : ' '
+                  address.city.stateCountry.country.countryName
                 }
               </React.Fragment>
             )
@@ -135,7 +69,21 @@ class CompaniesBlock extends React.Component {
             customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  address ? address.city.stateCountry.stateName : ' '
+                  address.city.stateCountry.stateName
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'address',
+          label: 'City',
+          options: {
+            filter: true,
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address.city.cityName
                 }
               </React.Fragment>
             )
@@ -162,10 +110,6 @@ class CompaniesBlock extends React.Component {
         }
       ]
     };
-    FinancialCompanyService.getCompany().then(result => {
-      console.log(result);
-      this.setState({ datas: result.data });
-    });
   }
 
   // eslint-disable-next-line react/sort-comp
@@ -173,20 +117,15 @@ class CompaniesBlock extends React.Component {
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-    const id = this.state.datas[index].financialCompanyId;
-    FinancialCompanyService.getCompanyById(id).then(result => {
+    const id = this.state.datas[index].retentionId;
+    RetentionService.getRetentionById(id).then(result => {
       console.log(result.data);
       this.setState({
-        financialCompanyId: result.data._id,
+        retentionId: result.data._id,
         name: result.data.name,
-        email: result.data.email,
-        phone1: result.data.phone1,
-        phone2: result.data.phone2,
-        logo: result.data.logo,
+        description: result.data.description,
         address: result.data.address,
         addressId: result.data.address.addressId,
-        postCode: result.data.address.postCode,
-        fullAddress: result.data.address.fullAddress,
         openPopUp: true
       });
     });
@@ -196,8 +135,8 @@ class CompaniesBlock extends React.Component {
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-    const id = this.state.datas[index].financialCompanyId;
-    FinancialCompanyService.deleteCompany(id).then(result => {
+    const id = this.state.datas[index].retentionId;
+    RetentionService.deleteRetention(id).then(result => {
       console.log(result.data);
       this.setState({ datas: result.data });
     });
@@ -205,17 +144,17 @@ class CompaniesBlock extends React.Component {
 
   handleSave = () => {
     const {
-      financialCompanyId, name, email, phone1, phone2, logo, currentCity, postCode, fullAddress, addressId
+      retentionId, name, descrption, currentCity, addressId
     } = this.state;
     const city = { _id: currentCity };
     const address = {
-      addressId, postCode, city, fullAddress
+      addressId, city
     };
-    const FinancialCompany = {
-      financialCompanyId, name, email, phone1, phone2, logo, address
+    const Retention = {
+      retentionId, name, descrption, address
     };
 
-    FinancialCompanyService.updateCompany(FinancialCompany).then(result => {
+    RetentionService.updateRetention(Retention).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
     });
   };
@@ -225,7 +164,7 @@ class CompaniesBlock extends React.Component {
   };
 
   componentDidMount() {
-    FinancialCompanyService.getCompany().then(result => {
+    RetentionService.getRetention().then(result => {
       console.log(result);
       this.setState({ datas: result.data });
     });
@@ -254,22 +193,6 @@ class CompaniesBlock extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  // eslint-disable-next-line react/sort-comp
-  readURI(e) {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      console.log(e.target.files);
-      reader.onload = function (ev) {
-        this.setState({ logo: ev.target.result });
-      }.bind(this);
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  }
-
-  handleChangeLogo = e => {
-    this.readURI(e);
-  };
-
   render() {
     console.log(this.state);
     const {
@@ -278,8 +201,7 @@ class CompaniesBlock extends React.Component {
     } = this.props;
     const {
       datas, columns, openPopUp,
-      name, email, phone1, phone2, logo,
-      postCode, fullAddress
+      name, description
     } = this.state;
     const options = {
       filter: true,
@@ -290,8 +212,8 @@ class CompaniesBlock extends React.Component {
       customToolbar: () => (
         <CustomToolbar
           csvData={datas}
-          url="/app/gestion-financial/Company/Add-Company"
-          tooltip="add new Company"
+          url="/app/gestion-financial/Add-Retention"
+          tooltip="Add New Type of Retention"
         />
       )
     };
@@ -299,7 +221,7 @@ class CompaniesBlock extends React.Component {
     return (
       <div>
         <MUIDataTable
-          title="The Companies List"
+          title=" Retention List"
           data={datas}
           columns={columns}
           options={options}
@@ -340,64 +262,15 @@ class CompaniesBlock extends React.Component {
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                      id="outlined-basic"
-                      label="Email"
+                      id="description"
+                      label="Description"
                       variant="outlined"
-                      name="email"
-                      value={email}
+                      name="description"
+                      value={description}
                       required
                       fullWidth
                       onChange={this.handleChange}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="outlined-basic"
-                      label="General Phone 1"
-                      variant="outlined"
-                      name="phone1"
-                      value={phone1}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="outlined-basic"
-                      label="General Phone 2"
-                      variant="outlined"
-                      name="phone2"
-                      value={phone2}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControl>
-                      <input
-                        style={{ display: 'none' }}
-                        id="outlined-button-file-2"
-                        type="file"
-                        onChange={this.handleChangeLogo.bind(this)}
-                      />
-                      <FormLabel htmlFor="outlined-button-file-2">
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          component="span"
-                          startIcon={<Image color="primary" />}
-                        >
-                      Photo
-                        </Button>
-                      </FormLabel>
-                    </FormControl>
-                    {
-                      logo ? (
-                        <Avatar alt="User Name" src={logo} />
-                      ) : (<div />)
-                    }
                   </Grid>
                 </Grid>
               </Grid>
@@ -448,29 +321,6 @@ class CompaniesBlock extends React.Component {
                     />
                   )}
                 />
-                <br />
-                <TextField
-                  id="fullAddress"
-                  label="Name of address"
-                  variant="outlined"
-                  name="fullAddress"
-                  value={fullAddress}
-                  fullWidth
-                  required
-                  onChange={this.handleChange}
-                />
-                <br />
-                <br />
-                <TextField
-                  id="outlined-basic"
-                  label="Post Code"
-                  variant="outlined"
-                  fullWidth
-                  value={postCode}
-                  required
-                  name="postCode"
-                  onChange={this.handleChange}
-                />
               </Grid>
             </Grid>
           </DialogContent>
@@ -491,7 +341,7 @@ class CompaniesBlock extends React.Component {
     );
   }
 }
-CompaniesBlock.propTypes = {
+RetentionBlock.propTypes = {
   // eslint-disable-next-line react/no-unused-prop-types
   classes: PropTypes.object.isRequired,
   // eslint-disable-next-line react/no-unused-prop-types
@@ -522,7 +372,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCityByState,
 }, dispatch);
 
-export default withStyles(styles)(connect(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(CompaniesBlock));
+)(RetentionBlock);

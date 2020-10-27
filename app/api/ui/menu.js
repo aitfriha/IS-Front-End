@@ -83,13 +83,7 @@ module.exports = [
             name: 'Sectors',
             link: '/app/gestion-commercial/sectors',
             icon: 'ios-people-outline'
-          },
-          {
-            key: 'sectorsCompany',
-            name: 'Sectors Company',
-            link: '/app/gestion-commercial/sectorsCompany',
-            icon: 'ios-people-outline'
-          },
+          }
           /* {
             key: 'countries',
             name: 'Countries',
@@ -158,7 +152,7 @@ module.exports = [
           {
             key: 'currencyManagement',
             name: 'Currency Management',
-            link: '/app/gestion-financial/Company/Currency-Management',
+            link: '/app/gestion-financial/Currency-Management',
             icon: 'ios-cash-outline'
           },
           {
@@ -170,7 +164,7 @@ module.exports = [
           {
             key: 'typeOfRetentoins',
             name: 'Types of Retentions',
-            link: '/app/gestion-financial/Company/IVA',
+            link: '/app/gestion-financial/Retention',
             icon: 'ios-cash-outline'
           }
         ]
@@ -211,6 +205,12 @@ module.exports = [
             key: 'contractType',
             name: 'Types of contract',
             link: '/app/hh-rr/ContractType',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'legalCategoryType',
+            name: 'Types of legal category',
+            link: '/app/hh-rr/LegalCategoryType',
             icon: 'ios-paper-outline'
           },
           {

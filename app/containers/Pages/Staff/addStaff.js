@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -16,6 +16,7 @@ import {
   DialogActions,
   Avatar,
   withStyles,
+  makeStyles,
   Paper,
   Chip,
   Divider,
@@ -25,7 +26,6 @@ import {
   IconButton,
   Typography
 } from '@material-ui/core';
-import PropTypes from 'prop-types';
 import ProfilePicture from 'profile-picture';
 import 'profile-picture/build/ProfilePicture.css';
 import '../Configurations/map/app.css';
@@ -39,12 +39,17 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import styles from './staff-jss';
 import AddressBlock from '../Address';
 import StaffService from '../../Services/StaffService';
 import CountryService from '../../Services/CountryService';
+import StateCountryService from '../../Services/StateCountryService';
+import ContractTypeService from '../../Services/ContractTypeService';
+import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
+import StaffEconomicContractInformation from './StaffEconomicContractInformation';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -54,9 +59,18 @@ const SmallAvatar = withStyles(theme => ({
   }
 }))(Avatar);
 
+const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
+
 const inputContractDoc = React.createRef();
 const inputInternalRulesDoc = React.createRef();
+const inputPreContractDoc = React.createRef();
+const inputIdCardDoc = React.createRef();
+const inputPassportDoc = React.createRef();
+const inputProfessionalIdCardDoc = React.createRef();
+const inputHnsCardDoc = React.createRef();
 const reader = new FileReader();
+
+const useStyles = makeStyles(styles);
 
 class AddStaff extends React.Component {
   constructor(props) {
@@ -64,7 +78,9 @@ class AddStaff extends React.Component {
     this.state = {
       isChangePicture: false,
       isPersonalInformation: false,
-      isGeneralContractInformation: true,
+      isGeneralContractInformation: false,
+      isEconomicContractInformation: true,
+      isStaffDocumentation: false,
       name: '',
       personalPhone: '',
       personalEmail: '',
@@ -73,7 +89,7 @@ class AddStaff extends React.Component {
       companyMobilePhone: '',
       companyEmail: '',
       skype: '',
-      birthday: '',
+      birthday: new Date(),
       birthCountry: '',
       emergencyContactName: '',
       emergencyContactPhone: '',
@@ -85,25 +101,72 @@ class AddStaff extends React.Component {
       state: {},
       city: {},
       contractType: '',
+      legalCategoryType: '',
       associateOffice: '',
       hiringCountry: '',
+      hiringState: '',
       townContract: '',
       personalNumber: '',
-      highDate: '',
-      lowDate: '',
-      registrationDate: '',
-      preContractDate: '',
-      selectedContractDocName: '',
-      selectedInternalRulesDocName: '',
+      highDate: new Date(),
+      lowDate: new Date(),
+      registrationDate: new Date(),
+      preContractDate: new Date(),
       internalRulesDoc: {},
       contractDoc: {},
-      countries: []
+      preContractDoc: {},
+      countries: [],
+      states: [],
+      idCardNumber: '',
+      idCardExpeditionDate: new Date(),
+      idCardExpirationDate: new Date(),
+      passportNumber: '',
+      passportExpeditionDate: new Date(),
+      passportExpirationDate: new Date(),
+      professionalIdCardNumber: '',
+      professionalIdCardExpeditionDate: new Date(),
+      professionalIdCardExpirationDate: new Date(),
+      hnsCardNumber: '',
+      hnsCardExpeditionDate: new Date(),
+      hnsCardExpirationDate: new Date(),
+      idCardDoc: {},
+      passportDoc: {},
+      professionalIdCardDoc: {},
+      hnsCardDoc: {},
+      idCardDocExtension: '',
+      passportDocExtension: '',
+      professionalIdCardDocExtension: '',
+      hnsCardDocExtension: '',
+      contractTypes: [],
+      legalCategoryTypes: [],
+      contractSalary: 0,
+      companyContractCost: 0,
+      expenses: 0,
+      companyExpensesCost: 0,
+      objectives: 0,
+      companyObjectivesCost: 0,
+      totalCompanyCost: 0,
+      contractSalaryDateGoing: new Date(),
+      contractSalaryDateOut: new Date(),
+      companyContractCostDateGoing: new Date(),
+      companyContractCostDateOut: new Date(),
+      expensesDateGoing: new Date(),
+      expensesDateOut: new Date(),
+      companyExpensesCostDateGoing: new Date(),
+      companyExpensesCostDateOut: new Date(),
+      objectivesDateGoing: new Date(),
+      objectivesDateOut: new Date(),
+      companyObjectivesCostDateGoing: new Date(),
+      companyObjectivesCostDateOut: new Date(),
+      totalCompanyCostDateGoing: new Date(),
+      totalCompanyCostDateOut: new Date()
     };
   }
 
   profilePictureRef = React.createRef();
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
@@ -116,7 +179,7 @@ class AddStaff extends React.Component {
       companyMobilePhone,
       emergencyContactPhone
     } = this.state;
-    console.log(ev.target.name);
+    console.log(ev);
     if (ev.target.name === 'adCountry') {
       this.setState({
         personalPhone: ev.target.value.phonePrefix + personalPhone,
@@ -126,7 +189,20 @@ class AddStaff extends React.Component {
           ev.target.value.phonePrefix + emergencyContactPhone
       });
     }
+    if (ev.target.name === 'companyName') {
+      LegalCategoryTypeService.getAllLegalCategoryTypesByCompany(
+        ev.target.value
+      ).then(({ data }) => {
+        this.setState({ legalCategoryTypes: data });
+      });
+    }
     this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  handleDateValue = (value, name) => {
+    this.setState({
+      [name]: value
+    });
   };
 
   handleSubmitStaff = () => {
@@ -136,6 +212,7 @@ class AddStaff extends React.Component {
       motherFamilyName,
       personalPhone,
       personalEmail,
+      companyName,
       companyPhone,
       companyMobilePhone,
       companyEmail,
@@ -158,7 +235,49 @@ class AddStaff extends React.Component {
       registrationDate,
       preContractDate,
       internalRulesDoc,
-      contractDoc
+      contractDoc,
+      preContractDoc,
+      idCardDoc,
+      passportDoc,
+      professionalIdCardDoc,
+      hnsCardDoc,
+      idCardDocExtension,
+      passportDocExtension,
+      professionalIdCardDocExtension,
+      hnsCardDocExtension,
+      idCardNumber,
+      idCardExpeditionDate,
+      idCardExpirationDate,
+      passportNumber,
+      passportExpeditionDate,
+      passportExpirationDate,
+      professionalIdCardNumber,
+      professionalIdCardExpeditionDate,
+      professionalIdCardExpirationDate,
+      hnsCardNumber,
+      hnsCardExpeditionDate,
+      hnsCardExpirationDate,
+      contractSalary,
+      companyContractCost,
+      expenses,
+      companyExpensesCost,
+      objectives,
+      companyObjectivesCost,
+      totalCompanyCost,
+      contractSalaryDateGoing,
+      contractSalaryDateOut,
+      companyContractCostDateGoing,
+      companyContractCostDateOut,
+      expensesDateGoing,
+      expensesDateOut,
+      companyExpensesCostDateGoing,
+      companyExpensesCostDateOut,
+      objectivesDateGoing,
+      objectivesDateOut,
+      companyObjectivesCostDateGoing,
+      companyObjectivesCostDateOut,
+      totalCompanyCostDateGoing,
+      totalCompanyCostDateOut
     } = this.state;
     const staff = {
       firstName,
@@ -166,11 +285,12 @@ class AddStaff extends React.Component {
       motherFamilyName,
       personalPhone,
       personalEmail,
+      companyName,
       companyPhone,
       companyMobilePhone,
       companyEmail,
       skype,
-      birthday: birthday || new Date(),
+      birthday: birthday.toISOString().slice(0, 10),
       birthCountry: birthCountry.countryName,
       emergencyContactName,
       emergencyContactPhone,
@@ -186,26 +306,152 @@ class AddStaff extends React.Component {
       hiringCountry: hiringCountry.countryName,
       townContract,
       personalNumber,
-      highDate: highDate || new Date(),
-      lowDate: lowDate || new Date(),
-      registrationDate: registrationDate || new Date(),
-      preContractDate: preContractDate || new Date()
+      highDate: highDate.toISOString().slice(0, 10),
+      lowDate: lowDate.toISOString().slice(0, 10),
+      registrationDate: registrationDate.toISOString().slice(0, 10),
+      preContractDate: preContractDate.toISOString().slice(0, 10)
+    };
+    const total = parseInt(companyContractCost)
+      + parseInt(companyExpensesCost)
+      + parseInt(companyObjectivesCost);
+    const economicContractInformation = {
+      contractSalary,
+      companyContractCost,
+      expenses,
+      companyExpensesCost,
+      objectives,
+      companyObjectivesCost,
+      totalCompanyCost: total,
+      contractSalaryDateGoing: contractSalaryDateGoing
+        .toISOString()
+        .slice(0, 10),
+      contractSalaryDateOut: contractSalaryDateOut.toISOString().slice(0, 10),
+      companyContractCostDateGoing: companyContractCostDateGoing
+        .toISOString()
+        .slice(0, 10),
+      companyContractCostDateOut: companyContractCostDateOut
+        .toISOString()
+        .slice(0, 10),
+      expensesDateGoing: expensesDateGoing.toISOString().slice(0, 10),
+      expensesDateOut: expensesDateOut.toISOString().slice(0, 10),
+      companyExpensesCostDateGoing: companyExpensesCostDateGoing
+        .toISOString()
+        .slice(0, 10),
+      companyExpensesCostDateOut: companyExpensesCostDateOut
+        .toISOString()
+        .slice(0, 10),
+      objectivesDateGoing: objectivesDateGoing.toISOString().slice(0, 10),
+      objectivesDateOut: objectivesDateOut.toISOString().slice(0, 10),
+      companyObjectivesCostDateGoing: companyObjectivesCostDateGoing
+        .toISOString()
+        .slice(0, 10),
+      companyObjectivesCostDateOut: companyObjectivesCostDateOut
+        .toISOString()
+        .slice(0, 10),
+      totalCompanyCostDateGoing: totalCompanyCostDateGoing
+        .toISOString()
+        .slice(0, 10),
+      totalCompanyCostDateOut: totalCompanyCostDateOut
+        .toISOString()
+        .slice(0, 10)
     };
 
-    const data = new FormData();
-    data.append('files[]', contractDoc);
-    data.append('files[]', internalRulesDoc);
-    data.append(
+    const contractData = new FormData();
+    contractData.append('files[]', contractDoc);
+    contractData.append('files[]', internalRulesDoc);
+    contractData.append('files[]', preContractDoc);
+    contractData.append(
       'staffContract',
       new Blob([JSON.stringify(contract)], {
         type: 'application/json'
       })
     );
 
-    StaffContractService.saveStaffContract(data).then(response => {
+    const staffData = new FormData();
+    staffData.append('files[]', idCardDoc);
+    staffData.append('files[]', passportDoc);
+    staffData.append('files[]', professionalIdCardDoc);
+    staffData.append('files[]', hnsCardDoc);
+    staffData.append(
+      'staff',
+      new Blob([JSON.stringify(staff)], {
+        type: 'application/json'
+      })
+    );
+    console.log(city);
+    staffData.append(
+      'city',
+      new Blob([JSON.stringify(city)], {
+        type: 'application/json'
+      })
+    );
+
+    const staffDocumentsList = [];
+
+    if (idCardDoc.constructor !== Object) {
+      staffDocumentsList.push({
+        name: 'ID Card',
+        number: idCardNumber,
+        expeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
+        expirationDate: idCardExpirationDate.toISOString().slice(0, 10),
+        docExtension: idCardDocExtension
+      });
+    }
+    if (passportDoc.constructor !== Object) {
+      staffDocumentsList.push({
+        name: 'Passport',
+        number: passportNumber,
+        expeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
+        expirationDate: passportExpirationDate.toISOString().slice(0, 10),
+        docExtension: passportDocExtension
+      });
+    }
+    if (professionalIdCardDoc.constructor !== Object) {
+      staffDocumentsList.push({
+        name: ' Professional ID Card',
+        number: professionalIdCardNumber,
+        expeditionDate: professionalIdCardExpeditionDate
+          .toISOString()
+          .slice(0, 10),
+        expirationDate: professionalIdCardExpirationDate
+          .toISOString()
+          .slice(0, 10),
+        docExtension: professionalIdCardDocExtension
+      });
+    }
+    if (hnsCardDoc.constructor !== Object) {
+      staffDocumentsList.push({
+        name: 'Health National Security Card',
+        number: hnsCardNumber,
+        expeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
+        expirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
+        docExtension: hnsCardDocExtension
+      });
+    }
+
+    staffData.append(
+      'staffDocumentsList',
+      new Blob([JSON.stringify(staffDocumentsList)], {
+        type: 'application/json'
+      })
+    );
+
+    staffData.append(
+      'staffEconomicContractInformation',
+      new Blob([JSON.stringify(economicContractInformation)], {
+        type: 'application/json'
+      })
+    );
+
+    StaffContractService.saveStaffContract(contractData).then(response => {
       console.log('save');
-      const items = [staff, city, response.data];
-      StaffService.saveStaff(items).then(({ data }) => {
+      staffData.append(
+        'staffContract',
+        new Blob([JSON.stringify(response.data)], {
+          type: 'application/json'
+        })
+      );
+      StaffService.saveStaff(staffData).then(({ data }) => {
         console.log(data);
         history.push('/app/hh-rr/staff', {});
       });
@@ -215,7 +461,6 @@ class AddStaff extends React.Component {
   readURI(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      console.log(e.target.files);
       reader.onload = function (ev) {
         this.setState({ photo: ev.target.result });
       }.bind(this);
@@ -243,8 +488,6 @@ class AddStaff extends React.Component {
     // const PP = this.profilePicture.current;
     /* const imageData = PP.getData();
         const file = imageData.file; */
-    const sessionUser = JSON.parse(sessionStorage.getItem('user'));
-    const { user } = this.state;
     const PP = this.profilePictureRef.current;
     const photo = PP.getImageAsDataUrl();
     this.setState({
@@ -262,52 +505,125 @@ class AddStaff extends React.Component {
     inputInternalRulesDoc.current.click();
   };
 
+  handleUploadPreContractDocClick = () => {
+    inputPreContractDoc.current.click();
+  };
+
+  handleUploadIdCardDocClick = () => {
+    inputIdCardDoc.current.click();
+  };
+
+  handleUploadPassportDocClick = () => {
+    inputPassportDoc.current.click();
+  };
+
+  handleUploadProfessionalIdCardDocClick = () => {
+    inputProfessionalIdCardDoc.current.click();
+  };
+
+  handleUploadHnsCardDocClick = () => {
+    inputHnsCardDoc.current.click();
+  };
+
   handleContractDocChange = () => {
-    this.setState({
-      selectedContractDocName: inputContractDoc.current.files[0].name,
-      contractDoc: inputContractDoc.current.files[0]
-    });
-    console.log(inputContractDoc.current.files[0].name);
-    console.log(reader.readAsDataURL(inputContractDoc.current.files[0]));
+    const lastDot = inputContractDoc.current.files[0].name.lastIndexOf('.');
+    const ext = inputContractDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (ext === 'pdf') {
+      this.setState({
+        contractDoc: inputContractDoc.current.files[0]
+      });
+    }
   };
 
   handleInternalRulesDocChange = () => {
-    this.setState({
-      selectedInternalRulesDocName: inputInternalRulesDoc.current.files[0].name,
-      internalRulesDoc: inputInternalRulesDoc.current.files[0]
-    });
+    const lastDot = inputInternalRulesDoc.current.files[0].name.lastIndexOf(
+      '.'
+    );
+    const ext = inputInternalRulesDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (ext === 'pdf') {
+      this.setState({
+        internalRulesDoc: inputInternalRulesDoc.current.files[0]
+      });
+    }
   };
 
-  handleDateValue = (value, name) => {
-    switch (name) {
-      case 'birthday':
-        this.setState({
-          birthday: value.toISOString().slice(0, 10)
-        });
-      case 'highDate':
-        this.setState({
-          highDate: value.toISOString().slice(0, 10)
-        });
-      case 'lowDate':
-        this.setState({
-          lowDate: value.toISOString().slice(0, 10)
-        });
-      case 'registrationDate':
-        this.setState({
-          registrationDate: value.toISOString().slice(0, 10)
-        });
-      case 'preContractDate':
-        this.setState({
-          preContractDate: value.toISOString().slice(0, 10)
-        });
+  handlePreContractDocChange = () => {
+    const lastDot = inputPreContractDoc.current.files[0].name.lastIndexOf('.');
+    const ext = inputPreContractDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (ext === 'pdf') {
+      this.setState({
+        preContractDoc: inputPreContractDoc.current.files[0]
+      });
     }
-    this.setState({
-      birthday: value.toISOString().slice(0, 10)
-    });
+  };
+
+  handleIdCardDocChange = () => {
+    const lastDot = inputIdCardDoc.current.files[0].name.lastIndexOf('.');
+    const ext = inputIdCardDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (extList.includes(ext)) {
+      this.setState({
+        idCardDoc: inputIdCardDoc.current.files[0],
+        idCardDocExtension: ext
+      });
+    }
+  };
+
+  handlePassportDocChange = () => {
+    const lastDot = inputPassportDoc.current.files[0].name.lastIndexOf('.');
+    const ext = inputPassportDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (extList.includes(ext)) {
+      this.setState({
+        passportDoc: inputPassportDoc.current.files[0],
+        passportDocExtension: ext
+      });
+    }
+  };
+
+  handleProfessionalIdCardDocChange = () => {
+    const lastDot = inputProfessionalIdCardDoc.current.files[0].name.lastIndexOf(
+      '.'
+    );
+    const ext = inputProfessionalIdCardDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (extList.includes(ext)) {
+      this.setState({
+        professionalIdCardDoc: inputProfessionalIdCardDoc.current.files[0],
+        professionalIdCardDocExtension: ext
+      });
+    }
+  };
+
+  handleHnsCardDocChange = () => {
+    const lastDot = inputHnsCardDoc.current.files[0].name.lastIndexOf('.');
+    const ext = inputHnsCardDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (extList.includes(ext)) {
+      this.setState({
+        hnsCardDoc: inputHnsCardDoc.current.files[0],
+        hnsCardDocExtension: ext
+      });
+    }
   };
 
   handleExpandClick = compName => {
-    const { isPersonalInformation, isGeneralContractInformation } = this.state;
+    const {
+      isPersonalInformation,
+      isGeneralContractInformation,
+      isEconomicContractInformation,
+      isStaffDocumentation
+    } = this.state;
     if (compName === 'personalInformation') {
       this.setState({
         isPersonalInformation: !isPersonalInformation
@@ -316,21 +632,38 @@ class AddStaff extends React.Component {
       this.setState({
         isGeneralContractInformation: !isGeneralContractInformation
       });
+    } else if (compName === 'economicContractInformation') {
+      this.setState({
+        isEconomicContractInformation: !isEconomicContractInformation
+      });
+    } else if (compName === 'staffDocumentation') {
+      this.setState({
+        isStaffDocumentation: !isStaffDocumentation
+      });
     }
   };
 
   handleChangeBirthCountry = (ev, value) => {
-    console.log(value);
     this.setState({ birthCountry: value });
   };
 
   handleChangeHiringCountry = (ev, value) => {
-    this.setState({ hiringCountry: value });
+    StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
+      this.setState({
+        hiringCountry: value,
+        states: data
+      });
+    });
+  };
+
+  handleChangeHiringState = (ev, value) => {
+    ContractTypeService.getAllByState(value.stateCountryId).then(({ data }) => {
+      this.setState({ contractTypes: data, hiringState: value });
+    });
   };
 
   /* getAll = () => {
     TestClassService.getFiles().then(response => {
-      console.log(response);
       const binaryString = window.atob(response.data[0].contractDoc);
       const binaryLen = binaryString.length;
       const bytes = new Uint8Array(binaryLen);
@@ -370,10 +703,14 @@ class AddStaff extends React.Component {
       photo,
       isPersonalInformation,
       isGeneralContractInformation,
+      isEconomicContractInformation,
+      isStaffDocumentation,
       isChangeProfilePic,
       countries,
+      states,
       associateOffice,
       hiringCountry,
+      hiringState,
       townContract,
       personalNumber,
       highDate,
@@ -381,11 +718,29 @@ class AddStaff extends React.Component {
       registrationDate,
       preContractDate,
       contractType,
-      selectedInternalRulesDocName,
-      selectedContractDocName
+      legalCategoryType,
+      contractDoc,
+      preContractDoc,
+      internalRulesDoc,
+      idCardDoc,
+      passportDoc,
+      professionalIdCardDoc,
+      hnsCardDoc,
+      idCardNumber,
+      idCardExpeditionDate,
+      idCardExpirationDate,
+      passportNumber,
+      passportExpeditionDate,
+      passportExpirationDate,
+      professionalIdCardNumber,
+      professionalIdCardExpeditionDate,
+      professionalIdCardExpirationDate,
+      hnsCardNumber,
+      hnsCardExpeditionDate,
+      hnsCardExpirationDate,
+      contractTypes,
+      legalCategoryTypes
     } = this.state;
-    const salutations = ['Mr.', 'Mrs', 'Miss'];
-    const types = ['Staff.', 'Commercial', 'Leader'];
     const companies = [
       { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
       {
@@ -397,15 +752,6 @@ class AddStaff extends React.Component {
         name: 'International GDE',
         phone: '+21265482154',
         email: 'internationalgde@gmail.com'
-      }
-    ];
-    const contractTypes = [
-      { name: 'CDI' },
-      {
-        name: 'CDD'
-      },
-      {
-        name: 'Part-Time'
       }
     ];
     return (
@@ -575,7 +921,7 @@ class AddStaff extends React.Component {
                       id="date-picker-inline"
                       name="birthday"
                       label="Birthday"
-                      value={birthday ? new Date(birthday) : new Date()}
+                      value={birthday}
                       onChange={value => this.handleDateValue(value, 'birthday')
                       }
                       KeyboardButtonProps={{
@@ -591,6 +937,7 @@ class AddStaff extends React.Component {
                     getOptionLabel={option => option.countryName}
                     onChange={this.handleChangeBirthCountry}
                     style={{ marginTop: 25 }}
+                    clearOnEscape
                     renderInput={params => (
                       <TextField
                         fullWidth
@@ -718,6 +1065,458 @@ class AddStaff extends React.Component {
           >
             <div className={classes.divCenter}>
               <Button
+                name="staffDocumentation"
+                style={{ backgroundColor: 'transparent', width: '100%' }}
+                disableRipple
+                endIcon={
+                  isStaffDocumentation ? (
+                    <ExpandLessOutlinedIcon />
+                  ) : (
+                    <ExpandMoreOutlinedIcon />
+                  )
+                }
+                onClick={() => this.handleExpandClick('staffDocumentation')}
+              >
+                Staff Documentation
+              </Button>
+            </div>
+          </Paper>
+          <Collapse in={isStaffDocumentation}>
+            <div>
+              <Grid
+                container
+                spacing={6}
+                direction="row"
+                justifyContent="left"
+                alignItems="start"
+              >
+                <Grid item xs={12} md={4}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <IconButton
+                      className={
+                        professionalIdCardDoc.constructor === Object
+                          ? classes.uploadAvatarEmpty
+                          : classes.uploadAvatarDone
+                      }
+                      onClick={this.handleUploadProfessionalIdCardDocClick}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <input
+                          type="file"
+                          id="file"
+                          accept=".png, .jpg, .jpeg, .pdf, .tiff"
+                          ref={inputProfessionalIdCardDoc}
+                          multiple={false}
+                          style={{ display: 'none' }}
+                          onChange={this.handleProfessionalIdCardDocChange}
+                        />
+                        <PublishIcon
+                          className={classes.uploadIcon}
+                          color="secondary"
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.uploadText}
+                        >
+                          Professional ID
+                        </Typography>
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.uploadText}
+                        >
+                          Card
+                        </Typography>
+                      </div>
+                    </IconButton>
+                    <div
+                      className={classes.divInline}
+                      style={{ width: '100%' }}
+                    >
+                      <IconButton
+                        className={
+                          idCardDoc.constructor === Object
+                            ? classes.uploadAvatarEmpty
+                            : classes.uploadAvatarDone
+                        }
+                        onClick={this.handleUploadIdCardDocClick}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <input
+                            type="file"
+                            id="file"
+                            accept=".png, .jpg, .jpeg, .pdf, .tiff"
+                            ref={inputIdCardDoc}
+                            multiple={false}
+                            style={{ display: 'none' }}
+                            onChange={this.handleIdCardDocChange}
+                          />
+                          <PublishIcon
+                            className={classes.uploadIcon}
+                            color="secondary"
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            className={classes.uploadText}
+                          >
+                            Id Card
+                          </Typography>
+                        </div>
+                      </IconButton>
+                      <IconButton
+                        className={classes.uploadAvatarEmpty}
+                        className={
+                          passportDoc.constructor === Object
+                            ? classes.uploadAvatarEmpty
+                            : classes.uploadAvatarDone
+                        }
+                        onClick={this.handleUploadPassportDocClick}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <input
+                            type="file"
+                            id="file"
+                            accept=".png, .jpg, .jpeg, .pdf, .tiff"
+                            ref={inputPassportDoc}
+                            multiple={false}
+                            style={{ display: 'none' }}
+                            onChange={this.handlePassportDocChange}
+                          />
+                          <PublishIcon
+                            className={classes.uploadIcon}
+                            color="secondary"
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            className={classes.uploadText}
+                          >
+                            Passport
+                          </Typography>
+                        </div>
+                      </IconButton>
+                    </div>
+                    <IconButton
+                      className={
+                        hnsCardDoc.constructor === Object
+                          ? classes.uploadAvatarEmpty
+                          : classes.uploadAvatarDone
+                      }
+                      onClick={this.handleUploadHnsCardDocClick}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <input
+                          type="file"
+                          id="file"
+                          accept=".png, .jpg, .jpeg, .pdf, .tiff"
+                          ref={inputHnsCardDoc}
+                          multiple={false}
+                          style={{ display: 'none' }}
+                          onChange={this.handleHnsCardDocChange}
+                        />
+                        <PublishIcon
+                          className={classes.uploadIcon}
+                          color="secondary"
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.uploadText}
+                        >
+                          Health national
+                        </Typography>
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.uploadText}
+                        >
+                          security
+                        </Typography>
+                      </div>
+                    </IconButton>
+                  </div>
+                </Grid>
+                <Grid item xs={12} md={2}>
+                  <Chip
+                    label="ID Card"
+                    avatar={<Avatar>I</Avatar>}
+                    color="primary"
+                  />
+                  <Divider
+                    variant="fullWidth"
+                    style={{ marginBottom: '10px', marginTop: '10px' }}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Number"
+                    variant="outlined"
+                    name="idCardNumber"
+                    fullWidth
+                    required
+                    value={idCardNumber}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="idCardExpeditionDate"
+                      label="Expedition date"
+                      value={idCardExpeditionDate}
+                      onChange={value => this.handleDateValue(value, 'idCardExpeditionDate')
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="idCardExpirationDate"
+                      label="Expiration date"
+                      value={idCardExpirationDate}
+                      onChange={value => this.handleDateValue(value, 'idCardExpirationDate')
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                </Grid>
+                <Grid item xs={12} md={2}>
+                  <Chip
+                    label="Passport"
+                    avatar={<Avatar>P</Avatar>}
+                    color="primary"
+                  />
+                  <Divider
+                    variant="fullWidth"
+                    style={{ marginBottom: '10px', marginTop: '10px' }}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Number"
+                    variant="outlined"
+                    name="passportNumber"
+                    fullWidth
+                    required
+                    value={passportNumber}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="passportExpeditionDate"
+                      label="Expedition date"
+                      value={passportExpeditionDate}
+                      onChange={value => this.handleDateValue(value, 'passportExpeditionDate')
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="passportExpirationDate"
+                      label="Expiration date"
+                      value={passportExpirationDate}
+                      onChange={value => this.handleDateValue(value, 'passportExpirationDate')
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                </Grid>
+                <Grid item xs={12} md={2}>
+                  <Chip
+                    label="Professional ID Card"
+                    avatar={<Avatar>PC</Avatar>}
+                    color="primary"
+                  />
+                  <Divider
+                    variant="fullWidth"
+                    style={{ marginBottom: '10px', marginTop: '10px' }}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Number"
+                    variant="outlined"
+                    name="professionalIdCardNumber"
+                    fullWidth
+                    required
+                    value={professionalIdCardNumber}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="professionalIdCardExpeditionDate"
+                      label="Expedition date"
+                      value={professionalIdCardExpeditionDate}
+                      onChange={value => this.handleDateValue(
+                        value,
+                        'professionalIdCardExpeditionDate'
+                      )
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="professionalIdCardExpirationDate"
+                      label="Expiration date"
+                      value={professionalIdCardExpirationDate}
+                      onChange={value => this.handleDateValue(
+                        value,
+                        'professionalIdCardExpirationDate'
+                      )
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                </Grid>
+                <Grid item xs={12} md={2}>
+                  <Chip
+                    label="Health National Security"
+                    avatar={<Avatar>H</Avatar>}
+                    color="primary"
+                  />
+                  <Divider
+                    variant="fullWidth"
+                    style={{ marginBottom: '10px', marginTop: '10px' }}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Number"
+                    variant="outlined"
+                    name="hnsCardNumber"
+                    fullWidth
+                    required
+                    value={hnsCardNumber}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="hnsCardExpeditionDate"
+                      label="Expedition date"
+                      value={hnsCardExpeditionDate}
+                      onChange={value => this.handleDateValue(value, 'hnsCardExpeditionDate')
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                      disableToolbar
+                      variant="inline"
+                      format="dd/MM/yyyy"
+                      margin="normal"
+                      id="date-picker-inline"
+                      name="hnsCardExpirationDate"
+                      label="Expiration date"
+                      value={hnsCardExpirationDate}
+                      onChange={value => this.handleDateValue(value, 'hnsCardExpirationDate')
+                      }
+                      KeyboardButtonProps={{
+                        'aria-label': 'change date'
+                      }}
+                      fullWidth
+                    />
+                  </MuiPickersUtilsProvider>
+                </Grid>
+              </Grid>
+            </div>
+          </Collapse>
+
+          <Paper
+            elevation={1}
+            style={{ width: '100%', marginTop: '10px', marginBottom: 20 }}
+          >
+            <div className={classes.divCenter}>
+              <Button
                 name="generalContractInformation"
                 style={{ backgroundColor: 'transparent', width: '100%' }}
                 disableRipple
@@ -744,7 +1543,7 @@ class AddStaff extends React.Component {
                 justifyContent="left"
                 alignItems="start"
               >
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} md={4}>
                   <div
                     style={{
                       width: '100%',
@@ -756,7 +1555,11 @@ class AddStaff extends React.Component {
                     }}
                   >
                     <IconButton
-                      className={classes.large}
+                      className={
+                        contractDoc.constructor === Object
+                          ? classes.uploadAvatarEmpty
+                          : classes.uploadAvatarDone
+                      }
                       onClick={this.handleUploadContractDocClick}
                     >
                       <div
@@ -782,104 +1585,104 @@ class AddStaff extends React.Component {
                         />
                         <Typography
                           variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: 12,
-                            fontWeight: 'bold',
-                            opacity: 0.6,
-                            wordWrap: 'break-word'
-                          }}
-                          display="inline"
+                          className={classes.uploadText}
                         >
-                          Contract Document
+                          Contract
                         </Typography>
                       </div>
                     </IconButton>
-                    <Typography
-                      variant="subtitle1"
-                      style={{
-                        color: '#000',
-                        fontFamily: 'sans-serif , Arial',
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        opacity: 0.8,
-                        wordWrap: 'break-word',
-                        marginTop: 15
-                      }}
-                      display="inline"
+                    <div
+                      className={classes.divInline}
+                      style={{ width: '100%' }}
                     >
-                      Selected Contract:
-                      {' '}
-                      {selectedContractDocName || 'none'}
-                    </Typography>
-                    <IconButton
-                      className={classes.large}
-                      onClick={this.handleUploadInternalRulesDocClick}
-                      style={{ marginTop: 30 }}
-                    >
-                      <div
+                      <IconButton
+                        className={classes.uploadAvatarEmpty}
+                        className={
+                          internalRulesDoc.constructor === Object
+                            ? classes.uploadAvatarEmpty
+                            : classes.uploadAvatarDone
+                        }
+                        onClick={this.handleUploadInternalRulesDocClick}
+                        style={{ marginTop: 30 }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <input
+                            type="file"
+                            id="file"
+                            accept=".pdf"
+                            ref={inputInternalRulesDoc}
+                            multiple={false}
+                            style={{ display: 'none' }}
+                            onChange={this.handleInternalRulesDocChange}
+                          />
+                          <PublishIcon
+                            className={classes.uploadIcon}
+                            color="secondary"
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            className={classes.uploadText}
+                          >
+                            Internal Rules
+                          </Typography>
+                        </div>
+                      </IconButton>
+                      <IconButton
+                        className={
+                          preContractDoc.constructor === Object
+                            ? classes.uploadAvatarEmpty
+                            : classes.uploadAvatarDone
+                        }
+                        onClick={this.handleUploadPreContractDocClick}
                         style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          alignItems: 'center'
+                          marginTop: 30
                         }}
                       >
-                        <input
-                          type="file"
-                          id="file"
-                          accept=".pdf"
-                          ref={inputInternalRulesDoc}
-                          multiple={false}
-                          style={{ display: 'none' }}
-                          onChange={this.handleInternalRulesDocChange}
-                        />
-                        <PublishIcon
-                          className={classes.uploadIcon}
-                          color="secondary"
-                        />
-                        <Typography
-                          variant="subtitle1"
+                        <div
                           style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: 12,
-                            fontWeight: 'bold',
-                            opacity: 0.6,
-                            wordWrap: 'break-word'
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
                           }}
-                          display="inline"
                         >
-                          Internal Rules Document
-                        </Typography>
-                      </div>
-                    </IconButton>
-                    <Typography
-                      variant="subtitle1"
-                      style={{
-                        color: '#000',
-                        fontFamily: 'sans-serif , Arial',
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        opacity: 0.8,
-                        wordWrap: 'break-word',
-                        marginTop: 15
-                      }}
-                      display="inline"
-                    >
-                      Selected Internal Rules:
-                      {' '}
-                      {selectedInternalRulesDocName || 'none'}
-                    </Typography>
+                          <input
+                            type="file"
+                            id="file"
+                            accept=".pdf"
+                            ref={inputPreContractDoc}
+                            multiple={false}
+                            style={{ display: 'none' }}
+                            onChange={this.handlePreContractDocChange}
+                          />
+                          <PublishIcon
+                            className={classes.uploadIcon}
+                            color="secondary"
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            className={classes.uploadText}
+                          >
+                            PreContract
+                          </Typography>
+                        </div>
+                      </IconButton>
+                    </div>
                   </div>
                 </Grid>
                 <Grid
                   item
                   xs={12}
-                  md={9}
+                  md={8}
                   container
-                  spacing={6}
+                  spacing={5}
                   direction="row"
                   justifyContent="center"
                   alignItems="center"
@@ -888,24 +1691,7 @@ class AddStaff extends React.Component {
                     <div className={classes.divSpace} style={{ width: '100%' }}>
                       <FormControl
                         className={classes.formControl}
-                        style={{ width: '30%' }}
-                      >
-                        <InputLabel>Contract type</InputLabel>
-                        <Select
-                          name="contractType"
-                          value={contractType}
-                          onChange={this.handleChange}
-                        >
-                          {contractTypes.map(type => (
-                            <MenuItem key={type.name} value={type.name}>
-                              {type.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                      <FormControl
-                        className={classes.formControl}
-                        style={{ width: '30%' }}
+                        style={{ width: '45%' }}
                       >
                         <InputLabel>Company</InputLabel>
                         <Select
@@ -925,7 +1711,7 @@ class AddStaff extends React.Component {
                         label="Associate office"
                         variant="outlined"
                         name="associateOffice"
-                        style={{ width: '30%' }}
+                        style={{ width: '45%' }}
                         value={associateOffice}
                         className={classes.textField}
                         onChange={this.handleChange}
@@ -941,11 +1727,29 @@ class AddStaff extends React.Component {
                         getOptionLabel={option => option.countryName}
                         onChange={this.handleChangeHiringCountry}
                         style={{ width: '30%', marginTop: 7 }}
+                        clearOnEscape
                         renderInput={params => (
                           <TextField
                             fullWidth
                             {...params}
                             label="Hiring Country"
+                            variant="outlined"
+                          />
+                        )}
+                      />
+                      <Autocomplete
+                        id="combo-box-demo"
+                        value={hiringState}
+                        options={states}
+                        getOptionLabel={option => option.stateName}
+                        onChange={this.handleChangeHiringState}
+                        style={{ width: '30%', marginTop: 7 }}
+                        clearOnEscape
+                        renderInput={params => (
+                          <TextField
+                            fullWidth
+                            {...params}
+                            label="Hiring State"
                             variant="outlined"
                           />
                         )}
@@ -960,9 +1764,13 @@ class AddStaff extends React.Component {
                         className={classes.textField}
                         onChange={this.handleChange}
                       />
+                    </div>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <div className={classes.divSpace} style={{ width: '100%' }}>
                       <TextField
                         id="outlined-basic"
-                        label="Personal Number"
+                        label="Employee Number"
                         variant="outlined"
                         name="personalNumber"
                         style={{ width: '30%' }}
@@ -970,6 +1778,40 @@ class AddStaff extends React.Component {
                         className={classes.textField}
                         onChange={this.handleChange}
                       />
+                      <FormControl
+                        className={classes.formControl}
+                        style={{ width: '30%' }}
+                      >
+                        <InputLabel>Contract type</InputLabel>
+                        <Select
+                          name="contractType"
+                          value={contractType}
+                          onChange={this.handleChange}
+                        >
+                          {contractTypes.map(type => (
+                            <MenuItem key={type.code} value={type.code}>
+                              {type.code}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <FormControl
+                        className={classes.formControl}
+                        style={{ width: '30%' }}
+                      >
+                        <InputLabel>Contract legal category</InputLabel>
+                        <Select
+                          name="legalCategoryType"
+                          value={legalCategoryType}
+                          onChange={this.handleChange}
+                        >
+                          {legalCategoryTypes.map(type => (
+                            <MenuItem key={type.name} value={type.name}>
+                              {type.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </div>
                   </Grid>
                   <Grid item xs={12}>
@@ -983,7 +1825,7 @@ class AddStaff extends React.Component {
                           id="date-picker-inline"
                           name="highDate"
                           label="High Date"
-                          value={highDate ? new Date(highDate) : new Date()}
+                          value={highDate}
                           onChange={value => this.handleDateValue(value, 'highDate')
                           }
                           KeyboardButtonProps={{
@@ -1001,7 +1843,7 @@ class AddStaff extends React.Component {
                           id="date-picker-inline"
                           name="lowDate"
                           label="Low Date"
-                          value={lowDate ? new Date(lowDate) : new Date()}
+                          value={lowDate}
                           onChange={value => this.handleDateValue(value, 'lowDate')
                           }
                           KeyboardButtonProps={{
@@ -1019,11 +1861,8 @@ class AddStaff extends React.Component {
                           id="date-picker-inline"
                           name="registrationDate"
                           label="Registration Date"
-                          value={
-                            registrationDate
-                              ? new Date(registrationDate)
-                              : new Date()
-                          }
+                          disabled
+                          value={registrationDate}
                           onChange={value => this.handleDateValue(value, 'registrationDate')
                           }
                           KeyboardButtonProps={{
@@ -1041,11 +1880,7 @@ class AddStaff extends React.Component {
                           id="date-picker-inline"
                           name="preContractDate"
                           label="Precontract Date"
-                          value={
-                            preContractDate
-                              ? new Date(preContractDate)
-                              : new Date()
-                          }
+                          value={preContractDate}
                           onChange={value => this.handleDateValue(value, 'preContractDate')
                           }
                           KeyboardButtonProps={{
@@ -1059,6 +1894,35 @@ class AddStaff extends React.Component {
                 </Grid>
               </Grid>
             </div>
+          </Collapse>
+          <Paper
+            elevation={1}
+            style={{ width: '100%', marginTop: '10px', marginBottom: 20 }}
+          >
+            <div className={classes.divCenter}>
+              <Button
+                name="economicContractInformation"
+                style={{ backgroundColor: 'transparent', width: '100%' }}
+                disableRipple
+                endIcon={
+                  isEconomicContractInformation ? (
+                    <ExpandLessOutlinedIcon />
+                  ) : (
+                    <ExpandMoreOutlinedIcon />
+                  )
+                }
+                onClick={() => this.handleExpandClick('economicContractInformation')
+                }
+              >
+                Economic Contract Information
+              </Button>
+            </div>
+          </Paper>
+          <Collapse in={isEconomicContractInformation}>
+            <StaffEconomicContractInformation
+              handleChangeValue={this.handleChange}
+              handleChangeDateValue={this.handleDateValue}
+            />
           </Collapse>
           <div className={classes.btnCenter} style={{ marginTop: 20 }}>
             <Button
@@ -1076,7 +1940,9 @@ class AddStaff extends React.Component {
     );
   }
 }
-AddStaff.propTypes = {
-  classes: PropTypes.object.isRequired
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddStaff changeTheme={changeTheme} classes={classes} />;
 };
-export default withStyles(styles)(AddStaff);

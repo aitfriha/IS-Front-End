@@ -1,37 +1,33 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import {
-  Grid, TextField, Typography
+  Button, Grid, TextField
 } from '@material-ui/core';
+import Chip from '@material-ui/core/Chip';
+import Avatar from '@material-ui/core/Avatar';
+import Divider from '@material-ui/core/Divider';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import history from '../../../../utils/history';
 import styles from '../../Companies/companies-jss';
-import IvaService from '../../../Services/IvaService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
+import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
+import RetentionService from '../../../Services/RetentionService';
 
-class AddIVA extends React.Component {
+class AddRetention extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      ivaCode: '',
-      state: '',
-      value: '',
-      startingDate: '',
-      endingDate: ' ',
-      electronicInvoice: false
+      name: '',
+      description: '',
+      currentCity: '',
     };
   }
 
@@ -51,48 +47,49 @@ class AddIVA extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCityByState } = this.props;
     getAllCityByState(value.stateCountryId);
-    this.setState({ state: value.stateCountryId });
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ currentCity: value.cityId });
   };
 
     handleSubmit = () => {
       const {
-        ivaCode, value, state, startingDate, endingDate, electronicInvoice
+        retentionId, name, descrption, currentCity, addressId
       } = this.state;
-      const stateCountry = { _id: state };
-      const Iva = {
-        ivaCode, value, startingDate, endingDate, electronicInvoice, stateCountry
+      const city = { _id: currentCity };
+      const address = {
+        addressId, city
       };
-      IvaService.saveIva(Iva).then(result => {
+      const Retention = {
+        retentionId, name, descrption, address
+      };
+      RetentionService.saveRetention(Retention).then(result => {
         console.log(result);
       });
-      history.push('/app/gestion-financial/IVA');
-    }
-
-    handleGoBack = () => {
-      history.push('/app/gestion-financial/IVA');
+      history.push('/app/gestion-financial/Retention');
     }
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
-    handleCheck = () => {
-    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const ok = !this.state.electronicInvoice;
-      this.setState({ electronicInvoice: ok });
+    handleGoBack = () => {
+      history.push('/app/gestion-financial/Retention');
     }
 
     render() {
       const {
         // eslint-disable-next-line react/prop-types
-        allCountrys, allStateCountrys
+        allCountrys, allStateCountrys, allCitys
       } = this.props;
       console.log(this.state);
-      const title = brand.name + ' - Add I.V.A';
+      const title = brand.name + ' - Add Retentions';
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        value, startingDate, endingDate, electronicInvoice, ivaCode
+        name,
+        description
       } = this.state;
       const { classes } = this.props;
       return (
@@ -106,50 +103,51 @@ class AddIVA extends React.Component {
             <meta property="twitter:description" content={desc} />
           </Helmet>
           <PapperBlock
-            title="New I.V.A Taxe"
+            title="New Type Of Retention"
             desc="Please, Fill in the all field"
             icon="ios-add-circle"
           >
-            <Grid container spacing={1}>
-              <Grid item xs={11} />
-              <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
-              </Grid>
-            </Grid>
             <Grid
               container
-              spacing={3}
+              spacing={10}
               alignItems="flex-start"
               direction="row"
               justify="center"
             >
-              <Grid item xs={12} md={12} sm={12}>
-                <Typography variant="subtitle2" component="h2" color="primary">
-                I.V.A Information
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={2} sm={2}>
+              <Grid item xs={12} md={4}>
+                <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <TextField
-                  id="ivaCode"
-                  label="I.V.A Code"
+                  id="Name"
+                  label="Name"
                   variant="outlined"
-                  name="ivaCode"
-                  value={ivaCode}
+                  name="name"
+                  value={name}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <TextField
+                  id="description"
+                  label="Description"
+                  variant="outlined"
+                  name="description"
+                  value={description}
                   required
                   fullWidth
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
               </Grid>
-              <Grid item xs={12} md={4} sm={4}>
+              <Grid item xs={12} md={3}>
+                <Chip label="Retention Address" avatar={<Avatar>S</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <Autocomplete
                   id="combo-box-demo"
                   options={allCountrys}
                   getOptionLabel={option => option.countryName}
                   onChange={this.handleChangeCountry}
-                  style={{ marginTop: 15 }}
                   renderInput={params => (
                     <TextField
                       fullWidth
@@ -159,8 +157,6 @@ class AddIVA extends React.Component {
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} md={4} sm={4}>
                 <Autocomplete
                   id="combo-box-demo"
                   options={allStateCountrys}
@@ -176,84 +172,51 @@ class AddIVA extends React.Component {
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} md={2} sm={2}>
-                <TextField
-                  id="value"
-                  label="I.V.A Value %"
-                  variant="outlined"
-                  name="value"
-                  value={value}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCitys}
+                  getOptionLabel={option => option.cityName}
+                  onChange={this.handleChangeCity}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the city"
+                      variant="outlined"
+                    />
+                  )}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  id="electronicInvoice"
-                  name="electronicInvoice"
-                  value={electronicInvoice}
-                  control={<Checkbox color="primary" onChange={this.handleCheck} />}
-                  label="Electronic Invoice"
-                  labelPlacement="end"
-                />
-              </Grid>
-              <Grid item xs={12} md={12} sm={12}>
-                <br />
-                <Typography variant="subtitle2" component="h2" color="primary">
-                I.V.A Dates
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={5}>
-                <TextField
-                  id="startingDate"
-                  label="Starting Date "
-                  type="date"
-                  variant="outlined"
-                  name="startingDate"
-                  value={startingDate}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={5}>
-                <TextField
-                  id="endingDate"
-                  label="Ending Date "
-                  type="date"
-                  variant="outlined"
-                  name="endingDate"
-                  value={endingDate}
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
+              <Grid
+                item
+                xs={12}
+                md={7}
+                style={{ display: 'flex', justifyContent: 'center' }}
+              >
+                <Button
+                  size="small"
+                  color="inherit"
+                  onClick={this.handleGoBack}
+                >
+                    Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  size="medium"
+                  onClick={this.handleSubmit}
+                >
+                                Save Retention
+                </Button>
               </Grid>
             </Grid>
-            <div align="center">
-              <br />
-              <br />
-              <Button size="small" color="inherit" onClick={this.handleGoBack}>Cancel</Button>
-              <Button variant="contained" color="primary" type="button" onClick={this.handleSubmit}>
-                            Save
-              </Button>
-            </div>
           </PapperBlock>
         </div>
       );
     }
 }
-AddIVA.propTypes = {
+AddRetention.propTypes = {
   classes: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
@@ -275,9 +238,12 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
   getAllStateByCountry,
-  getAllCityByState
+  getAllCityByState,
+  addClientCommercial,
+  getAllClient
 }, dispatch);
+
 export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddIVA));
+)(AddRetention));

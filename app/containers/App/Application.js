@@ -47,9 +47,15 @@ import {
   AddBilling,
   IVA,
   AddIVA,
+  Currency,
+  AddCurrency,
+  Retention,
+  AddRetention,
   StatusOfCommercialOperation,
   ContractType,
   AddContractType,
+  LegalCategoryType,
+  AddLegalCategoryType,
   AbsenceType,
   AddAbsenceType, SectorsCompany
 } from '../pageListAsync';
@@ -57,9 +63,13 @@ import addCompany from '../Pages/Companies/addCompany';
 
 function Application(props) {
   const { history } = props;
-  const changeMode = useContext(ThemeContext);
+  const { changeMode, changeTheme } = useContext(ThemeContext);
   return (
-    <Dashboard history={history} changeMode={changeMode}>
+    <Dashboard
+      history={history}
+      changeMode={changeMode}
+      changeTheme={changeTheme}
+    >
       <Switch>
         <Route exact path="/app" component={BlankPage} />
         <Route exact path="/app/dashboard" component={DashboardPage} />
@@ -123,6 +133,16 @@ function Application(props) {
           exact
           path="/app/hh-rr/contractType/create-contract-type"
           component={AddContractType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/legalCategoryType"
+          component={LegalCategoryType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/legalCategoryType/create-legal-category-type"
+          component={AddLegalCategoryType}
         />
         <Route exact path="/app/hh-rr/absenceType" component={AbsenceType} />
         <Route
@@ -245,16 +265,12 @@ function Application(props) {
           path="/app/gestion-financial/Add-Bill"
           component={AddBilling}
         />
-        <Route
-          exact
-          path="/app/gestion-financial/IVA"
-          component={IVA}
-        />
-        <Route
-          exact
-          path="/app/gestion-financial/Add-IVA"
-          component={AddIVA}
-        />
+        <Route exact path="/app/gestion-financial/IVA" component={IVA} />
+        <Route exact path="/app/gestion-financial/Add-IVA" component={AddIVA} />
+        <Route exact path="/app/gestion-financial/Currency-Management" component={Currency} />
+        <Route exact path="/app/gestion-financial/Add-Currency" component={AddCurrency} />
+        <Route exact path="/app/gestion-financial/Retention" component={Retention} />
+        <Route exact path="/app/gestion-financial/Add-Retention" component={AddRetention} />
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>

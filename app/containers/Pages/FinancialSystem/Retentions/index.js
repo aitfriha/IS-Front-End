@@ -1,18 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
-import { ThemeContext } from '../../../App/ThemeWrapper';
-import ContractBlock from './ContractBlock';
+import RetentionBlock from './RetentionBlock';
 
-class Contract extends React.Component {
-  componentDidMount() {
-    const { changeTheme } = this.props;
-    changeTheme('redTheme');
-  }
-
+class Company extends React.Component {
   render() {
-    const title = brand.name + ' - Client Contracts';
+    const title = brand.name + ' - Retentions';
     const description = brand.desc;
     return (
       <div>
@@ -24,15 +18,12 @@ class Contract extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Client Contracts" icon="ios-paper" noMargin overflowX>
-          <ContractBlock />
+        <PapperBlock title="Retentions" icon="ios-person" noMargin overflowX>
+          <RetentionBlock />
         </PapperBlock>
       </div>
     );
   }
 }
 
-export default () => {
-  const { changeTheme } = useContext(ThemeContext);
-  return <Contract changeTheme={changeTheme} />;
-};
+export default Company;

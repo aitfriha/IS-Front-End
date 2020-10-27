@@ -11,7 +11,10 @@ import {
   createMuiTheme,
   MuiThemeProvider
 } from '@material-ui/core/styles';
-import { changeModeAction } from 'dan-redux/actions/uiActions';
+import {
+  changeModeAction,
+  changeThemeAction
+} from 'dan-redux/actions/uiActions';
 import applicationTheme from '../../styles/theme/applicationTheme';
 
 const styles = {
@@ -75,6 +78,12 @@ function ThemeWrapper(props) {
     changeMode(mode);
   };
 
+  const handleChangeTheme = color => {
+    const { mode, changeTheme } = props;
+    setTheme(createMuiTheme(applicationTheme(color, mode)));
+    changeTheme(color);
+  };
+
   const { classes, children } = props;
   return (
     <StylesProvider jss={jss}>
@@ -90,7 +99,12 @@ function ThemeWrapper(props) {
               barColorPrimary: classes.bar
             }}
           />
-          <ThemeContext.Provider value={handleChangeMode}>
+          <ThemeContext.Provider
+            value={{
+              changeMode: handleChangeMode,
+              changeTheme: handleChangeTheme
+            }}
+          >
             {children}
           </ThemeContext.Provider>
         </div>
@@ -104,7 +118,8 @@ ThemeWrapper.propTypes = {
   children: PropTypes.node.isRequired,
   color: PropTypes.string.isRequired,
   mode: PropTypes.string.isRequired,
-  changeMode: PropTypes.func.isRequired
+  changeMode: PropTypes.func.isRequired,
+  changeTheme: PropTypes.func.isRequired
 };
 
 const reducer = 'ui';
@@ -115,7 +130,8 @@ const mapStateToProps = state => ({
 });
 
 const dispatchToProps = dispatch => ({
-  changeMode: bindActionCreators(changeModeAction, dispatch)
+  changeMode: bindActionCreators(changeModeAction, dispatch),
+  changeTheme: bindActionCreators(changeThemeAction, dispatch)
 });
 
 const ThemeWrapperMapped = connect(
