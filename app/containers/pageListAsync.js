@@ -77,6 +77,10 @@ export const Sectors = Loadable({
   loader: () => import('./Pages/Sectors'),
   loading: Loading
 });
+export const SectorsCompany = Loadable({
+  loader: () => import('./Pages/sectorsCompany'),
+  loading: Loading
+});
 export const AddSector = Loadable({
   loader: () => import('./Pages/Sectors/addSector'),
   loading: Loading
