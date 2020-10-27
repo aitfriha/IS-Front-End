@@ -23,6 +23,7 @@ import stateCountryReducer from './stateCountry/reducer';
 import countryReducer from './country/reducer';
 import clientReducer from './client/reducer';
 import sectorComapnyReducer from './sectorsCompany/reducer';
+import commercialOperationReducer from './commercialOperation/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -41,6 +42,7 @@ export default function createReducer(injectedReducers = {}) {
     FunctionalStructureConfigModule,
     cities: citysReducer,
     commercialOperationStatus: commercialOperationStatusReducer,
+    commercialOperation: commercialOperationReducer,
     commercialServiceType: commercialServiceTypeReducer,
     stateCountries: stateCountryReducer,
     countries: countryReducer,

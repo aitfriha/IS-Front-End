@@ -43,10 +43,14 @@ import { getAllCityByState } from '../../../redux/city/actions';
 import styles from './operation-jss';
 import { getAllCommercialOperationStatus } from '../../../redux/commercialOperationStatus/actions';
 import notification from '../../../components/Notification/Notification';
+import { addCommercialOperation } from '../../../redux/commercialOperation/actions';
+import { getAllCommercialServiceType } from '../../../redux/serviceType/actions';
 
 class AddCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
       client: '',
       statusOperation: '',
@@ -57,6 +61,7 @@ class AddCommercialOperation extends React.Component {
       descriptionOperation: '',
       plannedDateQ: '',
       commercialFlowQ: '',
+      countryName: '',
       // paymentDate: new Date('2014-08-18T21:11:54'),
       paymentDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
       documentationDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
@@ -78,12 +83,26 @@ class AddCommercialOperation extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllClient, getAllCommercialOperationStatus } = this.props;
+    const { getAllClient, getAllCommercialOperationStatus, getAllCommercialServiceType } = this.props;
     getAllClient(); getAllCommercialOperationStatus();
+    getAllCommercialServiceType();
   }
 
   handleChange = (ev) => {
     this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  handleChangeClient = (ev) => {
+    const { allClients } = this.props;
+    this.setState({ [ev.target.name]: ev.target.value });
+    for (const key in allClients) {
+      console.log('allClients[key].countryId ', allClients[key].countryId);
+      console.log('ev.target.value ', ev.target.value);
+      if (allClients[key].clientId === ev.target.value) {
+        this.setState({ countryName: allClients[key].country });
+        break;
+      }
+    }
   };
 
     handleDocumentationDateChange = documentationDate => {
@@ -100,7 +119,7 @@ class AddCommercialOperation extends React.Component {
 
 
     handleCreate = () => {
-      // const { addClientCommercial } = this.props;
+      const { addCommercialOperation } = this.props;
       const {
         client,
         nameOperation,
@@ -114,10 +133,10 @@ class AddCommercialOperation extends React.Component {
 
       } = this.state;
       const operation = {
-        client,
-        nameOperation,
-        statusOperation,
-        descriptionOperation,
+        clientId: client,
+        name: nameOperation,
+        stateId: statusOperation,
+        description: descriptionOperation,
         plannedDateQ,
         commercialFlowQ,
         paymentDate,
@@ -127,19 +146,19 @@ class AddCommercialOperation extends React.Component {
       };
       console.log(operation);
       /** */
-      /* const promise = new Promise((resolve) => {
-           addClientCommercial(client);
-           this.editingPromiseResolve = resolve;
-         });
-         promise.then((result) => {
-           if (isString(result)) {
-             notification('success', result);
-             getAllClient();
-           } else {
-             notification('danger', result);
-           }
-         }); */
-      history.push('/app/gestion-commercial/Commercial-Operations');
+      const promise = new Promise((resolve) => {
+        addCommercialOperation(operation);
+        this.editingPromiseResolve = resolve;
+      });
+      promise.then((result) => {
+        if (isString(result)) {
+          notification('success', result);
+          getAllClient();
+        } else {
+          notification('danger', result);
+        }
+      });
+      // history.push('/app/gestion-commercial/Commercial-Operations');
     }
 
   handleGoBack = () => {
@@ -155,7 +174,6 @@ class AddCommercialOperation extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     const types = [
       {
         value: '1',
@@ -246,7 +264,7 @@ class AddCommercialOperation extends React.Component {
         label: 'Mr. Aymen Souiat',
       }];
     const {
-      client, statusOperation, country, serviceType,
+      client, statusOperation, countryName, serviceType,
       nameOperation, descriptionOperation, plannedDateQ,
       commercialFlowQ, documentationDate, paymentDate,
       contractDate, estimatedTradeVolume, contractVolume,
@@ -256,7 +274,12 @@ class AddCommercialOperation extends React.Component {
     } = this.state;
     const title = brand.name + ' - Blank Page';
     const description = brand.desc;
-    const { classes, allClients, allCommercialOperationStatuss } = this.props;
+    const {
+      // eslint-disable-next-line no-shadow
+      classes, allClients, allCommercialOperationStatuss, errorsCommercialOperation, isLoadingCommercialOperation, commercialOperationResponse, allCommercialServiceType
+    } = this.props;
+    (!isLoadingCommercialOperation && commercialOperationResponse) && this.editingPromiseResolve(commercialOperationResponse);
+    (!isLoadingCommercialOperation && !commercialOperationResponse) && this.editingPromiseResolve(errorsCommercialOperation);
     return (
       <div>
         <Helmet>
@@ -297,11 +320,11 @@ class AddCommercialOperation extends React.Component {
                   <Select
                     name="client"
                     value={client}
-                    onChange={this.handleChange}
+                    onChange={this.handleChangeClient}
                   >
                     {
                       allClients.map((clt) => (
-                        <MenuItem key={clt.clientId} value={clt.name}>
+                        <MenuItem key={clt.clientId} value={clt.clientId}>
                           {clt.name}
                         </MenuItem>
                       ))
@@ -340,7 +363,7 @@ class AddCommercialOperation extends React.Component {
                   >
                     {
                       allCommercialOperationStatuss.map((clt) => (
-                        <MenuItem key={clt.commercialOperationStatusId} value={clt.name}>
+                        <MenuItem key={clt.commercialOperationStatusId} value={clt.commercialOperationStatusId}>
                           {clt.name}
                         </MenuItem>
                       ))
@@ -353,25 +376,23 @@ class AddCommercialOperation extends React.Component {
                     Commercial Activity Type
                 </Typography>
                 <div style={{ width: '85%' }}>
-                  <AutoCompleteMultiLine data={types} />
+                  <AutoCompleteMultiLine data={allCommercialServiceType} />
                 </div>
               </Grid>
               <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
-                <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="secondary">
+                <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
                     Country
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
                   id="country"
                   label="Country Name"
-                  name="country"
-                  value={country}
-                  onChange={this.handleChange}
+                  name="countryName"
+                  value={countryName}
                   InputLabelProps={{
                     shrink: true,
                   }}
                   fullWidth
-                  disabled
                   required
                 />
               </Grid>
@@ -890,6 +911,16 @@ const mapStateToProps = state => ({
   errorsCity: state.getIn(['cities']).errors,
 
   allCommercialOperationStatuss: state.getIn(['commercialOperationStatus']).allCommercialOperationStatuss,
+
+  // commercialOperation
+  allCommercialOperations: state.getIn(['commercialOperation']).allCommercialOperations,
+  commercialOperationResponse: state.getIn(['commercialOperation']).commercialOperationResponse,
+  isLoadingCommercialOperation: state.getIn(['commercialOperation']).isLoading,
+  errorsCommercialOperation: state.getIn(['commercialOperation']).errors,
+
+  // service type
+  allCommercialServiceType: state.getIn(['commercialServiceType']).allCommercialServiceType,
+
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,
@@ -898,7 +929,9 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient,
   getAllStateByCountry,
   getAllCityByState,
-  getAllCommercialOperationStatus
+  getAllCommercialOperationStatus,
+  addCommercialOperation,
+  getAllCommercialServiceType,
 }, dispatch);
 
 export default withStyles(styles)(connect(

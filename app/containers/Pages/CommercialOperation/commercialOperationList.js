@@ -21,6 +21,7 @@ import {
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
 import styles from '../Clients/clients-jss';
+import { getAllCommercialOperation } from '../../../redux/commercialOperation/actions';
 
 class commercialOperationList extends React.Component {
   constructor(props) {
@@ -31,14 +32,14 @@ class commercialOperationList extends React.Component {
       columns: [
         {
           label: 'Operation Code',
-          name: 'codeOperation',
+          name: 'code',
           options: {
             filter: true,
             sort: true,
           }
         },
         {
-          name: 'nameOperation',
+          name: 'name',
           label: 'Operation Name',
           options: {
             filter: true,
@@ -46,8 +47,8 @@ class commercialOperationList extends React.Component {
           }
         },
         {
-          label: 'Planned Contract',
-          name: 'plannedContract',
+          label: 'planned Date Q',
+          name: 'plannedDateQ',
           options: {
             filter: true,
             sort: true,
@@ -55,7 +56,7 @@ class commercialOperationList extends React.Component {
         },
         {
           label: 'Country',
-          name: 'country',
+          name: 'countryName',
           options: {
             filter: true,
             sort: true,
@@ -63,7 +64,7 @@ class commercialOperationList extends React.Component {
         },
         {
           label: 'Client',
-          name: 'client',
+          name: 'clientName',
           options: {
             filter: true,
             sort: true,
@@ -94,7 +95,7 @@ class commercialOperationList extends React.Component {
           }
         },
         {
-          name: 'progress',
+          name: 'stateName',
           label: 'Progress',
           options: {
             filter: true,
@@ -133,8 +134,8 @@ class commercialOperationList extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllClient } = this.props;
-    getAllClient();
+    const { getAllClient, getAllCommercialOperation } = this.props;
+    getAllClient();getAllCommercialOperation();
   }
 
 
@@ -155,14 +156,13 @@ class commercialOperationList extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     const {
       viewProgress,
     } = this.state;
     const {
-      allClients
+      allClients, allCommercialOperations
     } = this.props;
-    const datas = [
+   /* const datas = [
       {
         codeOperation: 'MOR-062-0102',
         nameOperation: 'SSRS Tool',
@@ -184,7 +184,7 @@ class commercialOperationList extends React.Component {
         estimatedTradeVolume: '600000.00',
         commercialResponsible: 'SOUIAT Aymane',
         progress: '0 %',
-      }];
+      }];*/
     const title = brand.name + ' - Commercial Operations';
     const description = brand.desc;
     const { data, columns } = this.state;
@@ -211,7 +211,7 @@ class commercialOperationList extends React.Component {
         </Helmet>
         <PapperBlock title="Commercial Operations" desc="The List of operations" icon="ios-pricetags-outline" noMargin overflowX>
           <div>
-            <MUIDataTable title="" data={datas} columns={columns} options={options} />
+            <MUIDataTable title="" data={allCommercialOperations} columns={columns} options={options} />
             <Dialog
               open={viewProgress}
               keepMounted
@@ -273,6 +273,11 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  // commercialOperation
+  allCommercialOperations: state.getIn(['commercialOperation']).allCommercialOperations,
+  commercialOperationResponse: state.getIn(['commercialOperation']).commercialOperationResponse,
+  isLoadingCommercialOperation: state.getIn(['commercialOperation']).isLoading,
+  errorsCommercialOperation: state.getIn(['commercialOperation']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,
@@ -280,7 +285,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteClient,
   getAllClient,
   getAllStateByCountry,
-  getAllCityByState
+  getAllCityByState,
+  getAllCommercialOperation
 }, dispatch);
 
 export default withStyles(styles)(connect(
