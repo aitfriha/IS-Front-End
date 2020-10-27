@@ -22,6 +22,7 @@ import commercialServiceTypeReducer from './serviceType/reducer';
 import stateCountryReducer from './stateCountry/reducer';
 import countryReducer from './country/reducer';
 import clientReducer from './client/reducer';
+import sectorComapnyReducer from './sectorsCompany/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -44,6 +45,7 @@ export default function createReducer(injectedReducers = {}) {
     stateCountries: stateCountryReducer,
     countries: countryReducer,
     clients: clientReducer,
+    sectorCompany: sectorComapnyReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers

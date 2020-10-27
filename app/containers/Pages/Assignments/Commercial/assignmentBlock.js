@@ -392,11 +392,15 @@ class AssignmentBlock extends React.Component {
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Country:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary">{client.country}</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary">{client.address.city.stateCountry.country.countryName}</Typography>
+                </div>
+                <div className={classes.divSpace}>
+                  <Typography variant="subtitle1" component="h4" color="textSecondary">State:</Typography>
+                  <Typography variant="subtitle1" component="h4" color="primary">{client.address.city.stateCountry.stateName}</Typography>
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">City:</Typography>
-                  <Typography variant="subtitle1" component="h4" color="primary" />
+                  <Typography variant="subtitle1" component="h4" color="primary">{client.address.city.cityName}</Typography>
                 </div>
                 <div className={classes.divSpace}>
                   <Typography variant="subtitle1" component="h4" color="textSecondary">Multinational:</Typography>
@@ -553,11 +557,14 @@ class AssignmentBlock extends React.Component {
                 value={type}
                 onChange={this.handleChange}
               >
-                <MenuItem key="new" value="Responsible Commercial">
+                <MenuItem key="1" value="Responsible Commercial">
                   Responsible Commercial
                 </MenuItem>
-                <MenuItem key="old" value="Assistant Commercial">
+                <MenuItem key="2" value="Assistant Commercial">
                   Assistant Commercial
+                </MenuItem>
+                <MenuItem key="3" value="Geographical">
+                  Geographical Commercial
                 </MenuItem>
               </Select>
 

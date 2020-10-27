@@ -43,7 +43,7 @@ class Commercial extends React.Component {
       assistantAssignments: [],
       responsibleAssignment: {},
       commercial: {},
-      type: 'assignment',
+      type: 'country',
       countries: [],
       country: '',
       clients: [],
@@ -157,7 +157,7 @@ class Commercial extends React.Component {
       type, countries, country,
       notifMessage, client, clients
     } = this.state;
- console.log('clients', clients);
+ console.log('type :::::::::::::::::', type);
     return (
       <div>
         <Helmet>

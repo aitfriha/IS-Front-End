@@ -7,11 +7,20 @@ import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import Grid from '@material-ui/core/Grid';
 import {
-  Dialog, DialogTitle, DialogContent, Button, DialogActions
+  Dialog, DialogTitle, DialogContent, Button, DialogActions, withStyles
 } from '@material-ui/core';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import PapperBlock from '../../../components/PapperBlock/PapperBlock';
 import StepperIndex from '../../../components/Stepper/StepperIndex';
+import {
+  addClientCommercial, deleteClient, getAllClient, updateClient
+} from '../../../redux/client/actions';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
+import styles from '../Clients/clients-jss';
 
 class commercialOperationList extends React.Component {
   constructor(props) {
@@ -123,6 +132,9 @@ class commercialOperationList extends React.Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line no-shadow
+    const { getAllClient } = this.props;
+    getAllClient();
   }
 
 
@@ -147,6 +159,9 @@ class commercialOperationList extends React.Component {
     const {
       viewProgress,
     } = this.state;
+    const {
+      allClients
+    } = this.props;
     const datas = [
       {
         codeOperation: 'MOR-062-0102',
@@ -230,4 +245,45 @@ class commercialOperationList extends React.Component {
   }
 }
 
-export default (commercialOperationList);
+commercialOperationList.propTypes = {
+  classes: PropTypes.object.isRequired,
+  // add: PropTypes.func.isRequired,
+  back: PropTypes.func.isRequired,
+  addClientCommercial: PropTypes.func.isRequired,
+  updateClient: PropTypes.func.isRequired,
+  deleteClient: PropTypes.func.isRequired,
+  getAllClient: PropTypes.func.isRequired,
+  allClients: PropTypes.array.isRequired,
+};
+
+const mapStateToProps = state => ({
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoading: state.getIn(['clients']).isLoading,
+  errors: state.getIn(['clients']).errors,
+
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  addClientCommercial,
+  updateClient,
+  deleteClient,
+  getAllClient,
+  getAllStateByCountry,
+  getAllCityByState
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(commercialOperationList));

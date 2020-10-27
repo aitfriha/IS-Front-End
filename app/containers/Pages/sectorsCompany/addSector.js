@@ -38,9 +38,9 @@ class AddSector extends React.Component {
   componentDidMount() {
     SectorService.getSectors().then(({ data }) => {
       const sectors1 = data.filter(sect => sect.type === 'primary');
-      console.log('sectors1 ::', sectors1);
       const sectors2 = data.filter(sect => sect.type === 'secondary');
       const sectors3 = data.filter(sect => sect.type === 'third');
+
       this.setState({ sectors3, sectors2, sectors1 });
     });
   }
@@ -106,15 +106,13 @@ class AddSector extends React.Component {
     const { classes, sectorsConfig } = this.props;
     console.log(sectorsConfig);
     const {
-      description1, sectors2, sectors3,
+      description1, sectors1, sectors2, sectors3,
       sector1,
       sector2,
       sector3,
       description2,
       description3
     } = this.state;
-    console.log('sectors1 : ',sectors1);
-    const sectors1 = [{name: "Energy"}];
     return (
       <div>
         <Grid

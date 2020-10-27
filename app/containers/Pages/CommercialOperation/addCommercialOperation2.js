@@ -29,7 +29,6 @@ import {
   KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
-import { isString } from 'lodash';
 import Contact from './contact';
 import Transition from '../../../components/Transition/transition';
 import Converter from '../../../components/CurrencyConverter/Converter';
@@ -42,7 +41,6 @@ import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
 import styles from './operation-jss';
 import { getAllCommercialOperationStatus } from '../../../redux/commercialOperationStatus/actions';
-import notification from '../../../components/Notification/Notification';
 
 class AddCommercialOperation extends React.Component {
   constructor(props) {
@@ -54,13 +52,12 @@ class AddCommercialOperation extends React.Component {
       serviceType: '',
       nameOperation: '',
       Description: '',
-      descriptionOperation: '',
-      plannedDateQ: '',
-      commercialFlowQ: '',
-      // paymentDate: new Date('2014-08-18T21:11:54'),
+      plannedContract: '',
+      budget: '',
+      documentationDate: new Date('2014-08-18T21:11:54'),
+      //paymentDate: new Date('2014-08-18T21:11:54'),
       paymentDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
-      documentationDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
-      contractDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
+      contractDate: new Date('2014-08-18T21:11:54'),
       estimatedTradeVolume: 0,
       tradeCurruncy: '',
       contractVolume: 0,
@@ -86,61 +83,13 @@ class AddCommercialOperation extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-    handleDocumentationDateChange = documentationDate => {
-      this.setState({ documentationDate });
-    };
+  handleFromDateChange = paymentDate => {
+    this.setState({ paymentDate });
+  };
 
-    handlePaymentDateChange = paymentDate => {
-      this.setState({ paymentDate });
-    };
-
-    handleContactDateChange = contractDate => {
-      this.setState({ contractDate });
-    };
-
-
-    handleCreate = () => {
-      // const { addClientCommercial } = this.props;
-      const {
-        client,
-        nameOperation,
-        statusOperation,
-        descriptionOperation,
-        plannedDateQ,
-        commercialFlowQ,
-        paymentDate,
-        documentationDate,
-        contractDate,
-
-      } = this.state;
-      const operation = {
-        client,
-        nameOperation,
-        statusOperation,
-        descriptionOperation,
-        plannedDateQ,
-        commercialFlowQ,
-        paymentDate,
-        documentationDate,
-        contractDate,
-
-      };
-      console.log(operation);
-      /** */
-      /* const promise = new Promise((resolve) => {
-           addClientCommercial(client);
-           this.editingPromiseResolve = resolve;
-         });
-         promise.then((result) => {
-           if (isString(result)) {
-             notification('success', result);
-             getAllClient();
-           } else {
-             notification('danger', result);
-           }
-         }); */
-      history.push('/app/gestion-commercial/Commercial-Operations');
-    }
+  handleCreate = () => {
+    history.push('/app/gestion-commercial/Commercial-Operations');
+  }
 
   handleGoBack = () => {
     history.push('/app/gestion-commercial/Commercial-Operations');
@@ -247,8 +196,8 @@ class AddCommercialOperation extends React.Component {
       }];
     const {
       client, statusOperation, country, serviceType,
-      nameOperation, descriptionOperation, plannedDateQ,
-      commercialFlowQ, documentationDate, paymentDate,
+      nameOperation, Description, plannedContract,
+      budget, documentationDate, paymentDate,
       contractDate, estimatedTradeVolume, contractVolume,
       managementContact, administrativeContact, legalAreaMainContact,
       commercialResponsible, commercialResponsibleAssistant,
@@ -277,7 +226,7 @@ class AddCommercialOperation extends React.Component {
             </Grid>
           </Grid>
           <Typography variant="subtitle2" component="h2" color="primary">
-              Location Of The Commercial Operation
+            Location Of The Commercial Operation
           </Typography>
           <br />
           <div>
@@ -290,7 +239,7 @@ class AddCommercialOperation extends React.Component {
             >
               <Grid item xs={12} md={4} sm={4} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '10%' }} component="h2" color="primary">
-                    Client
+                  Client
                 </Typography>
                 <FormControl fullWidth required style={{ width: '90%' }}>
                   <InputLabel>Select the client</InputLabel>
@@ -311,7 +260,7 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={5} sm={5} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Operation
+                  Operation
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
@@ -329,7 +278,7 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={3} sm={3} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Status
+                  Status
                 </Typography>
                 <FormControl fullWidth required style={{ width: '90%' }}>
                   <InputLabel>Select the client</InputLabel>
@@ -350,7 +299,7 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={12} sm={12} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Commercial Activity Type
+                  Commercial Activity Type
                 </Typography>
                 <div style={{ width: '85%' }}>
                   <AutoCompleteMultiLine data={types} />
@@ -358,13 +307,13 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="secondary">
-                    Country
+                  Country
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
-                  id="country"
+                  id="nameOperation"
                   label="Country Name"
-                  name="country"
+                  name="nameOperation"
                   value={country}
                   onChange={this.handleChange}
                   InputLabelProps={{
@@ -377,14 +326,14 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Description
+                  Description
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
-                  id="descriptionOperation"
+                  id="nameOperation"
                   label="Description"
-                  name="descriptionOperation"
-                  value={descriptionOperation}
+                  name="nameOperation"
+                  value={nameOperation}
                   onChange={this.handleChange}
                   InputLabelProps={{
                     shrink: true,
@@ -396,7 +345,7 @@ class AddCommercialOperation extends React.Component {
           </div>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
-              Dates Of Operation Interest
+            Dates Of Operation Interest
           </Typography>
           <br />
           <Grid
@@ -408,13 +357,13 @@ class AddCommercialOperation extends React.Component {
           >
             <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
               <Typography variant="subtitle2" style={{ width: '20%' }} component="h2" color="primary">
-                  Q Planned Date
+                Q Planned Date
               </Typography>
               <FormControl fullWidth required style={{ width: '80%' }}>
                 <InputLabel>Select Q Planned Date </InputLabel>
                 <Select
-                  name="plannedDateQ"
-                  value={plannedDateQ}
+                  name="plannedContract"
+                  value={plannedContract}
                   onChange={this.handleChange}
                 >
                   {
@@ -429,13 +378,13 @@ class AddCommercialOperation extends React.Component {
             </Grid>
             <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
               <Typography variant="subtitle2" style={{ width: '20%' }} component="h2" color="primary">
-                  Q Commercial Flow
+                Q Commercial Flow
               </Typography>
               <FormControl style={{ width: '80%' }} fullWidth required>
                 <InputLabel>Select Q commercial follow</InputLabel>
                 <Select
-                  name="commercialFlowQ"
-                  value={commercialFlowQ}
+                  name="budget"
+                  value={budget}
                   onChange={this.handleChange}
                 >
                   {
@@ -457,10 +406,10 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="Documentation Date *"
-                    value={documentationDate}
-                    name="documentationDate"
-                    onChange={this.handleDocumentationDateChange}
+                    label="Date picker inline"
+                    value={paymentDate}
+                    name="paymentDate"
+                    onChange={this.handleFromDateChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -477,9 +426,9 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="Payment Date *"
+                    label="Date picker inline"
                     value={paymentDate}
-                    onChange={this.handlePaymentDateChange}
+                    onChange={this.handleChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -497,9 +446,9 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="contract Date*"
-                    value={contractDate}
-                    onChange={this.handleContactDateChange}
+                    label="Date picker inline"
+                    value={paymentDate}
+                    onChange={this.handleChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -510,7 +459,7 @@ class AddCommercialOperation extends React.Component {
           </Grid>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
-              Economic Value Of The Operation
+             Economic Value Of The Operation
           </Typography>
           <br />
           <br />
@@ -530,7 +479,7 @@ class AddCommercialOperation extends React.Component {
           </Grid>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
-              Suppliers Area
+            Suppliers Area
           </Typography>
           <br />
           <Grid
@@ -544,7 +493,7 @@ class AddCommercialOperation extends React.Component {
               sm={4}
             >
               <Typography variant="subtitle2" component="h2" color="primary">
-                  Qualification Process Contacts
+                Qualification Process Contacts
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl fullWidth required>
@@ -680,7 +629,7 @@ class AddCommercialOperation extends React.Component {
               sm={4}
             >
               <Typography variant="subtitle2" component="h2" color="primary">
-                  Procurement Department Contacts
+                Procurement Department Contacts
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl fullWidth>
@@ -753,7 +702,7 @@ class AddCommercialOperation extends React.Component {
               sm={4}
             >
               <Typography variant="subtitle2" component="h2" color="primary">
-                  Legal Area Contact
+                Legal Area Contact
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl fullWidth>
@@ -824,7 +773,7 @@ class AddCommercialOperation extends React.Component {
           <br />
           <div align="center">
             <Button variant="contained" color="primary" type="button" onClick={this.handleCreate}>
-                Save Operation
+              Save Operation
             </Button>
           </div>
         </PapperBlock>
@@ -845,10 +794,10 @@ class AddCommercialOperation extends React.Component {
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleCloseContact}>
-                  Cancel
+                Cancel
               </Button>
               <Button color="primary" onClick={this.handleSubmit}>
-                  save
+                save
               </Button>
             </DialogActions>
           </Dialog>

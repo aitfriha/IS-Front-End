@@ -142,7 +142,7 @@ function* getAllCityByState(action) {
     } = action;
     const request = yield axios({
       method: 'get',
-      url: ENDPOINTS.CITY + '/citiesByState/'+ stateWithId
+      url: ENDPOINTS.CITY + '/citiesByState/' + stateWithId
     });
     yield put({
       type: GET_ALL_CITYBYSTATE_SUCCESS,
