@@ -218,7 +218,7 @@ const applicationTheme = (color, mode, direction) => ({
           },
           paddingBottom: 4,
           '& input, > div, > select': {
-            padding: '24px 8px 0',
+               padding: '24px 8px 0',
           },
         },
       },

@@ -185,48 +185,7 @@ class AddCommercialOperation extends React.Component {
   }
 
   render() {
-    const types = [
-      {
-        value: '1',
-        label: 'Implementation',
-      },
-      {
-        value: '2',
-        label: 'Support L1',
-      },
-      {
-        value: '3',
-        label: 'Support L2',
-      },
-      {
-        value: '4',
-        label: 'Support L3',
-      },
-      {
-        value: '5',
-        label: 'Functionality Support',
-      },
-      {
-        value: '6',
-        label: 'Licencies',
-      },
-      {
-        value: '7',
-        label: 'Consultory Assitans',
-      },
-      {
-        value: '8',
-        label: 'PMO Services',
-      },
-      {
-        value: '9',
-        label: 'Training',
-      },
-      {
-        value: '10',
-        label: 'Administration',
-      }
-    ];
+
     const contracts = [
       {
         value: '1',
