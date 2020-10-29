@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import styles from '../Clients/clients-jss';
+import './zaid.css';
 import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
@@ -23,20 +24,6 @@ import {
 import EditServiceType from './EditServiceType';
 import { getAllClient } from '../../../redux/client/actions';
 
-/* MuiFormControl: {
-  root: {
-    '& label + div': {
-      alignItems: 'flex-end',
-          '&[role="radiogroup"]': {
-        alignItems: 'flex-start',
-      },
-      paddingBottom: 4,
-          '& input, > div, > select': {
-        padding: '24px 8px 0',
-      },
-    },
-  },
-}, */
 class serviceType extends React.Component {
   constructor(props) {
     super(props);
