@@ -68,6 +68,8 @@ class AddCommercialOperation extends React.Component {
       documentationDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
       contractDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
       estimatedTradeVolume: 0,
+      estimatedTradeVolumeInEuro: 0,
+      devise: '',
       tradeCurruncy: '',
       contractVolume: 0,
       contractCurruncy: '',
@@ -119,12 +121,12 @@ class AddCommercialOperation extends React.Component {
     };
 
   handleChangeMultiple = (event, value) => {
-    let serviceType=[];
+    const serviceType = [];
     for (const key in value) {
       serviceType.push(value[key].serviceTypeId);
     }
     console.log(serviceType);
-    this.setState({ serviceTypeId:serviceType});
+    this.setState({ serviceTypeId: serviceType });
   };
 
     handleCreate = () => {
@@ -140,6 +142,10 @@ class AddCommercialOperation extends React.Component {
         paymentDate,
         documentationDate,
         contractDate,
+        amount,
+        estimatedTradeVolume,
+        devise,
+        estimatedTradeVolumeInEuro
 
       } = this.state;
       const operation = {
@@ -153,7 +159,10 @@ class AddCommercialOperation extends React.Component {
         paymentDate,
         documentationDate,
         contractDate,
-
+        amount,
+        estimatedTradeVolume,
+        devise,
+        estimatedTradeVolumeInEuro
       };
       console.log(operation);
       /** */
@@ -184,8 +193,16 @@ class AddCommercialOperation extends React.Component {
     this.setState({ open: false });
   }
 
-  render() {
+  myCallback = (estimatedTradeVolume, devise, estimatedTradeVolumeInEuro) => {
+    this.setState({ estimatedTradeVolume });
+    this.setState({ devise });
+    this.setState({ estimatedTradeVolumeInEuro })
+      console.log(estimatedTradeVolume);
+      console.log(devise);
+      console.log(estimatedTradeVolumeInEuro);
+  }
 
+  render() {
     const contracts = [
       {
         value: '1',
@@ -523,7 +540,7 @@ class AddCommercialOperation extends React.Component {
             justify="space-around"
           >
             <Grid>
-              <Converter Title="Estimated Trade Volume " />
+              <Converter Title="Estimated Trade Volume " callbackFromParent={this.myCallback} />
             </Grid>
             <Grid>
               <Converter Title="Contract Volume " />

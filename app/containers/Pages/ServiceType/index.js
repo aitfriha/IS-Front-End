@@ -173,11 +173,6 @@ class serviceType extends React.Component {
             }}
             actions={[
               {
-                icon: 'save',
-                tooltip: 'Save User',
-                onClick: (event, rowData) => alert('You saved ' + rowData.name)
-              },
-              {
                 icon: 'delete',
                 tooltip: 'Delete User',
                 onClick: (event, rowData) => this.handleDetails(rowData)
@@ -210,7 +205,7 @@ class serviceType extends React.Component {
                   notification('danger', result);
                 }
               }),
-              onRowDelete: oldData => new Promise((resolve) => {
+              /*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialServiceType action
                 deleteCommercialServiceType(oldData.serviceTypeId);
                 this.editingPromiseResolve = resolve;
@@ -222,7 +217,7 @@ class serviceType extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
+              }), */
             }}
           />
           <Dialog

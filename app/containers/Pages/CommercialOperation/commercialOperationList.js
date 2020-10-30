@@ -79,21 +79,21 @@ class commercialOperationList extends React.Component {
           }
         },
         {
-          name: 'estimatedTradeVolume',
+          name: 'estimatedTradeVolumeInEuro',
           label: 'Estimated Trade Volume',
           options: {
             filter: true,
             sort: true,
           }
         },
-        {
+        /*        {
           name: 'commercialResponsible',
           label: 'Commercial Responsible',
           options: {
             filter: true,
             sort: true,
           }
-        },
+        }, */
         {
           name: 'stateName',
           label: 'Progress',
@@ -135,7 +135,7 @@ class commercialOperationList extends React.Component {
   componentDidMount() {
     // eslint-disable-next-line no-shadow
     const { getAllClient, getAllCommercialOperation } = this.props;
-    getAllClient();getAllCommercialOperation();
+    getAllClient(); getAllCommercialOperation();
   }
 
 
@@ -162,29 +162,7 @@ class commercialOperationList extends React.Component {
     const {
       allClients, allCommercialOperations
     } = this.props;
-   /* const datas = [
-      {
-        codeOperation: 'MOR-062-0102',
-        nameOperation: 'SSRS Tool',
-        plannedContract: 'Q1-2022',
-        country: 'S-Morocco',
-        client: 'GIS-Coporativo',
-        type: 'Nuevo',
-        estimatedTradeVolume: '250000.00',
-        commercialResponsible: 'SOUIAT Aymane',
-        progress: '30 %',
-      },
-      {
-        codeOperation: 'MEX-041-0101',
-        nameOperation: 'IS-Water Distribution',
-        plannedContract: 'Q1-2022',
-        country: 'S-Mexico',
-        client: 'Aguas de Puebla',
-        type: 'Nuevo',
-        estimatedTradeVolume: '600000.00',
-        commercialResponsible: 'SOUIAT Aymane',
-        progress: '0 %',
-      }];*/
+
     const title = brand.name + ' - Commercial Operations';
     const description = brand.desc;
     const { data, columns } = this.state;
