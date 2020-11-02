@@ -57,7 +57,7 @@ import {
   LegalCategoryType,
   AddLegalCategoryType,
   AbsenceType,
-  AddAbsenceType
+  AddAbsenceType, SectorsCompany
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -107,6 +107,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/sectors"
           component={Sectors}
+        />
+        <Route
+          exact
+          path="/app/gestion-commercial/sectorsCompany"
+          component={SectorsCompany}
         />
         <Route
           exact

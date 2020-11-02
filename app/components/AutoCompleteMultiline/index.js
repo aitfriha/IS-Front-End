@@ -14,7 +14,7 @@ class AutoCompleteMultiLine extends React.Component {
         fullWidth
         className="auto-complete-multiline"
         options={data}
-        getOptionLabel={(option) => option.label}
+        getOptionLabel={(option) => option.name}
         defaultValue={[data[0]]}
         renderInput={(params) => (
           <TextField {...params} variant="outlined" label="Service Type" />

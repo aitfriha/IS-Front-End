@@ -33,17 +33,20 @@ class Converter extends React.Component {
       });
   }
 
-  convertHandler = () => {
+  convertHandler = (some) => {
+    const { callbackFromParent } = this.props;
+    let result;
     if (this.state.fromCurrency !== this.state.toCurrency) {
       axios
         .get(
           `https://api.exchangeratesapi.io/latest?base=${
-            this.state.fromCurrency
+            some
           }&symbols=${this.state.toCurrency}`
         )
         .then(response => {
-          const result = this.state.amount * response.data.rates[this.state.toCurrency];
+          result = this.state.amount * response.data.rates[this.state.toCurrency];
           this.setState({ result: result.toFixed(5) });
+          callbackFromParent(this.state.amount, this.state.fromCurrency,result.toFixed(5));
         })
         .catch(error => {
           console.log('Opps', error.message);
@@ -54,16 +57,21 @@ class Converter extends React.Component {
   };
 
   selectHandler = event => {
-    if (event.target.name === 'from') {
-      this.setState({ fromCurrency: event.target.value });
-    } else if (event.target.name === 'to') {
-      this.setState({ toCurrency: event.target.value });
-    }
+    this.setState({ fromCurrency: event.target.value });
+    this.convertHandler(event.target.value);
   };
+
+  onChangeEstimatedValue = event => {
+
+    this.setState({ amount: event.target.value });
+    this.convertHandler(this.state.fromCurrency);
+
+  }
 
   render() {
     // eslint-disable-next-line react/destructuring-assignment,react/prop-types
     const title = this.props.Title;
+    const { amount, fromCurrency, currencies } = this.state;
     return (
       <div className="Converter">
         <h6>
@@ -76,15 +84,15 @@ class Converter extends React.Component {
           <input
             name="amount"
             type="text"
-            value={this.state.amount}
-            onChange={event => this.setState({ amount: event.target.value })}
+            value={amount}
+            onChange={this.onChangeEstimatedValue}
           />
           <select
-            name="from"
+            name="fromCurrency"
             onChange={event => this.selectHandler(event)}
-            value={this.state.fromCurrency}
+            value={fromCurrency}
           >
-            {this.state.currencies.map(cur => (
+            {currencies.map(cur => (
               <option key={cur}>{cur}</option>
             ))}
           </select>

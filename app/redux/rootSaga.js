@@ -6,15 +6,19 @@ import commercialServiceTypeSaga from './serviceType/saga';
 import stateCountrySaga from './stateCountry/saga';
 import countrySaga from './country/saga';
 import clientSaga from './client/saga';
+import sectorCompanySaga from './sectorsCompany/saga';
+import commercialOperationSaga from './commercialOperation/saga';
 // import watchers from other files
 export default function* rootSaga() {
   yield all([
     citysSaga(),
     commercialOperationStatusSaga(),
+    commercialOperationSaga(),
     commercialServiceTypeSaga(),
     stateCountrySaga(),
     countrySaga(),
-    clientSaga()
+    clientSaga(),
+    sectorCompanySaga()
     // add other watchers to the array
   ]);
 }

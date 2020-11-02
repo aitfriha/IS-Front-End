@@ -8,22 +8,34 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { isString } from 'lodash';
+import {
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField
+} from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
+import styles from '../Clients/clients-jss';
+import './zaid.css';
 import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
   addCommercialServiceType, deleteCommercialServiceType,
   getAllCommercialServiceType,
-  updateCommercialServiceType
+  updateCommercialServiceType, updateDeleteCommercialServiceType
 } from '../../../redux/serviceType/actions';
-
-const styles = {};
+import EditServiceType from './EditServiceType';
+import { getAllClient } from '../../../redux/client/actions';
 
 class serviceType extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {
     };
+    this.editingPromiseResolve2 = () => {
+    };
     this.state = {
+      openPopUp: false,
+      operationCommercial: '',
+      index: 0,
+      serviceTypeNameCurrent: [],
       columns: [
         {
           // eslint-disable-next-line no-useless-concat
@@ -37,10 +49,78 @@ class serviceType extends React.Component {
           field: 'description',
           /* cellStyle: { width: 155, maxWidth: 155 },
                     headerStyle: { width: 100, maxWidth: 180 } */
+        },
+        {
+          title: 'Related operation',
+          field: 'operationCommercial',
+          editable: 'never'
+          /* cellStyle: { width: 155, maxWidth: 155 },
+                    headerStyle: { width: 100, maxWidth: 180 } */
         }
       ]
     };
   }
+
+  handleDetails = (data) => {
+    const theserviceType1 = [];
+    this.setState({ operationCommercial: (data.operationCommercial).filter((value, index, arr) => value !== ' , ') });
+    this.setState({ openPopUp: true });
+    theserviceType1.push(data.name);
+    for (const key in this.props.allCommercialServiceType) {
+      if (this.props.allCommercialServiceType[key].name === data.name) {
+        this.setState({ serviceTypeNameCurrent: [this.props.allCommercialServiceType[key]] });
+        break;
+      }
+    }
+  }
+
+  handleClose = () => {
+    this.setState({ openPopUp: false });
+  };
+
+  deleteAndUpdateServiceType= () => {
+    const theserviceType1 = [];
+    const {
+      operationCommercial, serviceTypeNameCurrent
+    } = this.state;
+    for (const key in serviceTypeNameCurrent) {
+      theserviceType1.push(serviceTypeNameCurrent[key].name);
+    }
+    console.log('serviceTypeNameCurrent ', theserviceType1);
+    console.log('operationCommercial ', operationCommercial);
+    const { updateDeleteCommercialServiceType, getAllCommercialServiceType } = this.props;
+    const promise = new Promise((resolve) => {
+      updateDeleteCommercialServiceType(theserviceType1, operationCommercial);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllCommercialServiceType();
+      } else {
+        notification('danger', result);
+      }
+    });
+
+    this.handleClose();
+  };
+
+  handleChangeServiceType= (ev, value) => {
+    console.log(value);
+    const theserviceType = [];
+    for (const key in value) {
+      for (const j in this.props.allCommercialServiceType) {
+        if (this.props.allCommercialServiceType[j].name === value[key].name) {
+          console.log('AAAAAAAAAAAAAA');
+          theserviceType.push(this.props.allCommercialServiceType[j]);
+          // break;
+        }
+      }
+      // theserviceType.push(this.props.allCommercialServiceType[key]);
+    }
+    console.log(theserviceType);
+    this.setState({ serviceTypeNameCurrent: theserviceType });
+  };
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
@@ -52,14 +132,15 @@ class serviceType extends React.Component {
     const title = brand.name + ' - Service  type';
     const description = brand.desc;
     const {
-      columns
+      columns, openPopUp, operationCommercial, serviceTypeNameCurrent, index
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, commercialServiceTypeResponse, addCommercialServiceType, getAllCommercialServiceType, allCommercialServiceType, updateCommercialServiceType, deleteCommercialServiceType
+      classes, errors, isLoading, commercialServiceTypeResponse, addCommercialServiceType, getAllCommercialServiceType, allCommercialServiceType, updateCommercialServiceType, deleteCommercialServiceType
     } = this.props;
     (!isLoading && commercialServiceTypeResponse) && this.editingPromiseResolve(commercialServiceTypeResponse);
     (!isLoading && !commercialServiceTypeResponse) && this.editingPromiseResolve(errors);
+    console.log(index);
     return (
       <div>
         <Helmet>
@@ -90,6 +171,13 @@ class serviceType extends React.Component {
               },
               actionsColumnIndex: -1
             }}
+            actions={[
+              {
+                icon: 'delete',
+                tooltip: 'Delete User',
+                onClick: (event, rowData) => this.handleDetails(rowData)
+              }
+            ]}
             editable={{
               onRowAdd: newData => new Promise((resolve) => {
                 // add measurement unit action
@@ -117,7 +205,7 @@ class serviceType extends React.Component {
                   notification('danger', result);
                 }
               }),
-              onRowDelete: oldData => new Promise((resolve) => {
+              /*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialServiceType action
                 deleteCommercialServiceType(oldData.serviceTypeId);
                 this.editingPromiseResolve = resolve;
@@ -129,9 +217,66 @@ class serviceType extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
+              }), */
             }}
           />
+          <Dialog
+            open={openPopUp}
+            keepMounted
+            scroll="body"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth=""
+            maxWidth=""
+          >
+            <DialogTitle id="alert-dialog-slide-title"> Change Service type in Operation</DialogTitle>
+            <DialogContent dividers>
+              <Grid item xs={12} md={12}>
+                <TextField
+                  id="outlined-basic"
+                  label="Commercial Operation related"
+                  variant="outlined"
+                  name="name"
+                  fullWidth
+                  value={operationCommercial}
+                  onChange={this.handleChange}
+                  required
+                  className={classes.textField}
+                />
+                <Autocomplete
+                  multiple
+                  className={classes.textField}
+                  id="combo-box-demo"
+                  options={allCommercialServiceType}
+                  getOptionLabel={option => option.name}
+                  // value={allCommercialServiceType.find(v => v.name === serviceTypeNameCurrent[0]) || ''}
+                  value={serviceTypeNameCurrent}
+                  onChange={this.handleChangeServiceType}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
+                />
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button color="secondary" onClick={this.handleClose}>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.deleteAndUpdateServiceType}
+              >
+                Update
+              </Button>
+            </DialogActions>
+          </Dialog>
         </PapperBlock>
       </div>
     );
@@ -159,7 +304,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialServiceType,
   addCommercialServiceType,
   updateCommercialServiceType,
-  deleteCommercialServiceType
+  deleteCommercialServiceType,
+  updateDeleteCommercialServiceType
 }, dispatch);
 
 export default withStyles(styles)(connect(

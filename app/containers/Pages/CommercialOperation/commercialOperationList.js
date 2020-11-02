@@ -7,11 +7,21 @@ import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import Grid from '@material-ui/core/Grid';
 import {
-  Dialog, DialogTitle, DialogContent, Button, DialogActions
+  Dialog, DialogTitle, DialogContent, Button, DialogActions, withStyles
 } from '@material-ui/core';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import PapperBlock from '../../../components/PapperBlock/PapperBlock';
 import StepperIndex from '../../../components/Stepper/StepperIndex';
+import {
+  addClientCommercial, deleteClient, getAllClient, updateClient
+} from '../../../redux/client/actions';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
+import styles from '../Clients/clients-jss';
+import { getAllCommercialOperation } from '../../../redux/commercialOperation/actions';
 
 class commercialOperationList extends React.Component {
   constructor(props) {
@@ -22,14 +32,14 @@ class commercialOperationList extends React.Component {
       columns: [
         {
           label: 'Operation Code',
-          name: 'codeOperation',
+          name: 'code',
           options: {
             filter: true,
             sort: true,
           }
         },
         {
-          name: 'nameOperation',
+          name: 'name',
           label: 'Operation Name',
           options: {
             filter: true,
@@ -37,8 +47,8 @@ class commercialOperationList extends React.Component {
           }
         },
         {
-          label: 'Planned Contract',
-          name: 'plannedContract',
+          label: 'planned Date Q',
+          name: 'plannedDateQ',
           options: {
             filter: true,
             sort: true,
@@ -46,7 +56,7 @@ class commercialOperationList extends React.Component {
         },
         {
           label: 'Country',
-          name: 'country',
+          name: 'countryName',
           options: {
             filter: true,
             sort: true,
@@ -54,14 +64,14 @@ class commercialOperationList extends React.Component {
         },
         {
           label: 'Client',
-          name: 'client',
+          name: 'clientName',
           options: {
             filter: true,
             sort: true,
           }
         },
         {
-          name: 'type',
+          name: 'serviceTypeName',
           label: 'Service Type',
           options: {
             filter: true,
@@ -69,23 +79,23 @@ class commercialOperationList extends React.Component {
           }
         },
         {
-          name: 'estimatedTradeVolume',
+          name: 'estimatedTradeVolumeInEuro',
           label: 'Estimated Trade Volume',
           options: {
             filter: true,
             sort: true,
           }
         },
-        {
+        /*        {
           name: 'commercialResponsible',
           label: 'Commercial Responsible',
           options: {
             filter: true,
             sort: true,
           }
-        },
+        }, */
         {
-          name: 'progress',
+          name: 'stateName',
           label: 'Progress',
           options: {
             filter: true,
@@ -123,6 +133,9 @@ class commercialOperationList extends React.Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line no-shadow
+    const { getAllClient, getAllCommercialOperation } = this.props;
+    getAllClient(); getAllCommercialOperation();
   }
 
 
@@ -143,33 +156,13 @@ class commercialOperationList extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     const {
       viewProgress,
     } = this.state;
-    const datas = [
-      {
-        codeOperation: 'MOR-062-0102',
-        nameOperation: 'SSRS Tool',
-        plannedContract: 'Q1-2022',
-        country: 'S-Morocco',
-        client: 'GIS-Coporativo',
-        type: 'Nuevo',
-        estimatedTradeVolume: '250000.00',
-        commercialResponsible: 'SOUIAT Aymane',
-        progress: '30 %',
-      },
-      {
-        codeOperation: 'MEX-041-0101',
-        nameOperation: 'IS-Water Distribution',
-        plannedContract: 'Q1-2022',
-        country: 'S-Mexico',
-        client: 'Aguas de Puebla',
-        type: 'Nuevo',
-        estimatedTradeVolume: '600000.00',
-        commercialResponsible: 'SOUIAT Aymane',
-        progress: '0 %',
-      }];
+    const {
+      allClients, allCommercialOperations
+    } = this.props;
+
     const title = brand.name + ' - Commercial Operations';
     const description = brand.desc;
     const { data, columns } = this.state;
@@ -196,7 +189,7 @@ class commercialOperationList extends React.Component {
         </Helmet>
         <PapperBlock title="Commercial Operations" desc="The List of operations" icon="ios-pricetags-outline" noMargin overflowX>
           <div>
-            <MUIDataTable title="" data={datas} columns={columns} options={options} />
+            <MUIDataTable title="" data={allCommercialOperations} columns={columns} options={options} />
             <Dialog
               open={viewProgress}
               keepMounted
@@ -230,4 +223,51 @@ class commercialOperationList extends React.Component {
   }
 }
 
-export default (commercialOperationList);
+commercialOperationList.propTypes = {
+  classes: PropTypes.object.isRequired,
+  // add: PropTypes.func.isRequired,
+  back: PropTypes.func.isRequired,
+  addClientCommercial: PropTypes.func.isRequired,
+  updateClient: PropTypes.func.isRequired,
+  deleteClient: PropTypes.func.isRequired,
+  getAllClient: PropTypes.func.isRequired,
+  allClients: PropTypes.array.isRequired,
+};
+
+const mapStateToProps = state => ({
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoading: state.getIn(['clients']).isLoading,
+  errors: state.getIn(['clients']).errors,
+
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+  // commercialOperation
+  allCommercialOperations: state.getIn(['commercialOperation']).allCommercialOperations,
+  commercialOperationResponse: state.getIn(['commercialOperation']).commercialOperationResponse,
+  isLoadingCommercialOperation: state.getIn(['commercialOperation']).isLoading,
+  errorsCommercialOperation: state.getIn(['commercialOperation']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  addClientCommercial,
+  updateClient,
+  deleteClient,
+  getAllClient,
+  getAllStateByCountry,
+  getAllCityByState,
+  getAllCommercialOperation
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(commercialOperationList));

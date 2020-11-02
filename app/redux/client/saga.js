@@ -20,7 +20,6 @@ import ENDPOINTS from '../../api/endpoints';
 
 
 function* addClientCommercial(action) {
-  console.log('RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR');
   try {
     const { client } = action;
     const request = yield axios({
