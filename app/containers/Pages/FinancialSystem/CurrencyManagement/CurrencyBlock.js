@@ -120,9 +120,14 @@ class CurrencyBlock extends React.Component {
     };
 
     handleSave = () => {
-      const {
-        currencyId, currencyName, currencyCode, year, month, changeFactor
+      let {
+        currencyName, currencyCode
       } = this.state;
+      const {
+        currencyId, year, month, changeFactor
+      } = this.state;
+      currencyName = currencyName.toUpperCase();
+      currencyCode = currencyCode.toUpperCase();
       const Currency = {
         currencyId, currencyName, currencyCode, year, month, changeFactor
       };

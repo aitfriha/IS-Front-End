@@ -15,6 +15,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import history from '../../../../utils/history';
 import styles from '../../Companies/companies-jss';
 import { getAllCountry } from '../../../../redux/country/actions';
@@ -135,6 +137,14 @@ class AddFinancialCompany extends React.Component {
             desc="Please, Fill in the all field"
             icon="ios-add-circle"
           >
+            <Grid container spacing={1}>
+              <Grid item xs={11} />
+              <Grid item xs={1}>
+                <IconButton onClick={() => this.handleGoBack()}>
+                  <KeyboardBackspaceIcon color="secondary" />
+                </IconButton>
+              </Grid>
+            </Grid>
             <Grid
               container
               spacing={10}

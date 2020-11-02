@@ -22,8 +22,20 @@ import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { withStyles } from '@material-ui/core/styles';
 import history from '../../../../utils/history';
-import Converter from '../../../../components/CurrencyConverter/Converter';
+import CurrencyService from '../../../Services/CurrencyService';
+import ContractStatusService from '../../../Services/ContractStatusService';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
+import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
+import styles from '../../Companies/companies-jss';
+import FinancialCompanyService from "../../../Services/FinancialCompanyService";
 
 class AddContract extends React.Component {
   constructor(props) {
@@ -32,13 +44,12 @@ class AddContract extends React.Component {
       client: '',
       operation: '',
       company: '',
-      state: 1,
+      state: '',
+      status: [],
+      companies: [],
       clientContractSigned: '',
       taxeIdentityNumber: '',
-      addressOfBill: '',
-      countryOfBill: '',
-      stateOfBill: '',
-      cityOfBill: '',
+      currentCity: '',
       level1: '',
       level2: '',
       level3: '',
@@ -46,6 +57,8 @@ class AddContract extends React.Component {
       startDate: '',
       endDate: '',
       finalReelDate: '',
+      contractTradeVolume: 0,
+      currencies: [],
       amountEuro: '',
       amountLocal: '',
       currency: '',
@@ -66,7 +79,7 @@ class AddContract extends React.Component {
       penaltyMaxValue: '',
       penaltyMaxType: '',
       penaltiesListe: [''],
-      purchaseOrder: 0,
+      purchaseOrderDocumentation: '',
       purchaseOrders: ['1'],
       purchaseOrderNumber: 0,
       purchaseOrderReceiveDate: '',
@@ -74,10 +87,12 @@ class AddContract extends React.Component {
       firstDayInsured: '',
       lastDayInsured: '',
       amountInsured: '',
-      proposal: '',
+      proposalDocumentation: '',
+      proposalDocumentationDuo: [],
       proposalDocumentations: ['1'],
-      insureDocumentation: '',
+      insureDocumentation: [],
       insureDocumentations: ['1'],
+      contractDocumentation: [],
       contractDocumentations: ['1'],
       contractDocDescreption: '',
       radio: '',
@@ -88,6 +103,38 @@ class AddContract extends React.Component {
       openDoc: true
     };
   }
+
+  componentDidMount() {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
+    // services calls
+    CurrencyService.getCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
+    ContractStatusService.getContractStatus().then(result => {
+      this.setState({ status: result.data });
+    });
+    FinancialCompanyService.getCompany().then(result => {
+      this.setState({ companies: result.data });
+    });
+  }
+
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ currentCity: value.cityId });
+  };
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
@@ -243,12 +290,81 @@ class AddContract extends React.Component {
     this.readURI(e);
   };
 
+  handleChangeFile1 = e => {
+    this.readURI1(e);
+  };
+
+  handleChangeFile2 = e => {
+    this.readURI2(e);
+  };
+
+  handleChangeFile3 = e => {
+    this.readURI3(e);
+  };
+
+  handleChangeFile4 = e => {
+    this.readURI4(e);
+  };
+
   readURI(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
       console.log(e.target.files);
       reader.onload = function (ev) {
-        this.setState({ insureDocumentation: ev.target.result });
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const file = this.state.contractDocumentation;
+        file.push(ev.target.result);
+        this.setState({ contractDocumentation: file });
+      }.bind(this);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  }
+
+  readURI1(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      console.log(e.target.files);
+      reader.onload = function (ev) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const file = this.state.insureDocumentation;
+        file.push(ev.target.result);
+        this.setState({ insureDocumentation: file });
+      }.bind(this);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  }
+
+  readURI2(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      console.log(e.target.files);
+      reader.onload = function (ev) {
+        this.setState({ purchaseOrderDocumentation: ev.target.result });
+      }.bind(this);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  }
+
+  readURI3(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      console.log(e.target.files);
+      reader.onload = function (ev) {
+        this.setState({ proposalDocumentation: ev.target.result });
+      }.bind(this);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  }
+
+  readURI4(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      console.log(e.target.files);
+      reader.onload = function (ev) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const file = this.state.proposalDocumentationDuo;
+        file.push(ev.target.result);
+        this.setState({ proposalDocumentationDuo: file });
       }.bind(this);
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -256,6 +372,10 @@ class AddContract extends React.Component {
 
   render() {
     console.log(this.state);
+    const {
+      // eslint-disable-next-line react/prop-types
+      allCountrys, allStateCountrys, allCitys
+    } = this.props;
     const Level1 = [
       {
         value: 1,
@@ -349,40 +469,10 @@ class AddContract extends React.Component {
         value: '3',
         label: 'IS-FLIGHT',
       }];
-    const companies = [
-      {
-        value: '1',
-        label: 'Implemental System',
-      },
-      {
-        value: '2',
-        label: 'TechniU',
-      },
-      {
-        value: '3',
-        label: 'CGD',
-      }];
-    const states = [
-      {
-        value: '1',
-        label: 'SIGNED',
-      },
-      {
-        value: '2',
-        label: 'IN PROGRESS',
-      },
-      {
-        value: '3',
-        label: 'FINISHED',
-      },
-      {
-        value: '4',
-        label: 'FINISHED PENDING PAYMENT',
-      }];
     const {
-      client, operation, company, state, clientContractSigned, taxeIdentityNumber, nbrConcepts, radio,
+      client, operation, company, state, clientContractSigned, taxeIdentityNumber, nbrConcepts, radio, status, currencies,
       conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptCurrency, conceptTotalAmount, conceptTotalAmountEuro,
-      countryOfBill, stateOfBill, cityOfBill, addressOfBill, signedDate, startDate, endDate, finalReelDate,
+      signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies,
       penaltyMaxType, amountEuro, amountLocal, currency, paymentsBDDays, penalties, penaltyQuantity, penaltyValue,
       penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, purchaseOrders,
       insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption
@@ -466,8 +556,8 @@ class AddContract extends React.Component {
                   >
                     {
                       companies.map((clt) => (
-                        <MenuItem key={clt.value} value={clt.value}>
-                          {clt.label}
+                        <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                          {clt.name}
                         </MenuItem>
                       ))
                     }
@@ -483,9 +573,9 @@ class AddContract extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      states.map((clt) => (
-                        <MenuItem key={clt.value} value={clt.value}>
-                          {clt.label}
+                      status.map((clt) => (
+                        <MenuItem key={clt.contractStatusId} value={clt.contractStatusId}>
+                          {clt.statusName}
                         </MenuItem>
                       ))
                     }
@@ -499,11 +589,11 @@ class AddContract extends React.Component {
                   <br />
                   <input
                     style={{ display: 'none' }}
-                    id="outlined-button-file-2"
+                    id="outlined-button-file"
                     type="file"
                     onClick={this.handleChangeFile.bind(this)}
                   />
-                  <FormLabel htmlFor="outlined-button-file-2">
+                  <FormLabel htmlFor="outlined-button-file">
                     {/* eslint-disable-next-line react/destructuring-assignment */}
                     {this.state.contractDocumentations.map((row) => (
                       <Grid
@@ -628,54 +718,61 @@ class AddContract extends React.Component {
                   id="taxeIdentityNumber"
                   label="Taxe Identity Number"
                   name="taxeIdentityNumber"
-                  value={operation}
-                  onChange={this.handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              {/*   <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="addressOfBill"
-                  label="Full Address Of Bill"
-                  name="addressOfBill"
-                  value={addressOfBill}
-                  onChange={this.handleChange}
-                  fullWidth
-                  required
-                />
-              </Grid> */}
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="countryOfBill"
-                  label=" Country Of Bill "
-                  name="countryOfBill"
-                  value={countryOfBill}
+                  value={taxeIdentityNumber}
                   onChange={this.handleChange}
                   fullWidth
                   required
                 />
               </Grid>
               <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="stateOfBill"
-                  label="State Of Bill "
-                  name="stateOfBill"
-                  value={stateOfBill}
-                  onChange={this.handleChange}
-                  fullWidth
-                  required
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCountrys}
+                  getOptionLabel={option => option.countryName}
+                  onChange={this.handleChangeCountry}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
                 />
               </Grid>
               <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="cityOfBill"
-                  label="City Of Bill "
-                  name="cityOfBill"
-                  value={cityOfBill}
-                  onChange={this.handleChange}
-                  fullWidth
-                  required
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allStateCountrys}
+                  getOptionLabel={option => option.stateName}
+                  onChange={this.handleChangeState}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the state"
+                      variant="outlined"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={3} sm={3}>
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCitys}
+                  getOptionLabel={option => option.cityName}
+                  onChange={this.handleChangeCity}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the city"
+                      variant="outlined"
+                    />
+                  )}
                 />
               </Grid>
             </Grid>
@@ -762,16 +859,42 @@ class AddContract extends React.Component {
           <br />
           <Grid
             container
-            spacing={1}
+            spacing={5}
             alignItems="flex-start"
             direction="row"
             justify="space-around"
           >
-            <Grid item xs={6}>
-              <Converter Title="Contract Trade Volume  " />
+            <Grid item xs={4}>
+              <TextField
+                id="Contract Trade Volume"
+                label="Contract Trade Volume"
+                type="number"
+                name="contractTradeVolume"
+                value={contractTradeVolume}
+                onChange={this.handleChange}
+                fullWidth
+                required
+              />
             </Grid>
-            <Grid item xs={5}>
-              <br />
+            <Grid item xs={4}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Currency</InputLabel>
+                <Select
+                  name="currency"
+                  value={currency}
+                  onChange={this.handleChange}
+                >
+                  {
+                    currencies.map((clt) => (
+                      <MenuItem key={clt.currencyId} value={clt.currencyCode}>
+                        {clt.currencyName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
               <TextField
                 id="paymentsBDDays"
                 label="Payments BD per Day"
@@ -857,7 +980,7 @@ class AddContract extends React.Component {
                   id="conceptCurrency"
                   label="Currency"
                   name="conceptCurrency"
-                  value={conceptCurrency}
+                  value={currency}
                   onChange={this.handleChange}
                   fullWidth
                   InputProps={{
@@ -977,16 +1100,42 @@ class AddContract extends React.Component {
                     fullWidth
                     required
                   />
-                  <Converter Title="Insure Value  " />
+                  <Grid container spacing={2}>
+                    <Grid item xs={7}>
+                      <TextField
+                        id="amountInsured"
+                        label="Amount Insured "
+                        type="number"
+                        name="amountInsured"
+                        value={amountInsured}
+                        onChange={this.handleChange}
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={5}>
+                      <TextField
+                        id="conceptCurrency"
+                        label="Currency"
+                        name="conceptCurrency"
+                        value={currency}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
                   <br />
                   <FormControl>
                     <input
                       style={{ display: 'none' }}
-                      id="outlined-button-file-2"
+                      id="outlined-button-file-1"
                       type="file"
-                      onClick={this.handleChangeFile.bind(this)}
+                      onClick={this.handleChangeFile1.bind(this)}
                     />
-                    <FormLabel htmlFor="outlined-button-file-2">
+                    <FormLabel htmlFor="outlined-button-file-1">
                       {/* eslint-disable-next-line react/destructuring-assignment */}
                       {this.state.insureDocumentations.map((row) => (
                         <div>
@@ -1077,7 +1226,7 @@ class AddContract extends React.Component {
                       style={{ display: 'none' }}
                       id="outlined-button-file-2"
                       type="file"
-                      onClick={this.handleChangeFile.bind(this)}
+                      onClick={this.handleChangeFile2.bind(this)}
                     />
                     <FormLabel htmlFor="outlined-button-file-2">
                       <div>
@@ -1116,13 +1265,13 @@ class AddContract extends React.Component {
                       <FormControl>
                         <input
                           style={{ display: 'none' }}
-                          id="outlined-button-file-2"
+                          id="outlined-button-file-3"
                           type="file"
-                          onClick={this.handleChangeFile.bind(this)}
+                          onClick={this.handleChangeFile3.bind(this)}
                         />
                         <Grid container spacing={2}>
                           <Grid item xs={12}>
-                            <FormLabel htmlFor="outlined-button-file-11">
+                            <FormLabel htmlFor="outlined-button-file-3">
                               <Button
                                 fullWidth
                                 variant="outlined"
@@ -1143,13 +1292,13 @@ class AddContract extends React.Component {
                       <FormControl>
                         <input
                           style={{ display: 'none' }}
-                          id="outlined-button-file-2"
+                          id="outlined-button-file-4"
                           type="file"
-                          onClick={this.handleChangeFile.bind(this)}
+                          onClick={this.handleChangeFile4.bind(this)}
                         />
                         <Grid container spacing={2}>
                           <Grid item xs={12}>
-                            <FormLabel htmlFor="outlined-button-file-22">
+                            <FormLabel htmlFor="outlined-button-file-4">
                               <Button
                                 fullWidth
                                 variant="outlined"
@@ -1161,7 +1310,7 @@ class AddContract extends React.Component {
                             </FormLabel>
                           </Grid>
                           <Grid item xs={12}>
-                            <FormLabel htmlFor="outlined-button-file-33">
+                            <FormLabel htmlFor="outlined-button-file-4">
                               <Button
                                 fullWidth
                                 variant="outlined"
@@ -1347,4 +1496,35 @@ class AddContract extends React.Component {
     );
   }
 }
-export default AddContract;
+
+AddContract.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState,
+  addClientCommercial,
+  getAllClient
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddContract));
