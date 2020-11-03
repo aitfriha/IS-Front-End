@@ -2,7 +2,9 @@ import {
   ADD_STAFF,
   DELETE_STAFF,
   GET_ALL_STAFFS,
-  UPDATE_STAFF
+  UPDATE_STAFF,
+  SET_STAFF,
+  SET_EDIT
 } from './constants';
 
 export const addCommercialOperationStatus = staff => ({
