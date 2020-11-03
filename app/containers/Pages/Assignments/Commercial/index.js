@@ -9,7 +9,7 @@ import '../../Configurations/map/app.css';
 import {
   withStyles,
   Typography,
-  TextField,
+  TextField, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
@@ -18,6 +18,8 @@ import Slide from '@material-ui/core/Slide';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import MaterialTable from 'material-table';
+import { isString } from 'lodash';
 import { addClient } from '../../../../redux/actions/clientActions';
 import CommercialService from '../../../Services/CommercialService';
 import AssignmentService from '../../../Services/AssignmentService';
@@ -29,12 +31,19 @@ import Notification from '../../../../components/Notification/Notification';
 import CommercialAssignmentsMapped from './assignmentBlock';
 import ClientBlockMapped from '../../Clients/ClientBlock';
 import history from '../../../../utils/history';
+import {
+  addClientCommercial, deleteClient, getAllClient, updateClient
+} from '../../../../redux/client/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
 
 
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      typeResponsible: '',
+      openPopUp: false,
       addresses: [],
       startDate: '',
       endDate: '',
@@ -48,7 +57,50 @@ class Commercial extends React.Component {
       country: '',
       clients: [],
       notifMessage: '',
-      client: ''
+      client: '',
+      columns: [
+        {
+          // eslint-disable-next-line no-useless-concat
+          title: 'Name' + '*',
+          field: 'name',
+          /* cellStyle: { width: 100, maxWidth: 100 },
+          headerStyle: { width: 130, maxWidth: 130 } */
+        },
+        {
+          // eslint-disable-next-line no-useless-concat
+          label: 'Email',
+          name: 'email',
+          /* cellStyle: { width: 100, maxWidth: 100 },
+          headerStyle: { width: 130, maxWidth: 130 } */
+        },
+        {
+          // eslint-disable-next-line no-useless-concat
+          label: 'Phone',
+          name: 'phone'
+          /* cellStyle: { width: 155, maxWidth: 155 },
+          headerStyle: { width: 180, maxWidth: 180 } */
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          /* cellStyle: { width: 155, maxWidth: 155 },
+          headerStyle: { width: 100, maxWidth: 180 } */
+        },
+        {
+          label: 'Responsible Commercial',
+          name: 'responsibleCommercial',
+          options: {
+            filter: true,
+          }
+        },
+        {
+          label: 'Assistant Commercial',
+          name: 'assistantCommercial',
+          options: {
+            filter: true,
+          }
+        }
+      ]
     };
   }
 
@@ -63,6 +115,9 @@ class Commercial extends React.Component {
       data.forEach(country => countries.push(country.countryName));
       this.setState({ countries });
     });
+
+    const { getAllClient } = this.props;
+    getAllClient();
   }
 
   getClientAddresses = () => {
@@ -122,7 +177,7 @@ class Commercial extends React.Component {
 
   getCommercials = () => {
     CommercialService.getCommercials().then(({ data }) => {
-      console.log('getCommercialsgetCommercialsgetCommercialsgetCommercialsgetCommercials',data);
+      console.log('getCommercialsgetCommercialsgetCommercialsgetCommercialsgetCommercials', data);
       this.setState({ commercials: data });
     });
   };
@@ -137,27 +192,37 @@ class Commercial extends React.Component {
 
   handleClientInfo = () => {
     const { client } = this.state;
-    const { add } = this.props;
+    const { addClient } = this.props;
     const code = client.split('~')[0];
     ClientService.getClientsByCode(code).then(res => {
-      add(res.data);
+      addClient(res.data);
       this.setState({ type: 'assignment' });
     });
+  };
+
+  selectedRows = (rows) => {
+    console.log(rows);
+    this.setState({ openPopUp: true });
+  };
+
+  handleClose = () => {
+    this.setState({ openPopUp: false });
   };
 
   render() {
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
-    const { classes } = this.props;
+    const { classes, allClients } = this.props;
     const {
       addresses,
       responsibleAssignments,
       assistantAssignments,
       commercials,
       type, countries, country,
-      notifMessage, client, clients
+      notifMessage, client, clients,
+      columns, openPopUp, typeResponsible
     } = this.state;
- console.log('type :::::::::::::::::', type);
+    console.log('type :::::::::::::::::', type);
     return (
       <div>
         <Helmet>
@@ -236,6 +301,155 @@ class Commercial extends React.Component {
                   Client
                 </Button>
               </Grid>
+              <Grid item sm={12} lg={12} xs={12} md={12}>
+                <Typography variant="subtitle2" component="h2" color="primary" gutterBottom align="center">
+                check clients to assign responsible or commercial
+                </Typography>
+                <MaterialTable
+                  title=""
+                  columns={columns}
+                  data={allClients && allClients}
+                  options={{
+                    exportFileName: 'Commercial Operation List',
+                    // filtering: true,
+                    // draggable: true,
+                    exportButton: true,
+                    selection: true,
+                    pageSize: 10,
+                    // grouping: true,
+                    actionsCellStyle: {
+                      //  paddingLeft: 30,
+                      // width: 120,
+                      //   maxWidth: 120,
+                    },
+                    actionsColumnIndex: -1
+                  }}
+                  /* onSelectionChange={(rows) => this.selectedRows(rows)} */
+                  actions={[
+                    {
+                      tooltip: 'Remove All Selected Users',
+                      icon: 'assignment_ind',
+                      onClick: (evt, data) => this.selectedRows(data)
+                    }
+                  ]}
+                  editable={{
+                    onRowAdd: newData => new Promise((resolve) => {
+                      // add measurement unit action
+                      addCommercialOperationStatus(newData);
+                      this.editingPromiseResolve = resolve;
+                    }).then((result) => {
+                      if (isString(result)) {
+                        // Fetch data
+                        getAllCommercialOperationStatus();
+                        notification('success', result);
+                      } else {
+                        notification('danger', result);
+                      }
+                    }),
+                    onRowUpdate: (newData) => new Promise((resolve) => {
+                      // update CommercialOperationStatus unit action
+                      updateCommercialOperationStatus(newData);
+                      this.editingPromiseResolve = resolve;
+                    }).then((result) => {
+                      if (isString(result)) {
+                        // Fetch data
+                        getAllCommercialOperationStatus();
+                        notification('success', result);
+                      } else {
+                        notification('danger', result);
+                      }
+                    }),
+                    onRowDelete: oldData => new Promise((resolve) => {
+                      // delete CommercialOperationStatus action
+                      deleteCommercialOperationStatus(oldData.commercialOperationStatusId);
+                      this.editingPromiseResolve = resolve;
+                    }).then((result) => {
+                      if (isString(result)) {
+                        // Fetch data
+                        getAllCommercialOperationStatus();
+                        notification('success', result);
+                      } else {
+                        notification('danger', result);
+                      }
+                    }),
+                  }}
+                />
+                <Dialog
+                  open={openPopUp}
+                  keepMounted
+                  scroll="body"
+                  onClose={this.handleClose}
+                  aria-labelledby="alert-dialog-slide-title"
+                  aria-describedby="alert-dialog-slide-description"
+                  fullWidth=""
+                  maxWidth=""
+                >
+                  <DialogTitle id="alert-dialog-slide-title"> Assign responsible and assistant</DialogTitle>
+                  <DialogContent dividers>
+                    <Grid item xs={12} md={12}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Type of assignment</InputLabel>
+                        <Select
+                          name="type"
+                          value={typeResponsible}
+                          onChange={this.handleChange}
+                        >
+                          <MenuItem key="1" value="Responsible Commercial">
+                            Responsible Commercial
+                          </MenuItem>
+                          <MenuItem key="2" value="Assistant Commercial">
+                            Assistant Commercial
+                          </MenuItem>
+                          <MenuItem key="3" value="Geographical">
+                            Geographical Commercial
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
+                      {/*   <TextField
+                        id="outlined-basic"
+                        label="Commercial Operation related"
+                        variant="outlined"
+                        name="name"
+                        fullWidth
+                        value={operationCommercial}
+                        onChange={this.handleChange}
+                        required
+                        className={classes.textField}
+                      />
+                      <Autocomplete
+                        multiple
+                        className={classes.textField}
+                        id="combo-box-demo"
+                        options={allCommercialServiceType}
+                        getOptionLabel={option => option.name}
+                        // value={allCommercialServiceType.find(v => v.name === serviceTypeNameCurrent[0]) || ''}
+                        value={serviceTypeNameCurrent}
+                        onChange={this.handleChangeServiceType}
+                        renderInput={params => (
+                          <TextField
+                            fullWidth
+                            {...params}
+                            label="Choose Service type"
+                            variant="outlined"
+                          />
+                        )}
+                      /> */}
+                    </Grid>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button color="secondary" onClick={this.handleClose}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.deleteAndUpdateServiceType}
+                    >
+                      Update
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </Grid>
             </Grid>
           </Slide>
           <Slide
@@ -264,7 +478,7 @@ class Commercial extends React.Component {
             </div>
           </Slide>
 
-         {/*<Notification message={notifMessage} close={this.closeNotif} />*/}
+          {/* <Notification message={notifMessage} close={this.closeNotif} /> */}
         </PapperBlock>
       </div>
     );
@@ -272,15 +486,23 @@ class Commercial extends React.Component {
 }
 Commercial.propTypes = {
   classes: PropTypes.object.isRequired,
-  add: PropTypes.func.isRequired,
+  // add: PropTypes.func.isRequired,
 };
-const mapDispatchToProps = dispatch => ({
-  add: bindActionCreators(addClient, dispatch),
+const mapStateToProps = state => ({
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoading: state.getIn(['clients']).isLoading,
+  errors: state.getIn(['clients']).errors,
+  //all staff
+
 });
+const mapDispatchToProps = dispatch => bindActionCreators({
+  addClient,
+  updateClient,
+  getAllClient,
+}, dispatch);
 
-const CommercialMapped = connect(
-  null,
+export default withStyles(styles)(connect(
+  mapStateToProps,
   mapDispatchToProps
-)(Commercial);
-
-export default withStyles(styles)(CommercialMapped);
+)(Commercial));
