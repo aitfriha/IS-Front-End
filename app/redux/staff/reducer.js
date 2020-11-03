@@ -17,23 +17,12 @@ const initialState = {
   isLoading: false,
   errors: {},
   staffResponse: '',
-  allStaffs: [],
-  staff: {},
-  isEdit: false
+  allStafftatuss: []
 };
 
 export default function staffReducer(state = initialState, action) {
   switch (action.type) {
-    case SET_STAFF:
-      return state.withMutations(mutableState => {
-        mutableState.set('staff', action.staff);
-      });
-
-    case SET_EDIT:
-      return state.withMutations(mutableState => {
-        mutableState.set('isEdit', action.isEdit);
-      });
-    // TRIGGERING ACTIONS
+      // TRIGGERING ACTIONS
     case GET_ALL_STAFFS:
     case ADD_STAFF:
     case UPDATE_STAFF:
@@ -44,7 +33,7 @@ export default function staffReducer(state = initialState, action) {
         staffResponse: ''
       };
 
-    // SUCCESS ACTIONS
+      // SUCCESS ACTIONS
     case ADD_STAFF_SUCCESS:
     case UPDATE_STAFF_SUCCESS:
     case DELETE_STAFF_SUCCESS:
@@ -59,11 +48,11 @@ export default function staffReducer(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
-        allStaffs: action.payload,
+        allStafftatuss: action.payload,
         staffResponse: ''
       };
 
-    // FAILURE ACTIONS
+      // FAILURE ACTIONS
     case GET_ALL_STAFFS_FAILURE:
     case ADD_STAFF_FAILURE:
     case UPDATE_STAFF_FAILURE:

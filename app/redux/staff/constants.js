@@ -1,6 +1,3 @@
-export const SET_STAFF = 'SET_STAFF';
-
-export const SET_EDIT = 'SET_EDIT';
 // ADD
 export const ADD_STAFF = 'ADD_STAFF';
 export const ADD_STAFF_SUCCESS = 'ADD_STAFF_SUCCESS';
