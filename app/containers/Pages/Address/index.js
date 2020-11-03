@@ -221,7 +221,7 @@ class AddressBlock extends React.Component {
           id="outlined-basic"
           label="Name of address"
           variant="outlined"
-          name="address"
+          name="fullAddress"
           fullWidth
           required
           className={classes.textField}

@@ -20,6 +20,7 @@ import citysReducer from './city/reducer';
 import commercialOperationStatusReducer from './commercialOperationStatus/reducer';
 import commercialServiceTypeReducer from './serviceType/reducer';
 import stateCountryReducer from './stateCountry/reducer';
+import staffReducer from './staff/reducer';
 import countryReducer from './country/reducer';
 import clientReducer from './client/reducer';
 
@@ -42,6 +43,7 @@ export default function createReducer(injectedReducers = {}) {
     commercialOperationStatus: commercialOperationStatusReducer,
     commercialServiceType: commercialServiceTypeReducer,
     stateCountries: stateCountryReducer,
+    staffs: staffReducer,
     countries: countryReducer,
     clients: clientReducer,
     language: languageProviderReducer,

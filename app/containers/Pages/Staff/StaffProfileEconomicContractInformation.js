@@ -63,13 +63,13 @@ class StaffProfileEconomicContractInformation extends Component {
       }
     },
     {
-      name: 'createdAt',
+      name: 'staffEconomicContractInformationHistory',
       label: 'Created at',
       options: {
         filter: true,
         customBodyRender: (value, tableMeta) => (
           <React.Fragment>
-            {new Date(value).toISOString().slice(0, 10)}
+            {new Date(value.createdAt).toISOString().slice(0, 10)}
           </React.Fragment>
         )
       }
@@ -101,8 +101,9 @@ class StaffProfileEconomicContractInformation extends Component {
     StaffEconomicContractInformationHistoryService.getStaffEconomicContractInformationHistoryByStaff(
       data.staffEconomicContractInformationId
     ).then(({ data }) => {
+      console.log(data);
       this.setState({
-        history: data.history
+        history: data
       });
     });
   }
@@ -288,7 +289,7 @@ class StaffProfileEconomicContractInformation extends Component {
         ...economicContractInformation,
         createdAt: new Date()
       };
-      history.push(object);
+      history.push({ staffEconomicContractInformationHistory: object });
       console.log('pushed');
       this.setState({
         isEditData: false,
@@ -308,7 +309,7 @@ class StaffProfileEconomicContractInformation extends Component {
     const { history } = this.state;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    const data = history[index];
+    const data = history[index].staffEconomicContractInformationHistory;
     this.setState({
       contractSalary: data.contractSalary,
       companyContractCost: data.companyContractCost,
@@ -468,7 +469,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Contract Salary: '}
                 </Typography>
@@ -478,8 +479,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {contractSalary}
@@ -490,8 +491,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {contractSalaryDateGoing.toISOString().slice(0, 10)}
@@ -502,8 +503,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {contractSalaryDateOut.toISOString().slice(0, 10)}
@@ -514,7 +515,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Company Contract Cost: '}
                 </Typography>
@@ -524,8 +525,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyContractCost}
@@ -536,8 +537,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyContractCostDateGoing.toISOString().slice(0, 10)}
@@ -548,8 +549,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyContractCostDateOut.toISOString().slice(0, 10)}
@@ -560,7 +561,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Expenses: '}
                 </Typography>
@@ -570,8 +571,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {expenses}
@@ -582,8 +583,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {expensesDateGoing.toISOString().slice(0, 10)}
@@ -594,8 +595,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {expensesDateOut.toISOString().slice(0, 10)}
@@ -606,7 +607,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Company Expenses Cost: '}
                 </Typography>
@@ -616,8 +617,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyExpensesCost}
@@ -628,8 +629,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyExpensesCostDateGoing.toISOString().slice(0, 10)}
@@ -640,8 +641,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyExpensesCostDateOut.toISOString().slice(0, 10)}
@@ -652,7 +653,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Objectives: '}
                 </Typography>
@@ -662,8 +663,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {objectives}
@@ -674,8 +675,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {objectivesDateGoing.toISOString().slice(0, 10)}
@@ -686,8 +687,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {objectivesDateOut.toISOString().slice(0, 10)}
@@ -698,7 +699,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Company Objectives Cost: '}
                 </Typography>
@@ -708,8 +709,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyObjectivesCost}
@@ -720,8 +721,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyObjectivesCostDateGoing.toISOString().slice(0, 10)}
@@ -732,8 +733,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {companyObjectivesCostDateOut.toISOString().slice(0, 10)}
@@ -748,7 +749,7 @@ class StaffProfileEconomicContractInformation extends Component {
               <div style={{ width: '35%' }}>
                 <Typography
                   variant="subtitle1"
-                  className={classes.economicTypography}
+                  className={classes.normalTypography}
                 >
                   {'Total Company Cost: '}
                 </Typography>
@@ -758,8 +759,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {totalCompanyCost}
@@ -770,8 +771,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {totalCompanyCostDateGoing.toISOString().slice(0, 10)}
@@ -782,8 +783,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="subtitle1"
                   className={
                     isViewHistory
-                      ? classes.economicHistoryTypography
-                      : classes.economicTypography
+                      ? classes.historyTypography
+                      : classes.normalTypography
                   }
                 >
                   {totalCompanyCostDateOut.toISOString().slice(0, 10)}

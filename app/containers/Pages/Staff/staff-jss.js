@@ -117,6 +117,19 @@ const styles = theme => ({
       color: theme.palette.secondary.main
     }
   },
+  historyButtonLink: {
+    background: 'none',
+    padding: 0,
+    textTransform: 'none',
+    transition: 'color ease 0.3s',
+    fontWeight: theme.typography.fontWeightRegular,
+    color: '#FF0000',
+    fontSize: '1rem',
+    '&:hover': {
+      background: 'none',
+      color: theme.palette.secondary.main
+    }
+  },
   button: {
     background: theme.palette.primary.main,
     boxShadow: '0 3px 5px 2px rgba(0, 0, 0, .3)',
@@ -282,13 +295,13 @@ const styles = theme => ({
     flexGrow: 1,
     marginBottom: '10px'
   },
-  economicTypography: {
+  normalTypography: {
     color: '#000',
     fontFamily: 'sans-serif , Arial',
     fontSize: '17px',
     opacity: 0.7
   },
-  economicHistoryTypography: {
+  historyTypography: {
     color: '#FF0000',
     fontFamily: 'sans-serif , Arial',
     fontSize: '17px',

@@ -7,9 +7,12 @@ import IconButton from '@material-ui/core/IconButton';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import Avatar from '@material-ui/core/Avatar';
 import { TableCell, Tooltip } from '@material-ui/core';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import styles from './staff-jss';
 import StaffService from '../../Services/StaffService';
+import { setStaff } from '../../../redux/staff/actions';
 
 class StaffBlock extends React.Component {
   constructor(props) {
@@ -52,10 +55,10 @@ class StaffBlock extends React.Component {
           }
         },
         {
-          name: 'companyName',
           label: 'Company',
+          name: 'staffContract',
           options: {
-            filter: true
+            customBodyRender: (value, data) => <React.Fragment>{value.companyName}</React.Fragment>
           }
         },
         {
@@ -90,26 +93,20 @@ class StaffBlock extends React.Component {
           label: 'Residence country',
           name: 'address',
           options: {
-            customBodyRender: (value, data) => {
-              console.log(data);
-              return (
-                <React.Fragment>
-                  {value.city.stateCountry.country.countryName}
-                </React.Fragment>
-              );
-            }
+            customBodyRender: (value, data) => (
+              <React.Fragment>
+                {value.city.stateCountry.country.countryName}
+              </React.Fragment>
+            )
           }
         },
         {
           name: 'level',
           label: 'Functional level',
           options: {
-            customBodyRender: (value, data) => {
-              console.log(data);
-              return (
-                <React.Fragment>{value ? value.name : 'none'}</React.Fragment>
-              );
-            }
+            customBodyRender: (value, data) => (
+              <React.Fragment>{value ? value.name : 'none'}</React.Fragment>
+            )
           }
         },
 
@@ -143,12 +140,13 @@ class StaffBlock extends React.Component {
   }
 
   viewStaffProfile = (value, tableMeta) => {
+    const { setStaffData } = this.props;
     const { data } = this.state;
     const { showProfile } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    console.log(data[index]);
-    showProfile(true, data[index]);
+    setStaffData(data[index]);
+    showProfile(true);
   };
 
   render() {
@@ -182,7 +180,20 @@ class StaffBlock extends React.Component {
 }
 StaffBlock.propTypes = {
   classes: PropTypes.object.isRequired,
-  showProfile: PropTypes.func.isRequired
+  showProfile: PropTypes.func.isRequired,
+  setStaffData: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(StaffBlock);
+const mapStateToProps = state => ({
+  staff: state.get('staffs').toJS().staff
+});
+const mapDispatchToProps = dispatch => ({
+  setStaffData: bindActionCreators(setStaff, dispatch)
+});
+
+const StaffBlockMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StaffBlock);
+
+export default withStyles(styles)(StaffBlockMapped);

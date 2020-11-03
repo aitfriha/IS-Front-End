@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import {
   Grid,
-  FormControl,
-  TextField,
   Button,
-  Collapse,
-  Badge,
-  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,26 +13,33 @@ import {
   Paper,
   Tab,
   Tabs,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Divider
+  Badge,
+  Tooltip
 } from '@material-ui/core';
-import Ionicon from 'react-ionicons';
+import ProfilePicture from 'profile-picture';
+import 'profile-picture/build/ProfilePicture.css';
+import '../Configurations/map/app.css';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import PropTypes from 'prop-types';
-import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack';
-import VisibilityIcon from '@material-ui/icons/Visibility';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import styles from './staff-jss';
 import FunctionalStructureService from '../../Services/FunctionalStructureService';
 import avatarApi from '../../../api/images/avatars';
 import StaffProfileEconomicContractInformation from './StaffProfileEconomicContractInformation';
+import StaffProfileContractInformation from './StaffProfileContractInformation';
+import StaffProfileGeneralInformation from './StaffProfileGeneralInformation';
+import StaffService from '../../Services/StaffService';
+import { setStaff } from '../../../redux/staff/actions';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
-  pdfjs.version
-}/pdf.worker.js`;
+const SmallAvatar = withStyles(theme => ({
+  root: {
+    width: 40,
+    height: 40,
+    border: `2px solid ${theme.palette.background.paper}`
+  }
+}))(Avatar);
 
 export class StaffProfile extends Component {
   state = {
@@ -47,18 +49,20 @@ export class StaffProfile extends Component {
     docExtension: '',
     numPages: null,
     pageNumber: 1,
-    functionalStructureTree: {}
+    functionalStructureTree: {},
+    isChangeProfilePic: false,
+    photo: ''
   };
+
+  profilePictureRef = React.createRef();
 
   componentDidMount() {
     const { staff } = this.props;
     const { functionalStructureTree } = this.state;
     if (staff.level && !functionalStructureTree.level1) {
       const { type } = staff.level;
-      console.log(type);
       FunctionalStructureService.getLevelTree(staff.level.levelId).then(
         ({ data }) => {
-          console.log(data);
           let tree = {};
           if (type === 'Level 1') {
             tree = {
@@ -82,7 +86,9 @@ export class StaffProfile extends Component {
         }
       );
     }
-    console.log(staff.staffContract.contractDoc);
+    this.setState({
+      photo: staff.photo
+    });
   }
 
   handleChange = (event, newValue) => {
@@ -158,14 +164,6 @@ export class StaffProfile extends Component {
     });
   };
 
-  handleOpenDialog = (documentType, docExtension) => {
-    this.setState({
-      isOpenDocument: true,
-      documentType,
-      docExtension
-    });
-  };
-
   onDocumentLoadSuccess = ({ numPages }) => {
     this.setState({
       numPages
@@ -238,17 +236,59 @@ export class StaffProfile extends Component {
     }
   };
 
+  handleClosePictureDialog = () => {
+    this.setState({
+      isChangeProfilePic: false
+    });
+  };
+
+  handleOpenPictureDialog = () => {
+    this.setState({
+      isChangeProfilePic: true
+    });
+  };
+
+  handleUpload = () => {
+    const { staff, setStaffData } = this.props;
+    // const PP = this.profilePicture.current;
+    /* const imageData = PP.getData();
+        const file = imageData.file; */
+    const PP = this.profilePictureRef.current;
+    const photo = PP.getImageAsDataUrl();
+
+    const newStaff = {
+      ...staff,
+      photo
+    };
+    StaffService.updateStaff(
+      staff.staffId,
+      staff.address.city._id,
+      newStaff
+    ).then(({ data }) => {
+      this.setState(
+        {
+          photo,
+          isChangeProfilePic: false
+        },
+        () => {
+          setStaffData(data);
+        }
+      );
+    });
+  };
+
   render() {
-    const { classes, staff } = this.props;
+    const { classes, staff, isEdit } = this.props;
     const {
       value,
       isOpenDocument,
       numPages,
       pageNumber,
       functionalStructureTree,
-      docExtension
+      docExtension,
+      isChangeProfilePic,
+      photo
     } = this.state;
-    console.log(staff.staffDocuments);
     return (
       <div>
         <Dialog
@@ -284,6 +324,40 @@ export class StaffProfile extends Component {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog
+          disableBackdropClick
+          disableEscapeKeyDown
+          maxWidth="xs"
+          fullWidth
+          aria-labelledby="changeProfilePic"
+          open={isChangeProfilePic}
+          classes={{
+            paper: classes.paper
+          }}
+        >
+          <DialogTitle id="SaveFormula">Change profile picture</DialogTitle>
+          <DialogContent>
+            <ProfilePicture
+              ref={this.profilePictureRef}
+              frameSize={1}
+              frameFormat="circle"
+              useHelper
+              debug
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              autoFocus
+              onClick={this.handleClosePictureDialog}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button onClick={this.handleUpload} color="primary">
+              Update
+            </Button>
+          </DialogActions>
+        </Dialog>
         <div>
           <IconButton onClick={() => this.handleBack()}>
             <KeyboardBackspaceIcon color="secondary" />
@@ -306,11 +380,51 @@ export class StaffProfile extends Component {
               alignItems: 'start'
             }}
           >
-            <Avatar
-              alt="User Name"
-              src={staff.photo ? staff.photo : avatarApi[6]}
-              className={classes.large}
-            />
+            {' '}
+            {isEdit ? (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                <Badge
+                  overlap="circle"
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                  }}
+                  badgeContent={(
+                    <Tooltip title="Change profile picture">
+                      <SmallAvatar>
+                        <Button
+                          variant="contained"
+                          onClick={this.handleOpenPictureDialog}
+                          className={classes.badgeButton}
+                        >
+                          <EditRoundedIcon color="secondary" />
+                        </Button>
+                      </SmallAvatar>
+                    </Tooltip>
+                  )}
+                >
+                  <Avatar
+                    alt="User Name"
+                    src={photo}
+                    className={classes.large}
+                  />
+                </Badge>
+              </div>
+            ) : (
+              <Avatar
+                alt="User Name"
+                src={staff.photo ? staff.photo : avatarApi[6]}
+                className={classes.large}
+              />
+            )}
             <div
               className={classes.divCenter}
               style={{ width: '100%', marginTop: 20 }}
@@ -473,7 +587,7 @@ export class StaffProfile extends Component {
               style={{
                 padding: 20,
                 width: '100%',
-                height: '300px',
+                height: '330px',
                 marginTop: 15
               }}
             >
@@ -501,6 +615,19 @@ export class StaffProfile extends Component {
                   {staff.level
                     ? `Current Level : ${staff.level.type}`
                     : 'Level : none '}
+                </Typography>
+              </div>
+              <div className={classes.divContactInline}>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px',
+                    marginTop: 4
+                  }}
+                  color="secondary"
+                >
+                  {`is Leader ? : ${staff.isLeader}`}
                 </Typography>
               </div>
               <Typography
@@ -575,408 +702,7 @@ export class StaffProfile extends Component {
                   id="1"
                   hidden={value !== 0}
                 >
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      fontFamily: 'sans-serif , Arial',
-                      fontSize: '20px',
-                      fontWeight: 'bold'
-                    }}
-                    color="secondary"
-                  >
-                    Personal Information :
-                  </Typography>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 10
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-person" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Company :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.companyName}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-calendar" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Birthday :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.birthday}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 10
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-map" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Birth Country :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.birthCountry}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-map" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Residence Country :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.address.city.stateCountry.country.countryName}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 10
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-alert" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Emergency Contact Name :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.emergencyContactName}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-alert" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Emergency Contact Phone :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.emergencyContactPhone}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      fontFamily: 'sans-serif , Arial',
-                      fontSize: '20px',
-                      fontWeight: 'bold',
-                      marginTop: 10
-                    }}
-                    color="secondary"
-                  >
-                    Address :
-                  </Typography>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 10
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-locate" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Address :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.address.address}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-locate" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Post code :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.address.postCode}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 10
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-locate" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'City :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.address.city.cityName}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-locate" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'State :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.address.city.stateCountry.stateName}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      fontFamily: 'sans-serif , Arial',
-                      fontSize: '20px',
-                      fontWeight: 'bold',
-                      marginTop: 10
-                    }}
-                    color="secondary"
-                  >
-                    Document :
-                  </Typography>
-                  <Table className={classes.table} aria-label="">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align="right">Name</TableCell>
-                        <TableCell align="right">Number</TableCell>
-                        <TableCell align="right">Expedition Date</TableCell>
-                        <TableCell align="right">Expiration Date</TableCell>
-                        <TableCell />
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {staff.staffDocuments ? (
-                        staff.staffDocuments.map(row => (
-                          <TableRow key={row.staffDocumentsId}>
-                            <TableCell component="th" scope="row">
-                              {row.name}
-                            </TableCell>
-                            <TableCell align="right">{row.number}</TableCell>
-                            <TableCell align="right">
-                              {row.expeditionDate}
-                            </TableCell>
-                            <TableCell align="right">
-                              {row.expirationDate}
-                            </TableCell>
-                            <TableCell align="right">
-                              <IconButton
-                                onClick={() => this.handleOpenDialog(
-                                  row.name,
-                                  row.docExtension
-                                )
-                                }
-                              >
-                                <VisibilityIcon color="gray" />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow />
-                      )}
-                    </TableBody>
-                  </Table>
+                  <StaffProfileGeneralInformation />
                 </Paper>
                 <Paper
                   elevation={2}
@@ -988,388 +714,7 @@ export class StaffProfile extends Component {
                   id="1"
                   hidden={value !== 1}
                 >
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      fontFamily: 'sans-serif , Arial',
-                      fontSize: '20px',
-                      fontWeight: 'bold'
-                    }}
-                    color="secondary"
-                  >
-                    General Information :
-                  </Typography>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 20
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-desktop" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Associate Office :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.associateOffice}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-map" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Hiring Country :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.hiringCountry}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 20
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-locate" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Town Contract :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.townContract}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-person" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Employee Number :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.personalNumber}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 20
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-calendar" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'High Date :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.highDate}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-calendar" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Low Date :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.lowDate}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 20
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-calendar" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Registration Date :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.registrationDate}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-calendar" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'PreContract Date :  '}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            color: '#000',
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px',
-                            opacity: 0.7
-                          }}
-                        >
-                          {staff.staffContract.preContractDate}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      fontFamily: 'sans-serif , Arial',
-                      fontSize: '20px',
-                      fontWeight: 'bold',
-                      marginTop: 20
-                    }}
-                    color="secondary"
-                  >
-                    Document :
-                  </Typography>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 20
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-document" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Contract :  '}
-                        </Typography>
-                        <Button
-                          variant="subtitle1"
-                          className={classes.buttonLink}
-                          onClick={() => this.handleOpenDialog('contract', 'pdf')
-                          }
-                        >
-                          {`${staff.firstName}-${staff.fatherFamilyName}-${
-                            staff.motherFamilyName
-                          }_Contract`}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-document" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'Internal Rules :  '}
-                        </Typography>
-                        <Button
-                          variant="subtitle1"
-                          className={classes.buttonLink}
-                          onClick={() => this.handleOpenDialog('internalRules', 'pdf')
-                          }
-                        >
-                          {`${staff.firstName}-${staff.fatherFamilyName}-${
-                            staff.motherFamilyName
-                          }_Internal-Rules`}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'Left',
-                      width: '100%',
-                      marginTop: 20
-                    }}
-                  >
-                    <div className={classes.divInline}>
-                      <Avatar>
-                        <Ionicon icon="md-document" />
-                      </Avatar>
-                      <div style={{ marginLeft: 20 }}>
-                        <Typography
-                          variant="subtitle1"
-                          style={{
-                            fontFamily: 'sans-serif , Arial',
-                            fontSize: '17px'
-                          }}
-                          color="secondary"
-                        >
-                          {'PreContract :  '}
-                        </Typography>
-                        <Button
-                          variant="subtitle1"
-                          className={classes.buttonLink}
-                          onClick={() => this.handleOpenDialog('preContract', 'pdf')
-                          }
-                        >
-                          {`${staff.firstName}-${staff.fatherFamilyName}-${
-                            staff.motherFamilyName
-                          }_PreContract`}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <StaffProfileContractInformation data={staff} />
                 </Paper>
 
                 <Paper
@@ -1398,7 +743,23 @@ export class StaffProfile extends Component {
 StaffProfile.propTypes = {
   classes: PropTypes.object.isRequired,
   staff: PropTypes.object.isRequired,
-  showProfile: PropTypes.func.isRequired
+  showProfile: PropTypes.func.isRequired,
+  isEdit: PropTypes.bool.isRequired,
+  setStaffData: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(StaffProfile);
+const mapStateToProps = state => ({
+  staff: state.get('staffs').toJS().staff,
+  isEdit: state.get('staffs').toJS().isEdit
+});
+
+const mapDispatchToProps = dispatch => ({
+  setStaffData: bindActionCreators(setStaff, dispatch)
+});
+
+const StaffProfileMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StaffProfile);
+
+export default withStyles(styles)(StaffProfileMapped);

@@ -95,12 +95,17 @@ class ContractType extends React.Component {
   componentDidMount() {
     const { changeTheme } = this.props;
     changeTheme('blueCyanTheme');
+    this.updateData();
+  }
+
+  updateData = () => {
     ContractTypeService.getAllContractTypes().then(({ data }) => {
+      console.log(data);
       this.setState({
         data
       });
     });
-  }
+  };
 
   handleChange = ev => {
     this.setState({ [ev.target.name]: ev.target.value });
@@ -119,7 +124,7 @@ class ContractType extends React.Component {
     };
     console.log(data[contractTypeIndex]);
     ContractTypeService.updateContractType(
-      data[contractTypeIndex].contractTypeId,
+      data[contractTypeIndex]._id,
       contractType
     ).then(() => {
       const types = JSON.parse(JSON.stringify(data));
@@ -160,13 +165,9 @@ class ContractType extends React.Component {
     const { data } = this.state;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    ContractTypeService.deleteContractType(data[index].contractTypeId).then(
-      () => {
-        this.setState({
-          data: data.length > 1 ? data.splice(index, 1) : []
-        });
-      }
-    );
+    ContractTypeService.deleteContractType(data[index]._id).then(() => {
+      this.updateData();
+    });
   };
 
   render() {

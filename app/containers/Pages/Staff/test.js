@@ -51,6 +51,104 @@ import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
 import StaffEconomicContractInformation from './StaffEconomicContractInformation';
 
+const staff = {
+  firstName,
+  fatherFamilyName,
+  motherFamilyName,
+  personalPhone,
+  personalEmail,
+  companyPhone,
+  companyMobilePhone,
+  companyEmail,
+  skype,
+  birthday: birthday.toISOString().slice(0, 10),
+  birthCountry: birthCountry.countryName,
+  emergencyContactName,
+  emergencyContactPhone,
+  photo,
+  isLeader: 'no',
+  cityId,
+  fullAddress,
+  postCode,
+
+  staffContractId,
+  companyName,
+  associateOffice,
+  hiringCountry: hiringCountry.countryName,
+  townContract,
+  personalNumber,
+  highDate: highDate.toISOString().slice(0, 10),
+  lowDate: lowDate.toISOString().slice(0, 10),
+  registrationDate: registrationDate.toISOString().slice(0, 10),
+  preContractDate: preContractDate.toISOString().slice(0, 10),
+  contractDoc,
+  internalRulesDoc,
+  preContractDoc,
+  contractType,
+  legalCategoryType,
+
+  contractSalary,
+  companyContractCost,
+  expenses,
+  companyExpensesCost,
+  objectives,
+  companyObjectivesCost,
+  totalCompanyCost: total,
+  contractSalaryDateGoing: contractSalaryDateGoing.toISOString().slice(0, 10),
+  contractSalaryDateOut: contractSalaryDateOut.toISOString().slice(0, 10),
+  companyContractCostDateGoing: companyContractCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  companyContractCostDateOut: companyContractCostDateOut
+    .toISOString()
+    .slice(0, 10),
+  expensesDateGoing: expensesDateGoing.toISOString().slice(0, 10),
+  expensesDateOut: expensesDateOut.toISOString().slice(0, 10),
+  companyExpensesCostDateGoing: companyExpensesCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  companyExpensesCostDateOut: companyExpensesCostDateOut
+    .toISOString()
+    .slice(0, 10),
+  objectivesDateGoing: objectivesDateGoing.toISOString().slice(0, 10),
+  objectivesDateOut: objectivesDateOut.toISOString().slice(0, 10),
+  companyObjectivesCostDateGoing: companyObjectivesCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  companyObjectivesCostDateOut: companyObjectivesCostDateOut
+    .toISOString()
+    .slice(0, 10),
+  totalCompanyCostDateGoing: totalCompanyCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  totalCompanyCostDateOut: totalCompanyCostDateOut.toISOString().slice(0, 10),
+
+  idCardNumber,
+  idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
+  idCardExpirationDate: idCardExpirationDate.toISOString().slice(0, 10),
+  idCardDocExtension,
+  idCardDoc,
+  passportNumber,
+  passportExpeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
+  passportExpirationDate: passportExpirationDate.toISOString().slice(0, 10),
+  passportDocExtension,
+  passportDoc,
+  professionalIdCardNumber,
+  professionalIdCardExpeditionDate: professionalIdCardExpeditionDate
+    .toISOString()
+    .slice(0, 10),
+  professionalIdCardExpirationDate: professionalIdCardExpirationDate
+    .toISOString()
+    .slice(0, 10),
+  professionalIdCardDocExtension,
+  professionalIdCardDoc,
+  hnsCardNumber,
+  hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
+  hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
+  hnsCardDocExtension,
+  hnsCardDoc
+};
+
 const SmallAvatar = withStyles(theme => ({
   root: {
     width: 40,
@@ -282,6 +380,22 @@ class AddStaff extends React.Component {
       totalCompanyCostDateGoing,
       totalCompanyCostDateOut
     } = this.state;
+
+    const contract = {
+      staffContractId,
+      companyName,
+      associateOffice,
+      hiringCountry: hiringCountry.countryName,
+      townContract,
+      personalNumber,
+      highDate: highDate.toISOString().slice(0, 10),
+      lowDate: lowDate.toISOString().slice(0, 10),
+      registrationDate: registrationDate.toISOString().slice(0, 10),
+      preContractDate: preContractDate.toISOString().slice(0, 10)
+    };
+    const total = parseInt(companyContractCost)
+      + parseInt(companyExpensesCost)
+      + parseInt(companyObjectivesCost);
     const staff = {
       firstName,
       fatherFamilyName,
@@ -298,12 +412,10 @@ class AddStaff extends React.Component {
       emergencyContactPhone,
       photo,
       isLeader: 'no',
-      address: {
-        fullAddress,
-        postCode
-      }
-    };
-    const contract = {
+      cityId,
+      fullAddress,
+      postCode,
+
       staffContractId,
       companyName,
       associateOffice,
@@ -313,12 +425,13 @@ class AddStaff extends React.Component {
       highDate: highDate.toISOString().slice(0, 10),
       lowDate: lowDate.toISOString().slice(0, 10),
       registrationDate: registrationDate.toISOString().slice(0, 10),
-      preContractDate: preContractDate.toISOString().slice(0, 10)
-    };
-    const total = parseInt(companyContractCost)
-      + parseInt(companyExpensesCost)
-      + parseInt(companyObjectivesCost);
-    const economicContractInformation = {
+      preContractDate: preContractDate.toISOString().slice(0, 10),
+      contractDoc,
+      internalRulesDoc,
+      preContractDoc,
+      contractType,
+      legalCategoryType,
+
       contractSalary,
       companyContractCost,
       expenses,
@@ -357,9 +470,33 @@ class AddStaff extends React.Component {
         .slice(0, 10),
       totalCompanyCostDateOut: totalCompanyCostDateOut
         .toISOString()
-        .slice(0, 10)
-    };
+        .slice(0, 10),
 
+      idCardNumber,
+      idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
+      idCardExpirationDate: idCardExpirationDate.toISOString().slice(0, 10),
+      idCardDocExtension,
+      idCardDoc,
+      passportNumber,
+      passportExpeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
+      passportExpirationDate: passportExpirationDate.toISOString().slice(0, 10),
+      passportDocExtension,
+      passportDoc,
+      professionalIdCardNumber,
+      professionalIdCardExpeditionDate: professionalIdCardExpeditionDate
+        .toISOString()
+        .slice(0, 10),
+      professionalIdCardExpirationDate: professionalIdCardExpirationDate
+        .toISOString()
+        .slice(0, 10),
+      professionalIdCardDocExtension,
+      professionalIdCardDoc,
+      hnsCardNumber,
+      hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
+      hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
+      hnsCardDocExtension,
+      hnsCardDoc
+    };
     const contractData = new FormData();
     if (contractDoc.constructor !== Object) {
       contractData.append('contractDoc', contractDoc);
@@ -403,21 +540,8 @@ class AddStaff extends React.Component {
     staffData.append('files[]', passportDoc);
     staffData.append('files[]', professionalIdCardDoc);
     staffData.append('files[]', hnsCardDoc);
-    staffData.append(
-      'staff',
-      new Blob([JSON.stringify(staff)], {
-        type: 'application/json'
-      })
-    );
-    staffData.append(
-      'city',
-      new Blob([city.cityId], {
-        type: 'text/plain'
-      })
-    );
 
     const staffDocumentsList = [];
-
     if (idCardDoc.constructor !== Object) {
       staffDocumentsList.push({
         name: 'ID Card',
@@ -462,13 +586,6 @@ class AddStaff extends React.Component {
     staffData.append(
       'staffDocumentsList',
       new Blob([JSON.stringify(staffDocumentsList)], {
-        type: 'application/json'
-      })
-    );
-
-    staffData.append(
-      'staffEconomicContractInformation',
-      new Blob([JSON.stringify(economicContractInformation)], {
         type: 'application/json'
       })
     );
