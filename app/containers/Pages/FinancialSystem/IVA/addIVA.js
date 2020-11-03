@@ -1,8 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import {
-  FormControl,
-  Grid, InputLabel, MenuItem, Select, TextField, Typography
+  Grid, TextField, Typography
 } from '@material-ui/core';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -13,30 +12,55 @@ import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import history from '../../../../utils/history';
 import styles from '../../Companies/companies-jss';
 import IvaService from '../../../Services/IvaService';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
 
 class AddIVA extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       ivaCode: '',
-      country: '',
       state: '',
       value: '',
       startingDate: '',
-      endingDate: '',
+      endingDate: ' ',
       electronicInvoice: false
     };
   }
 
+  componentDidMount() {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
+  }
+
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+    this.setState({ state: value.stateCountryId });
+  };
+
     handleSubmit = () => {
       const {
-        ivaCode, country, state, value, startingDate, endingDate, electronicInvoice
+        ivaCode, value, state, startingDate, endingDate, electronicInvoice
       } = this.state;
+      const stateCountry = { _id: state };
       const Iva = {
-        ivaCode, country, state, value, startingDate, endingDate, electronicInvoice
+        ivaCode, value, startingDate, endingDate, electronicInvoice, stateCountry
       };
       IvaService.saveIva(Iva).then(result => {
         console.log(result);
@@ -59,46 +83,16 @@ class AddIVA extends React.Component {
     }
 
     render() {
-      const states = [
-        {
-          value: 'Madrid',
-          label: 'Madrid',
-        },
-        {
-          value: 'Barcelona',
-          label: 'Barcelona',
-        },
-        {
-          value: 'Malaga',
-          label: 'Malaga',
-        }];
-      const countries = [
-        {
-          value: 'Spain',
-          label: 'Spain',
-        },
-        {
-          value: 'UK',
-          label: 'UK',
-        },
-        {
-          value: 'Russia',
-          label: 'Russia',
-        },
-        {
-          value: 'France',
-          label: 'France',
-        },
-        {
-          value: 'Italie',
-          label: 'Italie',
-        }];
+      const {
+        // eslint-disable-next-line react/prop-types
+        allCountrys, allStateCountrys
+      } = this.props;
       console.log(this.state);
       const title = brand.name + ' - Add I.V.A';
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        country, state, value, startingDate, endingDate, electronicInvoice, ivaCode
+        value, startingDate, endingDate, electronicInvoice, ivaCode
       } = this.state;
       const { classes } = this.props;
       return (
@@ -150,40 +144,38 @@ class AddIVA extends React.Component {
                 />
               </Grid>
               <Grid item xs={12} md={4} sm={4}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select the Country</InputLabel>
-                  <Select
-                    name="country"
-                    value={country}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      countries.map((clt) => (
-                        <MenuItem key={clt.value} value={clt.value}>
-                          {clt.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCountrys}
+                  getOptionLabel={option => option.countryName}
+                  onChange={this.handleChangeCountry}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
+                />
               </Grid>
               <Grid item xs={12} md={4} sm={4}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select the State</InputLabel>
-                  <Select
-                    name="state"
-                    value={state}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      states.map((clt) => (
-                        <MenuItem key={clt.value} value={clt.value}>
-                          {clt.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allStateCountrys}
+                  getOptionLabel={option => option.stateName}
+                  onChange={this.handleChangeState}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the state"
+                      variant="outlined"
+                    />
+                  )}
+                />
               </Grid>
               <Grid item xs={12} md={2} sm={2}>
                 <TextField
@@ -264,4 +256,28 @@ class AddIVA extends React.Component {
 AddIVA.propTypes = {
   classes: PropTypes.object.isRequired
 };
-export default withStyles(styles)(AddIVA);
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState
+}, dispatch);
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddIVA));

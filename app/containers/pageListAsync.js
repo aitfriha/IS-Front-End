@@ -77,6 +77,10 @@ export const Sectors = Loadable({
   loader: () => import('./Pages/Sectors'),
   loading: Loading
 });
+export const SectorsCompany = Loadable({
+  loader: () => import('./Pages/sectorsCompany'),
+  loading: Loading
+});
 export const AddSector = Loadable({
   loader: () => import('./Pages/Sectors/addSector'),
   loading: Loading
@@ -231,5 +235,21 @@ export const AddIVA = Loadable({
 });
 export const ContactByOperationStatus = Loadable({
   loader: () => import('./Pages/ContactByOperationStatus'),
+  loading: Loading
+});
+export const Currency = Loadable({
+  loader: () => import('./Pages/FinancialSystem/CurrencyManagement'),
+  loading: Loading
+});
+export const AddCurrency = Loadable({
+  loader: () => import('./Pages/FinancialSystem/CurrencyManagement/addCurrency'),
+  loading: Loading
+});
+export const Retention = Loadable({
+  loader: () => import('./Pages/FinancialSystem/Retentions'),
+  loading: Loading
+});
+export const AddRetention = Loadable({
+  loader: () => import('./Pages/FinancialSystem/Retentions/addRetention'),
   loading: Loading
 });

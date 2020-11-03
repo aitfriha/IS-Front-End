@@ -29,8 +29,6 @@ import {
   KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
-import { isString } from 'lodash';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import Contact from './contact';
 import Transition from '../../../components/Transition/transition';
 import Converter from '../../../components/CurrencyConverter/Converter';
@@ -43,15 +41,10 @@ import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
 import styles from './operation-jss';
 import { getAllCommercialOperationStatus } from '../../../redux/commercialOperationStatus/actions';
-import notification from '../../../components/Notification/Notification';
-import { addCommercialOperation } from '../../../redux/commercialOperation/actions';
-import { getAllCommercialServiceType } from '../../../redux/serviceType/actions';
 
 class AddCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
-    this.editingPromiseResolve = () => {
-    };
     this.state = {
       client: '',
       statusOperation: '',
@@ -59,17 +52,13 @@ class AddCommercialOperation extends React.Component {
       serviceType: '',
       nameOperation: '',
       Description: '',
-      descriptionOperation: '',
-      plannedDateQ: '',
-      commercialFlowQ: '',
-      countryName: '',
-      // paymentDate: new Date('2014-08-18T21:11:54'),
+      plannedContract: '',
+      budget: '',
+      documentationDate: new Date('2014-08-18T21:11:54'),
+      //paymentDate: new Date('2014-08-18T21:11:54'),
       paymentDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
-      documentationDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
-      contractDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
+      contractDate: new Date('2014-08-18T21:11:54'),
       estimatedTradeVolume: 0,
-      estimatedTradeVolumeInEuro: 0,
-      devise: '',
       tradeCurruncy: '',
       contractVolume: 0,
       contractCurruncy: '',
@@ -86,100 +75,21 @@ class AddCommercialOperation extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllClient, getAllCommercialOperationStatus, getAllCommercialServiceType } = this.props;
+    const { getAllClient, getAllCommercialOperationStatus } = this.props;
     getAllClient(); getAllCommercialOperationStatus();
-    getAllCommercialServiceType();
   }
 
   handleChange = (ev) => {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  handleChangeClient = (ev) => {
-    const { allClients } = this.props;
-    this.setState({ [ev.target.name]: ev.target.value });
-    for (const key in allClients) {
-      console.log('allClients[key].countryId ', allClients[key].countryId);
-      console.log('ev.target.value ', ev.target.value);
-      if (allClients[key].clientId === ev.target.value) {
-        this.setState({ countryName: allClients[key].country });
-        break;
-      }
-    }
+  handleFromDateChange = paymentDate => {
+    this.setState({ paymentDate });
   };
 
-    handleDocumentationDateChange = documentationDate => {
-      this.setState({ documentationDate });
-    };
-
-    handlePaymentDateChange = paymentDate => {
-      this.setState({ paymentDate });
-    };
-
-    handleContactDateChange = contractDate => {
-      this.setState({ contractDate });
-    };
-
-  handleChangeMultiple = (event, value) => {
-    const serviceType = [];
-    for (const key in value) {
-      serviceType.push(value[key].serviceTypeId);
-    }
-    console.log(serviceType);
-    this.setState({ serviceTypeId: serviceType });
-  };
-
-    handleCreate = () => {
-      const { addCommercialOperation } = this.props;
-      const {
-        client,
-        nameOperation,
-        statusOperation,
-        descriptionOperation,
-        serviceTypeId,
-        plannedDateQ,
-        commercialFlowQ,
-        paymentDate,
-        documentationDate,
-        contractDate,
-        amount,
-        estimatedTradeVolume,
-        devise,
-        estimatedTradeVolumeInEuro
-
-      } = this.state;
-      const operation = {
-        clientId: client,
-        name: nameOperation,
-        stateId: statusOperation,
-        description: descriptionOperation,
-        serviceTypeId,
-        plannedDateQ,
-        commercialFlowQ,
-        paymentDate,
-        documentationDate,
-        contractDate,
-        amount,
-        estimatedTradeVolume,
-        devise,
-        estimatedTradeVolumeInEuro
-      };
-      console.log(operation);
-      /** */
-      const promise = new Promise((resolve) => {
-        addCommercialOperation(operation);
-        this.editingPromiseResolve = resolve;
-      });
-      promise.then((result) => {
-        if (isString(result)) {
-          notification('success', result);
-          getAllClient();
-        } else {
-          notification('danger', result);
-        }
-      });
-      // history.push('/app/gestion-commercial/Commercial-Operations');
-    }
+  handleCreate = () => {
+    history.push('/app/gestion-commercial/Commercial-Operations');
+  }
 
   handleGoBack = () => {
     history.push('/app/gestion-commercial/Commercial-Operations');
@@ -193,16 +103,50 @@ class AddCommercialOperation extends React.Component {
     this.setState({ open: false });
   }
 
-  myCallback = (estimatedTradeVolume, devise, estimatedTradeVolumeInEuro) => {
-    this.setState({ estimatedTradeVolume });
-    this.setState({ devise });
-    this.setState({ estimatedTradeVolumeInEuro })
-      console.log(estimatedTradeVolume);
-      console.log(devise);
-      console.log(estimatedTradeVolumeInEuro);
-  }
-
   render() {
+    console.log(this.state);
+    const types = [
+      {
+        value: '1',
+        label: 'Implementation',
+      },
+      {
+        value: '2',
+        label: 'Support L1',
+      },
+      {
+        value: '3',
+        label: 'Support L2',
+      },
+      {
+        value: '4',
+        label: 'Support L3',
+      },
+      {
+        value: '5',
+        label: 'Functionality Support',
+      },
+      {
+        value: '6',
+        label: 'Licencies',
+      },
+      {
+        value: '7',
+        label: 'Consultory Assitans',
+      },
+      {
+        value: '8',
+        label: 'PMO Services',
+      },
+      {
+        value: '9',
+        label: 'Training',
+      },
+      {
+        value: '10',
+        label: 'Administration',
+      }
+    ];
     const contracts = [
       {
         value: '1',
@@ -251,9 +195,9 @@ class AddCommercialOperation extends React.Component {
         label: 'Mr. Aymen Souiat',
       }];
     const {
-      client, statusOperation, countryName, serviceType,
-      nameOperation, descriptionOperation, plannedDateQ,
-      commercialFlowQ, documentationDate, paymentDate,
+      client, statusOperation, country, serviceType,
+      nameOperation, Description, plannedContract,
+      budget, documentationDate, paymentDate,
       contractDate, estimatedTradeVolume, contractVolume,
       managementContact, administrativeContact, legalAreaMainContact,
       commercialResponsible, commercialResponsibleAssistant,
@@ -261,12 +205,7 @@ class AddCommercialOperation extends React.Component {
     } = this.state;
     const title = brand.name + ' - Blank Page';
     const description = brand.desc;
-    const {
-      // eslint-disable-next-line no-shadow
-      classes, allClients, allCommercialOperationStatuss, errorsCommercialOperation, isLoadingCommercialOperation, commercialOperationResponse, allCommercialServiceType
-    } = this.props;
-    (!isLoadingCommercialOperation && commercialOperationResponse) && this.editingPromiseResolve(commercialOperationResponse);
-    (!isLoadingCommercialOperation && !commercialOperationResponse) && this.editingPromiseResolve(errorsCommercialOperation);
+    const { classes, allClients, allCommercialOperationStatuss } = this.props;
     return (
       <div>
         <Helmet>
@@ -287,7 +226,7 @@ class AddCommercialOperation extends React.Component {
             </Grid>
           </Grid>
           <Typography variant="subtitle2" component="h2" color="primary">
-              Location Of The Commercial Operation
+            Location Of The Commercial Operation
           </Typography>
           <br />
           <div>
@@ -300,18 +239,18 @@ class AddCommercialOperation extends React.Component {
             >
               <Grid item xs={12} md={4} sm={4} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '10%' }} component="h2" color="primary">
-                    Client
+                  Client
                 </Typography>
                 <FormControl fullWidth required style={{ width: '90%' }}>
                   <InputLabel>Select the client</InputLabel>
                   <Select
                     name="client"
                     value={client}
-                    onChange={this.handleChangeClient}
+                    onChange={this.handleChange}
                   >
                     {
                       allClients.map((clt) => (
-                        <MenuItem key={clt.clientId} value={clt.clientId}>
+                        <MenuItem key={clt.clientId} value={clt.name}>
                           {clt.name}
                         </MenuItem>
                       ))
@@ -321,7 +260,7 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={5} sm={5} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Operation
+                  Operation
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
@@ -339,7 +278,7 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={3} sm={3} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Status
+                  Status
                 </Typography>
                 <FormControl fullWidth required style={{ width: '90%' }}>
                   <InputLabel>Select the client</InputLabel>
@@ -350,7 +289,7 @@ class AddCommercialOperation extends React.Component {
                   >
                     {
                       allCommercialOperationStatuss.map((clt) => (
-                        <MenuItem key={clt.commercialOperationStatusId} value={clt.commercialOperationStatusId}>
+                        <MenuItem key={clt.commercialOperationStatusId} value={clt.name}>
                           {clt.name}
                         </MenuItem>
                       ))
@@ -360,49 +299,41 @@ class AddCommercialOperation extends React.Component {
               </Grid>
               <Grid item xs={12} md={12} sm={12} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Commercial Activity Type
+                  Commercial Activity Type
                 </Typography>
                 <div style={{ width: '85%' }}>
-                  <Autocomplete
-                    multiple
-                    fullWidth
-                    className="auto-complete-multiline"
-                    options={allCommercialServiceType}
-                    getOptionLabel={(option) => option.name}
-                    onChange={this.handleChangeMultiple}
-                    renderInput={(params) => (
-                      <TextField {...params} variant="outlined" label="Service Type" />
-                    )}
-                  />
+                  <AutoCompleteMultiLine data={types} />
                 </div>
               </Grid>
               <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
-                <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Country
+                <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="secondary">
+                  Country
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
-                  id="country"
+                  id="nameOperation"
                   label="Country Name"
-                  name="countryName"
-                  value={countryName}
+                  name="nameOperation"
+                  value={country}
+                  onChange={this.handleChange}
                   InputLabelProps={{
                     shrink: true,
                   }}
                   fullWidth
+                  disabled
                   required
                 />
               </Grid>
               <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
-                    Description
+                  Description
                 </Typography>
                 <TextField
                   style={{ width: '85%' }}
-                  id="descriptionOperation"
+                  id="nameOperation"
                   label="Description"
-                  name="descriptionOperation"
-                  value={descriptionOperation}
+                  name="nameOperation"
+                  value={nameOperation}
                   onChange={this.handleChange}
                   InputLabelProps={{
                     shrink: true,
@@ -414,7 +345,7 @@ class AddCommercialOperation extends React.Component {
           </div>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
-              Dates Of Operation Interest
+            Dates Of Operation Interest
           </Typography>
           <br />
           <Grid
@@ -426,13 +357,13 @@ class AddCommercialOperation extends React.Component {
           >
             <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
               <Typography variant="subtitle2" style={{ width: '20%' }} component="h2" color="primary">
-                  Q Planned Date
+                Q Planned Date
               </Typography>
               <FormControl fullWidth required style={{ width: '80%' }}>
                 <InputLabel>Select Q Planned Date </InputLabel>
                 <Select
-                  name="plannedDateQ"
-                  value={plannedDateQ}
+                  name="plannedContract"
+                  value={plannedContract}
                   onChange={this.handleChange}
                 >
                   {
@@ -447,13 +378,13 @@ class AddCommercialOperation extends React.Component {
             </Grid>
             <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
               <Typography variant="subtitle2" style={{ width: '20%' }} component="h2" color="primary">
-                  Q Commercial Flow
+                Q Commercial Flow
               </Typography>
               <FormControl style={{ width: '80%' }} fullWidth required>
                 <InputLabel>Select Q commercial follow</InputLabel>
                 <Select
-                  name="commercialFlowQ"
-                  value={commercialFlowQ}
+                  name="budget"
+                  value={budget}
                   onChange={this.handleChange}
                 >
                   {
@@ -475,10 +406,10 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="Documentation Date *"
-                    value={documentationDate}
-                    name="documentationDate"
-                    onChange={this.handleDocumentationDateChange}
+                    label="Date picker inline"
+                    value={paymentDate}
+                    name="paymentDate"
+                    onChange={this.handleFromDateChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -495,9 +426,9 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="Payment Date *"
+                    label="Date picker inline"
                     value={paymentDate}
-                    onChange={this.handlePaymentDateChange}
+                    onChange={this.handleChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -515,9 +446,9 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="contract Date*"
-                    value={contractDate}
-                    onChange={this.handleContactDateChange}
+                    label="Date picker inline"
+                    value={paymentDate}
+                    onChange={this.handleChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -528,7 +459,7 @@ class AddCommercialOperation extends React.Component {
           </Grid>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
-              Economic Value Of The Operation
+             Economic Value Of The Operation
           </Typography>
           <br />
           <br />
@@ -540,7 +471,7 @@ class AddCommercialOperation extends React.Component {
             justify="space-around"
           >
             <Grid>
-              <Converter Title="Estimated Trade Volume " callbackFromParent={this.myCallback} />
+              <Converter Title="Estimated Trade Volume " />
             </Grid>
             <Grid>
               <Converter Title="Contract Volume " />
@@ -548,7 +479,7 @@ class AddCommercialOperation extends React.Component {
           </Grid>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
-              Suppliers Area
+            Suppliers Area
           </Typography>
           <br />
           <Grid
@@ -562,7 +493,7 @@ class AddCommercialOperation extends React.Component {
               sm={4}
             >
               <Typography variant="subtitle2" component="h2" color="primary">
-                  Qualification Process Contacts
+                Qualification Process Contacts
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl fullWidth required>
@@ -698,7 +629,7 @@ class AddCommercialOperation extends React.Component {
               sm={4}
             >
               <Typography variant="subtitle2" component="h2" color="primary">
-                  Procurement Department Contacts
+                Procurement Department Contacts
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl fullWidth>
@@ -771,7 +702,7 @@ class AddCommercialOperation extends React.Component {
               sm={4}
             >
               <Typography variant="subtitle2" component="h2" color="primary">
-                  Legal Area Contact
+                Legal Area Contact
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl fullWidth>
@@ -842,7 +773,7 @@ class AddCommercialOperation extends React.Component {
           <br />
           <div align="center">
             <Button variant="contained" color="primary" type="button" onClick={this.handleCreate}>
-                Save Operation
+              Save Operation
             </Button>
           </div>
         </PapperBlock>
@@ -863,10 +794,10 @@ class AddCommercialOperation extends React.Component {
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleCloseContact}>
-                  Cancel
+                Cancel
               </Button>
               <Button color="primary" onClick={this.handleSubmit}>
-                  save
+                save
               </Button>
             </DialogActions>
           </Dialog>
@@ -908,16 +839,6 @@ const mapStateToProps = state => ({
   errorsCity: state.getIn(['cities']).errors,
 
   allCommercialOperationStatuss: state.getIn(['commercialOperationStatus']).allCommercialOperationStatuss,
-
-  // commercialOperation
-  allCommercialOperations: state.getIn(['commercialOperation']).allCommercialOperations,
-  commercialOperationResponse: state.getIn(['commercialOperation']).commercialOperationResponse,
-  isLoadingCommercialOperation: state.getIn(['commercialOperation']).isLoading,
-  errorsCommercialOperation: state.getIn(['commercialOperation']).errors,
-
-  // service type
-  allCommercialServiceType: state.getIn(['commercialServiceType']).allCommercialServiceType,
-
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,
@@ -926,9 +847,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient,
   getAllStateByCountry,
   getAllCityByState,
-  getAllCommercialOperationStatus,
-  addCommercialOperation,
-  getAllCommercialServiceType,
+  getAllCommercialOperationStatus
 }, dispatch);
 
 export default withStyles(styles)(connect(

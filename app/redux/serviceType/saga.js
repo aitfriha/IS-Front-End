@@ -13,7 +13,12 @@ import {
   GET_ALL_COMMERCIALSERVICETYPES_SUCCESS,
   UPDATE_COMMERCIALSERVICETYPE,
   UPDATE_COMMERCIALSERVICETYPE_FAILURE,
-  UPDATE_COMMERCIALSERVICETYPE_SUCCESS
+  UPDATE_COMMERCIALSERVICETYPE_SUCCESS,
+
+  UPDATE_DELETE_COMMERCIALSERVICETYPE,
+  UPDATE_DELETE_COMMERCIALSERVICETYPE_FAILURE,
+  UPDATE_DELETE_COMMERCIALSERVICETYPE_SUCCESS
+
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -65,6 +70,30 @@ function* updateCommercialServiceType(action) {
   }
 }
 
+function* updateDeleteCommercialServiceType(action) {
+  try {
+    const {
+      serviceType,
+      listOperation
+    } = action;
+
+    const request = yield axios({
+      method: 'post',
+      url: ENDPOINTS.COMMERCIALSERVICETYPE + '/deleteUpdate/' + serviceType + '/' + listOperation
+    });
+
+    yield put({
+      type: UPDATE_DELETE_COMMERCIALSERVICETYPE_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: UPDATE_DELETE_COMMERCIALSERVICETYPE_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 function* deleteCommercialServiceType(action) {
   try {
     const {
@@ -111,6 +140,7 @@ export default function* commercialServiceTypeSaga() {
   yield all([
     takeLatest(ADD_COMMERCIALSERVICETYPE, addCommercialServiceType),
     takeLatest(UPDATE_COMMERCIALSERVICETYPE, updateCommercialServiceType),
+    takeLatest(UPDATE_DELETE_COMMERCIALSERVICETYPE, updateDeleteCommercialServiceType),
     takeLatest(DELETE_COMMERCIALSERVICETYPE, deleteCommercialServiceType),
     takeLatest(GET_ALL_COMMERCIALSERVICETYPES, getAllCommercialServiceType),
   ]);

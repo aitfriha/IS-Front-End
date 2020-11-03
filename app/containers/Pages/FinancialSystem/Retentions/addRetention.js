@@ -1,13 +1,11 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import {
-  Button, FormControl, Grid, TextField
+  Button, Grid, TextField
 } from '@material-ui/core';
 import Chip from '@material-ui/core/Chip';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
-import FormLabel from '@material-ui/core/FormLabel';
-import { Image } from '@material-ui/icons';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
@@ -23,20 +21,15 @@ import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
-import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import RetentionService from '../../../Services/RetentionService';
 
-class AddFinancialCompany extends React.Component {
+class AddRetention extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       name: '',
-      email: '',
-      phone1: '',
-      phone2: '',
-      logo: '',
+      description: '',
       currentCity: '',
-      postCode: '',
-      fullAddress: ''
     };
   }
 
@@ -62,37 +55,21 @@ class AddFinancialCompany extends React.Component {
     this.setState({ currentCity: value.cityId });
   };
 
-  // eslint-disable-next-line react/sort-comp
-  readURI(e) {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      console.log(e.target.files);
-      reader.onload = function (ev) {
-        this.setState({ logo: ev.target.result });
-      }.bind(this);
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  }
-
-    handleChangeLogo = e => {
-      this.readURI(e);
-    };
-
     handleSubmit = () => {
       const {
-        name, email, phone1, phone2, logo, postCode, currentCity, fullAddress
+        retentionId, name, descrption, currentCity, addressId
       } = this.state;
       const city = { _id: currentCity };
       const address = {
-        postCode, city, fullAddress
+        addressId, city
       };
-      const FinancialCompany = {
-        name, email, phone1, phone2, logo, address
+      const Retention = {
+        retentionId, name, descrption, address
       };
-      FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
+      RetentionService.saveRetention(Retention).then(result => {
         console.log(result);
       });
-      history.push('/app/gestion-financial/Company');
+      history.push('/app/gestion-financial/Retention');
     }
 
     handleChange = (ev) => {
@@ -100,7 +77,7 @@ class AddFinancialCompany extends React.Component {
     };
 
     handleGoBack = () => {
-      history.push('/app/gestion-financial/Company');
+      history.push('/app/gestion-financial/Retention');
     }
 
     render() {
@@ -109,31 +86,26 @@ class AddFinancialCompany extends React.Component {
         allCountrys, allStateCountrys, allCitys
       } = this.props;
       console.log(this.state);
-      const title = brand.name + ' - Companies';
-      const description = brand.desc;
+      const title = brand.name + ' - Add Retentions';
+      const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
         name,
-        email,
-        phone1,
-        phone2,
-        logo,
-        postCode,
-        fullAddress
+        description
       } = this.state;
       const { classes } = this.props;
       return (
         <div>
           <Helmet>
             <title>{title}</title>
-            <meta name="description" content={description} />
+            <meta name="description" content={desc} />
             <meta property="og:title" content={title} />
-            <meta property="og:description" content={description} />
+            <meta property="og:description" content={desc} />
             <meta property="twitter:title" content={title} />
-            <meta property="twitter:description" content={description} />
+            <meta property="twitter:description" content={desc} />
           </Helmet>
           <PapperBlock
-            title="New Financial Company"
+            title="New Type Of Retention"
             desc="Please, Fill in the all field"
             icon="ios-add-circle"
           >
@@ -156,7 +128,7 @@ class AddFinancialCompany extends React.Component {
                 <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
                 <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <TextField
-                  id="outlined-basic"
+                  id="Name"
                   label="Name"
                   variant="outlined"
                   name="name"
@@ -167,67 +139,19 @@ class AddFinancialCompany extends React.Component {
                   className={classes.textField}
                 />
                 <TextField
-                  id="outlined-basic"
-                  label="Email"
+                  id="description"
+                  label="Description"
                   variant="outlined"
-                  name="email"
-                  value={email}
+                  name="description"
+                  value={description}
                   required
                   fullWidth
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
-                <TextField
-                  id="outlined-basic"
-                  label="General Phone 1"
-                  variant="outlined"
-                  name="phone1"
-                  value={phone1}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="General Phone 2"
-                  variant="outlined"
-                  name="phone2"
-                  value={phone2}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                />
-                <br />
-                <br />
-                <FormControl>
-                  <input
-                    style={{ display: 'none' }}
-                    id="outlined-button-file-2"
-                    type="file"
-                    onChange={this.handleChangeLogo.bind(this)}
-                    className={classes.textField}
-                  />
-                  <FormLabel htmlFor="outlined-button-file-2">
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      component="span"
-                      startIcon={<Image color="primary" />}
-                    >
-                                        Photo
-                    </Button>
-                  </FormLabel>
-                </FormControl>
-                {
-                  logo ? (
-                    <Avatar alt="User Name" src={logo} className={classes.large} />
-                  ) : (<div />)
-                }
               </Grid>
               <Grid item xs={12} md={3}>
-                <Chip label="Company Address" avatar={<Avatar>S</Avatar>} color="primary" />
+                <Chip label="Retention Address" avatar={<Avatar>S</Avatar>} color="primary" />
                 <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <Autocomplete
                   id="combo-box-demo"
@@ -273,28 +197,6 @@ class AddFinancialCompany extends React.Component {
                     />
                   )}
                 />
-                <TextField
-                  id="fullAddress"
-                  label="Name of address"
-                  variant="outlined"
-                  name="fullAddress"
-                  value={fullAddress}
-                  fullWidth
-                  required
-                  className={classes.textField}
-                  onChange={this.handleChange}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Post Code"
-                  variant="outlined"
-                  fullWidth
-                  value={postCode}
-                  required
-                  name="postCode"
-                  className={classes.textField}
-                  onChange={this.handleChange}
-                />
               </Grid>
               <Grid
                 item
@@ -315,7 +217,7 @@ class AddFinancialCompany extends React.Component {
                   size="medium"
                   onClick={this.handleSubmit}
                 >
-                                Save Company
+                                Save Retention
                 </Button>
               </Grid>
             </Grid>
@@ -324,7 +226,7 @@ class AddFinancialCompany extends React.Component {
       );
     }
 }
-AddFinancialCompany.propTypes = {
+AddRetention.propTypes = {
   classes: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
@@ -354,4 +256,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddFinancialCompany));
+)(AddRetention));

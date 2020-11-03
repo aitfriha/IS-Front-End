@@ -1,0 +1,3 @@
+.MuiFormControl-root label + div input, .MuiFormControl-root label + div > div, .MuiFormControl-root label + div > select {
+    padding: 24px 8px 19px;
+}

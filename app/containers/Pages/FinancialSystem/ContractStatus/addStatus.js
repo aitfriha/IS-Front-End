@@ -47,10 +47,6 @@ class AddStatus extends React.Component {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
-    handleDetails = () => {
-      this.setState({ openPopUp: true });
-    }
-
     render() {
       console.log(this.state);
       const title = brand.name + ' - Add Status';

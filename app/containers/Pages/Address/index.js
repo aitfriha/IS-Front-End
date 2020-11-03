@@ -1,20 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import CountryService from '../../Services/CountryService';
-import StateCountryService from '../../Services/StateCountryService';
-import CityService from '../../Services/CityService';
 import styles from './address-jss';
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
@@ -40,6 +32,7 @@ class AddressBlock extends React.Component {
   }
 
   handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllStateByCountry, onChangeInput } = this.props;
     getAllStateByCountry(value.countryId);
     const target = {
@@ -52,6 +45,7 @@ class AddressBlock extends React.Component {
   };
 
   handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCityByState, onChangeInput } = this.props;
     getAllCityByState(value.stateCountryId);
     const target = {
@@ -86,6 +80,7 @@ class AddressBlock extends React.Component {
   /*  handleChangeCountry = (ev, value) => {
     console.log(value);
     StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
+      console.log(data);
       const { onChangeInput } = this.props;
       const target = {
         target: {
@@ -155,7 +150,7 @@ class AddressBlock extends React.Component {
       phone
     } = this.state;
     console.log('**************************');
-    console.log(states);
+    console.log(this.state);
     return (
       <div>
         <Autocomplete

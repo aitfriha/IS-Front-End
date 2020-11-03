@@ -83,7 +83,14 @@ module.exports = [
             name: 'Sectors',
             link: '/app/gestion-commercial/sectors',
             icon: 'ios-people-outline'
-          }
+          },
+          {
+            key: 'sectorsCompany',
+            name: 'Sectors Company',
+            link: '/app/gestion-commercial/sectorsCompany',
+            icon: 'ios-people-outline'
+          },
+
           /* {
             key: 'countries',
             name: 'Countries',
@@ -101,7 +108,7 @@ module.exports = [
     child: [
       {
         key: 'financial_manager',
-        name: 'Financial Manager',
+        name: 'Financial Management',
         icon: 'ios-newspaper-outline',
         keyParent: 'financial',
         child: [
@@ -152,7 +159,7 @@ module.exports = [
           {
             key: 'currencyManagement',
             name: 'Currency Management',
-            link: '/app/gestion-financial/Company/Currency-Management',
+            link: '/app/gestion-financial/Currency-Management',
             icon: 'ios-cash-outline'
           },
           {
@@ -164,7 +171,7 @@ module.exports = [
           {
             key: 'typeOfRetentoins',
             name: 'Types of Retentions',
-            link: '/app/gestion-financial/Company/IVA',
+            link: '/app/gestion-financial/Retention',
             icon: 'ios-cash-outline'
           }
         ]

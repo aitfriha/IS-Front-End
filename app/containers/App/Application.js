@@ -47,13 +47,17 @@ import {
   AddBilling,
   IVA,
   AddIVA,
+  Currency,
+  AddCurrency,
+  Retention,
+  AddRetention,
   StatusOfCommercialOperation,
   ContractType,
   AddContractType,
   LegalCategoryType,
   AddLegalCategoryType,
   AbsenceType,
-  AddAbsenceType
+  AddAbsenceType, SectorsCompany
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -103,6 +107,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/sectors"
           component={Sectors}
+        />
+        <Route
+          exact
+          path="/app/gestion-commercial/sectorsCompany"
+          component={SectorsCompany}
         />
         <Route
           exact
@@ -258,6 +267,10 @@ function Application(props) {
         />
         <Route exact path="/app/gestion-financial/IVA" component={IVA} />
         <Route exact path="/app/gestion-financial/Add-IVA" component={AddIVA} />
+        <Route exact path="/app/gestion-financial/Currency-Management" component={Currency} />
+        <Route exact path="/app/gestion-financial/Add-Currency" component={AddCurrency} />
+        <Route exact path="/app/gestion-financial/Retention" component={Retention} />
+        <Route exact path="/app/gestion-financial/Add-Retention" component={AddRetention} />
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>

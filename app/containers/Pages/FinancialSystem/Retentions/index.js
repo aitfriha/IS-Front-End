@@ -2,11 +2,11 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
-import CurrencyBlock from './CurrencyBlock';
+import RetentionBlock from './RetentionBlock';
 
-class CurrencyManagement extends React.Component {
+class Company extends React.Component {
   render() {
-    const title = brand.name + ' - Companies';
+    const title = brand.name + ' - Retentions';
     const description = brand.desc;
     return (
       <div>
@@ -18,12 +18,12 @@ class CurrencyManagement extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Currency Management" icon="ios-person" noMargin overflowX>
-          <CurrencyBlock />
+        <PapperBlock title="Retentions" icon="ios-person" noMargin overflowX>
+          <RetentionBlock />
         </PapperBlock>
       </div>
     );
   }
 }
 
-export default CurrencyManagement;
+export default Company;

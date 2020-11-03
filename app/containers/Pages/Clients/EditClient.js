@@ -33,17 +33,19 @@ import ClientService from '../../Services/ClientService';
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
-import { addClientCommercial, getAllClient } from '../../../redux/client/actions';
+import { addClientCommercial, getAllClient, updateClient } from '../../../redux/client/actions';
 import notification from '../../../components/Notification/Notification';
-
+const changed = 'non';
 const filter = createFilterOptions();
-class AddClient extends React.Component {
+class EditClient extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {
     };
+    this.editingPromiseResolve2 = () => {
+    };
     this.state = {
-      name: { title: '' },
+      name: '',
       city: '',
       cityId: '',
       multinational: false,
@@ -60,21 +62,98 @@ class AddClient extends React.Component {
       logo: '',
       clients: [],
       sectorsConfig: {},
-      address: '',
+      addressName: '',
       state: '',
       postCode: '',
       adCity: '',
       email: '',
       phone: '',
-      webSite: ''
+      webSite: '',
+      keyCountry: {},
+      keyState: {},
+      keyCity:{}
     };
   }
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllCountry } = this.props;
+    const { getAllCountry, selectedClient, getAllStateByCountry } = this.props;
     getAllCountry();
+    getAllStateByCountry(selectedClient[21]);
   }
+
+  componentWillReceiveProps(newProps) {
+
+    this.setState({name: newProps.selectedClient[1]});
+    this.setState({ clientId: newProps.selectedClient[23] });
+    this.setState({ email: newProps.selectedClient[2] });
+    this.setState({ phone: newProps.selectedClient[3] });
+    this.setState({ webSite: newProps.selectedClient[4] });
+    if (newProps.selectedClient[5] === 'Yes') {
+      this.setState({ isActive: true });
+    } else {
+      this.setState({ isActive: false });
+    }
+    if (newProps.selectedClient[17] === 'Yes') {
+      this.setState({ multinational: true });
+    } else {
+      this.setState({ multinational: false });
+    }
+    this.setState({ addressName: newProps.selectedClient[7] });
+    this.setState({ postCode: newProps.selectedClient[8] });
+    this.setState({ type: newProps.selectedClient[20] });
+    if (newProps.selectedClient !== this.props.selectedClient) {
+      // console.log(newProps.selectedClient);
+      for (const key in newProps.allCountrys) {
+        if (newProps.allCountrys[key].countryName === newProps.selectedClient[18]) {
+          this.setState({ keyCountry: newProps.allCountrys[key] });
+          break;
+        }
+      }
+    }
+    for (const key in newProps.allStateCountrys) {
+      if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedClient[22]) {
+        this.setState({ keyState: newProps.allStateCountrys[key] });
+        break;
+      }
+    }
+    for (const key in newProps.allCitys) {
+      if (newProps.allCitys[key].cityName === newProps.selectedClient[17]) {
+        this.setState({ keyCity: newProps.allCitys[key] });
+        this.setState({ cityId: newProps.allCitys[key].cityId });
+        break;
+      }
+    }
+
+  }
+
+
+  /* static getDerivedStateFromProps(props, state) {
+    let a={};
+    console.log('bbb ', JSON.stringify(props.allStateCountrys) == JSON.stringify(state.allStateCountrys));
+    for (const key in props.allCountrys) {
+      for (const key in props.allCountrys) {
+        if (props.allCountrys[key].countryName === props.selectedClient[18]) {
+          a= props.allCountrys[key];
+          break;
+        }
+      }
+
+      return {
+        name: props.selectedClient[1],
+        isActive:(props.selectedClient[5] === 'Yes') ? true:false,
+        multinational:(props.selectedClient[17] === 'Yes') ? true:false,
+        addressName: props.selectedClient[7],
+        postCode: props.selectedClient[8],
+        type: props.selectedClient[20],
+        email: props.selectedClient[2],
+        phone: props.selectedClient[3],
+        webSite: props.selectedClient[4],
+        //allStateCountrys: props.allStateCountrys,
+        keyCountry:a,
+      };
+    }
+  } */
 
   handleChange = (ev) => {
     console.log(ev.target.name);
@@ -89,8 +168,9 @@ class AddClient extends React.Component {
   };
 
   handleSubmitClient = () => {
-    const { addClientCommercial } = this.props;
+    const { updateClient,getAllClient } = this.props;
     const {
+      clientId,
       name,
       email,
       phone,
@@ -102,19 +182,20 @@ class AddClient extends React.Component {
       isActive,
       postCode,
       multinational,
-      address,
+      addressName
     } = this.state;
     const client = {
-      name: name.title,
+      clientId,
+      name,
       email,
       phone,
       webSite,
       logo,
       multinational: multinational ? 'Yes' : 'No',
-      isActive: isActive ? 'Yes' : 'No',
+      isActive,
       type,
       cityId,
-      addressName:address,
+      addressName,
       postCode,
       // countryLeader: country.leader.name,
       sectorLeader: sectorsConfig.leader,
@@ -126,7 +207,7 @@ class AddClient extends React.Component {
     /** */
     const promise = new Promise((resolve) => {
       // get client information
-      addClientCommercial(client);
+      updateClient(client);
       this.editingPromiseResolve = resolve;
     });
     promise.then((result) => {
@@ -137,11 +218,6 @@ class AddClient extends React.Component {
         notification('danger', result);
       }
     });
-    /** */
-    /* ClientService.saveClient(client).then(({ data }) => {
-      console.log(data);
-      history.push('/app/configurations/assignments/commercial-assignment', { type: 'assignment' });
-    }); */
   };
 
   handleCheck = (sectorsConfig) => {
@@ -166,19 +242,21 @@ class AddClient extends React.Component {
   handleChangeCountry = (ev, value) => {
     const { getAllStateByCountry } = this.props;
     getAllStateByCountry(value.countryId);
+    this.setState({ keyCountry: value });
   };
 
   handleChangeState = (ev, value) => {
     const { getAllCityByState } = this.props;
     getAllCityByState(value.stateCountryId);
+    this.setState({ keyState: value });
   };
 
   handleChangeCity = (ev, value) => {
     this.setState({ cityId: value.cityId });
+    this.setState({ keyCity: value });
   };
 
   handleChange= (ev, value) => {
-    console.log(ev.target.name);
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
@@ -186,16 +264,18 @@ class AddClient extends React.Component {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, allCountrys, allStateCountrys, allCitys, clientResponse, isLoadingClient, errorsClient
+      classes, allCountrys, allCitys, clientResponse, isLoadingClient, errorsClient, selectedClient, allStateCountrys,
+      isLoadingState, stateCountryResponse, errorsState
     } = this.props;
     const {
       multinational, isActive, country,
       countries,
-      name, webSite, type, logo, clients,
+      name, webSite, type, logo, clients, addressName, postCode, keyCountry, keyState, keyCity,
       phone, email
     } = this.state;
     (!isLoadingClient && clientResponse) && this.editingPromiseResolve(clientResponse);
     (!isLoadingClient && !clientResponse) && this.editingPromiseResolve(errorsClient);
+
     return (
       <div>
         <Helmet>
@@ -206,7 +286,7 @@ class AddClient extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="New Client" desc="Please, Fill in the all field" icon="ios-person">
+        <PapperBlock title="update Client" desc="Please, Fill in the all field" icon="ios-person">
           <Grid
             container
             spacing={10}
@@ -217,60 +297,16 @@ class AddClient extends React.Component {
             <Grid item xs={12} md={3}>
               <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
               <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
-              <Autocomplete
+              <TextField
+                id="outlined-basic"
+                label="Name"
+                variant="outlined"
+                name="name"
+                fullWidth
                 value={name}
-                onChange={(event, newValue) => {
-                  if (typeof newValue === 'string') {
-                    this.setState({
-                      name: {
-                        title: newValue,
-                      }
-                    });
-                  } else if (newValue && newValue.inputValue) {
-                    // Create a new value from the user input
-                    this.setState({
-                      name: {
-                        title: newValue.inputValue,
-                      }
-                    });
-                  } else {
-                    this.setState({ name: newValue });
-                  }
-                }}
-                filterOptions={(options, params) => {
-                  const filtered = filter(options, params);
-                  // Suggest the creation of a new value
-                  if (params.inputValue !== '') {
-                    filtered.push({
-                      inputValue: params.inputValue,
-                      title: `Add "${params.inputValue}"`,
-                    });
-                  }
-
-                  return filtered;
-                }}
-                selectOnFocus
-                clearOnBlur
-                handleHomeEndKeys
-                id="free-solo-with-text-demo"
-                options={clients}
-                getOptionLabel={(option) => {
-                  // Value selected with enter, right from the input
-                  if (typeof option === 'string') {
-                    return option;
-                  }
-                  // Add "xxx" option created dynamically
-                  if (option.inputValue) {
-                    return option.inputValue;
-                  }
-                  // Regular option
-                  return option.title;
-                }}
-                renderOption={(option) => option.title}
-                freeSolo
-                renderInput={(params) => (
-                  <TextField {...params} label="Name" variant="outlined" />
-                )}
+                onChange={this.handleChange}
+                required
+                className={classes.textField}
               />
               <TextField
                 id="outlined-basic"
@@ -315,7 +351,7 @@ class AddClient extends React.Component {
                   <MenuItem key="new" value="new">
                     New
                   </MenuItem>
-                  <MenuItem key="old" value="Old">
+                  <MenuItem key="old" value="old">
                     Old
                   </MenuItem>
                 </Select>
@@ -375,6 +411,7 @@ class AddClient extends React.Component {
                 id="combo-box-demo"
                 options={allCountrys}
                 getOptionLabel={option => option.countryName}
+                value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
                 onChange={this.handleChangeCountry}
                 renderInput={params => (
                   <TextField
@@ -389,6 +426,7 @@ class AddClient extends React.Component {
                 id="combo-box-demo"
                 options={allStateCountrys}
                 getOptionLabel={option => option.stateName}
+                value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
                 onChange={this.handleChangeState}
                 style={{ marginTop: 15 }}
                 renderInput={params => (
@@ -404,6 +442,7 @@ class AddClient extends React.Component {
                 id="combo-box-demo"
                 options={allCitys}
                 getOptionLabel={option => option.cityName}
+                value={allCitys.find(v => v.cityName === keyCity.cityName) || ''}
                 onChange={this.handleChangeCity}
                 style={{ marginTop: 15 }}
                 renderInput={params => (
@@ -419,9 +458,10 @@ class AddClient extends React.Component {
                 id="outlined-basic"
                 label="Name of address"
                 variant="outlined"
-                name="address"
+                name="addressName"
                 fullWidth
                 required
+                value={addressName}
                 className={classes.textField}
                 onChange={this.handleChange}
               />
@@ -432,6 +472,7 @@ class AddClient extends React.Component {
                 fullWidth
                 required
                 name="postCode"
+                value={postCode}
                 className={classes.textField}
                 onChange={this.handleChange}
               />
@@ -442,7 +483,7 @@ class AddClient extends React.Component {
               <SectorBlock sectorsConfig={this.handleCheck} />
             </Grid>
             <div className={classes.btnCenter}>
-              <Button color="primary" variant="contained" size="small" onClick={this.handleSubmitClient}>Save Client</Button>
+              <Button color="primary" variant="contained" size="small" onClick={this.handleSubmitClient}>Update Client</Button>
             </div>
           </Grid>
         </PapperBlock>
@@ -450,9 +491,9 @@ class AddClient extends React.Component {
     );
   }
 }
-AddClient.propTypes = {
+EditClient.propTypes = {
   classes: PropTypes.object.isRequired,
-  //add: PropTypes.func.isRequired,
+  // add: PropTypes.func.isRequired,
   getAllCountry: PropTypes.func.isRequired,
   allCountrys: PropTypes.array.isRequired,
   allStateCountrys: PropTypes.array.isRequired,
@@ -484,10 +525,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllStateByCountry,
   getAllCityByState,
   addClientCommercial,
-  getAllClient
+  getAllClient,
+  updateClient
 }, dispatch);
 
 export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddClient));
+)(EditClient));
