@@ -1294,7 +1294,7 @@ StaffProfileGeneralInformation.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  staff: state.get('staffs').toJS().staff
+  staff: state.get('staffs').staff
 });
 const mapDispatchToProps = dispatch => ({
   setStaffData: bindActionCreators(setStaff, dispatch),

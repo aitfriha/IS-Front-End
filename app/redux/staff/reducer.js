@@ -10,7 +10,9 @@ import {
   GET_ALL_STAFFS_SUCCESS,
   UPDATE_STAFF,
   UPDATE_STAFF_FAILURE,
-  UPDATE_STAFF_SUCCESS
+  UPDATE_STAFF_SUCCESS,
+  SET_STAFF,
+  SET_EDIT
 } from './constants';
 
 const initialState = {
@@ -25,14 +27,16 @@ const initialState = {
 export default function staffReducer(state = initialState, action) {
   switch (action.type) {
     case SET_STAFF:
-      return state.withMutations(mutableState => {
-        mutableState.set('staff', action.staff);
-      });
+      return {
+        ...state,
+        staff: action.staff
+      };
 
     case SET_EDIT:
-      return state.withMutations(mutableState => {
-        mutableState.set('isEdit', action.isEdit);
-      });
+      return {
+        ...state,
+        isEdit: action.isEdit
+      };
     // TRIGGERING ACTIONS
     case GET_ALL_STAFFS:
     case ADD_STAFF:
