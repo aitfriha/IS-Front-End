@@ -108,7 +108,7 @@ module.exports = [
     child: [
       {
         key: 'financial_manager',
-        name: 'Financial Manager',
+        name: 'Financial Management',
         icon: 'ios-newspaper-outline',
         keyParent: 'financial',
         child: [

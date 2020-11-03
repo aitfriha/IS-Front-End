@@ -41,7 +41,6 @@ class AddCurrency extends React.Component {
       const Currency = {
         currencyName, currencyCode, year, month, changeFactor
       };
-      console.log(currencyCode.toString());
       const code = currencyCode.toString();
       console.log(code.length);
       if (code.length < 3) {

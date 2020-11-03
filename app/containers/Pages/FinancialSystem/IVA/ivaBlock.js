@@ -32,7 +32,7 @@ class IvaBlock extends React.Component {
     this.state = {
       ivaId: '',
       ivaCode: '',
-      country: '',
+      stateCountry: '',
       state: '',
       value: '',
       startingDate: '',
@@ -170,6 +170,7 @@ class IvaBlock extends React.Component {
           ivaCode: result.data.ivaCode,
           state: result.data.stateCountry._id,
           stateName: result.data.stateCountry.stateName,
+          countryName: result.data.stateCountry.country.countryName,
           stateCountry: result.data.stateCountry.country.countryId,
           value: result.data.value,
           startingDate: result.data.startingDate.substr(0, 10),
@@ -238,7 +239,7 @@ class IvaBlock extends React.Component {
         allCountrys, allStateCountrys
       } = this.props;
       const {
-        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode
+        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode, state, stateCountry
       } = this.state;
       const options = {
         filter: true,
