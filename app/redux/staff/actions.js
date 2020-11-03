@@ -1,6 +1,4 @@
 import {
-  SET_STAFF,
-  SET_EDIT,
   ADD_STAFF,
   DELETE_STAFF,
   GET_ALL_STAFFS,

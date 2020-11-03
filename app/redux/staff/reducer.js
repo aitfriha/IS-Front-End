@@ -19,9 +19,7 @@ const initialState = {
   isLoading: false,
   errors: {},
   staffResponse: '',
-  allStaffs: [],
-  staff: {},
-  isEdit: false
+  allStafftatuss: []
 };
 
 export default function staffReducer(state = initialState, action) {
@@ -37,6 +35,7 @@ export default function staffReducer(state = initialState, action) {
         ...state,
         isEdit: action.isEdit
       };
+    // TRIGGERING ACTIONS
     // TRIGGERING ACTIONS
     case GET_ALL_STAFFS:
     case ADD_STAFF:
@@ -63,7 +62,7 @@ export default function staffReducer(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
-        allStaffs: action.payload,
+        allStafftatuss: action.payload,
         staffResponse: ''
       };
 
