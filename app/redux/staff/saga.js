@@ -19,14 +19,14 @@ import {
 import ENDPOINTS from '../../api/endpoints';
 
 
-function* addStaff(action) {
+function* saveStaff(action) {
   try {
     const { staff } = action;
     const request = yield axios({
       method: 'post',
       url: ENDPOINTS.STAFF + '/add',
       data: staff,
-      headers: { 'Content-Type': 'multipart/form-data;boundary=----WebKitFormBoundaryQ0pBuvRC1EzDAQWT----' }
+      /* headers: { 'Content-Type': 'multipart/form-data;boundary=----WebKitFormBoundaryQ0pBuvRC1EzDAQWT----' } */
     });
 
     yield put({
@@ -110,7 +110,7 @@ function* getAllStaff() {
 
 export default function* staffSaga() {
   yield all([
-    takeLatest(ADD_STAFF, addStaff),
+    takeLatest(ADD_STAFF, saveStaff),
     takeLatest(UPDATE_STAFF, updateStaff),
     takeLatest(DELETE_STAFF, deleteStaff),
     takeLatest(GET_ALL_STAFFS, getAllStaff),

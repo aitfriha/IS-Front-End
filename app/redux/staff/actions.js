@@ -7,7 +7,7 @@ import {
   SET_EDIT
 } from './constants';
 
-export const addStaff = staff => ({
+export const saveStaff = staff => ({
   type: ADD_STAFF,
   staff
 });
@@ -24,4 +24,13 @@ export const deleteStaff = staffId => ({
 
 export const getAllStaff = () => ({
   type: GET_ALL_STAFFS
+});
+export const setStaff = staff => ({
+  type: SET_STAFF,
+  staff
+});
+
+export const setEdit = isEdit => ({
+  type: SET_EDIT,
+  isEdit
 });
