@@ -17,7 +17,7 @@ const initialState = {
   isLoading: false,
   errors: {},
   staffResponse: '',
-  allStafftatuss: []
+  allStaffs: []
 };
 
 export default function staffReducer(state = initialState, action) {
@@ -48,7 +48,7 @@ export default function staffReducer(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
-        allStafftatuss: action.payload,
+        allStaffs: action.payload,
         staffResponse: ''
       };
 
