@@ -36,12 +36,16 @@ import {
 } from '../../../../redux/client/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
+// eslint-disable-next-line import/named
+import { getAllStaff } from '../../../../redux/staff/actions';
 
 
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      staff: '',
+      listClientToUpdate: [],
       typeResponsible: '',
       openPopUp: false,
       addresses: [],
@@ -116,8 +120,9 @@ class Commercial extends React.Component {
       this.setState({ countries });
     });
 
-    const { getAllClient } = this.props;
+    const { getAllClient, getAllStaff } = this.props;
     getAllClient();
+    getAllStaff();
   }
 
   getClientAddresses = () => {
@@ -135,6 +140,11 @@ class Commercial extends React.Component {
 
   handleClient = (ev, value) => {
     this.setState({ client: value });
+  };
+
+  handleStaff = (ev, value) => {
+    console.log(value);
+    this.setState({ staff: value });
   };
 
   openNotif = message => {
@@ -201,7 +211,8 @@ class Commercial extends React.Component {
   };
 
   selectedRows = (rows) => {
-    console.log(rows);
+    const listClientToUpdate = rows.map((row) => row.clientId);
+    this.setState({ listClientToUpdate });
     this.setState({ openPopUp: true });
   };
 
@@ -209,10 +220,21 @@ class Commercial extends React.Component {
     this.setState({ openPopUp: false });
   };
 
+  handleChange = (ev) => {
+    this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  deleteAndUpdateServiceType = () => {
+    const { typeResponsible, staff, listClientToUpdate } = this.state;
+    console.log(typeResponsible);
+    console.log(staff);
+    console.log(listClientToUpdate);
+  };
+
   render() {
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
-    const { classes, allClients } = this.props;
+    const { classes, allClients, allStaffs } = this.props;
     const {
       addresses,
       responsibleAssignments,
@@ -220,7 +242,7 @@ class Commercial extends React.Component {
       commercials,
       type, countries, country,
       notifMessage, client, clients,
-      columns, openPopUp, typeResponsible
+      columns, openPopUp, typeResponsible, staff
     } = this.state;
     console.log('type :::::::::::::::::', type);
     return (
@@ -387,10 +409,25 @@ class Commercial extends React.Component {
                   <DialogTitle id="alert-dialog-slide-title"> Assign responsible and assistant</DialogTitle>
                   <DialogContent dividers>
                     <Grid item xs={12} md={12}>
+                      <Autocomplete
+                        id="free-solo-demo"
+                        onChange={(event, value) => this.handleStaff(event, value)}
+                        options={allStaffs}
+                        getOptionLabel={option => option.firstName}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Shoose staff"
+                            margin="normal"
+                            name="staffs"
+                            variant="outlined"
+                          />
+                        )}
+                      />
                       <FormControl fullWidth required>
                         <InputLabel>Type of assignment</InputLabel>
                         <Select
-                          name="type"
+                          name="typeResponsible"
                           value={typeResponsible}
                           onChange={this.handleChange}
                         >
@@ -405,35 +442,6 @@ class Commercial extends React.Component {
                           </MenuItem>
                         </Select>
                       </FormControl>
-                      {/*   <TextField
-                        id="outlined-basic"
-                        label="Commercial Operation related"
-                        variant="outlined"
-                        name="name"
-                        fullWidth
-                        value={operationCommercial}
-                        onChange={this.handleChange}
-                        required
-                        className={classes.textField}
-                      />
-                      <Autocomplete
-                        multiple
-                        className={classes.textField}
-                        id="combo-box-demo"
-                        options={allCommercialServiceType}
-                        getOptionLabel={option => option.name}
-                        // value={allCommercialServiceType.find(v => v.name === serviceTypeNameCurrent[0]) || ''}
-                        value={serviceTypeNameCurrent}
-                        onChange={this.handleChangeServiceType}
-                        renderInput={params => (
-                          <TextField
-                            fullWidth
-                            {...params}
-                            label="Choose Service type"
-                            variant="outlined"
-                          />
-                        )}
-                      /> */}
                     </Grid>
                   </DialogContent>
                   <DialogActions>
@@ -493,13 +501,18 @@ const mapStateToProps = state => ({
   clientResponse: state.getIn(['clients']).clientResponse,
   isLoading: state.getIn(['clients']).isLoading,
   errors: state.getIn(['clients']).errors,
-  //all staff
+  // all staff
+  allStaffs: state.getIn(['staffs']).allStaffs,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorsStaff: state.getIn(['staffs']).errors,
 
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClient,
   updateClient,
   getAllClient,
+  getAllStaff,
 }, dispatch);
 
 export default withStyles(styles)(connect(
