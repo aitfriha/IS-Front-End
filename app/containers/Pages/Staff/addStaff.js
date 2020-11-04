@@ -51,104 +51,6 @@ import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
 import StaffEconomicContractInformation from './StaffEconomicContractInformation';
 
-const staff = {
-  firstName,
-  fatherFamilyName,
-  motherFamilyName,
-  personalPhone,
-  personalEmail,
-  companyPhone,
-  companyMobilePhone,
-  companyEmail,
-  skype,
-  birthday: birthday.toISOString().slice(0, 10),
-  birthCountry: birthCountry.countryName,
-  emergencyContactName,
-  emergencyContactPhone,
-  photo,
-  isLeader: 'no',
-  cityId,
-  fullAddress,
-  postCode,
-
-  staffContractId,
-  companyName,
-  associateOffice,
-  hiringCountry: hiringCountry.countryName,
-  townContract,
-  personalNumber,
-  highDate: highDate.toISOString().slice(0, 10),
-  lowDate: lowDate.toISOString().slice(0, 10),
-  registrationDate: registrationDate.toISOString().slice(0, 10),
-  preContractDate: preContractDate.toISOString().slice(0, 10),
-  contractDoc,
-  internalRulesDoc,
-  preContractDoc,
-  contractType,
-  legalCategoryType,
-
-  contractSalary,
-  companyContractCost,
-  expenses,
-  companyExpensesCost,
-  objectives,
-  companyObjectivesCost,
-  totalCompanyCost: total,
-  contractSalaryDateGoing: contractSalaryDateGoing.toISOString().slice(0, 10),
-  contractSalaryDateOut: contractSalaryDateOut.toISOString().slice(0, 10),
-  companyContractCostDateGoing: companyContractCostDateGoing
-    .toISOString()
-    .slice(0, 10),
-  companyContractCostDateOut: companyContractCostDateOut
-    .toISOString()
-    .slice(0, 10),
-  expensesDateGoing: expensesDateGoing.toISOString().slice(0, 10),
-  expensesDateOut: expensesDateOut.toISOString().slice(0, 10),
-  companyExpensesCostDateGoing: companyExpensesCostDateGoing
-    .toISOString()
-    .slice(0, 10),
-  companyExpensesCostDateOut: companyExpensesCostDateOut
-    .toISOString()
-    .slice(0, 10),
-  objectivesDateGoing: objectivesDateGoing.toISOString().slice(0, 10),
-  objectivesDateOut: objectivesDateOut.toISOString().slice(0, 10),
-  companyObjectivesCostDateGoing: companyObjectivesCostDateGoing
-    .toISOString()
-    .slice(0, 10),
-  companyObjectivesCostDateOut: companyObjectivesCostDateOut
-    .toISOString()
-    .slice(0, 10),
-  totalCompanyCostDateGoing: totalCompanyCostDateGoing
-    .toISOString()
-    .slice(0, 10),
-  totalCompanyCostDateOut: totalCompanyCostDateOut.toISOString().slice(0, 10),
-
-  idCardNumber,
-  idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
-  idCardExpirationDate: idCardExpirationDate.toISOString().slice(0, 10),
-  idCardDocExtension,
-  idCardDoc,
-  passportNumber,
-  passportExpeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
-  passportExpirationDate: passportExpirationDate.toISOString().slice(0, 10),
-  passportDocExtension,
-  passportDoc,
-  professionalIdCardNumber,
-  professionalIdCardExpeditionDate: professionalIdCardExpeditionDate
-    .toISOString()
-    .slice(0, 10),
-  professionalIdCardExpirationDate: professionalIdCardExpirationDate
-    .toISOString()
-    .slice(0, 10),
-  professionalIdCardDocExtension,
-  professionalIdCardDoc,
-  hnsCardNumber,
-  hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
-  hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
-  hnsCardDocExtension,
-  hnsCardDoc
-};
-
 const SmallAvatar = withStyles(theme => ({
   root: {
     width: 40,
@@ -285,7 +187,7 @@ class AddStaff extends React.Component {
         companyPhone: ev.target.value.phonePrefix + companyPhone,
         companyMobilePhone: ev.target.value.phonePrefix + companyMobilePhone,
         emergencyContactPhone:
-            ev.target.value.phonePrefix + emergencyContactPhone
+          ev.target.value.phonePrefix + emergencyContactPhone
       });
     }
     if (ev.target.name === 'companyName') {
@@ -394,8 +296,8 @@ class AddStaff extends React.Component {
       preContractDate: preContractDate.toISOString().slice(0, 10)
     };
     const total = parseInt(companyContractCost)
-        + parseInt(companyExpensesCost)
-        + parseInt(companyObjectivesCost);
+      + parseInt(companyExpensesCost)
+      + parseInt(companyObjectivesCost);
     const staff = {
       firstName,
       fatherFamilyName,
@@ -426,9 +328,6 @@ class AddStaff extends React.Component {
       lowDate: lowDate.toISOString().slice(0, 10),
       registrationDate: registrationDate.toISOString().slice(0, 10),
       preContractDate: preContractDate.toISOString().slice(0, 10),
-      contractDoc,
-      internalRulesDoc,
-      preContractDoc,
       contractType,
       legalCategoryType,
 
@@ -476,12 +375,10 @@ class AddStaff extends React.Component {
       idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
       idCardExpirationDate: idCardExpirationDate.toISOString().slice(0, 10),
       idCardDocExtension,
-      idCardDoc,
       passportNumber,
       passportExpeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
       passportExpirationDate: passportExpirationDate.toISOString().slice(0, 10),
       passportDocExtension,
-      passportDoc,
       professionalIdCardNumber,
       professionalIdCardExpeditionDate: professionalIdCardExpeditionDate
         .toISOString()
@@ -490,18 +387,16 @@ class AddStaff extends React.Component {
         .toISOString()
         .slice(0, 10),
       professionalIdCardDocExtension,
-      professionalIdCardDoc,
       hnsCardNumber,
       hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
       hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
-      hnsCardDocExtension,
-      hnsCardDoc
+      hnsCardDocExtension
     };
-    const contractData = new FormData();
+    const Documents = new FormData();
     if (contractDoc.constructor !== Object) {
-      contractData.append('contractDoc', contractDoc);
+      Documents.append('contractDoc', contractDoc);
     } else {
-      contractData.append(
+      Documents.append(
         'contractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -509,9 +404,9 @@ class AddStaff extends React.Component {
       );
     }
     if (internalRulesDoc.constructor !== Object) {
-      contractData.append('internalRulesDoc', internalRulesDoc);
+      Documents.append('internalRulesDoc', internalRulesDoc);
     } else {
-      contractData.append(
+      Documents.append(
         'internalRulesDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -519,76 +414,26 @@ class AddStaff extends React.Component {
       );
     }
     if (preContractDoc.constructor !== Object) {
-      contractData.append('preContractDoc', preContractDoc);
+      Documents.append('preContractDoc', preContractDoc);
     } else {
-      contractData.append(
+      Documents.append(
         'preContractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
         })
       );
     }
-    contractData.append(
+    Documents.append(
       'staffContract',
       new Blob([JSON.stringify(contract)], {
         type: 'application/json'
       })
     );
 
-    const staffData = new FormData();
-    staffData.append('files[]', idCardDoc);
-    staffData.append('files[]', passportDoc);
-    staffData.append('files[]', professionalIdCardDoc);
-    staffData.append('files[]', hnsCardDoc);
-
-    const staffDocumentsList = [];
-    if (idCardDoc.constructor !== Object) {
-      staffDocumentsList.push({
-        name: 'ID Card',
-        number: idCardNumber,
-        expeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
-        expirationDate: idCardExpirationDate.toISOString().slice(0, 10),
-        docExtension: idCardDocExtension
-      });
-    }
-    if (passportDoc.constructor !== Object) {
-      staffDocumentsList.push({
-        name: 'Passport',
-        number: passportNumber,
-        expeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
-        expirationDate: passportExpirationDate.toISOString().slice(0, 10),
-        docExtension: passportDocExtension
-      });
-    }
-    if (professionalIdCardDoc.constructor !== Object) {
-      staffDocumentsList.push({
-        name: 'Professional ID Card',
-        number: professionalIdCardNumber,
-        expeditionDate: professionalIdCardExpeditionDate
-          .toISOString()
-          .slice(0, 10),
-        expirationDate: professionalIdCardExpirationDate
-          .toISOString()
-          .slice(0, 10),
-        docExtension: professionalIdCardDocExtension
-      });
-    }
-    if (hnsCardDoc.constructor !== Object) {
-      staffDocumentsList.push({
-        name: 'Health National Security Card',
-        number: hnsCardNumber,
-        expeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
-        expirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
-        docExtension: hnsCardDocExtension
-      });
-    }
-
-    staffData.append(
-      'staffDocumentsList',
-      new Blob([JSON.stringify(staffDocumentsList)], {
-        type: 'application/json'
-      })
-    );
+    Documents.append('files[]', idCardDoc);
+    Documents.append('files[]', passportDoc);
+    Documents.append('files[]', professionalIdCardDoc);
+    Documents.append('files[]', hnsCardDoc);
 
     StaffContractService.saveStaffContract(
       contractData,
@@ -922,10 +767,10 @@ class AddStaff extends React.Component {
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={this.handleDialogClose} color="primary">
-                Cancel
+              Cancel
             </Button>
             <Button onClick={this.handleUpload} color="primary">
-                Done
+              Done
             </Button>
           </DialogActions>
         </Dialog>
@@ -953,7 +798,7 @@ class AddStaff extends React.Component {
                 }
                 onClick={() => this.handleExpandClick('personalInformation')}
               >
-                  General Information
+                General Information
               </Button>
             </div>
           </Paper>
@@ -1212,7 +1057,7 @@ class AddStaff extends React.Component {
                 }
                 onClick={() => this.handleExpandClick('staffDocumentation')}
               >
-                  Staff Documentation
+                Staff Documentation
               </Button>
             </div>
           </Paper>
@@ -1269,13 +1114,13 @@ class AddStaff extends React.Component {
                           variant="subtitle1"
                           className={classes.uploadText}
                         >
-                            Professional ID
+                          Professional ID
                         </Typography>
                         <Typography
                           variant="subtitle1"
                           className={classes.uploadText}
                         >
-                            Card
+                          Card
                         </Typography>
                       </div>
                     </IconButton>
@@ -1316,7 +1161,7 @@ class AddStaff extends React.Component {
                             variant="subtitle1"
                             className={classes.uploadText}
                           >
-                              Id Card
+                            Id Card
                           </Typography>
                         </div>
                       </IconButton>
@@ -1354,7 +1199,7 @@ class AddStaff extends React.Component {
                             variant="subtitle1"
                             className={classes.uploadText}
                           >
-                              Passport
+                            Passport
                           </Typography>
                         </div>
                       </IconButton>
@@ -1392,13 +1237,13 @@ class AddStaff extends React.Component {
                           variant="subtitle1"
                           className={classes.uploadText}
                         >
-                            Health national
+                          Health national
                         </Typography>
                         <Typography
                           variant="subtitle1"
                           className={classes.uploadText}
                         >
-                            security
+                          security
                         </Typography>
                       </div>
                     </IconButton>
@@ -1665,7 +1510,7 @@ class AddStaff extends React.Component {
                 onClick={() => this.handleExpandClick('generalContractInformation')
                 }
               >
-                  General Contract Information
+                General Contract Information
               </Button>
             </div>
           </Paper>
@@ -1722,7 +1567,7 @@ class AddStaff extends React.Component {
                           variant="subtitle1"
                           className={classes.uploadText}
                         >
-                            Contract
+                          Contract
                         </Typography>
                       </div>
                     </IconButton>
@@ -1765,7 +1610,7 @@ class AddStaff extends React.Component {
                             variant="subtitle1"
                             className={classes.uploadText}
                           >
-                              Internal Rules
+                            Internal Rules
                           </Typography>
                         </div>
                       </IconButton>
@@ -1805,7 +1650,7 @@ class AddStaff extends React.Component {
                             variant="subtitle1"
                             className={classes.uploadText}
                           >
-                              PreContract
+                            PreContract
                           </Typography>
                         </div>
                       </IconButton>
@@ -2052,7 +1897,7 @@ class AddStaff extends React.Component {
                 onClick={() => this.handleExpandClick('economicContractInformation')
                 }
               >
-                  Economic Contract Information
+                Economic Contract Information
               </Button>
             </div>
           </Paper>
@@ -2070,7 +1915,7 @@ class AddStaff extends React.Component {
               size="small"
               onClick={this.handleSubmitStaff}
             >
-                Save Staff
+              Save Staff
             </Button>
           </div>
         </PapperBlock>

@@ -187,7 +187,7 @@ StaffBlock.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  staff: state.get('staffs').staff
+  staff: state.get('staffs').selectedStaff
 });
 const mapDispatchToProps = dispatch => ({
   setStaffData: bindActionCreators(setStaff, dispatch)

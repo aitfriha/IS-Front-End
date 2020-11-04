@@ -749,8 +749,8 @@ StaffProfile.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  staff: state.get('staffs').staff,
-  isEdit: state.get('staffs').isEdit
+  staff: state.get('staffs').selectedStaff,
+  isEdit: state.get('staffs').isEditStaff
 });
 
 const mapDispatchToProps = dispatch => ({
