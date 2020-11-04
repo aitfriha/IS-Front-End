@@ -330,8 +330,8 @@ class StaffProfileGeneralInformation extends Component {
       })
     );
 
-    StaffDocumentsService.addStaffDocument(formData, staff._id).then(() => {
-      StaffService.getStaffById(staff._id).then(({ data }) => {
+    StaffDocumentsService.addStaffDocument(formData, staff.staffId).then(() => {
+      StaffService.getStaffById(staff.staffId).then(({ data }) => {
         setStaffData(data);
         this.setState({
           isAddDocumentation: false
@@ -402,7 +402,7 @@ class StaffProfileGeneralInformation extends Component {
   handleDeleteDocument = documentId => {
     const { setStaffData, staff } = this.props;
     StaffDocumentsService.deleteStaffDocument(documentId).then(() => {
-      StaffService.getStaffById(staff._id).then(({ data }) => {
+      StaffService.getStaffById(staff.staffId).then(({ data }) => {
         setStaffData(data);
       });
     });

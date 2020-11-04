@@ -137,6 +137,7 @@ class StaffBlock extends React.Component {
 
   componentDidMount() {
     StaffService.getStaffs().then(({ data }) => {
+      console.log(data);
       this.setState({ data });
     });
   }

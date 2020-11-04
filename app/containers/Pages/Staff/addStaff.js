@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+stfimport React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -87,20 +87,20 @@ class AddStaff extends React.Component {
       isGeneralContractInformation: false,
       isEconomicContractInformation: false,
       isStaffDocumentation: false,
-      firstName: '',
-      fatherFamilyName: '',
-      motherFamilyName: '',
-      personalPhone: '',
-      personalEmail: '',
+      firstName: 'Haroun',
+      fatherFamilyName: 'Darjaj',
+      motherFamilyName: 'Souri',
+      personalPhone: '688146618',
+      personalEmail: 'darjaj.haroun@gmail.com',
       companyName: '',
-      companyPhone: '',
-      companyMobilePhone: '',
-      companyEmail: '',
-      skype: '',
-      birthday: new Date(),
+      companyPhone: '500000000',
+      companyMobilePhone: '600000000',
+      companyEmail: 'haroun.darjaj@techniu.org',
+      skype: 'haroun.darjaj',
+      birthday: new Date('03/10/1997'),
       birthCountry: '',
-      emergencyContactName: '',
-      emergencyContactPhone: '',
+      emergencyContactName: 'John Doe',
+      emergencyContactPhone: '12345678',
       photo: '',
       fullAddress: '',
       company: {},
@@ -113,8 +113,8 @@ class AddStaff extends React.Component {
       associateOffice: '',
       hiringCountry: '',
       hiringState: '',
-      townContract: '',
-      personalNumber: '',
+      townContract: 'Tangier',
+      personalNumber: '1700',
       highDate: new Date(),
       lowDate: new Date(),
       registrationDate: new Date(),
@@ -290,18 +290,10 @@ class AddStaff extends React.Component {
       totalCompanyCostDateOut
     } = this.state;
 
-    const contract = {
-      staffContractId,
-      companyName,
-      associateOffice,
-      hiringCountry: hiringCountry.countryName,
-      townContract,
-      personalNumber,
-      highDate: highDate.toISOString().slice(0, 10),
-      lowDate: lowDate.toISOString().slice(0, 10),
-      registrationDate: registrationDate.toISOString().slice(0, 10),
-      preContractDate: preContractDate.toISOString().slice(0, 10)
-    };
+    console.log(city);
+    console.log(contractType);
+    console.log(legalCategoryType);
+
     const total = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
@@ -321,7 +313,7 @@ class AddStaff extends React.Component {
       emergencyContactPhone,
       photo,
       isLeader: 'no',
-      cityId: '5f8d48445c2a4625620c884d',
+      cityId: city.cityId,
       fullAddress,
       postCode,
 
@@ -399,11 +391,13 @@ class AddStaff extends React.Component {
       hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
       hnsCardDocExtension
     };
-    const Documents = new FormData();
+
+    const formData = new FormData();
+    Object.keys(staff).forEach(e => formData.append(e, staff[e]));
     if (contractDoc.constructor !== Object) {
-      Documents.append('contractDoc', contractDoc);
+      formData.append('contractDoc', contractDoc);
     } else {
-      Documents.append(
+      formData.append(
         'contractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -411,9 +405,9 @@ class AddStaff extends React.Component {
       );
     }
     if (internalRulesDoc.constructor !== Object) {
-      Documents.append('internalRulesDoc', internalRulesDoc);
+      formData.append('internalRulesDoc', internalRulesDoc);
     } else {
-      Documents.append(
+      formData.append(
         'internalRulesDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -421,34 +415,55 @@ class AddStaff extends React.Component {
       );
     }
     if (preContractDoc.constructor !== Object) {
-      Documents.append('preContractDoc', preContractDoc);
+      formData.append('preContractDoc', preContractDoc);
     } else {
-      Documents.append(
+      formData.append(
         'preContractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
         })
       );
     }
-    Documents.append(
-      'staffContract',
-      new Blob([JSON.stringify(contract)], {
-        type: 'application/json'
-      })
-    );
-
-    // Documents.append('files[]', idCardDoc);
-    Documents.append('files[]', passportDoc);
-    Documents.append('files[]', professionalIdCardDoc);
-    Documents.append('files[]', hnsCardDoc);
-    console.log('idCardDoc :' + idCardDoc);
-
-    const formData = new FormData();
-    Object.keys(staff).forEach(e => formData.append(e, staff[e]));
-    formData.append('idCardPhoto', idCardDoc);
-    formData.append('passportPhoto', idCardDoc);
-    formData.append('professionalIdCardDatePhoto', idCardDoc);
-    formData.append('hnsPhoto', idCardDoc);
+    if (idCardDoc.constructor !== Object) {
+      formData.append('idCardDoc', idCardDoc);
+    } else {
+      formData.append(
+        'idCardDoc',
+        new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+      );
+    }
+    if (passportDoc.constructor !== Object) {
+      formData.append('passportDoc', passportDoc);
+    } else {
+      formData.append(
+        'passportDoc',
+        new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+      );
+    }
+    if (professionalIdCardDoc.constructor !== Object) {
+      formData.append('professionalIdCardDoc', professionalIdCardDoc);
+    } else {
+      formData.append(
+        'professionalIdCardDoc',
+        new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+      );
+    }
+    if (hnsCardDoc.constructor !== Object) {
+      formData.append('hnsCardDoc', hnsCardDoc);
+    } else {
+      formData.append(
+        'hnsCardDoc',
+        new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+      );
+    }
     const promise = new Promise(resolve => {
       // get client information
       saveStaff(formData);
@@ -1803,7 +1818,7 @@ class AddStaff extends React.Component {
                           onChange={this.handleChange}
                         >
                           {contractTypes.map(type => (
-                            <MenuItem key={type.code} value={type._id}>
+                            <MenuItem key={type.code} value={type.staffId}>
                               {type.name}
                             </MenuItem>
                           ))}
