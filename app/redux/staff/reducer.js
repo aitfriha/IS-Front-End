@@ -20,8 +20,8 @@ const initialState = {
   errors: {},
   staffResponse: '',
   allStaff: [],
-  selectedStaff: '',
-  isEditStaff: ''
+  staff: {},
+  isEdit: false
 };
 
 export default function staffReducer(state = initialState, action) {
