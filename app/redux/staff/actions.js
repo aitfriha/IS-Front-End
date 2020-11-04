@@ -7,22 +7,22 @@ import {
   SET_EDIT
 } from './constants';
 
-export const addCommercialOperationStatus = staff => ({
+export const addStaff = staff => ({
   type: ADD_STAFF,
   staff
 });
 
-export const updateCommercialOperationStatus = staffWithId => ({
+export const updateStaff = staffWithId => ({
   type: UPDATE_STAFF,
   staffWithId
 });
 
-export const deleteCommercialOperationStatus = staffId => ({
+export const deleteStaff = staffId => ({
   type: DELETE_STAFF,
   staffId
 });
 
-export const getAllCommercialOperationStatus = () => ({
+export const getAllStaff = () => ({
   type: GET_ALL_STAFFS
 });
 
