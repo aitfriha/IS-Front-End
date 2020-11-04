@@ -39,6 +39,9 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { isString } from 'lodash';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import styles from './staff-jss';
@@ -50,6 +53,8 @@ import ContractTypeService from '../../Services/ContractTypeService';
 import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
 import StaffEconomicContractInformation from './StaffEconomicContractInformation';
+import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
+import notification from '../../../components/Notification/Notification';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -75,6 +80,7 @@ const useStyles = makeStyles(styles);
 class AddStaff extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {};
     this.state = {
       isChangeProfilePic: false,
       isPersonalInformation: true,
@@ -167,8 +173,8 @@ class AddStaff extends React.Component {
   profilePictureRef = React.createRef();
 
   componentDidMount() {
-    const { changeTheme } = this.props;
-    changeTheme('blueCyanTheme');
+    // const { changeTheme } = this.props;
+    // changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
@@ -207,6 +213,7 @@ class AddStaff extends React.Component {
   };
 
   handleSubmitStaff = () => {
+    const { saveStaff, getAllStaff } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -240,11 +247,11 @@ class AddStaff extends React.Component {
       internalRulesDoc,
       contractDoc,
       preContractDoc,
-      idCardDoc,
       passportDoc,
       professionalIdCardDoc,
       hnsCardDoc,
       idCardDocExtension,
+      idCardDoc,
       passportDocExtension,
       professionalIdCardDocExtension,
       hnsCardDocExtension,
@@ -314,7 +321,7 @@ class AddStaff extends React.Component {
       emergencyContactPhone,
       photo,
       isLeader: 'no',
-      cityId,
+      cityId: '5f8d48445c2a4625620c884d',
       fullAddress,
       postCode,
 
@@ -430,12 +437,32 @@ class AddStaff extends React.Component {
       })
     );
 
-    Documents.append('files[]', idCardDoc);
+    // Documents.append('files[]', idCardDoc);
     Documents.append('files[]', passportDoc);
     Documents.append('files[]', professionalIdCardDoc);
     Documents.append('files[]', hnsCardDoc);
+    console.log('idCardDoc :' + idCardDoc);
 
-    StaffContractService.saveStaffContract(
+    const formData = new FormData();
+    Object.keys(staff).forEach(e => formData.append(e, staff[e]));
+    formData.append('idCardPhoto', idCardDoc);
+    formData.append('passportPhoto', idCardDoc);
+    formData.append('professionalIdCardDatePhoto', idCardDoc);
+    formData.append('hnsPhoto', idCardDoc);
+    const promise = new Promise(resolve => {
+      // get client information
+      saveStaff(formData);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+      } else {
+        notification('danger', result);
+      }
+    });
+    /*    StaffContractService.saveStaffContract(
       contractData,
       contractType,
       legalCategoryType
@@ -449,7 +476,7 @@ class AddStaff extends React.Component {
       StaffService.saveStaff(staffData).then(({ data }) => {
         history.push('/app/hh-rr/staff', {});
       });
-    });
+    }); */
   };
 
   handleDialogClose = () => {
@@ -544,6 +571,7 @@ class AddStaff extends React.Component {
   };
 
   handleIdCardDocChange = () => {
+    console.log('eeeeeeeeeeeeeee');
     const lastDot = inputIdCardDoc.current.files[0].name.lastIndexOf('.');
     const ext = inputIdCardDoc.current.files[0].name
       .substring(lastDot + 1)
@@ -664,7 +692,9 @@ class AddStaff extends React.Component {
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
-    const { classes } = this.props;
+    const {
+      classes, isLoadingStaff, staffResponse, errorStaff
+    } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -734,6 +764,10 @@ class AddStaff extends React.Component {
         email: 'internationalgde@gmail.com'
       }
     ];
+    !isLoadingStaff
+      && staffResponse
+      && this.editingPromiseResolve(staffResponse);
+    !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
     return (
       <div>
         <Helmet>
@@ -1924,8 +1958,29 @@ class AddStaff extends React.Component {
   }
 }
 
-export default () => {
+/* export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
   return <AddStaff changeTheme={changeTheme} classes={classes} />;
-};
+}; */
+
+const mapStateToProps = state => ({
+  allStaff: state.getIn(['staffs']).allStaff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorsStaff: state.getIn(['staffs']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    saveStaff,
+    getAllStaff
+  },
+  dispatch
+);
+
+export default withStyles(styles)(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(AddStaff)
+);
