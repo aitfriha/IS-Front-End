@@ -58,7 +58,9 @@ class StaffBlock extends React.Component {
           label: 'Company',
           name: 'staffContract',
           options: {
-            customBodyRender: (value, data) => <React.Fragment>{value.companyName}</React.Fragment>
+            customBodyRender: (value, data) => (
+              <React.Fragment>{value.companyName}</React.Fragment>
+            )
           }
         },
         {
@@ -185,7 +187,7 @@ StaffBlock.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  staff: state.get('staffs').toJS().staff
+  staff: state.get('staffs').staff
 });
 const mapDispatchToProps = dispatch => ({
   setStaffData: bindActionCreators(setStaff, dispatch)

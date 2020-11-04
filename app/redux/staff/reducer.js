@@ -10,19 +10,35 @@ import {
   GET_ALL_STAFFS_SUCCESS,
   UPDATE_STAFF,
   UPDATE_STAFF_FAILURE,
-  UPDATE_STAFF_SUCCESS
+  UPDATE_STAFF_SUCCESS,
+  SET_STAFF,
+  SET_EDIT
 } from './constants';
 
 const initialState = {
   isLoading: false,
   errors: {},
   staffResponse: '',
-  allStaffs: []
+  allStaff: [],
+  staff,
+  isEdit
 };
 
 export default function staffReducer(state = initialState, action) {
   switch (action.type) {
-      // TRIGGERING ACTIONS
+    case SET_STAFF:
+      return {
+        ...state,
+        staff: action.staff
+      };
+
+    case SET_EDIT:
+      return {
+        ...state,
+        isEdit: action.isEdit
+      };
+    // TRIGGERING ACTIONS
+    // TRIGGERING ACTIONS
     case GET_ALL_STAFFS:
     case ADD_STAFF:
     case UPDATE_STAFF:
@@ -33,7 +49,7 @@ export default function staffReducer(state = initialState, action) {
         staffResponse: ''
       };
 
-      // SUCCESS ACTIONS
+    // SUCCESS ACTIONS
     case ADD_STAFF_SUCCESS:
     case UPDATE_STAFF_SUCCESS:
     case DELETE_STAFF_SUCCESS:
@@ -48,11 +64,11 @@ export default function staffReducer(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
-        allStaffs: action.payload,
+        allStaff: action.payload,
         staffResponse: ''
       };
 
-      // FAILURE ACTIONS
+    // FAILURE ACTIONS
     case GET_ALL_STAFFS_FAILURE:
     case ADD_STAFF_FAILURE:
     case UPDATE_STAFF_FAILURE:
