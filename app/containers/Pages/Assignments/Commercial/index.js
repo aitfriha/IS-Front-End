@@ -72,34 +72,34 @@ class Commercial extends React.Component {
         },
         {
           // eslint-disable-next-line no-useless-concat
-          label: 'Email',
-          name: 'email',
+          title: 'Email',
+          field: 'email',
           /* cellStyle: { width: 100, maxWidth: 100 },
           headerStyle: { width: 130, maxWidth: 130 } */
         },
         {
           // eslint-disable-next-line no-useless-concat
-          label: 'Phone',
-          name: 'phone'
+          title: 'Phone',
+          field: 'phone'
           /* cellStyle: { width: 155, maxWidth: 155 },
           headerStyle: { width: 180, maxWidth: 180 } */
         },
         {
-          label: 'Description',
-          name: 'description',
+          title: 'Description',
+          field: 'description',
           /* cellStyle: { width: 155, maxWidth: 155 },
           headerStyle: { width: 100, maxWidth: 180 } */
         },
         {
-          label: 'Responsible Commercial',
-          name: 'responsibleCommercial',
+          title: 'Responsible Commercial',
+          field: 'responsibleCommercial',
           options: {
             filter: true,
           }
         },
         {
-          label: 'Assistant Commercial',
-          name: 'assistantCommercial',
+          title: 'Assistant Commercial',
+          field: 'assistantCommercial',
           options: {
             filter: true,
           }
@@ -224,11 +224,12 @@ class Commercial extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  deleteAndUpdateServiceType = () => {
+  assineStaffToClient = () => {
     const { typeResponsible, staff, listClientToUpdate } = this.state;
     console.log(typeResponsible);
-    console.log(staff);
+    console.log(staff.staffId);
     console.log(listClientToUpdate);
+
   };
 
   render() {
@@ -349,7 +350,7 @@ class Commercial extends React.Component {
                   /* onSelectionChange={(rows) => this.selectedRows(rows)} */
                   actions={[
                     {
-                      tooltip: 'Remove All Selected Users',
+                      tooltip: 'Assigne',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
                     }
@@ -451,7 +452,7 @@ class Commercial extends React.Component {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={this.deleteAndUpdateServiceType}
+                      onClick={this.assineStaffToClient}
                     >
                       Update
                     </Button>
@@ -502,7 +503,7 @@ const mapStateToProps = state => ({
   isLoading: state.getIn(['clients']).isLoading,
   errors: state.getIn(['clients']).errors,
   // all staff
-  allStaffs: state.getIn(['staffs']).allStaffs,
+  allStaffs: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
   errorsStaff: state.getIn(['staffs']).errors,
