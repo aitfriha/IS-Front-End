@@ -19,7 +19,11 @@ import {
   GET_ALL_CHILDSECTORCOMPANYS_FAILURE,
   GET_ALL_PRIMARYSECTORCOMPANYS,
   GET_ALL_PRIMARYSECTORCOMPANYS_SUCCESS,
-  GET_ALL_PRIMARYSECTORCOMPANYS_FAILURE
+  GET_ALL_PRIMARYSECTORCOMPANYS_FAILURE,
+
+  GET_ALL_SUBCHILDSECTORCOMPANYS,
+  GET_ALL_SUBCHILDSECTORCOMPANYS_SUCCESS,
+  GET_ALL_SUBCHILDSECTORCOMPANYS_FAILURE,
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -134,6 +138,27 @@ function* getAllChildSectorCompany(action) {
   }
 }
 
+function* getAllSubChildSectorCompany(action) {
+  try {
+    const {
+      parentName
+    } = action;
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.SECTORCOMPANY + '/allSectorByParent/' + parentName
+    });
+    yield put({
+      type: GET_ALL_SUBCHILDSECTORCOMPANYS_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_SUBCHILDSECTORCOMPANYS_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 function* getAllPrimarySectorCompany() {
   try {
     const request = yield axios({
@@ -159,6 +184,7 @@ export default function* sectorCompanySaga() {
     takeLatest(DELETE_SECTORCOMPANY, deleteSectorCompany),
     takeLatest(GET_ALL_SECTORCOMPANYS, getAllSectorCompany),
     takeLatest(GET_ALL_CHILDSECTORCOMPANYS, getAllChildSectorCompany),
+    takeLatest(GET_ALL_SUBCHILDSECTORCOMPANYS, getAllSubChildSectorCompany),
     takeLatest(GET_ALL_PRIMARYSECTORCOMPANYS, getAllPrimarySectorCompany),
   ]);
 }

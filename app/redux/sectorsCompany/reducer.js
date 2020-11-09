@@ -14,14 +14,20 @@ import {
   GET_ALL_CHILDSECTORCOMPANYS,
   GET_ALL_CHILDSECTORCOMPANYS_SUCCESS,
   GET_ALL_CHILDSECTORCOMPANYS_FAILURE,
-  GET_ALL_PRIMARYSECTORCOMPANYS_SUCCESS
+  GET_ALL_PRIMARYSECTORCOMPANYS_SUCCESS,
+
+  GET_ALL_SUBCHILDSECTORCOMPANYS,
+  GET_ALL_SUBCHILDSECTORCOMPANYS_SUCCESS,
+  GET_ALL_SUBCHILDSECTORCOMPANYS_FAILURE,
 } from './constants';
 
 const initialState = {
   isLoading: false,
   errors: {},
   sectorComapnyResponse: '',
-  allSectorComapnys: []
+  allSectorComapnys: [],
+  allSubSectorChildComapnys: [],
+  subsectorComapnyResponse: '',
 };
 
 export default function sectorComapnyReducer(state = initialState, action) {
@@ -29,6 +35,7 @@ export default function sectorComapnyReducer(state = initialState, action) {
     // TRIGGERING ACTIONS
     case GET_ALL_SECTORCOMPANYS:
     case GET_ALL_CHILDSECTORCOMPANYS:
+    case GET_ALL_SUBCHILDSECTORCOMPANYS:
     case ADD_SECTORCOMPANY:
     case UPDATE_SECTORCOMPANY:
     case DELETE_SECTORCOMPANY:
@@ -57,13 +64,20 @@ export default function sectorComapnyReducer(state = initialState, action) {
         allSectorComapnys: action.payload,
         sectorComapnyResponse: ''
       };
-
     case GET_ALL_CHILDSECTORCOMPANYS_SUCCESS:
       return {
         ...state,
         isLoading: false,
         allSectorChildComapnys: action.payload,
         sectorComapnyResponse: ''
+      };
+
+    case GET_ALL_SUBCHILDSECTORCOMPANYS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        allSubSectorChildComapnys: action.payload,
+        subsectorComapnyResponse: ''
       };
 
     case GET_ALL_PRIMARYSECTORCOMPANYS_SUCCESS:
@@ -76,6 +90,7 @@ export default function sectorComapnyReducer(state = initialState, action) {
 
       // FAILURE ACTIONS
     case GET_ALL_SECTORCOMPANYS_FAILURE:
+    case GET_ALL_SUBCHILDSECTORCOMPANYS_FAILURE:
     case GET_ALL_CHILDSECTORCOMPANYS_FAILURE:
     case ADD_SECTORCOMPANY_FAILURE:
     case UPDATE_SECTORCOMPANY_FAILURE:
