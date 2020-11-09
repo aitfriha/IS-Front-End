@@ -8,6 +8,8 @@ import countrySaga from './country/saga';
 import clientSaga from './client/saga';
 import sectorCompanySaga from './sectorsCompany/saga';
 import commercialOperationSaga from './commercialOperation/saga';
+import staffSaga from './staff/saga';
+import assignmentSaga from './assignment/saga';
 // import watchers from other files
 export default function* rootSaga() {
   yield all([
@@ -18,7 +20,9 @@ export default function* rootSaga() {
     stateCountrySaga(),
     countrySaga(),
     clientSaga(),
-    sectorCompanySaga()
+    sectorCompanySaga(),
+    staffSaga(),
+    assignmentSaga()
     // add other watchers to the array
   ]);
 }

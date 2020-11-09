@@ -10,9 +10,22 @@ const config = {
 class StaffContractService {
   getAllStaffContracts = () => axios.get(`${API}/staffContract-all`);
 
-  saveStaffContract = staffContract => axios.post(`${API}/staffContract-save`, staffContract, config);
+  saveStaffContract = (staffContract, contractTypeId, legalCategoryTypeId) => axios.post(
+    `${API}/staffContract-save/contractTypeId=${contractTypeId}&legalCategoryTypeId=${legalCategoryTypeId}`,
+    staffContract,
+    config
+  );
 
-  updateStaffContract = (staffContractId, staffContract) => axios.put(`${API}/staffContract-update/${staffContractId}`, staffContract);
+  updateStaffContract = (
+    staffContractId,
+    staffContract,
+    contractTypeId,
+    legalCategoryTypeId
+  ) => axios.put(
+    `${API}/staffContract-update/id=${staffContractId}&contractTypeId=${contractTypeId}&legalCategoryTypeId=${legalCategoryTypeId}`,
+    staffContract,
+    config
+  );
 
   deleteStaffContract = staffContractId => axios.delete(`${API}/staffContract-delete/${staffContractId}`);
 }

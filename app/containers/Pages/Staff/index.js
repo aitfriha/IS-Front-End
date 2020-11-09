@@ -9,8 +9,7 @@ import StaffProfile from './StaffProfile';
 
 class Staff extends React.Component {
   state = {
-    isShowProfile: false,
-    staff: {}
+    isShowProfile: false
   };
 
   componentDidMount() {
@@ -18,10 +17,9 @@ class Staff extends React.Component {
     changeTheme('blueCyanTheme');
   }
 
-  showStaffProfile = (isShowProfile, staff) => {
+  showStaffProfile = isShowProfile => {
     this.setState({
-      isShowProfile,
-      staff
+      isShowProfile
     });
   };
 
@@ -52,7 +50,9 @@ class Staff extends React.Component {
             mountOnEnter
             unmountOnExit
           >
-            <StaffBlock showProfile={this.showStaffProfile} />
+            <div>
+              <StaffBlock showProfile={this.showStaffProfile} />
+            </div>
           </Slide>
           <Slide
             direction="right"
@@ -61,7 +61,9 @@ class Staff extends React.Component {
             mountOnEnter
             unmountOnExit
           >
-            <StaffProfile staff={staff} showProfile={this.showStaffProfile} />
+            <div>
+              <StaffProfile showProfile={this.showStaffProfile} />
+            </div>
           </Slide>
         </PapperBlock>
       </div>

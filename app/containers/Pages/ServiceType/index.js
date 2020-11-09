@@ -257,7 +257,7 @@ class serviceType extends React.Component {
                     <TextField
                       fullWidth
                       {...params}
-                      label="Choose the country"
+                      label="Choose Service type"
                       variant="outlined"
                     />
                   )}

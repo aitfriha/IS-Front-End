@@ -52,8 +52,6 @@ class StaffEconomicContractInformation extends Component {
     const { handleChangeValue } = this.props;
     const { name } = ev.target;
     this.setState({ [name]: ev.target.value });
-    console.log(ev.target.value);
-    console.log(ev.target.name);
     if (
       name === 'companyContractCost'
       || name === 'companyExpensesCost'
@@ -63,7 +61,6 @@ class StaffEconomicContractInformation extends Component {
         ...this.state,
         [name]: ev.target.value
       };
-      console.log(newValues);
       this.calcTotal(newValues);
     }
     handleChangeValue(ev);

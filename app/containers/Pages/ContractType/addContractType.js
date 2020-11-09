@@ -48,20 +48,24 @@ class AddContractType extends React.Component {
     const {
       code, name, description, state
     } = this.state;
-    const contractType = { code, name, description };
-    ContractTypeService.saveContractType(
-      contractType,
-      state.stateCountryId
-    ).then(() => {
+    const contractType = {
+      code,
+      name,
+      description,
+      stateId: state.stateCountryId
+    };
+    ContractTypeService.saveContractType(contractType).then(({ data }) => {
+      console.log(data);
       history.push('/app/hh-rr/contractType');
     });
   };
 
   handleChangeCountry = (ev, value) => {
     StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
+      console.log(data);
       this.setState({
         country: value,
-        states: data
+        states: data.payload
       });
     });
   };

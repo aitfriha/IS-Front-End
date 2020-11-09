@@ -61,7 +61,7 @@ class AddAbsenceType extends React.Component {
     StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
       this.setState({
         country: value,
-        states: data
+        states: data.payload
       });
     });
   };

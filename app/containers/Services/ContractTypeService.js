@@ -6,10 +6,10 @@ class ContractTypeService {
 
   getAllByState = stateId => axios.get(`${API}/contractType-all-by-state/${stateId}`);
 
-  saveContractType = (contractType, stateCountryId) => axios.post(`${API}/contractType-save/${stateCountryId}`, contractType);
+  saveContractType = contractType => axios.post(`${API}/add`, contractType);
 
   updateContractType = (contractTypeId, contractType) => axios.put(`${API}/contractType-update/${contractTypeId}`, contractType);
 
-  deleteContractType = contractTypeId => axios.delete(`${API}/contractType-delete/${contractTypeId}`);
+  deleteContractType = contractTypeId => axios.delete(`${API}/delete/${contractTypeId}`);
 }
 export default new ContractTypeService();

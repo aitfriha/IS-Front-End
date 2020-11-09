@@ -39,9 +39,6 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { isString } from 'lodash';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import styles from './staff-jss';
@@ -53,8 +50,104 @@ import ContractTypeService from '../../Services/ContractTypeService';
 import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
 import StaffEconomicContractInformation from './StaffEconomicContractInformation';
-import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
-import notification from '../../../components/Notification/Notification';
+
+const staff = {
+  firstName,
+  fatherFamilyName,
+  motherFamilyName,
+  personalPhone,
+  personalEmail,
+  companyPhone,
+  companyMobilePhone,
+  companyEmail,
+  skype,
+  birthday: birthday.toISOString().slice(0, 10),
+  birthCountry: birthCountry.countryName,
+  emergencyContactName,
+  emergencyContactPhone,
+  photo,
+  isLeader: 'no',
+  cityId,
+  fullAddress,
+  postCode,
+
+  staffContractId,
+  companyName,
+  associateOffice,
+  hiringCountry: hiringCountry.countryName,
+  townContract,
+  personalNumber,
+  highDate: highDate.toISOString().slice(0, 10),
+  lowDate: lowDate.toISOString().slice(0, 10),
+  registrationDate: registrationDate.toISOString().slice(0, 10),
+  preContractDate: preContractDate.toISOString().slice(0, 10),
+  contractDoc,
+  internalRulesDoc,
+  preContractDoc,
+  contractType,
+  legalCategoryType,
+
+  contractSalary,
+  companyContractCost,
+  expenses,
+  companyExpensesCost,
+  objectives,
+  companyObjectivesCost,
+  totalCompanyCost: total,
+  contractSalaryDateGoing: contractSalaryDateGoing.toISOString().slice(0, 10),
+  contractSalaryDateOut: contractSalaryDateOut.toISOString().slice(0, 10),
+  companyContractCostDateGoing: companyContractCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  companyContractCostDateOut: companyContractCostDateOut
+    .toISOString()
+    .slice(0, 10),
+  expensesDateGoing: expensesDateGoing.toISOString().slice(0, 10),
+  expensesDateOut: expensesDateOut.toISOString().slice(0, 10),
+  companyExpensesCostDateGoing: companyExpensesCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  companyExpensesCostDateOut: companyExpensesCostDateOut
+    .toISOString()
+    .slice(0, 10),
+  objectivesDateGoing: objectivesDateGoing.toISOString().slice(0, 10),
+  objectivesDateOut: objectivesDateOut.toISOString().slice(0, 10),
+  companyObjectivesCostDateGoing: companyObjectivesCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  companyObjectivesCostDateOut: companyObjectivesCostDateOut
+    .toISOString()
+    .slice(0, 10),
+  totalCompanyCostDateGoing: totalCompanyCostDateGoing
+    .toISOString()
+    .slice(0, 10),
+  totalCompanyCostDateOut: totalCompanyCostDateOut.toISOString().slice(0, 10),
+
+  idCardNumber,
+  idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
+  idCardExpirationDate: idCardExpirationDate.toISOString().slice(0, 10),
+  idCardDocExtension,
+  idCardDoc,
+  passportNumber,
+  passportExpeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
+  passportExpirationDate: passportExpirationDate.toISOString().slice(0, 10),
+  passportDocExtension,
+  passportDoc,
+  professionalIdCardNumber,
+  professionalIdCardExpeditionDate: professionalIdCardExpeditionDate
+    .toISOString()
+    .slice(0, 10),
+  professionalIdCardExpirationDate: professionalIdCardExpirationDate
+    .toISOString()
+    .slice(0, 10),
+  professionalIdCardDocExtension,
+  professionalIdCardDoc,
+  hnsCardNumber,
+  hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
+  hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
+  hnsCardDocExtension,
+  hnsCardDoc
+};
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -80,27 +173,26 @@ const useStyles = makeStyles(styles);
 class AddStaff extends React.Component {
   constructor(props) {
     super(props);
-    this.editingPromiseResolve = () => {};
     this.state = {
       isChangeProfilePic: false,
       isPersonalInformation: true,
       isGeneralContractInformation: false,
       isEconomicContractInformation: false,
       isStaffDocumentation: false,
-      firstName: 'Haroun',
-      fatherFamilyName: 'Darjaj',
-      motherFamilyName: 'Souri',
-      personalPhone: '688146618',
-      personalEmail: 'darjaj.haroun@gmail.com',
+      firstName: '',
+      fatherFamilyName: '',
+      motherFamilyName: '',
+      personalPhone: '',
+      personalEmail: '',
       companyName: '',
-      companyPhone: '500000000',
-      companyMobilePhone: '600000000',
-      companyEmail: 'haroun.darjaj@techniu.org',
-      skype: 'haroun.darjaj',
-      birthday: new Date('03/10/1997'),
+      companyPhone: '',
+      companyMobilePhone: '',
+      companyEmail: '',
+      skype: '',
+      birthday: new Date(),
       birthCountry: '',
-      emergencyContactName: 'John Doe',
-      emergencyContactPhone: '12345678',
+      emergencyContactName: '',
+      emergencyContactPhone: '',
       photo: '',
       fullAddress: '',
       company: {},
@@ -113,8 +205,8 @@ class AddStaff extends React.Component {
       associateOffice: '',
       hiringCountry: '',
       hiringState: '',
-      townContract: 'Tangier',
-      personalNumber: '1700',
+      townContract: '',
+      personalNumber: '',
       highDate: new Date(),
       lowDate: new Date(),
       registrationDate: new Date(),
@@ -173,8 +265,8 @@ class AddStaff extends React.Component {
   profilePictureRef = React.createRef();
 
   componentDidMount() {
-    // const { changeTheme } = this.props;
-    // changeTheme('blueCyanTheme');
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
@@ -213,7 +305,6 @@ class AddStaff extends React.Component {
   };
 
   handleSubmitStaff = () => {
-    const { saveStaff, getAllStaff } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -247,11 +338,11 @@ class AddStaff extends React.Component {
       internalRulesDoc,
       contractDoc,
       preContractDoc,
+      idCardDoc,
       passportDoc,
       professionalIdCardDoc,
       hnsCardDoc,
       idCardDocExtension,
-      idCardDoc,
       passportDocExtension,
       professionalIdCardDocExtension,
       hnsCardDocExtension,
@@ -290,10 +381,18 @@ class AddStaff extends React.Component {
       totalCompanyCostDateOut
     } = this.state;
 
-    console.log(city);
-    console.log(contractType);
-    console.log(legalCategoryType);
-
+    const contract = {
+      staffContractId,
+      companyName,
+      associateOffice,
+      hiringCountry: hiringCountry.countryName,
+      townContract,
+      personalNumber,
+      highDate: highDate.toISOString().slice(0, 10),
+      lowDate: lowDate.toISOString().slice(0, 10),
+      registrationDate: registrationDate.toISOString().slice(0, 10),
+      preContractDate: preContractDate.toISOString().slice(0, 10)
+    };
     const total = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
@@ -313,7 +412,7 @@ class AddStaff extends React.Component {
       emergencyContactPhone,
       photo,
       isLeader: 'no',
-      cityId: city.cityId,
+      cityId,
       fullAddress,
       postCode,
 
@@ -391,13 +490,11 @@ class AddStaff extends React.Component {
       hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
       hnsCardDocExtension
     };
-
-    const formData = new FormData();
-    Object.keys(staff).forEach(e => formData.append(e, staff[e]));
+    const Documents = new FormData();
     if (contractDoc.constructor !== Object) {
-      formData.append('contractDoc', contractDoc);
+      Documents.append('contractDoc', contractDoc);
     } else {
-      formData.append(
+      Documents.append(
         'contractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -405,9 +502,9 @@ class AddStaff extends React.Component {
       );
     }
     if (internalRulesDoc.constructor !== Object) {
-      formData.append('internalRulesDoc', internalRulesDoc);
+      Documents.append('internalRulesDoc', internalRulesDoc);
     } else {
-      formData.append(
+      Documents.append(
         'internalRulesDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -415,69 +512,28 @@ class AddStaff extends React.Component {
       );
     }
     if (preContractDoc.constructor !== Object) {
-      formData.append('preContractDoc', preContractDoc);
+      Documents.append('preContractDoc', preContractDoc);
     } else {
-      formData.append(
+      Documents.append(
         'preContractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
         })
       );
     }
-    if (idCardDoc.constructor !== Object) {
-      formData.append('idCardDoc', idCardDoc);
-    } else {
-      formData.append(
-        'idCardDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (passportDoc.constructor !== Object) {
-      formData.append('passportDoc', passportDoc);
-    } else {
-      formData.append(
-        'passportDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (professionalIdCardDoc.constructor !== Object) {
-      formData.append('professionalIdCardDoc', professionalIdCardDoc);
-    } else {
-      formData.append(
-        'professionalIdCardDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (hnsCardDoc.constructor !== Object) {
-      formData.append('hnsCardDoc', hnsCardDoc);
-    } else {
-      formData.append(
-        'hnsCardDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    const promise = new Promise(resolve => {
-      // get client information
-      saveStaff(formData);
-      this.editingPromiseResolve = resolve;
-    });
-    promise.then(result => {
-      if (isString(result)) {
-        notification('success', result);
-        getAllStaff();
-      } else {
-        notification('danger', result);
-      }
-    });
-    /*    StaffContractService.saveStaffContract(
+    Documents.append(
+      'staffContract',
+      new Blob([JSON.stringify(contract)], {
+        type: 'application/json'
+      })
+    );
+
+    Documents.append('files[]', idCardDoc);
+    Documents.append('files[]', passportDoc);
+    Documents.append('files[]', professionalIdCardDoc);
+    Documents.append('files[]', hnsCardDoc);
+
+    StaffContractService.saveStaffContract(
       contractData,
       contractType,
       legalCategoryType
@@ -491,7 +547,7 @@ class AddStaff extends React.Component {
       StaffService.saveStaff(staffData).then(({ data }) => {
         history.push('/app/hh-rr/staff', {});
       });
-    }); */
+    });
   };
 
   handleDialogClose = () => {
@@ -586,7 +642,6 @@ class AddStaff extends React.Component {
   };
 
   handleIdCardDocChange = () => {
-    console.log('eeeeeeeeeeeeeee');
     const lastDot = inputIdCardDoc.current.files[0].name.lastIndexOf('.');
     const ext = inputIdCardDoc.current.files[0].name
       .substring(lastDot + 1)
@@ -707,9 +762,7 @@ class AddStaff extends React.Component {
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
-    const {
-      classes, isLoadingStaff, staffResponse, errorStaff
-    } = this.props;
+    const { classes } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -779,10 +832,6 @@ class AddStaff extends React.Component {
         email: 'internationalgde@gmail.com'
       }
     ];
-    !isLoadingStaff
-      && staffResponse
-      && this.editingPromiseResolve(staffResponse);
-    !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
     return (
       <div>
         <Helmet>
@@ -1818,7 +1867,7 @@ class AddStaff extends React.Component {
                           onChange={this.handleChange}
                         >
                           {contractTypes.map(type => (
-                            <MenuItem key={type.code} value={type.staffId}>
+                            <MenuItem key={type.code} value={type._id}>
                               {type.name}
                             </MenuItem>
                           ))}
@@ -1973,29 +2022,8 @@ class AddStaff extends React.Component {
   }
 }
 
-/* export default () => {
+export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
   return <AddStaff changeTheme={changeTheme} classes={classes} />;
-}; */
-
-const mapStateToProps = state => ({
-  allStaff: state.getIn(['staffs']).allStaff,
-  staffResponse: state.getIn(['staffs']).staffResponse,
-  isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors
-});
-const mapDispatchToProps = dispatch => bindActionCreators(
-  {
-    saveStaff,
-    getAllStaff
-  },
-  dispatch
-);
-
-export default withStyles(styles)(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(AddStaff)
-);
+};
