@@ -8,28 +8,50 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  withStyles,
   makeStyles
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { PapperBlock } from 'dan-components';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { isString } from 'lodash';
 import AutoComplete from '../../../components/AutoComplete';
 import styles from './legalCategoryType-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import '../Configurations/map/app.css';
 import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
+import FinancialCompanyService from '../../Services/FinancialCompanyService';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import {
+  getAllLegalCategoryType,
+  saveLegalCategoryType
+} from '../../../redux/legalCategoryType/actions';
+import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
 
 class AddLegalCategoryType extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {};
     this.state = {
       name: '',
       functions: '',
       company: {},
-      legalCategoryTypes: []
+      legalCategoryTypes: [],
+      companies: []
     };
+  }
+
+  componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
+    FinancialCompanyService.getCompany().then(({ data }) => {
+      console.log(data);
+      this.setState({ companies: data });
+    });
   }
 
   handleChange = ev => {
@@ -37,24 +59,59 @@ class AddLegalCategoryType extends React.Component {
   };
 
   handleChangeCompany = ev => {
-    LegalCategoryTypeService.getAllLegalCategoryTypesByCompany(
-      ev.target.value
-    ).then(({ data }) => {
-      this.setState({
-        legalCategoryTypes: data,
-        [ev.target.name]: ev.target.value
-      });
-    });
+    LegalCategoryTypeService.getAllByCompany(ev.target.value).then(
+      ({ data }) => {
+        this.setState({
+          legalCategoryTypes: data,
+          [ev.target.name]: ev.target.value
+        });
+      }
+    );
+  };
+
+  handleChangeCompany = (ev, value) => {
+    console.log(value);
+    LegalCategoryTypeService.getAllByCompany(value.financialCompanyId).then(
+      ({ data }) => {
+        console.log(data);
+        this.setState({
+          company: value,
+          legalCategoryTypes: data.payload
+        });
+      }
+    );
   };
 
   handleSubmitLegalCategoryType = () => {
-    const { name, functions, companyName } = this.state;
-    const legalCategoryType = { name, functions, companyName };
-    LegalCategoryTypeService.saveLegalCategoryType(legalCategoryType).then(
+    const { saveLegalCategoryType, getAllLegalCategoryType } = this.props;
+    const { name, functions, company } = this.state;
+    const legalCategoryType = {
+      name,
+      functions,
+      financialCompanyId: company.financialCompanyId
+    };
+
+    const promise = new Promise(resolve => {
+      saveLegalCategoryType(legalCategoryType);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllLegalCategoryType();
+        console.log(result);
+        history.push('/app/hh-rr/LegalCategoryType');
+      } else {
+        console.log(result);
+        notification('danger', result);
+      }
+    });
+
+    /* LegalCategoryTypeService.saveLegalCategoryType(legalCategoryType).then(
       () => {
         history.push('/app/hh-rr/legalCategoryType');
       }
-    );
+    ); */
   };
 
   handleValueChange = (value, type) => {
@@ -63,23 +120,25 @@ class AddLegalCategoryType extends React.Component {
   };
 
   render() {
-    const { classes } = this.props;
     const {
-      name, functions, companyName, legalCategoryTypes
+      classes,
+      isLoadingLegalCategoryType,
+      legalCategoryTypeResponse,
+      errorsLegalCategoryType
+    } = this.props;
+    const {
+      name,
+      functions,
+      company,
+      legalCategoryTypes,
+      companies
     } = this.state;
-    const companies = [
-      { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
-      {
-        name: 'Implemental Systems',
-        phone: '+21265482154',
-        email: 'implemental@gmail.com'
-      },
-      {
-        name: 'International GDE',
-        phone: '+21265482154',
-        email: 'internationalgde@gmail.com'
-      }
-    ];
+    !isLoadingLegalCategoryType
+      && legalCategoryTypeResponse
+      && this.editingPromiseResolve(legalCategoryTypeResponse);
+    !isLoadingLegalCategoryType
+      && !legalCategoryTypeResponse
+      && this.editingPromiseResolve(errorsLegalCategoryType);
     return (
       <div>
         <PapperBlock
@@ -105,23 +164,23 @@ class AddLegalCategoryType extends React.Component {
                 marginBottom: 6
               }}
             >
-              <FormControl
-                className={classes.formControl}
-                style={{ width: '40%' }}
-              >
-                <InputLabel>Company</InputLabel>
-                <Select
-                  name="companyName"
-                  value={companyName}
-                  onChange={this.handleChangeCompany}
-                >
-                  {companies.map(company => (
-                    <MenuItem key={company.name} value={company.name}>
-                      {company.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                id="combo-box-demo"
+                value={company}
+                options={companies}
+                getOptionLabel={option => option.name}
+                onChange={this.handleChangeCompany}
+                style={{ width: '40%', marginTop: 7 }}
+                clearOnEscape
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Company"
+                    variant="outlined"
+                  />
+                )}
+              />
             </Grid>
             <Grid
               item
@@ -181,7 +240,7 @@ class AddLegalCategoryType extends React.Component {
                 variant="contained"
                 size="medium"
                 onClick={this.handleSubmitLegalCategoryType}
-                disabled={!functions || !name || !companyName}
+                disabled={!functions || !name || !company}
               >
                 Save Type
               </Button>
@@ -193,8 +252,31 @@ class AddLegalCategoryType extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  allLegalCategoryType: state.getIn(['legalCategoryTypes'])
+    .allLegalCategoryType,
+  legalCategoryTypeResponse: state.getIn(['legalCategoryTypes'])
+    .legalCategoryTypeResponse,
+  isLoadingLegalCategoryType: state.getIn(['legalCategoryTypes']).isLoading,
+  errorsLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    saveLegalCategoryType,
+    getAllLegalCategoryType
+  },
+  dispatch
+);
+
+const AddLegalCategoryTypeMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddLegalCategoryType);
+
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <AddLegalCategoryType changeTheme={changeTheme} classes={classes} />;
+  return (
+    <AddLegalCategoryTypeMapped changeTheme={changeTheme} classes={classes} />
+  );
 };

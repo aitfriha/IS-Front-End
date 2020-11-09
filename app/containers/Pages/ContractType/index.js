@@ -15,22 +15,32 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './contractType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import ContractTypeService from '../../Services/ContractTypeService';
+import {
+  getAllContractType,
+  updateContractType,
+  deleteContractType
+} from '../../../redux/contractType/actions';
+import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
 
 class ContractType extends React.Component {
   state = {
-    data: [],
     code: '',
     name: '',
     description: '',
     isDialogOpen: false,
     contractTypeIndex: 0
   };
+
+  editingPromiseResolve = () => {};
 
   columns = [
     {
@@ -56,22 +66,16 @@ class ContractType extends React.Component {
     },
     {
       label: 'Country',
-      name: 'state',
+      name: 'countryName',
       options: {
-        customBodyRender: (value, data) => {
-          console.log(data);
-          return <React.Fragment>{value.country.countryName}</React.Fragment>;
-        }
+        filter: true
       }
     },
     {
       label: 'State',
-      name: 'state',
+      name: 'stateName',
       options: {
-        customBodyRender: (value, data) => {
-          console.log(data);
-          return <React.Fragment>{value.stateName}</React.Fragment>;
-        }
+        filter: true
       }
     },
     {
@@ -93,19 +97,10 @@ class ContractType extends React.Component {
   ];
 
   componentDidMount() {
-    const { changeTheme } = this.props;
+    const { changeTheme, getAllContractType } = this.props;
     changeTheme('blueCyanTheme');
-    this.updateData();
+    getAllContractType();
   }
-
-  updateData = () => {
-    ContractTypeService.getAllContractTypes().then(({ data }) => {
-      console.log(data);
-      this.setState({
-        data
-      });
-    });
-  };
 
   handleChange = ev => {
     this.setState({ [ev.target.name]: ev.target.value });
@@ -113,44 +108,48 @@ class ContractType extends React.Component {
 
   handleUpdate = () => {
     const {
-      code, name, description, data, contractTypeIndex
+      allContractType,
+      getAllContractType,
+      updateContractType
+    } = this.props;
+    const {
+      code, name, description, contractTypeIndex
     } = this.state;
-    const { state } = data[contractTypeIndex];
+    const contractTypeData = allContractType[contractTypeIndex];
     const contractType = {
+      contractTypeId: contractTypeData.contractTypeId,
       code,
       name,
-      description,
-      state
+      description
     };
-    console.log(data[contractTypeIndex]);
-    ContractTypeService.updateContractType(
-      data[contractTypeIndex]._id,
-      contractType
-    ).then(() => {
-      const types = JSON.parse(JSON.stringify(data));
-      types[contractTypeIndex] = {
-        ...types[contractTypeIndex],
-        code,
-        name,
-        description
-      };
-      console.log(types);
-      this.setState({
-        data: types,
-        isDialogOpen: false
-      });
+    const promise = new Promise(resolve => {
+      updateContractType(contractType);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllContractType();
+        console.log(result);
+        this.setState({
+          isDialogOpen: false
+        });
+      } else {
+        console.log(result);
+        notification('danger', result);
+      }
     });
   };
 
   handleOpenDialog = tableMeta => {
-    const { data } = this.state;
+    const { allContractType } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     this.setState({
       contractTypeIndex: index,
-      code: data[index].code,
-      name: data[index].name,
-      description: data[index].description,
+      code: allContractType[index].code,
+      name: allContractType[index].name,
+      description: allContractType[index].description,
       isDialogOpen: true
     });
   };
@@ -162,18 +161,37 @@ class ContractType extends React.Component {
   };
 
   handleDeleteType = tableMeta => {
-    const { data } = this.state;
+    const {
+      allContractType,
+      getAllContractType,
+      deleteContractType
+    } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    ContractTypeService.deleteContractType(data[index]._id).then(() => {
-      this.updateData();
+    const promise = new Promise(resolve => {
+      deleteContractType(allContractType[index].contractTypeId);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllContractType();
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
   render() {
-    const { classes } = this.props;
     const {
-      data, code, name, description, isDialogOpen
+      classes,
+      allContractType,
+      isLoadingContractType,
+      contractTypeResponse,
+      errorsContractType
+    } = this.props;
+    const {
+      code, name, description, isDialogOpen
     } = this.state;
     const title = brand.name + ' - Types of staff contract';
     const { desc } = brand;
@@ -185,13 +203,18 @@ class ContractType extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={allContractType}
           url="/app/hh-rr/contractType/create-contract-type"
           tooltip="add new staff contract type"
         />
       )
     };
-
+    !isLoadingContractType
+      && contractTypeResponse
+      && this.editingPromiseResolve(contractTypeResponse);
+    !isLoadingContractType
+      && !contractTypeResponse
+      && this.editingPromiseResolve(errorsContractType);
     return (
       <div>
         <Helmet>
@@ -269,7 +292,7 @@ class ContractType extends React.Component {
         >
           <MUIDataTable
             title=""
-            data={data}
+            data={allContractType}
             columns={this.columns}
             options={options}
           />
@@ -279,8 +302,28 @@ class ContractType extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  allContractType: state.getIn(['contractTypes']).allContractType,
+  contractTypeResponse: state.getIn(['contractTypes']).contractTypeResponse,
+  isLoadingContractType: state.getIn(['contractTypes']).isLoading,
+  errorsContractType: state.getIn(['contractTypes']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateContractType,
+    getAllContractType,
+    deleteContractType
+  },
+  dispatch
+);
+
+const ContractTypeMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContractType);
+
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <ContractType changeTheme={changeTheme} classes={classes} />;
+  return <ContractTypeMapped changeTheme={changeTheme} classes={classes} />;
 };

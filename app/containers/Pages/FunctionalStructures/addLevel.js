@@ -12,6 +12,7 @@ import {
   makeStyles
 } from '@material-ui/core';
 import { PapperBlock } from 'dan-components';
+import { isString } from 'lodash';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import styles from './levels-jss';
@@ -22,6 +23,13 @@ import StaffService from '../../Services/StaffService';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import MUIDataTable from 'mui-datatables';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import {
+  getAllFunctionalStructureLevel,
+  saveFunctionalStructureLevel
+} from '../../../redux/functionalStructure/actions';
+import notification from '../../../components/Notification/Notification';
 
 const columns = [
   {
@@ -66,6 +74,7 @@ const useStyles = makeStyles(styles);
 class AddLevel extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {};
     this.state = {
       description1: '',
       description2: '',
@@ -97,18 +106,26 @@ class AddLevel extends React.Component {
   }
 
   componentDidMount() {
-    const { changeTheme } = this.props;
+    const {
+      changeTheme,
+      allFunctionalStructureLevel,
+      getAllFunctionalStructureLevel
+    } = this.props;
     changeTheme('blueCyanTheme');
-    FunctionalStructureService.getLevels().then(({ data }) => {
-      const levels1 = data.filter(lvl => lvl.type === 'Level 1');
-      const levels2 = data.filter(lvl => lvl.type === 'Level 2');
-      const levels3 = data.filter(lvl => lvl.type === 'Level 3');
-      this.setState({
-        levels3,
-        levels2,
-        levels1,
-        data
-      });
+    getAllFunctionalStructureLevel();
+    const levels1 = allFunctionalStructureLevel.filter(
+      lvl => lvl.type === 'Level 1'
+    );
+    const levels2 = allFunctionalStructureLevel.filter(
+      lvl => lvl.type === 'Level 2'
+    );
+    const levels3 = allFunctionalStructureLevel.filter(
+      lvl => lvl.type === 'Level 3'
+    );
+    this.setState({
+      levels3,
+      levels2,
+      levels1
     });
     StaffService.getNotAssignedStaffs().then(({ data }) => {
       console.log(data);
@@ -175,6 +192,10 @@ class AddLevel extends React.Component {
 
   handleSubmitLevel = () => {
     const {
+      saveFunctionalStructureLevel,
+      getAllFunctionalStructureLevel
+    } = this.props;
+    const {
       level1,
       level2,
       level3,
@@ -224,20 +245,22 @@ class AddLevel extends React.Component {
       };
       objects.push(lvl3);
     }
-    FunctionalStructureService.saveLevel(objects).then(() => {
-      history.push('/app/hh-rr/functionalStructure');
-    });
-  };
 
-  handleCheck = (ev, id) => {
-    const { levelConfig } = this.state;
-    const newLevelConfig = levelConfig;
-    newLevelConfig.forEach(config => {
-      if (config.levelConfigId === id) {
-        config.choose = ev.target.checked;
+    const promise = new Promise(resolve => {
+      saveFunctionalStructureLevel(objects);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllFunctionalStructureLevel();
+        console.log(result);
+        history.push('/app/hh-rr/functionalStructure');
+      } else {
+        console.log(result);
+        notification('danger', result);
       }
     });
-    this.setState({ levelConfig: newLevelConfig });
   };
 
   handleValueChange = (value, type) => {
@@ -304,12 +327,23 @@ class AddLevel extends React.Component {
 
   check = () => {
     const {
-      level1, level2, level3, leader1, leader2, leader3
+      level1,
+      level2,
+      level3,
+      leader1,
+      leader2,
+      leader3,
+      level1exist,
+      level2exist,
+      level3exist
     } = this.state;
     if (
       (level1 && leader1)
-      || (level1 && leader1 && level2 && leader2)
-      || (level1 && leader1 && level2 && leader2 && level3 && leader3)
+      || level1exist
+      || ((level1 && leader1 && level2 && leader2)
+        || (level1exist && level2exist))
+      || ((level1 && leader1 && level2 && leader2 && level3 && leader3)
+        || (level1exist && level2exist && level3exist))
     ) {
       return false;
     }
@@ -317,8 +351,6 @@ class AddLevel extends React.Component {
   };
 
   choosedSuggestion = level => {
-    const { data } = this.state;
-    console.log(level);
     if (level.type === 'Level 1') {
       this.setState({
         level1exist: true
@@ -336,7 +368,13 @@ class AddLevel extends React.Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const {
+      classes,
+      allFunctionalStructureLevel,
+      isLoadingfunctionalStructureLevel,
+      functionalStructureLevelResponse,
+      errorsfunctionalStructureLevel
+    } = this.props;
     const {
       description1,
       levels1,
@@ -350,7 +388,6 @@ class AddLevel extends React.Component {
       isCommercialLevel1,
       isCommercialLevel2,
       isCommercialLevel3,
-      data,
       leader1,
       leader2,
       leader3,
@@ -369,12 +406,18 @@ class AddLevel extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={allFunctionalStructureLevel}
           url="/app/hh-rr/functionalStructure/create-level"
           tooltip="add new Level"
         />
       )
     };
+    !isLoadingfunctionalStructureLevel
+      && functionalStructureLevelResponse
+      && this.editingPromiseResolve(functionalStructureLevelResponse);
+    !isLoadingfunctionalStructureLevel
+      && !functionalStructureLevelResponse
+      && this.editingPromiseResolve(errorsfunctionalStructureLevel);
     return (
       <div>
         <PapperBlock
@@ -745,7 +788,7 @@ class AddLevel extends React.Component {
         <div style={{ marginTop: 20 }}>
           <MUIDataTable
             title="The Functional Structures List"
-            data={data}
+            data={allFunctionalStructureLevel}
             columns={columns}
             options={options}
           />
@@ -755,8 +798,31 @@ class AddLevel extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  allFunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+    .allFunctionalStructureLevel,
+  functionalStructureLevelResponse: state.getIn(['functionalStructureLevels'])
+    .functionalStructureLevelResponse,
+  isLoadingfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+    .isLoading,
+  errorsfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+    .errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    saveFunctionalStructureLevel,
+    getAllFunctionalStructureLevel
+  },
+  dispatch
+);
+
+const AddLevelMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddLevel);
+
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <AddLevel changeTheme={changeTheme} classes={classes} />;
+  return <AddLevelMapped changeTheme={changeTheme} classes={classes} />;
 };

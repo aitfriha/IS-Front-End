@@ -143,6 +143,7 @@ class StaffProfileContractInformation extends Component {
     ContractTypeService.getAllByState(
       data.staffContract.contractType.state._id
     ).then(response => {
+      console.log(response.data);
       this.setState({
         contractTypes: response.data,
         hiringState: data.staffContract.hiringState
@@ -1370,7 +1371,7 @@ class StaffProfileContractInformation extends Component {
                         onChange={this.handleChange}
                       >
                         {contractTypes.map(type => (
-                          <MenuItem key={type.code} value={type._id}>
+                          <MenuItem key={type.code} value={type.contractTypeId}>
                             {type.name}
                           </MenuItem>
                         ))}

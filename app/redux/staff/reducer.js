@@ -20,8 +20,8 @@ const initialState = {
   errors: {},
   staffResponse: '',
   allStaff: [],
-  staff: {},
-  isEdit: false
+  selectedStaff: {},
+  isEditStaff: false
 };
 
 export default function staffReducer(state = initialState, action) {
@@ -29,13 +29,13 @@ export default function staffReducer(state = initialState, action) {
     case SET_STAFF:
       return {
         ...state,
-        staff: action.staff
+        selectedStaff: action.staff
       };
 
     case SET_EDIT:
       return {
         ...state,
-        isEdit: action.isEdit
+        isEditStaff: action.isEdit
       };
     // TRIGGERING ACTIONS
     // TRIGGERING ACTIONS

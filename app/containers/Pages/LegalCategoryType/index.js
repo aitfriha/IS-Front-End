@@ -19,22 +19,31 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import styles from './legalCategoryType-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
+import {
+  getAllLegalCategoryType,
+  updateLegalCategoryType,
+  deleteLegalCategoryType
+} from '../../../redux/legalCategoryType/actions';
+import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
 
 class LegalCategoryType extends React.Component {
   state = {
-    data: [],
     name: '',
     functions: '',
-    companyName: '',
     isDialogOpen: false,
     legalCategoryTypeIndex: 0
   };
+
+  editingPromiseResolve = () => {};
 
   columns = [
     {
@@ -77,11 +86,9 @@ class LegalCategoryType extends React.Component {
   ];
 
   componentDidMount() {
-    LegalCategoryTypeService.getAllLegalCategoryTypes().then(({ data }) => {
-      this.setState({
-        data
-      });
-    });
+    const { changeTheme, getAllLegalCategoryType } = this.props;
+    changeTheme('blueCyanTheme');
+    getAllLegalCategoryType();
   }
 
   handleChange = ev => {
@@ -90,42 +97,44 @@ class LegalCategoryType extends React.Component {
 
   handleUpdate = () => {
     const {
+      allLegalCategoryType,
+      getAllLegalCategoryType,
+      updateLegalCategoryType
+    } = this.props;
+    const { name, functions, legalCategoryTypeIndex } = this.state;
+    const legalCategoryTypeData = allLegalCategoryType[legalCategoryTypeIndex];
+    const legalCategoryType = {
+      legalCategoryTypeId: legalCategoryTypeData.legalCategoryTypeId,
       name,
-      functions,
-      companyName,
-      data,
-      legalCategoryTypeIndex
-    } = this.state;
-    const legalCategoryType = { name, functions, companyName };
-    console.log(data[legalCategoryTypeIndex]);
-    LegalCategoryTypeService.updateLegalCategoryType(
-      data[legalCategoryTypeIndex].legalCategoryTypeId,
-      legalCategoryType
-    ).then(() => {
-      const types = JSON.parse(JSON.stringify(data));
-      types[legalCategoryTypeIndex] = {
-        ...types[legalCategoryTypeIndex],
-        name,
-        functions,
-        companyName
-      };
-      console.log(types);
-      this.setState({
-        data: types,
-        isDialogOpen: false
-      });
+      functions
+    };
+    const promise = new Promise(resolve => {
+      updateLegalCategoryType(legalCategoryType);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllLegalCategoryType();
+        console.log(result);
+        this.setState({
+          isDialogOpen: false
+        });
+      } else {
+        console.log(result);
+        notification('danger', result);
+      }
     });
   };
 
   handleOpenDialog = tableMeta => {
-    const { data } = this.state;
+    const { allLegalCategoryType } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     this.setState({
       legalCategoryTypeIndex: index,
-      name: data[index].name,
-      functions: data[index].functions,
-      companyName: data[index].companyName,
+      name: allLegalCategoryType[index].name,
+      functions: allLegalCategoryType[index].functions,
       isDialogOpen: true
     });
   };
@@ -137,23 +146,36 @@ class LegalCategoryType extends React.Component {
   };
 
   handleDeleteType = tableMeta => {
-    const { data } = this.state;
+    const {
+      allLegalCategoryType,
+      getAllLegalCategoryType,
+      deleteLegalCategoryType
+    } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    LegalCategoryTypeService.deleteLegalCategoryType(
-      data[index].legalCategoryTypeId
-    ).then(() => {
-      this.setState({
-        data: data.length > 1 ? data.splice(index, 1) : []
-      });
+    const promise = new Promise(resolve => {
+      deleteLegalCategoryType(allLegalCategoryType[index].legalCategoryTypeId);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllLegalCategoryType();
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
   render() {
-    const { classes } = this.props;
     const {
-      data, name, functions, companyName, isDialogOpen
-    } = this.state;
+      classes,
+      allLegalCategoryType,
+      isLoadingLegalCategoryType,
+      legalCategoryTypeResponse,
+      errorsLegalCategoryType
+    } = this.props;
+    const { name, functions, isDialogOpen } = this.state;
     const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
@@ -164,25 +186,18 @@ class LegalCategoryType extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={allLegalCategoryType}
           url="/app/hh-rr/legalCategoryType/create-legal-category-type"
           tooltip="add new legal category type"
         />
       )
     };
-    const companies = [
-      { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
-      {
-        name: 'Implemental Systems',
-        phone: '+21265482154',
-        email: 'implemental@gmail.com'
-      },
-      {
-        name: 'International GDE',
-        phone: '+21265482154',
-        email: 'internationalgde@gmail.com'
-      }
-    ];
+    !isLoadingLegalCategoryType
+      && legalCategoryTypeResponse
+      && this.editingPromiseResolve(legalCategoryTypeResponse);
+    !isLoadingLegalCategoryType
+      && !legalCategoryTypeResponse
+      && this.editingPromiseResolve(errorsLegalCategoryType);
     return (
       <div>
         <Helmet>
@@ -229,20 +244,6 @@ class LegalCategoryType extends React.Component {
               className={classes.textField}
               onChange={this.handleChange}
             />
-            <FormControl className={classes.formControl} fullWidth>
-              <InputLabel>Company</InputLabel>
-              <Select
-                name="companyName"
-                value={companyName}
-                onChange={this.handleChange}
-              >
-                {companies.map(company => (
-                  <MenuItem key={company.name} value={company.name}>
-                    {company.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button autoFocus color="primary" onClick={this.handleClose}>
@@ -251,7 +252,7 @@ class LegalCategoryType extends React.Component {
             <Button
               color="primary"
               onClick={this.handleUpdate}
-              disabled={!functions || !name || !companyName}
+              disabled={!functions || !name}
             >
               Update
             </Button>
@@ -264,7 +265,7 @@ class LegalCategoryType extends React.Component {
         >
           <MUIDataTable
             title=""
-            data={data}
+            data={allLegalCategoryType}
             columns={this.columns}
             options={options}
           />
@@ -274,8 +275,32 @@ class LegalCategoryType extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  allLegalCategoryType: state.getIn(['legalCategoryTypes'])
+    .allLegalCategoryType,
+  legalCategoryTypeResponse: state.getIn(['legalCategoryTypes'])
+    .legalCategoryTypeResponse,
+  isLoadingLegalCategoryType: state.getIn(['legalCategoryTypes']).isLoading,
+  errorsLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateLegalCategoryType,
+    getAllLegalCategoryType,
+    deleteLegalCategoryType
+  },
+  dispatch
+);
+
+const LegalCategoryTypeMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LegalCategoryType);
+
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <LegalCategoryType changeTheme={changeTheme} classes={classes} />;
+  return (
+    <LegalCategoryTypeMapped changeTheme={changeTheme} classes={classes} />
+  );
 };

@@ -25,6 +25,10 @@ import clientReducer from './client/reducer';
 import sectorComapnyReducer from './sectorsCompany/reducer';
 import commercialOperationReducer from './commercialOperation/reducer';
 import staffReducer from './staff/reducer';
+import contractTypeReducer from './contractType/reducer';
+import absenceTypeReducer from './absenceType/reducer';
+import legalCategoryTypeReducer from './legalCategoryType/reducer';
+import functionalStructureReducer from './functionalStructure/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -50,6 +54,10 @@ export default function createReducer(injectedReducers = {}) {
     clients: clientReducer,
     sectorCompany: sectorComapnyReducer,
     staffs: staffReducer,
+    contractTypes: contractTypeReducer,
+    absenceTypes: absenceTypeReducer,
+    legalCategoryTypes: legalCategoryTypeReducer,
+    functionalStructureLevels: functionalStructureReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers

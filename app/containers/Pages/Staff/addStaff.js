@@ -46,12 +46,11 @@ import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import styles from './staff-jss';
 import AddressBlock from '../Address';
-import StaffService from '../../Services/StaffService';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
 import ContractTypeService from '../../Services/ContractTypeService';
 import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
-import StaffContractService from '../../Services/StaffContractService';
+import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import StaffEconomicContractInformation from './StaffEconomicContractInformation';
 import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
@@ -122,6 +121,7 @@ class AddStaff extends React.Component {
       internalRulesDoc: {},
       contractDoc: {},
       preContractDoc: {},
+      companies: [],
       countries: [],
       states: [],
       idCardNumber: '',
@@ -178,6 +178,10 @@ class AddStaff extends React.Component {
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
+    FinancialCompanyService.getCompany().then(({ data }) => {
+      console.log(data);
+      this.setState({ companies: data });
+    });
   }
 
   handleChange = ev => {
@@ -194,13 +198,6 @@ class AddStaff extends React.Component {
         companyMobilePhone: ev.target.value.phonePrefix + companyMobilePhone,
         emergencyContactPhone:
           ev.target.value.phonePrefix + emergencyContactPhone
-      });
-    }
-    if (ev.target.name === 'companyName') {
-      LegalCategoryTypeService.getAllLegalCategoryTypesByCompany(
-        ev.target.value
-      ).then(({ data }) => {
-        this.setState({ legalCategoryTypes: data });
       });
     }
     this.setState({ [ev.target.name]: ev.target.value });
@@ -220,7 +217,7 @@ class AddStaff extends React.Component {
       motherFamilyName,
       personalPhone,
       personalEmail,
-      companyName,
+      company,
       companyPhone,
       companyMobilePhone,
       companyEmail,
@@ -294,6 +291,8 @@ class AddStaff extends React.Component {
     console.log(contractType);
     console.log(legalCategoryType);
 
+    console.log(company.financialCompanyId);
+
     const total = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
@@ -318,7 +317,7 @@ class AddStaff extends React.Component {
       postCode,
 
       staffContractId,
-      companyName,
+      companyId: company.financialCompanyId,
       associateOffice,
       hiringCountry: hiringCountry.countryName,
       townContract,
@@ -327,8 +326,8 @@ class AddStaff extends React.Component {
       lowDate: lowDate.toISOString().slice(0, 10),
       registrationDate: registrationDate.toISOString().slice(0, 10),
       preContractDate: preContractDate.toISOString().slice(0, 10),
-      contractType,
-      legalCategoryType,
+      contractTypeId: contractType,
+      legalCategoryTypeId: legalCategoryType,
 
       contractSalary,
       companyContractCost,
@@ -473,6 +472,7 @@ class AddStaff extends React.Component {
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
+        history.push('/app/hh-rr/staff', {});
       } else {
         notification('danger', result);
       }
@@ -489,7 +489,7 @@ class AddStaff extends React.Component {
         })
       );
       StaffService.saveStaff(staffData).then(({ data }) => {
-        history.push('/app/hh-rr/staff', {});
+
       });
     }); */
   };
@@ -670,6 +670,17 @@ class AddStaff extends React.Component {
     this.setState({ birthCountry: value });
   };
 
+  handleChangeCompany = (ev, value) => {
+    LegalCategoryTypeService.getAllByCompany(value.financialCompanyId).then(
+      ({ data }) => {
+        this.setState({
+          legalCategoryTypes: data,
+          company: value
+        });
+      }
+    );
+  };
+
   handleChangeHiringCountry = (ev, value) => {
     StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
       this.setState({
@@ -716,7 +727,7 @@ class AddStaff extends React.Component {
       motherFamilyName,
       personalPhone,
       personalEmail,
-      companyName,
+      company,
       companyPhone,
       companyMobilePhone,
       companyEmail,
@@ -733,6 +744,7 @@ class AddStaff extends React.Component {
       isChangeProfilePic,
       countries,
       states,
+      companies,
       associateOffice,
       hiringCountry,
       hiringState,
@@ -766,19 +778,6 @@ class AddStaff extends React.Component {
       contractTypes,
       legalCategoryTypes
     } = this.state;
-    const companies = [
-      { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
-      {
-        name: 'Implemental Systems',
-        phone: '+21265482154',
-        email: 'implemental@gmail.com'
-      },
-      {
-        name: 'International GDE',
-        phone: '+21265482154',
-        email: 'internationalgde@gmail.com'
-      }
-    ];
     !isLoadingStaff
       && staffResponse
       && this.editingPromiseResolve(staffResponse);
@@ -963,7 +962,8 @@ class AddStaff extends React.Component {
                     id="combo-box-demo"
                     value={birthCountry}
                     options={countries}
-                    getOptionLabel={option => option.countryName}
+                    getOptionLabel={option => (option ? option.countryName : '')
+                    }
                     onChange={this.handleChangeBirthCountry}
                     style={{ marginTop: 25 }}
                     clearOnEscape
@@ -1718,23 +1718,23 @@ class AddStaff extends React.Component {
                 >
                   <Grid item xs={12}>
                     <div className={classes.divSpace} style={{ width: '100%' }}>
-                      <FormControl
-                        className={classes.formControl}
-                        style={{ width: '45%' }}
-                      >
-                        <InputLabel>Company</InputLabel>
-                        <Select
-                          name="companyName"
-                          value={companyName}
-                          onChange={this.handleChange}
-                        >
-                          {companies.map(company => (
-                            <MenuItem key={company.name} value={company.name}>
-                              {company.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Autocomplete
+                        id="combo-box-demo"
+                        value={company}
+                        options={companies}
+                        getOptionLabel={option => (option ? option.name : '')}
+                        onChange={this.handleChangeCompany}
+                        style={{ width: '30%', marginTop: 7 }}
+                        clearOnEscape
+                        renderInput={params => (
+                          <TextField
+                            fullWidth
+                            {...params}
+                            label="Company"
+                            variant="outlined"
+                          />
+                        )}
+                      />
                       <TextField
                         id="outlined-basic"
                         label="Associate office"
@@ -1753,7 +1753,8 @@ class AddStaff extends React.Component {
                         id="combo-box-demo"
                         value={hiringCountry}
                         options={countries}
-                        getOptionLabel={option => option.countryName}
+                        getOptionLabel={option => (option ? option.countryName : '')
+                        }
                         onChange={this.handleChangeHiringCountry}
                         style={{ width: '30%', marginTop: 7 }}
                         clearOnEscape
@@ -1770,7 +1771,8 @@ class AddStaff extends React.Component {
                         id="combo-box-demo"
                         value={hiringState}
                         options={states}
-                        getOptionLabel={option => option.stateName}
+                        getOptionLabel={option => (option ? option.stateName : '')
+                        }
                         onChange={this.handleChangeHiringState}
                         style={{ width: '30%', marginTop: 7 }}
                         clearOnEscape
@@ -1818,12 +1820,16 @@ class AddStaff extends React.Component {
                           onChange={this.handleChange}
                         >
                           {contractTypes.map(type => (
-                            <MenuItem key={type.code} value={type.staffId}>
+                            <MenuItem
+                              key={type.code}
+                              value={type.contractTypeId}
+                            >
                               {type.name}
                             </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
+
                       <FormControl
                         className={classes.formControl}
                         style={{ width: '30%' }}

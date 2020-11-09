@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  TextField
-} from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
@@ -156,7 +154,7 @@ class AddressBlock extends React.Component {
         <Autocomplete
           id="combo-box-demo"
           options={allCountrys}
-          getOptionLabel={option => option.countryName}
+          getOptionLabel={option => (option ? option.countryName : '')}
           onChange={this.handleChangeCountry}
           renderInput={params => (
             <TextField
@@ -170,7 +168,7 @@ class AddressBlock extends React.Component {
         <Autocomplete
           id="combo-box-demo"
           options={allStateCountrys}
-          getOptionLabel={option => option.stateName}
+          getOptionLabel={option => (option ? option.stateName : '')}
           onChange={this.handleChangeState}
           style={{ marginTop: 15 }}
           renderInput={params => (
@@ -185,7 +183,7 @@ class AddressBlock extends React.Component {
         <Autocomplete
           id="combo-box-demo"
           options={allCitys}
-          getOptionLabel={option => option.cityName}
+          getOptionLabel={option => (option ? option.cityName : '')}
           onChange={this.handleChangeCity}
           style={{ marginTop: 15 }}
           renderInput={params => (

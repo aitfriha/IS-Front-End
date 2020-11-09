@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
-import { withStyles } from '@material-ui/core/styles';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
@@ -25,19 +24,31 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
-  Radio
+  Radio,
+  makeStyles
 } from '@material-ui/core';
 import interact from 'interactjs';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './levels-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import AutoComplete from '../../../components/AutoComplete';
 import FunctionalStructureService from '../../Services/FunctionalStructureService';
 import StaffService from '../../Services/StaffService';
+import {
+  getAllFunctionalStructureLevel,
+  updateFunctionalStructureLevel,
+  deleteFunctionalStructureLevel
+} from '../../../redux/functionalStructure/actions';
+import notification from '../../../components/Notification/Notification';
+
+const useStyles = makeStyles(styles);
 
 class LevelsBlock extends React.Component {
   state = {
-    levelsData: [],
     level: {},
     levels: [],
     index1: -1,
@@ -56,6 +67,8 @@ class LevelsBlock extends React.Component {
     isProductionLevel: '',
     isCommercialLevel: ''
   };
+
+  editingPromiseResolve = () => {};
 
   columns = [
     {
@@ -112,6 +125,8 @@ class LevelsBlock extends React.Component {
   ];
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
     this.updateData();
     interact('[id^=staffDropzone]').dropzone({
       accept: '[id^=levelElement]',
@@ -197,8 +212,6 @@ class LevelsBlock extends React.Component {
     });
   }
 
-  componentDidUpdate() {}
-
   dragMoveListener = event => {
     const { target } = event;
     // keep the dragged position in the data-x/data-y attributes
@@ -276,7 +289,12 @@ class LevelsBlock extends React.Component {
   };
 
   handleOpenAssignation = level => {
-    StaffService.getStaffsByLevel(level.levelId, 'no').then(({ data }) => {
+    console.log(level);
+    let levelId = null;
+    if (level.levelId) {
+      levelId = level.levelId;
+    } else levelId = level._id;
+    StaffService.getStaffsByLevel(levelId, 'no').then(({ data }) => {
       console.log(data);
       data.sort((a, b) => {
         const textA = a.firstName.toUpperCase();
@@ -290,7 +308,7 @@ class LevelsBlock extends React.Component {
         staffAssigned: data
       });
     });
-    StaffService.getStaffsByLevel(level.levelId, 'yes').then(({ data }) => {
+    StaffService.getStaffsByLevel(levelId, 'yes').then(({ data }) => {
       console.log(data);
       this.setState({
         leader: data[0]
@@ -299,38 +317,40 @@ class LevelsBlock extends React.Component {
   };
 
   handleOpenEdit = tableMeta => {
-    const { levelsData, staffs } = this.state;
+    const { allFunctionalStructureLevel } = this.props;
+    const { staffs } = this.state;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    console.log(levelsData[index]);
-    StaffService.getStaffsByLevel(levelsData[index].levelId, 'yes').then(
-      ({ data }) => {
-        console.log(data);
-        const staffList = staffs;
-        if (data[0]) {
-          staffList.push(data[0]);
-        }
-        this.setState({
-          oldLeader: data[0],
-          newLeader: data[0],
-          level: levelsData[index],
-          levelName: levelsData[index].name,
-          description: levelsData[index].description,
-          isProductionLevel: levelsData[index].isProductionLevel,
-          isCommercialLevel: levelsData[index].isCommercialLevel,
-          isLevelEdit: true,
-          staffs: staffList
-        });
+    console.log(allFunctionalStructureLevel[index]);
+    StaffService.getStaffsByLevel(
+      allFunctionalStructureLevel[index].levelId,
+      'yes'
+    ).then(({ data }) => {
+      console.log(data);
+      const staffList = staffs;
+      if (data[0]) {
+        staffList.push(data[0]);
       }
-    );
+      this.setState({
+        oldLeader: data[0],
+        newLeader: data[0],
+        level: allFunctionalStructureLevel[index],
+        levelName: allFunctionalStructureLevel[index].name,
+        description: allFunctionalStructureLevel[index].description,
+        isProductionLevel: allFunctionalStructureLevel[index].isProductionLevel,
+        isCommercialLevel: allFunctionalStructureLevel[index].isCommercialLevel,
+        isLevelEdit: true,
+        staffs: staffList
+      });
+    });
   };
 
   handleOpenDelete = tableMeta => {
-    const { levelsData } = this.state;
+    const { allFunctionalStructureLevel } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     this.setState({
-      level: levelsData[index],
+      level: allFunctionalStructureLevel[index],
       isLevelDelete: true
     });
   };
@@ -362,12 +382,8 @@ class LevelsBlock extends React.Component {
   };
 
   updateData = () => {
-    FunctionalStructureService.getLevels().then(({ data }) => {
-      console.log(data);
-      this.setState({
-        levelsData: data
-      });
-    });
+    const { getAllFunctionalStructureLevel } = this.props;
+    getAllFunctionalStructureLevel();
     FunctionalStructureService.getLevelByType('Level 1').then(({ data }) => {
       console.log(data);
       this.setState({
@@ -424,15 +440,22 @@ class LevelsBlock extends React.Component {
   };
 
   getLevels = () => {
-    const { level, levelsData } = this.state;
+    const { allFunctionalStructureLevel } = this.props;
+    const { level } = this.state;
     if (level) {
-      console.log(levelsData.filter(lvl => lvl.type === level.type));
-      return levelsData.filter(lvl => lvl.type === level.type);
+      console.log(
+        allFunctionalStructureLevel.filter(lvl => lvl.type === level.type)
+      );
+      return allFunctionalStructureLevel.filter(lvl => lvl.type === level.type);
     }
     return [];
   };
 
   handleUpdateLevel = () => {
+    const {
+      updateFunctionalStructureLevel,
+      getAllFunctionalStructureLevel
+    } = this.props;
     const {
       levelName,
       description,
@@ -443,34 +466,59 @@ class LevelsBlock extends React.Component {
       level
     } = this.state;
 
-    const objects = [];
-    objects.push(oldLeader);
-    objects.push(newLeader);
     const lvl = {
+      levelId: level.levelId,
       name: levelName,
       description,
       type: level.type,
       isProductionLevel,
-      isCommercialLevel
+      isCommercialLevel,
+      oldLeaderId: oldLeader.staffId,
+      newLeaderId: newLeader.staffId
     };
-    objects.push(lvl);
-    FunctionalStructureService.updateLevel(objects, level.levelId).then(() => {
-      this.handleClose();
+    const promise = new Promise(resolve => {
+      updateFunctionalStructureLevel(lvl);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllFunctionalStructureLevel();
+        this.handleClose();
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
   handleDeleteLevel = () => {
+    const { deleteFunctionalStructureLevel } = this.props;
     const { level } = this.state;
 
-    FunctionalStructureService.deleteLevel(level.levelId).then(() => {
+    const promise = new Promise(resolve => {
+      deleteFunctionalStructureLevel(level.levelId);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllFunctionalStructureLevel();
+      } else {
+        notification('danger', result);
+      }
       this.handleClose();
     });
   };
 
   render() {
-    const { classes } = this.props;
     const {
-      levelsData,
+      classes,
+      allFunctionalStructureLevel,
+      isLoadingfunctionalStructureLevel,
+      functionalStructureLevelResponse,
+      errorsfunctionalStructureLevel
+    } = this.props;
+    const {
       isStaffAssignation,
       isLevelEdit,
       isLevelDelete,
@@ -495,12 +543,18 @@ class LevelsBlock extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={levelsData}
+          csvData={allFunctionalStructureLevel}
           url="/app/hh-rr/functionalStructure/create-level"
           tooltip="add new Level"
         />
       )
     };
+    !isLoadingfunctionalStructureLevel
+      && functionalStructureLevelResponse
+      && this.editingPromiseResolve(functionalStructureLevelResponse);
+    !isLoadingfunctionalStructureLevel
+      && !functionalStructureLevelResponse
+      && this.editingPromiseResolve(errorsfunctionalStructureLevel);
     levels.sort((a, b) => {
       const textA = a.name.toUpperCase();
       const textB = b.name.toUpperCase();
@@ -865,7 +919,7 @@ class LevelsBlock extends React.Component {
         >
           <MUIDataTable
             title=""
-            data={levelsData}
+            data={allFunctionalStructureLevel}
             columns={this.columns}
             options={options}
           />
@@ -988,8 +1042,32 @@ class LevelsBlock extends React.Component {
     );
   }
 }
-LevelsBlock.propTypes = {
-  classes: PropTypes.object.isRequired
-};
+const mapStateToProps = state => ({
+  allFunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+    .allFunctionalStructureLevel,
+  functionalStructureLevelResponse: state.getIn(['functionalStructureLevels'])
+    .functionalStructureLevelResponse,
+  isLoadingfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+    .isLoading,
+  errorsfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+    .errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateFunctionalStructureLevel,
+    deleteFunctionalStructureLevel,
+    getAllFunctionalStructureLevel
+  },
+  dispatch
+);
 
-export default withStyles(styles)(LevelsBlock);
+const LevelsBlockMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LevelsBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <LevelsBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

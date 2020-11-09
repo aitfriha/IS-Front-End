@@ -8,20 +8,23 @@ const config = {
 };
 
 class StaffService {
-  getStaffs = () => axios.get(`${API}/staff-all`);
+  getStaffs = () => axios.get(`${API}/staff/staff-all`);
 
   getStaffById = staffId => axios.get(`${API}/staff/${staffId}`);
 
-  getNotAssignedStaffs = () => axios.get(`${API}/staff-no-assigned`);
+  getNotAssignedStaffs = () => axios.get(`${API}/staff/staff-no-assigned`);
 
-  saveStaff = data => axios.post(`${API}/staff-add`, data, config);
+  saveStaff = data => axios.post(`${API}/staff/staff-add`, data, config);
 
-  updateStaff = (staffId, cityId, data) => axios.put(`${API}/staff-update/staffId=${staffId}&cityId=${cityId}`, data);
+  updateStaff = (staffId, cityId, data) => axios.put(
+    `${API}/staff/staff-update/staffId=${staffId}&cityId=${cityId}`,
+    data
+  );
 
-  assignLevelToStaff = objects => axios.post(`${API}/assign-level-staff`, objects);
+  assignLevelToStaff = objects => axios.post(`${API}/staff/assign-level-staff`, objects);
 
   getStaffsByLevel = (levelId, isLeader) => axios.get(
-    `${API}/get-staff-by-level/levelId=${levelId}&isLeader=${isLeader}/`
+    `${API}/staff/get-staff-by-level/levelId=${levelId}&isLeader=${isLeader}/`
   );
 }
 export default new StaffService();

@@ -3,7 +3,6 @@ import MUIDataTable from 'mui-datatables';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
-import PropTypes from 'prop-types';
 import {
   IconButton,
   Dialog,
@@ -16,22 +15,32 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import styles from './absenceType-jss';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { ThemeContext } from '../../App/ThemeWrapper';
+import styles from './absenceType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import AbsenceTypeService from '../../Services/AbsenceTypeService';
+import {
+  getAllAbsenceType,
+  updateAbsenceType,
+  deleteAbsenceType
+} from '../../../redux/absenceType/actions';
+import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
 
 class AbsenceType extends React.Component {
   state = {
-    data: [],
     code: '',
     name: '',
     description: '',
     isDialogOpen: false,
     absenceTypeIndex: 0
   };
+
+  editingPromiseResolve = () => {};
 
   columns = [
     {
@@ -57,22 +66,16 @@ class AbsenceType extends React.Component {
     },
     {
       label: 'Country',
-      name: 'state',
+      name: 'countryName',
       options: {
-        customBodyRender: (value, data) => {
-          console.log(data);
-          return <React.Fragment>{value.country.countryName}</React.Fragment>;
-        }
+        filter: true
       }
     },
     {
       label: 'State',
-      name: 'state',
+      name: 'stateName',
       options: {
-        customBodyRender: (value, data) => {
-          console.log(data);
-          return <React.Fragment>{value.stateName}</React.Fragment>;
-        }
+        filter: true
       }
     },
     {
@@ -94,11 +97,9 @@ class AbsenceType extends React.Component {
   ];
 
   componentDidMount() {
-    AbsenceTypeService.getAllAbsenceTypes().then(({ data }) => {
-      this.setState({
-        data
-      });
-    });
+    const { changeTheme, getAllAbsenceType } = this.props;
+    changeTheme('blueCyanTheme');
+    getAllAbsenceType();
   }
 
   handleChange = ev => {
@@ -106,45 +107,45 @@ class AbsenceType extends React.Component {
   };
 
   handleUpdate = () => {
+    const { allAbsenceType, getAllAbsenceType, updateAbsenceType } = this.props;
     const {
-      code, name, description, data, absenceTypeIndex
+      code, name, description, absenceTypeIndex
     } = this.state;
-    const { state } = data[absenceTypeIndex];
+    const absenceTypeData = allAbsenceType[absenceTypeIndex];
     const absenceType = {
+      absenceTypeId: absenceTypeData.absenceTypeId,
       code,
       name,
-      description,
-      state
+      description
     };
-    console.log(data[absenceTypeIndex]);
-    AbsenceTypeService.updateAbsenceType(
-      data[absenceTypeIndex].absenceTypeId,
-      absenceType
-    ).then(() => {
-      const types = JSON.parse(JSON.stringify(data));
-      types[absenceTypeIndex] = {
-        ...types[absenceTypeIndex],
-        code,
-        name,
-        description
-      };
-      console.log(types);
-      this.setState({
-        data: types,
-        isDialogOpen: false
-      });
+    const promise = new Promise(resolve => {
+      updateAbsenceType(absenceType);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllAbsenceType();
+        console.log(result);
+        this.setState({
+          isDialogOpen: false
+        });
+      } else {
+        console.log(result);
+        notification('danger', result);
+      }
     });
   };
 
   handleOpenDialog = tableMeta => {
-    const { data } = this.state;
+    const { allAbsenceType } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     this.setState({
       absenceTypeIndex: index,
-      code: data[index].code,
-      name: data[index].name,
-      description: data[index].description,
+      code: allAbsenceType[index].code,
+      name: allAbsenceType[index].name,
+      description: allAbsenceType[index].description,
       isDialogOpen: true
     });
   };
@@ -156,22 +157,35 @@ class AbsenceType extends React.Component {
   };
 
   handleDeleteType = tableMeta => {
-    const { data } = this.state;
+    const { allAbsenceType, getAllAbsenceType, deleteAbsenceType } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    AbsenceTypeService.deleteAbsenceType(data[index].absenceTypeId).then(() => {
-      this.setState({
-        data: data.length > 1 ? data.splice(index, 1) : []
-      });
+    const promise = new Promise(resolve => {
+      deleteAbsenceType(allAbsenceType[index].absenceTypeId);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllAbsenceType();
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
   render() {
-    const { classes } = this.props;
     const {
-      data, code, name, description, isDialogOpen
+      classes,
+      allAbsenceType,
+      isLoadingAbsenceType,
+      absenceTypeResponse,
+      errorsAbsenceType
+    } = this.props;
+    const {
+      code, name, description, isDialogOpen
     } = this.state;
-    const title = brand.name + ' - Types of absence';
+    const title = brand.name + ' - Types of staff absence';
     const { desc } = brand;
     const options = {
       filter: true,
@@ -181,13 +195,18 @@ class AbsenceType extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={allAbsenceType}
           url="/app/hh-rr/absenceType/create-absence-type"
-          tooltip="add new absence type"
+          tooltip="add new staff absence type"
         />
       )
     };
-
+    !isLoadingAbsenceType
+      && absenceTypeResponse
+      && this.editingPromiseResolve(absenceTypeResponse);
+    !isLoadingAbsenceType
+      && !absenceTypeResponse
+      && this.editingPromiseResolve(errorsAbsenceType);
     return (
       <div>
         <Helmet>
@@ -208,7 +227,9 @@ class AbsenceType extends React.Component {
           fullWidth
           maxWidth="sm"
         >
-          <DialogTitle id="alert-dialog-title">Edit Absence Type</DialogTitle>
+          <DialogTitle id="alert-dialog-title">
+            Edit Staff Absence Type
+          </DialogTitle>
           <DialogContent>
             <TextField
               id="outlined-basic"
@@ -256,10 +277,14 @@ class AbsenceType extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <PapperBlock title="Types of absence" icon="ios-paper-outline" noMargin>
+        <PapperBlock
+          title="Types of staff absence"
+          icon="ios-paper-outline"
+          noMargin
+        >
           <MUIDataTable
             title=""
-            data={data}
+            data={allAbsenceType}
             columns={this.columns}
             options={options}
           />
@@ -269,8 +294,28 @@ class AbsenceType extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  allAbsenceType: state.getIn(['absenceTypes']).allAbsenceType,
+  absenceTypeResponse: state.getIn(['absenceTypes']).absenceTypeResponse,
+  isLoadingAbsenceType: state.getIn(['absenceTypes']).isLoading,
+  errorsAbsenceType: state.getIn(['absenceTypes']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateAbsenceType,
+    getAllAbsenceType,
+    deleteAbsenceType
+  },
+  dispatch
+);
+
+const AbsenceTypeMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AbsenceType);
+
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <AbsenceType changeTheme={changeTheme} classes={classes} />;
+  return <AbsenceTypeMapped changeTheme={changeTheme} classes={classes} />;
 };
