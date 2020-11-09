@@ -30,63 +30,69 @@ import { withStyles } from '@material-ui/core/styles';
 import history from '../../../../utils/history';
 import CurrencyService from '../../../Services/CurrencyService';
 import ContractStatusService from '../../../Services/ContractStatusService';
+import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import CommercialOperationService from '../../../Services/CommercialOperationService';
+import ClientService from '../../../Services/ClientService';
+import FunctionalStructureService from '../../../Services/FunctionalStructureService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
 import styles from '../../Companies/companies-jss';
-import FinancialCompanyService from "../../../Services/FinancialCompanyService";
 
 class AddContract extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      contractTitle: '',
       client: '',
+      clients: [],
       operation: '',
+      operations: [],
       company: '',
       state: '',
       status: [],
       companies: [],
-      clientContractSigned: '',
       taxeIdentityNumber: '',
       currentCity: '',
       level1: '',
       level2: '',
       level3: '',
+      levels: [],
       signedDate: '',
       startDate: '',
       endDate: '',
       finalReelDate: '',
       contractTradeVolume: 0,
+      contractTradeVolumeEuro: 0,
       currencies: [],
-      amountEuro: '',
-      amountLocal: '',
       currency: '',
+      changeFactor: 0,
       paymentsBDDays: '',
       nbrConcepts: ['1'],
-      conceptType: 0,
-      conceptValue: '',
-      conceptValueLocal: '',
-      conceptValueEuro: '',
-      conceptCurrency: '',
+      conceptType: [],
+      conceptValue: [],
+      conceptValueLocal: [],
+      conceptValueEuro: [],
       conceptTotalAmount: 0,
       conceptTotalAmountEuro: 0,
       penalties: '',
-      penaltyQuantity: '',
-      penaltyValue: 0,
-      penaltyCost: '',
-      penaltyPer: '',
+      penaltyQuantity: [],
+      penaltyValue: [],
+      penaltyCost: [],
+      penaltyPer: [],
       penaltyMaxValue: '',
       penaltyMaxType: '',
-      penaltiesListe: [''],
+      penaltiesListe: ['1'],
       purchaseOrderDocumentation: '',
       purchaseOrders: ['1'],
-      purchaseOrderNumber: 0,
+      purchaseOrderNumber: [],
       purchaseOrderReceiveDate: '',
       insure: '',
       firstDayInsured: '',
       lastDayInsured: '',
       amountInsured: '',
+      amountInsuredEuro: '',
       proposalDocumentation: '',
       proposalDocumentationDuo: [],
       proposalDocumentations: ['1'],
@@ -118,6 +124,15 @@ class AddContract extends React.Component {
     FinancialCompanyService.getCompany().then(result => {
       this.setState({ companies: result.data });
     });
+    CommercialOperationService.getCommercialOperation().then(result => {
+      this.setState({ operations: result.data.payload });
+    });
+    ClientService.getClients().then(result => {
+      this.setState({ clients: result.data.payload });
+    });
+    FunctionalStructureService.getLevels().then(result => {
+      this.setState({ levels: result.data });
+    });
   }
 
   handleChangeCountry = (ev, value) => {
@@ -137,8 +152,96 @@ class AddContract extends React.Component {
   };
 
     handleChange = (ev) => {
+      let changeFactor;
+      if (ev.target.name === 'currency') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tradeValue = this.state.contractTradeVolume;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          // eslint-disable-next-line prefer-destructuring
+          if (currency.currencyCode === ev.target.value) changeFactor = currency.changeFactor;
+        });
+        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
+      }
+      if (ev.target.name === 'amountInsured') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const factor = this.state.changeFactor;
+        this.setState({ amountInsuredEuro: ev.target.value * factor });
+      }
       this.setState({ [ev.target.name]: ev.target.value });
     };
+
+    handleConcept = (event, row) => {
+      let totalEuro = 0;
+      let total = 0;
+      if (event.target.name === 'conceptType') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.conceptType;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ conceptType: tab });
+      }
+      if (event.target.name === 'conceptValue') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.conceptValue; const type = this.state.conceptType[row]; const tab2 = this.state.conceptValueEuro; const tab3 = this.state.conceptValueLocal; const amount = this.state.contractTradeVolume; const factor = this.state.changeFactor;
+        tab[0] = 0; tab2[0] = 0; tab3[0] = 0;
+        tab[row] = event.target.value;
+        if (type === 1) {
+          tab2[row] = ((amount * event.target.value) / 100) * factor;
+          tab3[row] = (amount * event.target.value) / 100;
+        }
+        if (type === 2) {
+          tab2[row] = event.target.value * factor;
+          tab3[row] = event.target.value * 1;
+        }
+        // eslint-disable-next-line array-callback-return,no-shadow
+        tab2.map(row => { totalEuro += row; });
+        // eslint-disable-next-line array-callback-return,no-shadow
+        tab3.map(row => { total += row; });
+        this.setState({
+          conceptValue: tab, conceptValueLocal: tab3, conceptValueEuro: tab2, conceptTotalAmountEuro: totalEuro, conceptTotalAmount: total
+        });
+      }
+      if (event.target.name === 'purchaseOrderNumber') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.purchaseOrderNumber;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ purchaseOrderNumber: tab });
+      }
+    }
+
+  handlePenalty = (event, row) => {
+    console.log(row);
+    if (event.target.name === 'penaltyQuantity') {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const tab = this.state.penaltyQuantity;
+      tab[0] = 0;
+      tab[row] = event.target.value;
+      this.setState({ penaltyQuantity: tab });
+    }
+    if (event.target.name === 'penaltyValue') {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const tab = this.state.penaltyValue;
+      tab[0] = 0;
+      tab[row] = event.target.value;
+      this.setState({ penaltyValue: tab });
+    }
+    if (event.target.name === 'penaltyCost') {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const tab = this.state.penaltyCost;
+      tab[0] = 0;
+      tab[row] = event.target.value;
+      this.setState({ penaltyCost: tab });
+    }
+    if (event.target.name === 'penaltyPer') {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const tab = this.state.penaltyPer;
+      tab[0] = 0;
+      tab[row] = event.target.value;
+      this.setState({ penaltyPer: tab });
+    }
+  }
 
     handleCheck = () => {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -164,18 +267,6 @@ class AddContract extends React.Component {
     this.setState({ open4: ok4 });
   }
 
-  handleCheck5 = () => {
-    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-    const ok = !this.state.open5;
-    this.setState({ open5: ok });
-  }
-
-  handleCheck6 = () => {
-    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-    const ok = !this.state.open6;
-    this.setState({ open6: ok });
-  }
-
   handleOpenDoc3 = () => {
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const newElement = this.state.contractDocumentations.length + 1;
@@ -190,23 +281,6 @@ class AddContract extends React.Component {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.contractDocumentations.filter(rows => rows !== row);
       this.setState({ contractDocumentations: newDocs });
-    }
-  }
-
-    handleOpenDoc2 = () => {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const newElement = this.state.proposalDocumentations.length + 1;
-      // eslint-disable-next-line react/destructuring-assignment
-      this.state.proposalDocumentations.push(newElement);
-      this.setState({ openDoc: true });
-    }
-
-  handleDeleteDoc2 = (row) => {
-    // eslint-disable-next-line react/destructuring-assignment
-    if (this.state.proposalDocumentations.length > 1) {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const newDocs = this.state.proposalDocumentations.filter(rows => rows !== row);
-      this.setState({ proposalDocumentations: newDocs });
     }
   }
 
@@ -238,9 +312,22 @@ class AddContract extends React.Component {
   handleDeleteConcept = (row) => {
     // eslint-disable-next-line react/destructuring-assignment
     if (this.state.nbrConcepts.length > 1) {
+      console.log(row);
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const totalLocal = this.state.conceptTotalAmount; const localValue = this.state.conceptValueLocal[row]; const totalEuro = this.state.conceptTotalAmountEuro; const localEuro = this.state.conceptValueEuro[row];
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.nbrConcepts.filter(rows => rows !== row);
-      this.setState({ nbrConcepts: newDocs });
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newtypes = this.state.conceptType.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newValues = this.state.conceptValue.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newEuroValues = this.state.conceptValueEuro.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newLocalValues = this.state.conceptValueLocal.filter((e, i) => i !== (row));
+      this.setState({
+        nbrConcepts: newDocs, conceptType: newtypes, conceptValue: newValues, conceptValueLocal: newLocalValues, conceptValueEuro: newEuroValues, conceptTotalAmount: totalLocal - localValue, conceptTotalAmountEuro: totalEuro - localEuro
+      });
     }
   }
 
@@ -255,9 +342,20 @@ class AddContract extends React.Component {
   handleDeletePenalty = (row) => {
     // eslint-disable-next-line react/destructuring-assignment
     if (this.state.penaltiesListe.length > 1) {
+      console.log(row);
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.penaltiesListe.filter(rows => rows !== row);
-      this.setState({ penaltiesListe: newDocs });
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs2 = this.state.penaltyQuantity.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs3 = this.state.penaltyCost.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs4 = this.state.penaltyValue.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs5 = this.state.penaltyPer.filter((e, i) => i !== (row));
+      this.setState({
+        penaltiesListe: newDocs, penaltyQuantity: newDocs2, penaltyCost: newDocs3, penaltyValue: newDocs4, penaltyPer: newDocs5
+      });
     }
   }
 
@@ -273,8 +371,10 @@ class AddContract extends React.Component {
     // eslint-disable-next-line react/destructuring-assignment
     if (this.state.purchaseOrders.length > 1) {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const newDocs = this.state.purchaseOrders.filter(rows => rows !== row);
-      this.setState({ purchaseOrders: newDocs });
+      const newDocs = this.state.purchaseOrders.filter((e, i) => i !== (row - 1));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs2 = this.state.purchaseOrderNumber.filter((e, i) => i !== (row));
+      this.setState({ purchaseOrderNumber: newDocs2, purchaseOrders: newDocs });
     }
   }
 
@@ -371,29 +471,11 @@ class AddContract extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     const {
       // eslint-disable-next-line react/prop-types
       allCountrys, allStateCountrys, allCitys
     } = this.props;
-    const Level1 = [
-      {
-        value: 1,
-        label: 'Gestion',
-      },
-      {
-        value: 2,
-        label: 'Commercial',
-      }];
-    const Level2 = [
-      {
-        value: 1,
-        label: 'Assistant',
-      },
-      {
-        value: 2,
-        label: 'Human Resources',
-      }];
+    console.log(this.state);
     const conceptTypes = [
       {
         value: 1,
@@ -402,15 +484,6 @@ class AddContract extends React.Component {
       {
         value: 2,
         label: 'Amount',
-      }];
-    const operations = [
-      {
-        value: '1',
-        label: 'Operation 1',
-      },
-      {
-        value: '2',
-        label: 'Operation 2',
       }];
     const MaxValue = [
       {
@@ -456,24 +529,11 @@ class AddContract extends React.Component {
         value: '4',
         label: 'Per Month',
       }];
-    const clients = [
-      {
-        value: '1',
-        label: 'WFS-FRANCIA',
-      },
-      {
-        value: '2',
-        label: 'WATER SUPPLY',
-      },
-      {
-        value: '3',
-        label: 'IS-FLIGHT',
-      }];
     const {
-      client, operation, company, state, clientContractSigned, taxeIdentityNumber, nbrConcepts, radio, status, currencies,
-      conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptCurrency, conceptTotalAmount, conceptTotalAmountEuro,
-      signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies,
-      penaltyMaxType, amountEuro, amountLocal, currency, paymentsBDDays, penalties, penaltyQuantity, penaltyValue,
+      client, operation, company, state, taxeIdentityNumber, nbrConcepts, radio, status, currencies, contractTitle,
+      conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptTotalAmount, conceptTotalAmountEuro,
+      signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies, operations, clients, contractTradeVolumeEuro,
+      penaltyMaxType, currency, paymentsBDDays, penalties, penaltyQuantity, penaltyValue, levels, amountInsuredEuro,
       penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, purchaseOrders,
       insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption
     } = this.state;
@@ -520,8 +580,8 @@ class AddContract extends React.Component {
                   >
                     {
                       clients.map((clt) => (
-                        <MenuItem key={clt.value} value={clt.value}>
-                          {clt.label}
+                        <MenuItem key={clt.clientId} value={clt.clientId}>
+                          {clt.name}
                         </MenuItem>
                       ))
                     }
@@ -538,8 +598,8 @@ class AddContract extends React.Component {
                   >
                     {
                       operations.map((clt) => (
-                        <MenuItem key={clt.value} value={clt.value}>
-                          {clt.label}
+                        <MenuItem key={clt.commercialOperationId} value={clt.commercialOperationId}>
+                          {clt.name}
                         </MenuItem>
                       ))
                     }
@@ -581,6 +641,17 @@ class AddContract extends React.Component {
                     }
                   </Select>
                 </FormControl>
+              </Grid>
+              <Grid xs={12} md={12} sm={12}>
+                <TextField
+                  id="contractTitle"
+                  label="Contract Title"
+                  name="contractTitle"
+                  value={contractTitle}
+                  onChange={this.handleChange}
+                  fullWidth
+                  required
+                />
               </Grid>
               {openDoc === false ? (
                 <div />
@@ -661,7 +732,7 @@ class AddContract extends React.Component {
                       onChange={this.handleChange}
                     >
                       {
-                        Level1.map((clt) => (
+                        levels.map((clt) => (
                           <MenuItem key={clt.value} value={clt.value}>
                             {clt.label}
                           </MenuItem>
@@ -679,7 +750,7 @@ class AddContract extends React.Component {
                       onChange={this.handleChange}
                     >
                       {
-                        Level2.map((clt) => (
+                        levels.map((clt) => (
                           <MenuItem key={clt.value} value={clt.value}>
                             {clt.label}
                           </MenuItem>
@@ -697,7 +768,7 @@ class AddContract extends React.Component {
                       onChange={this.handleChange}
                     >
                       {
-                        Level2.map((clt) => (
+                        levels.map((clt) => (
                           <MenuItem key={clt.value} value={clt.value}>
                             {clt.label}
                           </MenuItem>
@@ -859,12 +930,12 @@ class AddContract extends React.Component {
           <br />
           <Grid
             container
-            spacing={5}
+            spacing={2}
             alignItems="flex-start"
             direction="row"
             justify="space-around"
           >
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField
                 id="Contract Trade Volume"
                 label="Contract Trade Volume"
@@ -876,7 +947,7 @@ class AddContract extends React.Component {
                 required
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <FormControl fullWidth required>
                 <InputLabel>Select Currency</InputLabel>
                 <Select
@@ -894,7 +965,22 @@ class AddContract extends React.Component {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
+              <TextField
+                id="contractTradeVolumeEuro"
+                label="Trade Value (Euro)"
+                type="number"
+                name="contractTradeVolumeEuro"
+                value={contractTradeVolumeEuro}
+                onChange={this.handleChange}
+                fullWidth
+                required
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={3}>
               <TextField
                 id="paymentsBDDays"
                 label="Payments BD per Day"
@@ -932,8 +1018,8 @@ class AddContract extends React.Component {
                   <InputLabel>Select Type</InputLabel>
                   <Select
                     name="conceptType"
-                    value={conceptType}
-                    onChange={this.handleChange}
+                    value={conceptType[row]}
+                    onChange={event => this.handleConcept(event, row)}
                   >
                     {
                       conceptTypes.map((clt) => (
@@ -951,13 +1037,13 @@ class AddContract extends React.Component {
                   label="Concept Value"
                   type="number"
                   name="conceptValue"
-                  value={conceptValue}
-                  onChange={this.handleChange}
+                  value={conceptValue[row]}
+                  onChange={event => this.handleConcept(event, row)}
                   fullWidth
                   required
                 />
               </Grid>
-              {conceptType === 2 ? (
+              {conceptType[row] === 2 ? (
                 <Grid item xs={2} />
               ) : (
                 <Grid item xs={2}>
@@ -965,12 +1051,15 @@ class AddContract extends React.Component {
                     id="conceptValueLocal"
                     label="Concept Value in Currency"
                     name="conceptValueLocal"
-                    value={conceptValueLocal}
+                    value={conceptValueLocal[row]}
                     type="number"
                     onChange={this.handleChange}
                     fullWidth
                     InputProps={{
                       readOnly: true,
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
                     }}
                   />
                 </Grid>
@@ -986,6 +1075,9 @@ class AddContract extends React.Component {
                   InputProps={{
                     readOnly: true,
                   }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -993,12 +1085,15 @@ class AddContract extends React.Component {
                   id="conceptValueEuro"
                   label="Concept Value in EURO"
                   name="conceptValueEuro"
-                  value={conceptValueEuro}
+                  value={conceptValueEuro[row]}
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
                   InputProps={{
                     readOnly: true,
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
                   }}
                 />
               </Grid>
@@ -1127,6 +1222,20 @@ class AddContract extends React.Component {
                       />
                     </Grid>
                   </Grid>
+                  <TextField
+                    id="amountInsuredEuro"
+                    label="Amount Insured (Euro)"
+                    type="number"
+                    name="amountInsuredEuro"
+                    value={amountInsuredEuro}
+                    onChange={this.handleChange}
+                    fullWidth
+                    required
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                  <br />
                   <br />
                   <FormControl>
                     <input
@@ -1188,8 +1297,8 @@ class AddContract extends React.Component {
                           label={'Purchase Order ' + row}
                           type="number"
                           name="purchaseOrderNumber"
-                          value={purchaseOrderNumber}
-                          onChange={this.handleChange}
+                          value={purchaseOrderNumber[row]}
+                          onChange={event => this.handleConcept(event, row)}
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1366,8 +1475,8 @@ class AddContract extends React.Component {
                             <InputLabel>Select Quantity</InputLabel>
                             <Select
                               name="penaltyQuantity"
-                              value={penaltyQuantity}
-                              onChange={this.handleChange}
+                              value={penaltyQuantity[row]}
+                              onChange={event => this.handlePenalty(event, row)}
                             >
                               {
                                 Quantities.map((clt) => (
@@ -1384,8 +1493,8 @@ class AddContract extends React.Component {
                             label="Penalty Value"
                             type="number"
                             name="penaltyValue"
-                            value={penaltyValue}
-                            onChange={this.handleChange}
+                            value={penaltyValue[row]}
+                            onChange={event => this.handlePenalty(event, row)}
                             InputLabelProps={{
                               shrink: true,
                             }}
@@ -1398,8 +1507,8 @@ class AddContract extends React.Component {
                             <InputLabel>Select Value</InputLabel>
                             <Select
                               name="penaltyCost"
-                              value={penaltyCost}
-                              onChange={this.handleChange}
+                              value={penaltyCost[row]}
+                              onChange={event => this.handlePenalty(event, row)}
                             >
                               {
                                 penaltiesCost.map((clt) => (
@@ -1416,8 +1525,8 @@ class AddContract extends React.Component {
                             <InputLabel>Select Unit</InputLabel>
                             <Select
                               name="penaltyPer"
-                              value={penaltyPer}
-                              onChange={this.handleChange}
+                              value={penaltyPer[row]}
+                              onChange={event => this.handlePenalty(event, row)}
                             >
                               {
                                 penaltiesPer.map((clt) => (
