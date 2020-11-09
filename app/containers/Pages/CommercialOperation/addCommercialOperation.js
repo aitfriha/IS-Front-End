@@ -196,10 +196,10 @@ class AddCommercialOperation extends React.Component {
   myCallback = (estimatedTradeVolume, devise, estimatedTradeVolumeInEuro) => {
     this.setState({ estimatedTradeVolume });
     this.setState({ devise });
-    this.setState({ estimatedTradeVolumeInEuro })
-      console.log(estimatedTradeVolume);
-      console.log(devise);
-      console.log(estimatedTradeVolumeInEuro);
+    this.setState({ estimatedTradeVolumeInEuro });
+    console.log(estimatedTradeVolume);
+    console.log(devise);
+    console.log(estimatedTradeVolumeInEuro);
   }
 
   render() {
@@ -495,9 +495,9 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="Payment Date *"
-                    value={paymentDate}
-                    onChange={this.handlePaymentDateChange}
+                    label="contract Date*"
+                    value={contractDate}
+                    onChange={this.handleContactDateChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -505,7 +505,6 @@ class AddCommercialOperation extends React.Component {
                 </Grid>
               </MuiPickersUtilsProvider>
             </Grid>
-
             <Grid item xs={12} sm={7} md={3}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <Grid container justify="space-around">
@@ -515,9 +514,9 @@ class AddCommercialOperation extends React.Component {
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
-                    label="contract Date*"
-                    value={contractDate}
-                    onChange={this.handleContactDateChange}
+                    label="P.O Date *"
+                    value={paymentDate}
+                    onChange={this.handlePaymentDateChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}

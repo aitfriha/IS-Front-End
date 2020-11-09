@@ -79,8 +79,24 @@ class commercialOperationList extends React.Component {
           }
         },
         {
+          name: 'devise',
+          label: 'devise',
+          options: {
+            filter: true,
+            sort: true,
+          }
+        },
+        {
+          name: 'estimatedTradeVolume',
+          label: 'Estimated T.V',
+          options: {
+            filter: true,
+            sort: true,
+          }
+        },
+        {
           name: 'estimatedTradeVolumeInEuro',
-          label: 'Estimated Trade Volume',
+          label: 'Estimated T.V in Euros',
           options: {
             filter: true,
             sort: true,
@@ -96,7 +112,7 @@ class commercialOperationList extends React.Component {
         }, */
         {
           name: 'stateName',
-          label: 'Progress',
+          label: 'status',
           options: {
             filter: true,
             sort: true,
