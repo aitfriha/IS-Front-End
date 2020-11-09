@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API } from '../../config/apiUrl';
 
 class ClientService {
-    getClients = () => axios.get(`${API}/clients`);
+    getClients = () => axios.get(`${API}/client/all`);
 
     saveClient = client => axios.post(`${API}/client`, client);
 
