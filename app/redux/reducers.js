@@ -29,6 +29,7 @@ import contractTypeReducer from './contractType/reducer';
 import absenceTypeReducer from './absenceType/reducer';
 import legalCategoryTypeReducer from './legalCategoryType/reducer';
 import functionalStructureReducer from './functionalStructure/reducer';
+import assignmentReducer from './assignment/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -58,6 +59,7 @@ export default function createReducer(injectedReducers = {}) {
     absenceTypes: absenceTypeReducer,
     legalCategoryTypes: legalCategoryTypeReducer,
     functionalStructureLevels: functionalStructureReducer,
+    assignments: assignmentReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers

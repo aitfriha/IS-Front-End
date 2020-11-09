@@ -14,6 +14,7 @@ import absenceTypeSaga from './absenceType/saga';
 import legalCategoryTypeSaga from './legalCategoryType/saga';
 import functionalStructureSaga from './functionalStructure/saga';
 
+import assignmentSaga from './assignment/saga';
 // import watchers from other files
 export default function* rootSaga() {
   yield all([
@@ -29,7 +30,8 @@ export default function* rootSaga() {
     contractTypeSaga(),
     absenceTypeSaga(),
     legalCategoryTypeSaga(),
-    functionalStructureSaga()
+    functionalStructureSaga(),
+    assignmentSaga()
     // add other watchers to the array
   ]);
 }

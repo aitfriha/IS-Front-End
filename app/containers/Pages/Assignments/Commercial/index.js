@@ -27,22 +27,23 @@ import AddressService from '../../../Services/AddressService';
 import styles from '../assignment-jss';
 import CountryService from '../../../Services/CountryService';
 import ClientService from '../../../Services/ClientService';
-import Notification from '../../../../components/Notification/Notification';
 import CommercialAssignmentsMapped from './assignmentBlock';
 import ClientBlockMapped from '../../Clients/ClientBlock';
 import history from '../../../../utils/history';
 import {
   addClientCommercial, deleteClient, getAllClient, updateClient
 } from '../../../../redux/client/actions';
-import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
-import { getAllCityByState } from '../../../../redux/city/actions';
 // eslint-disable-next-line import/named
+import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
+import { addAssignment } from '../../../../redux/assignment/actions';
 
 
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
       staff: '',
       listClientToUpdate: [],
@@ -72,34 +73,34 @@ class Commercial extends React.Component {
         },
         {
           // eslint-disable-next-line no-useless-concat
-          label: 'Email',
-          name: 'email',
+          title: 'Email',
+          field: 'email',
           /* cellStyle: { width: 100, maxWidth: 100 },
           headerStyle: { width: 130, maxWidth: 130 } */
         },
         {
           // eslint-disable-next-line no-useless-concat
-          label: 'Phone',
-          name: 'phone'
+          title: 'Phone',
+          field: 'phone'
           /* cellStyle: { width: 155, maxWidth: 155 },
           headerStyle: { width: 180, maxWidth: 180 } */
         },
         {
-          label: 'Description',
-          name: 'description',
+          title: 'Description',
+          field: 'description',
           /* cellStyle: { width: 155, maxWidth: 155 },
           headerStyle: { width: 100, maxWidth: 180 } */
         },
         {
-          label: 'Responsible Commercial',
-          name: 'responsibleCommercial',
+          title: 'Responsible Commercial',
+          field: 'responsibleCommercial',
           options: {
             filter: true,
           }
         },
         {
-          label: 'Assistant Commercial',
-          name: 'assistantCommercial',
+          title: 'Assistant Commercial',
+          field: 'assistantCommercial',
           options: {
             filter: true,
           }
@@ -211,6 +212,7 @@ class Commercial extends React.Component {
   };
 
   selectedRows = (rows) => {
+    console.log(rows);
     const listClientToUpdate = rows.map((row) => row.clientId);
     this.setState({ listClientToUpdate });
     this.setState({ openPopUp: true });
@@ -224,17 +226,36 @@ class Commercial extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  deleteAndUpdateServiceType = () => {
+  assineStaffToClient = () => {
     const { typeResponsible, staff, listClientToUpdate } = this.state;
-    console.log(typeResponsible);
-    console.log(staff);
-    console.log(listClientToUpdate);
+    const { addAssignment,getAllClient } = this.props;
+    const assignment = {
+      typeStaff: typeResponsible,
+      staffId: staff.staffId,
+      clientIds: listClientToUpdate,
+      startDate: new Date(new Date(new Date().toString().split('GMT')[0] + ' UTC').toISOString()),
+      endDate: null
+    };
+    const promise = new Promise((resolve) => {
+      // get client information
+      addAssignment(assignment);
+      this.editingPromiseResolve = resolve;
+      this.setState({ openPopUp: false });
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllClient();
+      } else {
+        notification('danger', result);
+      }
+    });
   };
 
   render() {
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
-    const { classes, allClients, allStaffs } = this.props;
+    const { classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment  } = this.props;
     const {
       addresses,
       responsibleAssignments,
@@ -244,7 +265,8 @@ class Commercial extends React.Component {
       notifMessage, client, clients,
       columns, openPopUp, typeResponsible, staff
     } = this.state;
-    console.log('type :::::::::::::::::', type);
+    (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
+    (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
     return (
       <div>
         <Helmet>
@@ -349,7 +371,7 @@ class Commercial extends React.Component {
                   /* onSelectionChange={(rows) => this.selectedRows(rows)} */
                   actions={[
                     {
-                      tooltip: 'Remove All Selected Users',
+                      tooltip: 'Assigne',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
                     }
@@ -451,7 +473,7 @@ class Commercial extends React.Component {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={this.deleteAndUpdateServiceType}
+                      onClick={this.assineStaffToClient}
                     >
                       Update
                     </Button>
@@ -502,17 +524,22 @@ const mapStateToProps = state => ({
   isLoading: state.getIn(['clients']).isLoading,
   errors: state.getIn(['clients']).errors,
   // all staff
-  allStaffs: state.getIn(['staffs']).allStaffs,
+  allStaffs: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
   errorsStaff: state.getIn(['staffs']).errors,
-
+  // assignment
+  allAssignments: state.getIn(['assignments']).allAssignments,
+  assignmentResponse: state.getIn(['assignments']).assignmentResponse,
+  isLoadingAssignment: state.getIn(['assignments']).isLoading,
+  errorsAssignment: state.getIn(['assignments']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClient,
   updateClient,
   getAllClient,
   getAllStaff,
+  addAssignment
 }, dispatch);
 
 export default withStyles(styles)(connect(
