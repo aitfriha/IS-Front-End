@@ -12,9 +12,12 @@ import {
   Typography
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import styles from './sector-jss';
 import SectorConfigService from '../../Services/SectorConfigService';
 import SectorService from '../../Services/SectorService';
+import { getAllPrimarySectorCompany, getAllSubChildSectorCompany } from '../../../redux/sectorsCompany/actions';
 
 class SectorBlock extends React.Component {
   constructor(props) {
@@ -23,60 +26,60 @@ class SectorBlock extends React.Component {
       sectors: [],
       countryName: '',
       sector1: {},
-      sectorConfig: []
-    }
+      sectorConfig: [],
+      idSector: ''
+    };
   }
 
   componentDidMount() {
+    const { getAllPrimarySectorCompany } = this.props;
     SectorService.getSectorsType('primary').then(({ data }) => {
       this.setState({ sectors: data, open: true });
     });
+    getAllPrimarySectorCompany();
   }
 
   handleChange = (ev) => {
-    if (ev.target.name === 'sector1') {
-      SectorConfigService.getConfigSectorsPrimary(ev.target.value.name).then(({ data }) => {
-        const datas = [];
-        data.forEach(da => {
-          const dat = da;
-          const newSect = {
-            sectorConfigId: dat.sectorConfigId,
-            choose: false,
-            primarySector: dat.primarySector,
-            secondarySector: dat.secondarySector,
-            thirdSector: dat.thirdSector,
-            leader: dat.leader.name
-          };
-          datas.push(newSect);
-        });
-        this.setState({ sectorConfig: datas });
+    const { getAllSubChildSectorCompany } = this.props;
+    console.log('hhhhhhhhhhhhhhhh ', (ev.target.value).firstSectorName);
+    getAllSubChildSectorCompany((ev.target.value).firstSectorName);
+    /*
+    SectorConfigService.getConfigSectorsPrimary(ev.target.value.name).then(({ data }) => {
+      const datas = [];
+      data.forEach(da => {
+        const dat = da;
+        const newSect = {
+          sectorConfigId: dat.sectorConfigId,
+          choose: false,
+          primarySector: dat.primarySector,
+          secondarySector: dat.secondarySector,
+          thirdSector: dat.thirdSector,
+          leader: dat.leader.name
+        };
+        datas.push(newSect);
       });
-    }
+      this.setState({ sectorConfig: datas });
+    }); */
+    // get sub secteur of primarySector
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  handleCheck = (ev, id) => {
-    const { sectorConfig } = this.state;
-    const newSectorConfig = sectorConfig;
-    newSectorConfig.forEach(config => {
-      if (config.sectorConfigId === id) {
-        config.choose = ev.target.checked;
-        const { sectorsConfig } = this.props;
-        if (config.choose) {
-          sectorsConfig(config);
-        } else {
-          sectorsConfig({});
-        }
-      } else {
-        config.choose = false
-      }
-    });
-    this.setState({ sectorConfig: newSectorConfig });
+  handleCheck = (ev, selctedrow) => {
+    const { sectorsConfig } = this.props;
+    console.log(selctedrow);
+    if (selctedrow.thirdSectorId !== '') {
+      sectorsConfig(selctedrow);
+    } else if (selctedrow) {
+      sectorsConfig(selctedrow.secondSectorId);
+    } else {
+      sectorsConfig(selctedrow);
+    }
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, allSectorComapnys, allSubSectorChildComapnys } = this.props;
     const { sectors, sector1, sectorConfig } = this.state;
+    console.log('allSubSectorChildComapnys ', allSubSectorChildComapnys);
     return (
       <div>
         <Typography variant="subtitle2" component="h2">
@@ -90,9 +93,9 @@ class SectorBlock extends React.Component {
             onChange={this.handleChange}
           >
             {
-              sectors.map((sect) => (
-                <MenuItem key={sect.sectorId} value={sect}>
-                  {sect.name}
+              allSectorComapnys && allSectorComapnys.map((sect) => (
+                <MenuItem key={sect.firstSectorId} value={sect}>
+                  {sect.firstSectorName}
                 </MenuItem>
               ))
             }
@@ -106,26 +109,26 @@ class SectorBlock extends React.Component {
                 <TableCell>Primary Sector</TableCell>
                 <TableCell align="right">Secondary Sector</TableCell>
                 <TableCell align="right">Third Sector</TableCell>
-                <TableCell align="right">Sector Leader</TableCell>
+                {/* <TableCell align="right">Sector Leader</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
-              {sectorConfig.map((row) => (
-                <TableRow key={row.sectorConfigId}>
+              {allSubSectorChildComapnys && allSubSectorChildComapnys.map((row) => (
+                <TableRow key={row.thirdSectorId}>
                   <TableCell padding="checkbox">
                     <Checkbox
-                      checked={row.choose}
+                      checked={row.choosez}
                       color="primary"
-                      onChange={event => this.handleCheck(event, row.sectorConfigId)
+                      onChange={event => this.handleCheck(event, row)
                       }
                     />
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {row.primarySector}
+                    {row.firstSectorName}
                   </TableCell>
-                  <TableCell align="right">{row.secondarySector}</TableCell>
-                  <TableCell align="right">{row.thirdSector}</TableCell>
-                  <TableCell align="right">{row.leader}</TableCell>
+                  <TableCell align="right">{row.secondSectorName}</TableCell>
+                  <TableCell align="right">{row.thirdSectorName}</TableCell>
+                  {/* <TableCell align="right">***</TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -135,8 +138,25 @@ class SectorBlock extends React.Component {
     );
   }
 }
-SectorBlock.propTypes = {
-  classes: PropTypes.object.isRequired,
-  sectorsConfig: PropTypes.func.isRequired
-};
-export default withStyles(styles)(SectorBlock);
+const mapStateToProps = state => ({
+  // primarySectors
+  allSectorComapnys: state.getIn(['sectorCompany']).allSectorPimaryComapnys,
+  sectorComapnyResponse: state.getIn(['sectorCompany']).sectorComapnyResponse,
+  isLoading: state.getIn(['sectorCompany']).isLoading,
+  errors: state.getIn(['sectorCompany']).errors,
+  // allsubsectorof selected parent sector
+  allSubSectorChildComapnys: state.getIn(['sectorCompany']).allSubSectorChildComapnys,
+  subsectorComapnyResponse: state.getIn(['sectorCompany']).subsectorComapnyResponse,
+  isLoadingSubSector: state.getIn(['sectorCompany']).isLoading,
+  errorsSubSector: state.getIn(['sectorCompany']).errors,
+
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllPrimarySectorCompany,
+  getAllSubChildSectorCompany
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SectorBlock));

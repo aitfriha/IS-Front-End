@@ -5,6 +5,7 @@ import {
   UPDATE_SECTORCOMPANY,
   GET_ALL_CHILDSECTORCOMPANYS,
   GET_ALL_PRIMARYSECTORCOMPANYS,
+  GET_ALL_SUBCHILDSECTORCOMPANYS
 
 } from './constants';
 
@@ -31,6 +32,11 @@ export const getAllSectorCompany = () => ({
 
 export const getAllChildSectorCompany = (parentName) => ({
   type: GET_ALL_CHILDSECTORCOMPANYS,
+  parentName
+});
+
+export const getAllSubChildSectorCompany = (parentName) => ({
+  type: GET_ALL_SUBCHILDSECTORCOMPANYS,
   parentName
 });
 

@@ -53,6 +53,7 @@ class AddClient extends React.Component {
       countries: [],
       open: false,
       sectors: [],
+      sector:{},
       sector1: {},
       sectorConfig: [],
       sectorConfigChoose: null,
@@ -96,13 +97,13 @@ class AddClient extends React.Component {
       phone,
       webSite,
       cityId,
-      sectorsConfig,
       type,
       logo,
       isActive,
       postCode,
       multinational,
       address,
+      sector
     } = this.state;
     const client = {
       name: name.title,
@@ -117,10 +118,10 @@ class AddClient extends React.Component {
       addressName:address,
       postCode,
       // countryLeader: country.leader.name,
-      sectorLeader: sectorsConfig.leader,
-      sector1: sectorsConfig.primarySector,
-      sector2: sectorsConfig.secondarySector,
-      sector3: sectorsConfig.thirdSector
+      //sectorLeader: sectorsConfig.leader,
+      sector1: sector.firstSectorName,
+      sector2: sector.secondSectorName,
+      sector3: sector.thirdSectorName
     };
     console.log(client);
     /** */
@@ -144,8 +145,9 @@ class AddClient extends React.Component {
     }); */
   };
 
-  handleCheck = (sectorsConfig) => {
-    this.setState({ sectorsConfig });
+  handleCheck = (sector) => {
+    console.log('sector : ',sector);
+    this.setState({ sector });
   };
 
   readURI(e) {
