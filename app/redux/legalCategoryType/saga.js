@@ -91,7 +91,7 @@ function* getAllLegalCategoryType() {
     console.log(request);
     yield put({
       type: GET_ALL_LEGALCATEGORYTYPES_SUCCESS,
-      payload: request.data
+      payload: request.data.payload
     });
   } catch (errors) {
     yield put({

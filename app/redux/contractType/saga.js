@@ -90,7 +90,7 @@ function* getAllContractType() {
     });
     yield put({
       type: GET_ALL_CONTRACTTYPES_SUCCESS,
-      payload: request.data
+      payload: request.data.payload
     });
   } catch (errors) {
     yield put({
