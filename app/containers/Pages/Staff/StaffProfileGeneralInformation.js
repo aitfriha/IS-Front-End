@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import {
   IconButton,
   Avatar,
@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  withStyles,
+  makeStyles,
   Tooltip,
   Button,
   Grid,
@@ -38,14 +38,22 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import PublishIcon from '@material-ui/icons/Publish';
+import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import CountryService from '../../Services/CountryService';
 import StaffService from '../../Services/StaffService';
 import StaffDocumentsService from '../../Services/StaffDocumentsService';
 import AddressBlock from '../Address';
 import styles from './staff-jss';
-import { setStaff, setEdit } from '../../../redux/staff/actions';
+import {
+  setStaff,
+  setEdit,
+  getAllStaff,
+  updateStaff
+} from '../../../redux/staff/actions';
+import notification from '../../../components/Notification/Notification';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   pdfjs.version
@@ -54,6 +62,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const inputDoc = React.createRef();
 
 const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
+
+const useStyles = makeStyles(styles);
 
 class StaffProfileGeneralInformation extends Component {
   state = {
@@ -90,6 +100,8 @@ class StaffProfileGeneralInformation extends Component {
     docType: ''
   };
 
+  editingPromiseResolve = () => {};
+
   componentDidMount() {
     this.setInitialData();
     CountryService.getCountries().then(({ data }) => {
@@ -106,7 +118,7 @@ class StaffProfileGeneralInformation extends Component {
       motherFamilyName: staff.motherFamilyName,
       personalPhone: staff.personalPhone,
       personalEmail: staff.personalEmail,
-      companyName: staff.staffContract.companyName,
+      companyName: staff.companyName,
       companyPhone: staff.companyPhone,
       companyMobilePhone: staff.companyMobilePhone,
       companyEmail: staff.companyEmail,
@@ -115,18 +127,11 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry: staff.birthCountry,
       emergencyContactName: staff.emergencyContactName,
       emergencyContactPhone: staff.emergencyContactPhone,
-      fullAddress: staff.address.fullAddress,
-      adCountry: staff.address.city.stateCountry.country,
-      postCode: staff.address.postCode,
-      state: staff.address.city.stateCountry,
-      city: staff.address.city,
-      hnsCardNumber: '',
-      hnsCardExpeditionDate: new Date(),
-      hnsCardExpirationDate: new Date(),
-      idCardDoc: {},
-      passportDoc: {},
-      professionalIdCardDoc: {},
-      hnsCardDoc: {},
+      fullAddress: staff.fullAddress,
+      adCountry: staff.countryName,
+      postCode: staff.postCode,
+      state: staff.stateName,
+      city: staff.cityName,
       isEditData: false
     });
   };
@@ -139,7 +144,7 @@ class StaffProfileGeneralInformation extends Component {
       motherFamilyName: staff.motherFamilyName,
       personalPhone: staff.personalPhone,
       personalEmail: staff.personalEmail,
-      companyName: staff.staffContract.companyName,
+      companyName: staff.companyName,
       companyPhone: staff.companyPhone,
       companyMobilePhone: staff.companyMobilePhone,
       companyEmail: staff.companyEmail,
@@ -148,17 +153,17 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry: staff.birthCountry,
       emergencyContactName: staff.emergencyContactName,
       emergencyContactPhone: staff.emergencyContactPhone,
-      fullAddress: staff.address.fullAddress,
-      adCountry: staff.address.city.stateCountry.country,
-      postCode: staff.address.postCode,
-      state: staff.address.city.stateCountry,
-      city: staff.address.city,
+      fullAddress: staff.fullAddress,
+      adCountry: staff.countryName,
+      postCode: staff.postCode,
+      state: staff.stateName,
+      city: staff.cityName,
       isEditData: false
     });
   };
 
   handleOpenEditData = () => {
-    const { setIsEdit } = this.props;
+    const { setEdit } = this.props;
     const {
       personalPhone,
       companyPhone,
@@ -174,7 +179,7 @@ class StaffProfileGeneralInformation extends Component {
         emergencyContactPhone: emergencyContactPhone.slice(4)
       },
       () => {
-        setIsEdit(true);
+        setEdit(true);
       }
     );
   };
@@ -215,13 +220,15 @@ class StaffProfileGeneralInformation extends Component {
   };
 
   handleCancel = () => {
-    const { setIsEdit } = this.props;
-    setIsEdit(false);
+    const { setEdit } = this.props;
+    setEdit(false);
     this.restoreData();
   };
 
   handleUpdate = () => {
-    const { setStaffData, setIsEdit, staff } = this.props;
+    const {
+      setStaff, setEdit, staff, updateStaff, getAllStaff
+    } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -241,6 +248,7 @@ class StaffProfileGeneralInformation extends Component {
       city
     } = this.state;
     const newStaff = {
+      staffId: staff.staffId,
       firstName,
       fatherFamilyName,
       motherFamilyName,
@@ -254,28 +262,38 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry: birthCountry.countryName,
       emergencyContactName,
       emergencyContactPhone,
-      photo: staff.photo,
-      address: {
-        addressId: staff.address.addressId,
-        fullAddress,
-        postCode
-      },
-      isLeader: staff.isLeader
+      addressId: staff.addressId,
+      cityId: city.cityId,
+      fullAddress,
+      postCode
     };
-    const id = staff.staffId;
 
-    StaffService.updateStaff(id, city.cityId, newStaff).then(({ data }) => {
+    const promise = new Promise(resolve => {
+      // get client information
+      updateStaff(newStaff);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+      } else {
+        notification('danger', result);
+      }
+    });
+
+    /* StaffService.updateStaff(newStaff).then(({ data }) => {
       console.log(data);
       this.setState(
         {
           isEditData: false
         },
         () => {
-          setIsEdit(false);
-          setStaffData(data);
+          setEdit(false);
+          setStaff(data);
         }
       );
-    });
+    }); */
   };
 
   handleUpdateDocuments = () => {};
@@ -304,7 +322,7 @@ class StaffProfileGeneralInformation extends Component {
   };
 
   handleAddDocument = () => {
-    const { setStaffData, staff } = this.props;
+    const { setStaff, staff } = this.props;
     const {
       docNumber,
       docExpeditionDate,
@@ -332,7 +350,7 @@ class StaffProfileGeneralInformation extends Component {
 
     StaffDocumentsService.addStaffDocument(formData, staff.staffId).then(() => {
       StaffService.getStaffById(staff.staffId).then(({ data }) => {
-        setStaffData(data);
+        setStaff(data);
         this.setState({
           isAddDocumentation: false
         });
@@ -400,16 +418,22 @@ class StaffProfileGeneralInformation extends Component {
   };
 
   handleDeleteDocument = documentId => {
-    const { setStaffData, staff } = this.props;
+    const { setStaff, staff } = this.props;
     StaffDocumentsService.deleteStaffDocument(documentId).then(() => {
       StaffService.getStaffById(staff.staffId).then(({ data }) => {
-        setStaffData(data);
+        setStaff(data);
       });
     });
   };
 
   render() {
-    const { classes, staff } = this.props;
+    const {
+      classes,
+      staff,
+      isLoadingStaff,
+      staffResponse,
+      errorStaff
+    } = this.props;
     const {
       isEditData,
       isAddDocumentation,
@@ -442,6 +466,10 @@ class StaffProfileGeneralInformation extends Component {
       'Professional ID Card',
       'Health National Security Card'
     ];
+    !isLoadingStaff
+      && staffResponse
+      && this.editingPromiseResolve(staffResponse);
+    !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
     return (
       <div>
         <Dialog
@@ -673,7 +701,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.staffContract.companyName}
+                    {staff.companyName}
                   </Typography>
                 </div>
               </div>
@@ -766,7 +794,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.city.stateCountry.country.countryName}
+                    {staff.countryName}
                   </Typography>
                 </div>
               </div>
@@ -880,7 +908,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.fullAddress}
+                    {staff.fullAddress}
                   </Typography>
                 </div>
               </div>
@@ -908,7 +936,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.postCode}
+                    {staff.postCode}
                   </Typography>
                 </div>
               </div>
@@ -945,7 +973,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.city.cityName}
+                    {staff.cityName}
                   </Typography>
                 </div>
               </div>
@@ -973,7 +1001,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.city.stateCountry.stateName}
+                    {staff.stateName}
                   </Typography>
                 </div>
               </div>
@@ -1287,23 +1315,36 @@ class StaffProfileGeneralInformation extends Component {
   }
 }
 
-StaffProfileGeneralInformation.propTypes = {
-  classes: PropTypes.object.isRequired,
-  setStaffData: PropTypes.func.isRequired,
-  setIsEdit: PropTypes.func.isRequired
-};
-
 const mapStateToProps = state => ({
-  staff: state.get('staffs').selectedStaff
+  staff: state.getIn(['staffs']).selectedStaff,
+  allStaff: state.getIn(['staffs']).allStaff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorsStaff: state.getIn(['staffs']).errors
 });
-const mapDispatchToProps = dispatch => ({
-  setStaffData: bindActionCreators(setStaff, dispatch),
-  setIsEdit: bindActionCreators(setEdit, dispatch)
-});
+
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateStaff,
+    getAllStaff,
+    setStaff,
+    setEdit
+  },
+  dispatch
+);
 
 const StaffProfileGeneralInformationMapped = connect(
   mapStateToProps,
   mapDispatchToProps
 )(StaffProfileGeneralInformation);
 
-export default withStyles(styles)(StaffProfileGeneralInformationMapped);
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return (
+    <StaffProfileGeneralInformationMapped
+      changeTheme={changeTheme}
+      classes={classes}
+    />
+  );
+};

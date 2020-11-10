@@ -1,19 +1,19 @@
 import axios from 'axios';
-import { API } from '../../config/apiUrl';
+import ENDPOINTS from '../../api/endpoints';
 
 class FunctionalStructureService {
-  getLevels = () => axios.get(`${API}/levels`);
+  getLevels = () => axios.get(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/all`);
 
-  saveLevel = objects => axios.post(`${API}/level-save`, objects);
+  saveLevel = objects => axios.post(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/add`, objects);
 
-  updateLevel = (objects, levelId) => axios.put(`${API}/level-update/${levelId}`, objects);
+  updateLevel = (objects, levelId) => axios.put(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/update/${levelId}`, objects);
 
-  deleteLevel = levelId => axios.delete(`${API}/level-delete/${levelId}`);
+  deleteLevel = levelId => axios.delete(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/delete/${levelId}`);
 
-  getLevelByType = type => axios.get(`${API}/levels-type/${type}`);
+  getLevelByType = type => axios.get(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/all-by-type/${type}`);
 
-  getLevelTree = levelId => axios.get(`${API}/level-tree/${levelId}`);
+  getLevelTree = levelId => axios.get(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/level-tree/${levelId}`);
 
-  setLevelStaffs = objects => axios.post(`${API}/level-assign`, objects);
+  setLevelStaffs = objects => axios.post(`${ENDPOINTS.FUNCTIONALSTRUCTURE}/level-assign`, objects);
 }
 export default new FunctionalStructureService();

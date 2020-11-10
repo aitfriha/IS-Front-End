@@ -18,14 +18,13 @@ import {
 
 import ENDPOINTS from '../../api/endpoints';
 
-
 function* saveStaff(action) {
   try {
     const { staff } = action;
     const request = yield axios({
       method: 'post',
       url: ENDPOINTS.STAFF + '/add',
-      data: staff,
+      data: staff
       /* headers: { 'Content-Type': 'multipart/form-data;boundary=----WebKitFormBoundaryQ0pBuvRC1EzDAQWT----' } */
     });
 
@@ -41,12 +40,9 @@ function* saveStaff(action) {
   }
 }
 
-
 function* updateStaff(action) {
   try {
-    const {
-      staffWithId
-    } = action;
+    const { staffWithId } = action;
 
     const request = yield axios({
       method: 'post',
@@ -68,9 +64,7 @@ function* updateStaff(action) {
 
 function* deleteStaff(action) {
   try {
-    const {
-      staffId
-    } = action;
+    const { staffId } = action;
 
     const request = yield axios({
       method: 'delete',
@@ -89,16 +83,16 @@ function* deleteStaff(action) {
   }
 }
 
-
 function* getAllStaff() {
   try {
     const request = yield axios({
       method: 'get',
       url: ENDPOINTS.STAFF + '/allaid'
     });
+    console.log(request);
     yield put({
       type: GET_ALL_STAFFS_SUCCESS,
-      payload: request.data.payload
+      payload: request.data
     });
   } catch (errors) {
     yield put({
@@ -113,6 +107,6 @@ export default function* staffSaga() {
     takeLatest(ADD_STAFF, saveStaff),
     takeLatest(UPDATE_STAFF, updateStaff),
     takeLatest(DELETE_STAFF, deleteStaff),
-    takeLatest(GET_ALL_STAFFS, getAllStaff),
+    takeLatest(GET_ALL_STAFFS, getAllStaff)
   ]);
 }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import {
   Grid,
   FormControl,
@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogActions,
   Avatar,
-  withStyles,
+  makeStyles,
   InputLabel,
   Select,
   MenuItem,
@@ -32,6 +32,9 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import { DataUsageOutlined } from '@material-ui/icons';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import styles from './staff-jss';
 import StaffService from '../../Services/StaffService';
 import CountryService from '../../Services/CountryService';
@@ -40,6 +43,13 @@ import ContractTypeService from '../../Services/ContractTypeService';
 import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
 import StaffContractHistoryService from '../../Services/StaffContractHistoryService';
+import { ThemeContext } from '../../App/ThemeWrapper';
+import {
+  setStaff,
+  setEdit,
+  getAllStaff,
+  updateStaff
+} from '../../../redux/staff/actions';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   pdfjs.version
@@ -48,6 +58,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const inputContractDoc = React.createRef();
 const inputInternalRulesDoc = React.createRef();
 const inputPreContractDoc = React.createRef();
+
+const useStyles = makeStyles(styles);
 
 class StaffProfileContractInformation extends Component {
   state = {
@@ -79,8 +91,7 @@ class StaffProfileContractInformation extends Component {
     companyName: '',
     contractTypes: [],
     legalCategoryTypes: [],
-    history: [],
-    localData: {}
+    history: []
   };
 
   columns = [
@@ -127,34 +138,35 @@ class StaffProfileContractInformation extends Component {
   ];
 
   componentDidMount() {
-    const { data } = this.props;
+    const { staff } = this.props;
     this.setInitialData();
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
-    StateCountryService.getStatesByCountry(
-      data.staffContract.contractType.state.country.countryId
-    ).then(response => {
-      this.setState({
-        hiringCountry: data.staffContract.hiringCountry,
-        states: response.data.payload
-      });
-    });
-    ContractTypeService.getAllByState(
-      data.staffContract.contractType.state._id
-    ).then(response => {
-      this.setState({
-        contractTypes: response.data,
-        hiringState: data.staffContract.hiringState
-      });
-    });
-    LegalCategoryTypeService.getAllLegalCategoryTypesByCompany(
-      data.companyName
-    ).then(({ data }) => {
-      this.setState({ legalCategoryTypes: data });
-    });
+    StateCountryService.getStatesByCountry(staff.contractTypeCountryId).then(
+      response => {
+        this.setState({
+          hiringCountry: data.staffContract.hiringCountry,
+          states: response.data.payload
+        });
+      }
+    );
+    ContractTypeService.getAllByState(staff.contractTypeStateId).then(
+      response => {
+        console.log(response.data);
+        this.setState({
+          contractTypes: response.data,
+          hiringState: data.staffContract.hiringState
+        });
+      }
+    );
+    LegalCategoryTypeService.getAllByCompany(staff.companyId).then(
+      ({ data }) => {
+        this.setState({ legalCategoryTypes: data });
+      }
+    );
     StaffContractHistoryService.getStaffContractHistoryByStaff(
-      data.staffContract.staffContractId
+      staff.staffContractId
     ).then(({ data }) => {
       this.setState({
         history: data
@@ -163,35 +175,33 @@ class StaffProfileContractInformation extends Component {
   }
 
   setInitialData = () => {
-    const { data } = this.props;
+    const { staff } = this.props;
     const staffContract = {
-      contractType: data.staffContract.contractType._id,
-      legalCategoryType:
-        data.staffContract.legalCategoryType.legalCategoryTypeId,
-      associateOffice: data.staffContract.associateOffice,
-      hiringCountry: data.staffContract.hiringCountry,
-      hiringState: data.staffContract.contractType.state.stateName,
-      townContract: data.staffContract.townContract,
-      personalNumber: data.staffContract.personalNumber,
-      highDate: new Date(data.staffContract.highDate),
-      lowDate: new Date(data.staffContract.lowDate),
-      registrationDate: new Date(data.staffContract.registrationDate),
-      preContractDate: new Date(data.staffContract.preContractDate),
-      internalRulesDoc: data.staffContract.internalRulesDoc,
-      contractDoc: data.staffContract.contractDoc,
-      preContractDoc: data.staffContract.preContractDoc,
-      companyName: data.companyName
+      contractType: staff.contractTypeId,
+      legalCategoryType: staff.legalCategoryTypeId,
+      associateOffice: staff.associateOffice,
+      hiringCountry: staff.hiringCountry,
+      hiringState: staff.contractTypeState,
+      townContract: staff.townContract,
+      personalNumber: staff.personalNumber,
+      highDate: new Date(staff.highDate),
+      lowDate: new Date(staff.lowDate),
+      registrationDate: new Date(staff.registrationDate),
+      preContractDate: new Date(staff.preContractDate),
+      internalRulesDoc: staff.internalRulesDoc,
+      contractDoc: staff.contractDoc,
+      preContractDoc: staff.preContractDoc,
+      companyName: staff.companyName
     };
     this.setState({
       ...staffContract,
       isEditData: false,
-      isViewHistory: false,
-      localData: data.staffContract
+      isViewHistory: false
     });
   };
 
   handleDownload = () => {
-    const { data } = this.props;
+    const { staff } = this.props;
     const {
       documentType,
       contractDoc,
@@ -202,18 +212,18 @@ class StaffProfileContractInformation extends Component {
     let docName = null;
     if (documentType === 'contract') {
       doc = contractDoc;
-      docName = `${data.firstName}-${data.fatherFamilyName}-${
-        data.motherFamilyName
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
       }_Contract`;
     } else if (documentType === 'internalRules') {
       doc = internalRulesDoc;
-      docName = `${data.firstName}-${data.fatherFamilyName}-${
-        data.motherFamilyName
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
       }_Internal-Rules`;
     } else if (documentType === 'preContract') {
       doc = preContractDoc;
-      docName = `${data.firstName}-${data.fatherFamilyName}-${
-        data.motherFamilyName
+      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
+        staff.motherFamilyName
       }_PreContract`;
     }
 
@@ -277,24 +287,23 @@ class StaffProfileContractInformation extends Component {
   };
 
   restoreData = () => {
-    const { data } = this.props;
-    const { localData } = this.state;
+    const { staff } = this.props;
     this.setState({
-      contractType: localData.contractType._id,
-      legalCategoryType: localData.legalCategoryType.legalCategoryTypeId,
-      associateOffice: localData.associateOffice,
-      hiringCountry: localData.hiringCountry,
-      hiringState: data.staffContract.contractType.state.stateName,
-      townContract: localData.townContract,
-      personalNumber: localData.personalNumber,
-      highDate: new Date(localData.highDate),
-      lowDate: new Date(localData.lowDate),
-      registrationDate: new Date(localData.registrationDate),
-      preContractDate: new Date(localData.preContractDate),
-      internalRulesDoc: localData.internalRulesDoc,
-      contractDoc: localData.contractDoc,
-      preContractDoc: localData.preContractDoc,
-      companyName: localData.companyName,
+      contractType: staff.contractTypeId,
+      legalCategoryType: staff.legalCategoryTypeId,
+      associateOffice: staff.associateOffice,
+      hiringCountry: staff.hiringCountry,
+      hiringState: staff.contractTypeState,
+      townContract: staff.townContract,
+      personalNumber: staff.personalNumber,
+      highDate: new Date(staff.highDate),
+      lowDate: new Date(staff.lowDate),
+      registrationDate: new Date(staff.registrationDate),
+      preContractDate: new Date(staff.preContractDate),
+      internalRulesDoc: staff.internalRulesDoc,
+      contractDoc: staff.contractDoc,
+      preContractDoc: staff.preContractDoc,
+      companyName: staff.companyName,
       isEditData: false,
       isViewHistory: false,
       newContractDoc: {},
@@ -418,7 +427,7 @@ class StaffProfileContractInformation extends Component {
   };
 
   handleUpdate = () => {
-    const { data } = this.props;
+    const { staff } = this.props;
     const {
       staffContractId,
       associateOffice,
@@ -451,7 +460,7 @@ class StaffProfileContractInformation extends Component {
       preContractDate: preContractDate.toISOString().slice(0, 10)
     };
 
-    const id = data.staffContract.staffContractId;
+    const id = staff.staffContractId;
 
     const contractData = new FormData();
 
@@ -519,7 +528,6 @@ class StaffProfileContractInformation extends Component {
         ...staffContract,
         isEditData: false,
         history,
-        localData: data,
         newContractDoc: {},
         newInternalRulesDoc: {},
         newPreContractDoc: {},
@@ -529,7 +537,7 @@ class StaffProfileContractInformation extends Component {
   };
 
   render() {
-    const { data, classes } = this.props;
+    const { staff, classes } = this.props;
     const {
       isOpenDocument,
       pageNumber,
@@ -554,8 +562,7 @@ class StaffProfileContractInformation extends Component {
       contractTypes,
       legalCategoryTypes,
       companyName,
-      history,
-      localData
+      history
     } = this.state;
 
     const options = {
@@ -808,11 +815,7 @@ class StaffProfileContractInformation extends Component {
                         : classes.normalTypography
                     }
                   >
-                    {isViewHistory
-                      ? contractType
-                      : localData.contractType
-                        ? localData.contractType.name
-                        : ''}
+                    {staff.contractTypeName}
                   </Typography>
                 </div>
               </div>
@@ -839,11 +842,7 @@ class StaffProfileContractInformation extends Component {
                         : classes.normalTypography
                     }
                   >
-                    {isViewHistory
-                      ? legalCategoryType
-                      : localData.legalCategoryType
-                        ? localData.legalCategoryType.name
-                        : ''}
+                    {staff.legalCategoryTypeName}
                   </Typography>
                 </div>
               </div>
@@ -1019,8 +1018,8 @@ class StaffProfileContractInformation extends Component {
                       }
                       onClick={() => this.handleOpenDialog('contract', 'pdf')}
                     >
-                      {`${data.firstName}-${data.fatherFamilyName}-${
-                        data.motherFamilyName
+                      {`${staff.firstName}-${staff.fatherFamilyName}-${
+                        staff.motherFamilyName
                       }_Contract`}
                     </Button>
                   ) : (
@@ -1054,8 +1053,8 @@ class StaffProfileContractInformation extends Component {
                       onClick={() => this.handleOpenDialog('internalRules', 'pdf')
                       }
                     >
-                      {`${data.firstName}-${data.fatherFamilyName}-${
-                        data.motherFamilyName
+                      {`${staff.firstName}-${staff.fatherFamilyName}-${
+                        staff.motherFamilyName
                       }_Internal-Rules`}
                     </Button>
                   ) : (
@@ -1098,8 +1097,8 @@ class StaffProfileContractInformation extends Component {
                       onClick={() => this.handleOpenDialog('preContract', 'pdf')
                       }
                     >
-                      {`${data.firstName}-${data.fatherFamilyName}-${
-                        data.motherFamilyName
+                      {`${staff.firstName}-${staff.fatherFamilyName}-${
+                        staff.motherFamilyName
                       }_PreContract`}
                     </Button>
                   ) : (
@@ -1370,7 +1369,7 @@ class StaffProfileContractInformation extends Component {
                         onChange={this.handleChange}
                       >
                         {contractTypes.map(type => (
-                          <MenuItem key={type.code} value={type._id}>
+                          <MenuItem key={type.code} value={type.contractTypeId}>
                             {type.name}
                           </MenuItem>
                         ))}
@@ -1506,9 +1505,36 @@ class StaffProfileContractInformation extends Component {
   }
 }
 
-StaffProfileContractInformation.propTypes = {
-  classes: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired
-};
+const mapStateToProps = state => ({
+  staff: state.getIn(['staffs']).selectedStaff,
+  allStaff: state.getIn(['staffs']).allStaff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorsStaff: state.getIn(['staffs']).errors
+});
 
-export default withStyles(styles)(StaffProfileContractInformation);
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateStaff,
+    getAllStaff,
+    setStaff,
+    setEdit
+  },
+  dispatch
+);
+
+const StaffProfileContractInformationMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StaffProfileContractInformation);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return (
+    <StaffProfileContractInformationMapped
+      changeTheme={changeTheme}
+      classes={classes}
+    />
+  );
+};

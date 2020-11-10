@@ -1,4 +1,3 @@
-
 // API Endpoints
 const ENDPOINTS = {
   AUTH: '/api/auth',
@@ -9,16 +8,21 @@ const ENDPOINTS = {
   COUNTRY: 'http://localhost:9000/api/county',
   STATECOUNTRY: 'http://localhost:9000/api/stateCountry',
   CITY: 'http://localhost:9000/api/city',
-  COMMERCIALOPERATIONSTATUS: 'http://localhost:9000/api/commercialOperationStatus',
+  COMMERCIALOPERATIONSTATUS:
+    'http://localhost:9000/api/commercialOperationStatus',
   COMMERCIALOPERATION: 'http://localhost:9000/api/commercialOperation',
   COMMERCIALSERVICETYPE: 'http://localhost:9000/api/commercialServiceType',
   ASSIGNMENT: 'http://localhost:9000/api/assignment',
   CLIENT: 'http://localhost:9000/api/client',
   STAFF: 'http://localhost:9000/api/staff',
   SECTORCOMPANY: 'http://localhost:9000/api/SectorCompany',
+  CONTRACTTYPE: 'http://localhost:9000/api/contractType',
+  ABSENCETYPE: 'http://localhost:9000/api/absenceType',
+  LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
+  FUNCTIONALSTRUCTURE: 'http://localhost:9000/api/functionalStructure',
   CONTRACTING: {
     APPLICATIONS: '/api/applications',
-    CONTRACTS: '/api/contract',
+    CONTRACTS: '/api/contract'
   },
   ADMINISTRATION: {
     DEPARTMENT: '/api/department',

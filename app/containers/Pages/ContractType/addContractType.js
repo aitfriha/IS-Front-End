@@ -13,15 +13,24 @@ import styles from './contractType-jss';
 import history from '../../../utils/history';
 import '../Configurations/map/app.css';
 import { ThemeContext } from '../../App/ThemeWrapper';
+import { isString } from 'lodash';
 import ContractTypeService from '../../Services/ContractTypeService';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import {
+  getAllContractType,
+  saveContractType
+} from '../../../redux/contractType/actions';
+import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
 
 class AddContractType extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {};
     this.state = {
       code: '',
       name: '',
@@ -45,6 +54,7 @@ class AddContractType extends React.Component {
   };
 
   handleSubmitContractType = () => {
+    const { saveContractType, getAllContractType } = this.props;
     const {
       code, name, description, state
     } = this.state;
@@ -54,10 +64,26 @@ class AddContractType extends React.Component {
       description,
       stateId: state.stateCountryId
     };
-    ContractTypeService.saveContractType(contractType).then(({ data }) => {
+
+    const promise = new Promise(resolve => {
+      saveContractType(contractType);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllContractType();
+        console.log(result);
+        history.push('/app/hh-rr/contractType');
+      } else {
+        console.log(result);
+        notification('danger', result);
+      }
+    });
+    /* ContractTypeService.saveContractType(contractType).then(({ data }) => {
       console.log(data);
       history.push('/app/hh-rr/contractType');
-    });
+    }); */
   };
 
   handleChangeCountry = (ev, value) => {
@@ -82,7 +108,9 @@ class AddContractType extends React.Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const {
+      classes, isLoadingContractType, contractTypeResponse, errorsContractType
+    } = this.props;
     const {
       code,
       name,
@@ -93,6 +121,10 @@ class AddContractType extends React.Component {
       state,
       contractTypes
     } = this.state;
+    !isLoadingContractType
+      && contractTypeResponse
+      && this.editingPromiseResolve(contractTypeResponse);
+    !isLoadingContractType && !contractTypeResponse && this.editingPromiseResolve(errorsContractType);
     return (
       <div>
         <PapperBlock
@@ -244,8 +276,28 @@ class AddContractType extends React.Component {
   }
 }
 
+
+const mapStateToProps = state => ({
+  allContractType: state.getIn(['contractTypes']).allContractType,
+  contractTypeResponse: state.getIn(['contractTypes']).contractTypeResponse,
+  isLoadingContractType: state.getIn(['contractTypes']).isLoading,
+  errorsContractType: state.getIn(['contractTypes']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    saveContractType,
+    getAllContractType
+  },
+  dispatch
+);
+
+const AddContractTypeMapped = connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(AddContractType)
+
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <AddContractType changeTheme={changeTheme} classes={classes} />;
+  return <AddContractTypeMapped changeTheme={changeTheme} classes={classes} />;
 };
