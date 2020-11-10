@@ -21,7 +21,6 @@ import { connect } from 'react-redux';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './absenceType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
-import AbsenceTypeService from '../../Services/AbsenceTypeService';
 import {
   getAllAbsenceType,
   updateAbsenceType,

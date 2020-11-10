@@ -290,10 +290,7 @@ class LevelsBlock extends React.Component {
 
   handleOpenAssignation = level => {
     console.log(level);
-    let levelId = null;
-    if (level.levelId) {
-      levelId = level.levelId;
-    } else levelId = level._id;
+    const { levelId } = level;
     StaffService.getStaffsByLevel(levelId, 'no').then(({ data }) => {
       console.log(data);
       data.sort((a, b) => {

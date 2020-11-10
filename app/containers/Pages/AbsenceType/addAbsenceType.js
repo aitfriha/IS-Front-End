@@ -14,13 +14,13 @@ import history from '../../../utils/history';
 import '../Configurations/map/app.css';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import { isString } from 'lodash';
-import AbsenceTypeService from '../../Services/AbsenceTypeService';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   getAllAbsenceType,
+  getAllAbsenceTypeByState,
   saveAbsenceType
 } from '../../../redux/absenceType/actions';
 import notification from '../../../components/Notification/Notification';
@@ -38,8 +38,7 @@ class AddAbsenceType extends React.Component {
       country: {},
       state: {},
       countries: [],
-      states: [],
-      absenceTypes: []
+      states: []
     };
   }
 
@@ -80,10 +79,6 @@ class AddAbsenceType extends React.Component {
         notification('danger', result);
       }
     });
-    /* AbsenceTypeService.saveAbsenceType(absenceType).then(({ data }) => {
-      console.log(data);
-      history.push('/app/hh-rr/absenceType');
-    }); */
   };
 
   handleChangeCountry = (ev, value) => {
@@ -97,9 +92,9 @@ class AddAbsenceType extends React.Component {
   };
 
   handleChangeState = (ev, value) => {
-    AbsenceTypeService.getAllByState(value.stateCountryId).then(({ data }) => {
-      this.setState({ absenceTypes: data, state: value });
-    });
+    const { getAllAbsenceTypeByState } = this.props;
+    this.setState({ state: value });
+    getAllAbsenceTypeByState(value.stateCountryId);
   };
 
   handleValueChange = (value, type) => {
@@ -109,7 +104,11 @@ class AddAbsenceType extends React.Component {
 
   render() {
     const {
-      classes, isLoadingAbsenceType, absenceTypeResponse, errorsAbsenceType
+      classes,
+      isLoadingAbsenceType,
+      absenceTypeResponse,
+      errorsAbsenceType,
+      allAbsenceTypeByState
     } = this.props;
     const {
       code,
@@ -118,13 +117,15 @@ class AddAbsenceType extends React.Component {
       countries,
       states,
       country,
-      state,
-      absenceTypes
+      state
     } = this.state;
     !isLoadingAbsenceType
       && absenceTypeResponse
       && this.editingPromiseResolve(absenceTypeResponse);
-    !isLoadingAbsenceType && !absenceTypeResponse && this.editingPromiseResolve(errorsAbsenceType);
+    !isLoadingAbsenceType
+      && !absenceTypeResponse
+      && this.editingPromiseResolve(errorsAbsenceType);
+    console.log(allAbsenceTypeByState);
     return (
       <div>
         <PapperBlock
@@ -205,7 +206,7 @@ class AddAbsenceType extends React.Component {
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Code"
-                  data={absenceTypes}
+                  data={allAbsenceTypeByState}
                   type="code"
                   attribute="code"
                 />
@@ -220,7 +221,7 @@ class AddAbsenceType extends React.Component {
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Name"
-                  data={absenceTypes}
+                  data={allAbsenceTypeByState}
                   type="name"
                   attribute="name"
                   disabled={Object.keys(states).length === 0}
@@ -276,9 +277,9 @@ class AddAbsenceType extends React.Component {
   }
 }
 
-
 const mapStateToProps = state => ({
   allAbsenceType: state.getIn(['absenceTypes']).allAbsenceType,
+  allAbsenceTypeByState: state.getIn(['absenceTypes']).allAbsenceTypeByState,
   absenceTypeResponse: state.getIn(['absenceTypes']).absenceTypeResponse,
   isLoadingAbsenceType: state.getIn(['absenceTypes']).isLoading,
   errorsAbsenceType: state.getIn(['absenceTypes']).errors
@@ -286,15 +287,16 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     saveAbsenceType,
-    getAllAbsenceType
+    getAllAbsenceType,
+    getAllAbsenceTypeByState
   },
   dispatch
 );
 
 const AddAbsenceTypeMapped = connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(AddAbsenceType)
+  mapStateToProps,
+  mapDispatchToProps
+)(AddAbsenceType);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

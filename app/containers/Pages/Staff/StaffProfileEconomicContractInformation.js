@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
-  withStyles,
+  makeStyles,
   Button,
   Typography,
   Grid,
@@ -19,9 +19,21 @@ import {
 } from '@material-ui/pickers';
 import MUIDataTable from 'mui-datatables';
 import EditIcon from '@material-ui/icons/Edit';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import styles from './staff-jss';
 import StaffEconomicContractInformationService from '../../Services/StaffEconomicContractInformationService';
 import StaffEconomicContractInformationHistoryService from '../../Services/StaffEconomicContractInformationHistoryService';
+import { ThemeContext } from '../../App/ThemeWrapper';
+import {
+  setStaff,
+  setEdit,
+  getAllStaff,
+  updateStaff
+} from '../../../redux/staff/actions';
+
+const useStyles = makeStyles(styles);
 
 class StaffProfileEconomicContractInformation extends Component {
   state = {
@@ -48,8 +60,7 @@ class StaffProfileEconomicContractInformation extends Component {
     totalCompanyCostDateOut: new Date(),
     isEditData: false,
     isViewHistory: false,
-    history: [],
-    data: {}
+    history: []
   };
 
   columns = [
@@ -96,10 +107,10 @@ class StaffProfileEconomicContractInformation extends Component {
   ];
 
   componentDidMount() {
-    const { data } = this.props;
+    const { staff } = this.props;
     this.setInitialData();
     StaffEconomicContractInformationHistoryService.getStaffEconomicContractInformationHistoryByStaff(
-      data.staffEconomicContractInformationId
+      staff.staffEconomicContractInformationId
     ).then(({ data }) => {
       console.log(data);
       this.setState({
@@ -109,63 +120,74 @@ class StaffProfileEconomicContractInformation extends Component {
   }
 
   setInitialData = () => {
-    const { data } = this.props;
+    const { staff } = this.props;
     this.setState({
-      contractSalary: data.contractSalary,
-      companyContractCost: data.companyContractCost,
-      expenses: data.expenses,
-      companyExpensesCost: data.companyExpensesCost,
-      objectives: data.objectives,
-      companyObjectivesCost: data.companyObjectivesCost,
-      totalCompanyCost: data.totalCompanyCost,
-      contractSalaryDateGoing: new Date(data.contractSalaryDateGoing),
-      contractSalaryDateOut: new Date(data.contractSalaryDateOut),
-      companyContractCostDateGoing: new Date(data.companyContractCostDateGoing),
-      companyContractCostDateOut: new Date(data.companyContractCostDateOut),
-      expensesDateGoing: new Date(data.expensesDateGoing),
-      expensesDateOut: new Date(data.expensesDateOut),
-      companyExpensesCostDateGoing: new Date(data.companyExpensesCostDateGoing),
-      companyExpensesCostDateOut: new Date(data.companyExpensesCostDateOut),
-      objectivesDateGoing: new Date(data.objectivesDateGoing),
-      objectivesDateOut: new Date(data.objectivesDateOut),
-      companyObjectivesCostDateGoing: new Date(
-        data.companyObjectivesCostDateGoing
+      contractSalary: staff.contractSalary,
+      companyContractCost: staff.companyContractCost,
+      expenses: staff.expenses,
+      companyExpensesCost: staff.companyExpensesCost,
+      objectives: staff.objectives,
+      companyObjectivesCost: staff.companyObjectivesCost,
+      totalCompanyCost: staff.totalCompanyCost,
+      contractSalaryDateGoing: new Date(staff.contractSalaryDateGoing),
+      contractSalaryDateOut: new Date(staff.contractSalaryDateOut),
+      companyContractCostDateGoing: new Date(
+        staff.companyContractCostDateGoing
       ),
-      companyObjectivesCostDateOut: new Date(data.companyObjectivesCostDateOut),
-      totalCompanyCostDateGoing: new Date(data.totalCompanyCostDateGoing),
-      totalCompanyCostDateOut: new Date(data.totalCompanyCostDateOut),
+      companyContractCostDateOut: new Date(staff.companyContractCostDateOut),
+      expensesDateGoing: new Date(staff.expensesDateGoing),
+      expensesDateOut: new Date(staff.expensesDateOut),
+      companyExpensesCostDateGoing: new Date(
+        staff.companyExpensesCostDateGoing
+      ),
+      companyExpensesCostDateOut: new Date(staff.companyExpensesCostDateOut),
+      objectivesDateGoing: new Date(staff.objectivesDateGoing),
+      objectivesDateOut: new Date(staff.objectivesDateOut),
+      companyObjectivesCostDateGoing: new Date(
+        staff.companyObjectivesCostDateGoing
+      ),
+      companyObjectivesCostDateOut: new Date(
+        staff.companyObjectivesCostDateOut
+      ),
+      totalCompanyCostDateGoing: new Date(staff.totalCompanyCostDateGoing),
+      totalCompanyCostDateOut: new Date(staff.totalCompanyCostDateOut),
       isEditData: false,
-      isViewHistory: false,
-      data
+      isViewHistory: false
     });
   };
 
   restoreData = () => {
-    const { data } = this.state;
+    const { staff } = this.props;
     this.setState({
-      contractSalary: data.contractSalary,
-      companyContractCost: data.companyContractCost,
-      expenses: data.expenses,
-      companyExpensesCost: data.companyExpensesCost,
-      objectives: data.objectives,
-      companyObjectivesCost: data.companyObjectivesCost,
-      totalCompanyCost: data.totalCompanyCost,
-      contractSalaryDateGoing: new Date(data.contractSalaryDateGoing),
-      contractSalaryDateOut: new Date(data.contractSalaryDateOut),
-      companyContractCostDateGoing: new Date(data.companyContractCostDateGoing),
-      companyContractCostDateOut: new Date(data.companyContractCostDateOut),
-      expensesDateGoing: new Date(data.expensesDateGoing),
-      expensesDateOut: new Date(data.expensesDateOut),
-      companyExpensesCostDateGoing: new Date(data.companyExpensesCostDateGoing),
-      companyExpensesCostDateOut: new Date(data.companyExpensesCostDateOut),
-      objectivesDateGoing: new Date(data.objectivesDateGoing),
-      objectivesDateOut: new Date(data.objectivesDateOut),
-      companyObjectivesCostDateGoing: new Date(
-        data.companyObjectivesCostDateGoing
+      contractSalary: staff.contractSalary,
+      companyContractCost: staff.companyContractCost,
+      expenses: staff.expenses,
+      companyExpensesCost: staff.companyExpensesCost,
+      objectives: staff.objectives,
+      companyObjectivesCost: staff.companyObjectivesCost,
+      totalCompanyCost: staff.totalCompanyCost,
+      contractSalaryDateGoing: new Date(staff.contractSalaryDateGoing),
+      contractSalaryDateOut: new Date(staff.contractSalaryDateOut),
+      companyContractCostDateGoing: new Date(
+        staff.companyContractCostDateGoing
       ),
-      companyObjectivesCostDateOut: new Date(data.companyObjectivesCostDateOut),
-      totalCompanyCostDateGoing: new Date(data.totalCompanyCostDateGoing),
-      totalCompanyCostDateOut: new Date(data.totalCompanyCostDateOut),
+      companyContractCostDateOut: new Date(staff.companyContractCostDateOut),
+      expensesDateGoing: new Date(staff.expensesDateGoing),
+      expensesDateOut: new Date(staff.expensesDateOut),
+      companyExpensesCostDateGoing: new Date(
+        staff.companyExpensesCostDateGoing
+      ),
+      companyExpensesCostDateOut: new Date(staff.companyExpensesCostDateOut),
+      objectivesDateGoing: new Date(staff.objectivesDateGoing),
+      objectivesDateOut: new Date(staff.objectivesDateOut),
+      companyObjectivesCostDateGoing: new Date(
+        staff.companyObjectivesCostDateGoing
+      ),
+      companyObjectivesCostDateOut: new Date(
+        staff.companyObjectivesCostDateOut
+      ),
+      totalCompanyCostDateGoing: new Date(staff.totalCompanyCostDateGoing),
+      totalCompanyCostDateOut: new Date(staff.totalCompanyCostDateOut),
       isEditData: false,
       isViewHistory: false
     });
@@ -212,7 +234,7 @@ class StaffProfileEconomicContractInformation extends Component {
   };
 
   handleUpdate = () => {
-    const { data } = this.props;
+    const { staff } = this.props;
     const {
       contractSalary,
       companyContractCost,
@@ -238,7 +260,7 @@ class StaffProfileEconomicContractInformation extends Component {
       history
     } = this.state;
 
-    const id = data.staffEconomicContractInformationId;
+    const id = staff.staffEconomicContractInformationId;
     const economicContractInformation = {
       contractSalary,
       companyContractCost,
@@ -293,8 +315,7 @@ class StaffProfileEconomicContractInformation extends Component {
       console.log('pushed');
       this.setState({
         isEditData: false,
-        history,
-        data
+        history
       });
     });
   };
@@ -1205,9 +1226,36 @@ class StaffProfileEconomicContractInformation extends Component {
   }
 }
 
-StaffProfileEconomicContractInformation.propTypes = {
-  classes: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired
-};
+const mapStateToProps = state => ({
+  staff: state.getIn(['staffs']).selectedStaff,
+  allStaff: state.getIn(['staffs']).allStaff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorsStaff: state.getIn(['staffs']).errors
+});
 
-export default withStyles(styles)(StaffProfileEconomicContractInformation);
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateStaff,
+    getAllStaff,
+    setStaff,
+    setEdit
+  },
+  dispatch
+);
+
+const StaffProfileEconomicContractInformationMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StaffProfileEconomicContractInformation);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return (
+    <StaffProfileEconomicContractInformationMapped
+      changeTheme={changeTheme}
+      classes={classes}
+    />
+  );
+};

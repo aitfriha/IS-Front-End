@@ -10,7 +10,7 @@ const config = {
 class StaffService {
   getStaffs = () => axios.get(`${API}/staff/staff-all`);
 
-  getStaffById = staffId => axios.get(`${API}/staff/${staffId}`);
+  getStaffById = staffId => axios.get(`${API}/staff/staff-by-id/${staffId}`);
 
   getNotAssignedStaffs = () => axios.get(`${API}/staff/staff-no-assigned`);
 

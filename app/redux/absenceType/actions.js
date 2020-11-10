@@ -2,6 +2,7 @@ import {
   ADD_ABSENCETYPE,
   DELETE_ABSENCETYPE,
   GET_ALL_ABSENCETYPES,
+  GET_ALL_ABSENCETYPES_BY_STATE,
   UPDATE_ABSENCETYPE
 } from './constants';
 
@@ -22,4 +23,9 @@ export const deleteAbsenceType = absenceTypeId => ({
 
 export const getAllAbsenceType = () => ({
   type: GET_ALL_ABSENCETYPES
+});
+
+export const getAllAbsenceTypeByState = stateId => ({
+  type: GET_ALL_ABSENCETYPES_BY_STATE,
+  stateId
 });

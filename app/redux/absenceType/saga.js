@@ -11,6 +11,9 @@ import {
   GET_ALL_ABSENCETYPES,
   GET_ALL_ABSENCETYPES_FAILURE,
   GET_ALL_ABSENCETYPES_SUCCESS,
+  GET_ALL_ABSENCETYPES_BY_STATE,
+  GET_ALL_ABSENCETYPES_BY_STATE_FAILURE,
+  GET_ALL_ABSENCETYPES_BY_STATE_SUCCESS,
   UPDATE_ABSENCETYPE,
   UPDATE_ABSENCETYPE_FAILURE,
   UPDATE_ABSENCETYPE_SUCCESS
@@ -90,11 +93,31 @@ function* getAllAbsenceType() {
     });
     yield put({
       type: GET_ALL_ABSENCETYPES_SUCCESS,
-      payload: request.data
+      payload: request.data.payload
     });
   } catch (errors) {
     yield put({
       type: GET_ALL_ABSENCETYPES_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
+function* getAllAbsenceTypeByState(action) {
+  try {
+    const { stateId } = action;
+
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.ABSENCETYPE + '/all-by-state/' + stateId
+    });
+    yield put({
+      type: GET_ALL_ABSENCETYPES_BY_STATE_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_ABSENCETYPES_BY_STATE_FAILURE,
       errors: errors.response.data.errors
     });
   }
@@ -105,6 +128,7 @@ export default function* absenceTypeSaga() {
     takeLatest(ADD_ABSENCETYPE, saveAbsenceType),
     takeLatest(UPDATE_ABSENCETYPE, updateAbsenceType),
     takeLatest(DELETE_ABSENCETYPE, deleteAbsenceType),
-    takeLatest(GET_ALL_ABSENCETYPES, getAllAbsenceType)
+    takeLatest(GET_ALL_ABSENCETYPES, getAllAbsenceType),
+    takeLatest(GET_ALL_ABSENCETYPES_BY_STATE, getAllAbsenceTypeByState)
   ]);
 }

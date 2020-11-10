@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import {
   IconButton,
   Avatar,
@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  withStyles,
+  makeStyles,
   Tooltip,
   Button,
   Grid,
@@ -38,8 +38,10 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import PublishIcon from '@material-ui/icons/Publish';
+import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import CountryService from '../../Services/CountryService';
 import StaffService from '../../Services/StaffService';
 import StaffDocumentsService from '../../Services/StaffDocumentsService';
@@ -60,6 +62,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const inputDoc = React.createRef();
 
 const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
+
+const useStyles = makeStyles(styles);
 
 class StaffProfileGeneralInformation extends Component {
   state = {
@@ -96,6 +100,8 @@ class StaffProfileGeneralInformation extends Component {
     docType: ''
   };
 
+  editingPromiseResolve = () => {};
+
   componentDidMount() {
     this.setInitialData();
     CountryService.getCountries().then(({ data }) => {
@@ -112,7 +118,7 @@ class StaffProfileGeneralInformation extends Component {
       motherFamilyName: staff.motherFamilyName,
       personalPhone: staff.personalPhone,
       personalEmail: staff.personalEmail,
-      companyName: staff.staffContract.companyName,
+      companyName: staff.companyName,
       companyPhone: staff.companyPhone,
       companyMobilePhone: staff.companyMobilePhone,
       companyEmail: staff.companyEmail,
@@ -121,18 +127,11 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry: staff.birthCountry,
       emergencyContactName: staff.emergencyContactName,
       emergencyContactPhone: staff.emergencyContactPhone,
-      fullAddress: staff.address.fullAddress,
-      adCountry: staff.address.city.stateCountry.country,
-      postCode: staff.address.postCode,
-      state: staff.address.city.stateCountry,
-      city: staff.address.city,
-      hnsCardNumber: '',
-      hnsCardExpeditionDate: new Date(),
-      hnsCardExpirationDate: new Date(),
-      idCardDoc: {},
-      passportDoc: {},
-      professionalIdCardDoc: {},
-      hnsCardDoc: {},
+      fullAddress: staff.fullAddress,
+      adCountry: staff.countryName,
+      postCode: staff.postCode,
+      state: staff.stateName,
+      city: staff.cityName,
       isEditData: false
     });
   };
@@ -145,7 +144,7 @@ class StaffProfileGeneralInformation extends Component {
       motherFamilyName: staff.motherFamilyName,
       personalPhone: staff.personalPhone,
       personalEmail: staff.personalEmail,
-      companyName: staff.staffContract.companyName,
+      companyName: staff.companyName,
       companyPhone: staff.companyPhone,
       companyMobilePhone: staff.companyMobilePhone,
       companyEmail: staff.companyEmail,
@@ -154,11 +153,11 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry: staff.birthCountry,
       emergencyContactName: staff.emergencyContactName,
       emergencyContactPhone: staff.emergencyContactPhone,
-      fullAddress: staff.address.fullAddress,
-      adCountry: staff.address.city.stateCountry.country,
-      postCode: staff.address.postCode,
-      state: staff.address.city.stateCountry,
-      city: staff.address.city,
+      fullAddress: staff.fullAddress,
+      adCountry: staff.countryName,
+      postCode: staff.postCode,
+      state: staff.stateName,
+      city: staff.cityName,
       isEditData: false
     });
   };
@@ -263,7 +262,7 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry: birthCountry.countryName,
       emergencyContactName,
       emergencyContactPhone,
-      addressId: staff.address.addressId,
+      addressId: staff.addressId,
       cityId: city.cityId,
       fullAddress,
       postCode
@@ -428,7 +427,13 @@ class StaffProfileGeneralInformation extends Component {
   };
 
   render() {
-    const { classes, staff } = this.props;
+    const {
+      classes,
+      staff,
+      isLoadingStaff,
+      staffResponse,
+      errorStaff
+    } = this.props;
     const {
       isEditData,
       isAddDocumentation,
@@ -696,7 +701,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.staffContract.companyName}
+                    {staff.companyName}
                   </Typography>
                 </div>
               </div>
@@ -789,7 +794,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.city.stateCountry.country.countryName}
+                    {staff.countryName}
                   </Typography>
                 </div>
               </div>
@@ -903,7 +908,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.fullAddress}
+                    {staff.fullAddress}
                   </Typography>
                 </div>
               </div>
@@ -931,7 +936,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.postCode}
+                    {staff.postCode}
                   </Typography>
                 </div>
               </div>
@@ -968,7 +973,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.city.cityName}
+                    {staff.cityName}
                   </Typography>
                 </div>
               </div>
@@ -996,7 +1001,7 @@ class StaffProfileGeneralInformation extends Component {
                       opacity: 0.7
                     }}
                   >
-                    {staff.address.city.stateCountry.stateName}
+                    {staff.stateName}
                   </Typography>
                 </div>
               </div>
@@ -1310,10 +1315,6 @@ class StaffProfileGeneralInformation extends Component {
   }
 }
 
-StaffProfileGeneralInformation.propTypes = {
-  classes: PropTypes.object.isRequired
-};
-
 const mapStateToProps = state => ({
   staff: state.getIn(['staffs']).selectedStaff,
   allStaff: state.getIn(['staffs']).allStaff,
@@ -1337,4 +1338,13 @@ const StaffProfileGeneralInformationMapped = connect(
   mapDispatchToProps
 )(StaffProfileGeneralInformation);
 
-export default withStyles(styles)(StaffProfileGeneralInformationMapped);
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return (
+    <StaffProfileGeneralInformationMapped
+      changeTheme={changeTheme}
+      classes={classes}
+    />
+  );
+};
