@@ -65,6 +65,10 @@ export const AddClients = Loadable({
   loader: () => import('./Pages/Clients/addClient'),
   loading: Loading
 });
+export const AddContacts = Loadable({
+  loader: () => import('./Pages/Contact/addContact'),
+  loading: Loading
+});
 export const Companies = Loadable({
   loader: () => import('./Pages/Companies'),
   loading: Loading

@@ -31,7 +31,7 @@ import CommercialAssignmentsMapped from './assignmentBlock';
 import ClientBlockMapped from '../../Clients/ClientBlock';
 import history from '../../../../utils/history';
 import {
-  addClientCommercial, deleteClient, getAllClient, updateClient
+  addClientCommercial, deleteClient, getAllClient, getAllClientByCountry, updateClient
 } from '../../../../redux/client/actions';
 // eslint-disable-next-line import/named
 import notification from '../../../../components/Notification/Notification';
@@ -121,8 +121,7 @@ class Commercial extends React.Component {
       this.setState({ countries });
     });
 
-    const { getAllClient, getAllStaff } = this.props;
-    getAllClient();
+    const { getAllStaff } = this.props;
     getAllStaff();
   }
 
@@ -156,7 +155,8 @@ class Commercial extends React.Component {
 
   handleClients = () => {
     const { country } = this.state;
-    console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr');
+    const { getAllClientByCountry } = this.props;
+    console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr ', country);
     ClientService.getClientsByCountry(country).then((res) => {
       console.log(res);
       if (res.data.length > 0) {
@@ -167,6 +167,7 @@ class Commercial extends React.Component {
         this.openNotif('No Clients in this country');
       }
     });
+    getAllClientByCountry(country);
   };
 
   getClientAssignment = () => {
@@ -227,8 +228,10 @@ class Commercial extends React.Component {
   };
 
   assineStaffToClient = () => {
-    const { typeResponsible, staff, listClientToUpdate } = this.state;
-    const { addAssignment,getAllClient } = this.props;
+    const {
+      typeResponsible, staff, listClientToUpdate, country
+    } = this.state;
+    const { addAssignment, getAllClientByCountry } = this.props;
     const assignment = {
       typeStaff: typeResponsible,
       staffId: staff.staffId,
@@ -245,7 +248,7 @@ class Commercial extends React.Component {
     promise.then((result) => {
       if (isString(result)) {
         notification('success', result);
-        getAllClient();
+        getAllClientByCountry(country);
       } else {
         notification('danger', result);
       }
@@ -255,7 +258,9 @@ class Commercial extends React.Component {
   render() {
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
-    const { classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment  } = this.props;
+    const {
+      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment
+    } = this.props;
     const {
       addresses,
       responsibleAssignments,
@@ -267,6 +272,7 @@ class Commercial extends React.Component {
     } = this.state;
     (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
     (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
+    console.log('allStaffs ', allStaffs && allStaffs);
     return (
       <div>
         <Helmet>
@@ -434,8 +440,8 @@ class Commercial extends React.Component {
                       <Autocomplete
                         id="free-solo-demo"
                         onChange={(event, value) => this.handleStaff(event, value)}
-                        options={allStaffs}
-                        getOptionLabel={option => option.firstName}
+                        options={allStaffs && allStaffs}
+                        getOptionLabel={option => option.firstName + ' ' + option.fatherFamilyName}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -538,6 +544,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   addClient,
   updateClient,
   getAllClient,
+  getAllClientByCountry,
   getAllStaff,
   addAssignment
 }, dispatch);

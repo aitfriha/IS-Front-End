@@ -13,6 +13,7 @@ import {
   NotFound,
   Clients,
   AddClients,
+  AddContacts,
   Companies,
   ContactByOperationStatus,
   Sectors,
@@ -87,6 +88,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/clients/create-client"
           component={AddClients}
+        />
+        <Route
+          exact
+          path="/app/gestion-commercial/contact/addContact"
+          component={AddContacts}
         />
         <Route
           exact

@@ -94,7 +94,7 @@ function* getAllStaff() {
   try {
     const request = yield axios({
       method: 'get',
-      url: ENDPOINTS.STAFF + '/all'
+      url: ENDPOINTS.STAFF + '/allaid'
     });
     yield put({
       type: GET_ALL_STAFFS_SUCCESS,
