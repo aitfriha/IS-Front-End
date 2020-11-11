@@ -116,7 +116,7 @@ function* getAllFunctionalStructureLevelByType(action) {
     });
     yield put({
       type: GET_ALL_FUNCTIONALSTRUCTURELEVELS_BY_TYPE_SUCCESS,
-      payload: request.data
+      payload: request.data.payload
     });
   } catch (errors) {
     yield put({

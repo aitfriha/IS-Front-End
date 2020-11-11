@@ -107,7 +107,7 @@ class AddAbsenceType extends React.Component {
       classes,
       isLoadingAbsenceType,
       absenceTypeResponse,
-      errorsAbsenceType,
+      errorAbsenceType,
       allAbsenceTypeByState
     } = this.props;
     const {
@@ -124,7 +124,7 @@ class AddAbsenceType extends React.Component {
       && this.editingPromiseResolve(absenceTypeResponse);
     !isLoadingAbsenceType
       && !absenceTypeResponse
-      && this.editingPromiseResolve(errorsAbsenceType);
+      && this.editingPromiseResolve(errorAbsenceType);
     console.log(allAbsenceTypeByState);
     return (
       <div>
@@ -282,7 +282,7 @@ const mapStateToProps = state => ({
   allAbsenceTypeByState: state.getIn(['absenceTypes']).allAbsenceTypeByState,
   absenceTypeResponse: state.getIn(['absenceTypes']).absenceTypeResponse,
   isLoadingAbsenceType: state.getIn(['absenceTypes']).isLoading,
-  errorsAbsenceType: state.getIn(['absenceTypes']).errors
+  errorAbsenceType: state.getIn(['absenceTypes']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

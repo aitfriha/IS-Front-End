@@ -8,6 +8,9 @@ import {
   GET_ALL_CONTRACTTYPES,
   GET_ALL_CONTRACTTYPES_FAILURE,
   GET_ALL_CONTRACTTYPES_SUCCESS,
+  GET_ALL_CONTRACTTYPES_BY_STATE,
+  GET_ALL_CONTRACTTYPES_BY_STATE_FAILURE,
+  GET_ALL_CONTRACTTYPES_BY_STATE_SUCCESS,
   UPDATE_CONTRACTTYPE,
   UPDATE_CONTRACTTYPE_FAILURE,
   UPDATE_CONTRACTTYPE_SUCCESS
@@ -17,7 +20,8 @@ const initialState = {
   isLoading: false,
   errors: {},
   contractTypeResponse: '',
-  allContractType: []
+  allContractType: [],
+  allContractTypeByState: []
 };
 
 export default function contractTypeReducer(state = initialState, action) {
@@ -25,6 +29,7 @@ export default function contractTypeReducer(state = initialState, action) {
     // TRIGGERING ACTIONS
     // TRIGGERING ACTIONS
     case GET_ALL_CONTRACTTYPES:
+    case GET_ALL_CONTRACTTYPES_BY_STATE:
     case ADD_CONTRACTTYPE:
     case UPDATE_CONTRACTTYPE:
     case DELETE_CONTRACTTYPE:
@@ -52,9 +57,17 @@ export default function contractTypeReducer(state = initialState, action) {
         allContractType: action.payload,
         contractTypeResponse: ''
       };
+    case GET_ALL_CONTRACTTYPES_BY_STATE_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        allContractTypeByState: action.payload,
+        contractTypeResponse: ''
+      };
 
     // FAILURE ACTIONS
     case GET_ALL_CONTRACTTYPES_FAILURE:
+    case GET_ALL_CONTRACTTYPES_BY_STATE_FAILURE:
     case ADD_CONTRACTTYPE_FAILURE:
     case UPDATE_CONTRACTTYPE_FAILURE:
     case DELETE_CONTRACTTYPE_FAILURE:

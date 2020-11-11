@@ -11,6 +11,9 @@ import {
   GET_ALL_LEGALCATEGORYTYPES,
   GET_ALL_LEGALCATEGORYTYPES_FAILURE,
   GET_ALL_LEGALCATEGORYTYPES_SUCCESS,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_FAILURE,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_SUCCESS,
   UPDATE_LEGALCATEGORYTYPE,
   UPDATE_LEGALCATEGORYTYPE_FAILURE,
   UPDATE_LEGALCATEGORYTYPE_SUCCESS
@@ -101,11 +104,36 @@ function* getAllLegalCategoryType() {
   }
 }
 
+function* getAllLegalCategoryTypeByCompany(action) {
+  try {
+    const { companyId } = action;
+
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.LEGALCATEGORYTYPE + '/all-by-company/' + companyId
+    });
+    console.log(request);
+    yield put({
+      type: GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* legalCategoryTypeSaga() {
   yield all([
     takeLatest(ADD_LEGALCATEGORYTYPE, saveLegalCategoryType),
     takeLatest(UPDATE_LEGALCATEGORYTYPE, updateLegalCategoryType),
     takeLatest(DELETE_LEGALCATEGORYTYPE, deleteLegalCategoryType),
-    takeLatest(GET_ALL_LEGALCATEGORYTYPES, getAllLegalCategoryType)
+    takeLatest(GET_ALL_LEGALCATEGORYTYPES, getAllLegalCategoryType),
+    takeLatest(
+      GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY,
+      getAllLegalCategoryTypeByCompany
+    )
   ]);
 }

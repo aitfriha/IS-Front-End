@@ -67,7 +67,6 @@ const useStyles = makeStyles(styles);
 
 class StaffProfileGeneralInformation extends Component {
   state = {
-    isEditData: false,
     isAddDocumentation: false,
     isOpenDocument: false,
     firstName: '',
@@ -90,7 +89,6 @@ class StaffProfileGeneralInformation extends Component {
     postCode: '',
     state: {},
     city: {},
-    localData: {},
     docNumber: '',
     docExpeditionDate: new Date(),
     docExpirationDate: new Date(),
@@ -131,13 +129,13 @@ class StaffProfileGeneralInformation extends Component {
       adCountry: staff.countryName,
       postCode: staff.postCode,
       state: staff.stateName,
-      city: staff.cityName,
-      isEditData: false
+      city: staff.cityName
     });
   };
 
   restoreData = () => {
-    const { staff } = this.props;
+    const { staff, setEdit } = this.props;
+    setEdit(false);
     this.setState({
       firstName: staff.firstName,
       fatherFamilyName: staff.fatherFamilyName,
@@ -157,8 +155,7 @@ class StaffProfileGeneralInformation extends Component {
       adCountry: staff.countryName,
       postCode: staff.postCode,
       state: staff.stateName,
-      city: staff.cityName,
-      isEditData: false
+      city: staff.cityName
     });
   };
 
@@ -172,7 +169,6 @@ class StaffProfileGeneralInformation extends Component {
     } = this.state;
     this.setState(
       {
-        isEditData: true,
         personalPhone: personalPhone.slice(4),
         companyPhone: companyPhone.slice(4),
         companyMobilePhone: companyMobilePhone.slice(4),
@@ -265,9 +261,11 @@ class StaffProfileGeneralInformation extends Component {
       addressId: staff.addressId,
       cityId: city.cityId,
       fullAddress,
-      postCode
+      postCode,
+      photo: staff.photo
     };
 
+    console.log(staff.photo);
     const promise = new Promise(resolve => {
       // get client information
       updateStaff(newStaff);
@@ -277,23 +275,14 @@ class StaffProfileGeneralInformation extends Component {
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
+        setEdit(false);
+        StaffService.getStaffById(staff.staffId).then(({ data }) => {
+          setStaff(data);
+        });
       } else {
         notification('danger', result);
       }
     });
-
-    /* StaffService.updateStaff(newStaff).then(({ data }) => {
-      console.log(data);
-      this.setState(
-        {
-          isEditData: false
-        },
-        () => {
-          setEdit(false);
-          setStaff(data);
-        }
-      );
-    }); */
   };
 
   handleUpdateDocuments = () => {};
@@ -317,7 +306,13 @@ class StaffProfileGeneralInformation extends Component {
 
   handleClose = () => {
     this.setState({
-      isAddDocumentation: false
+      isAddDocumentation: false,
+      docNumber: '',
+      docExpeditionDate: new Date(),
+      docExpirationDate: new Date(),
+      docExtension: '',
+      doc: {},
+      docType: ''
     });
   };
 
@@ -352,7 +347,13 @@ class StaffProfileGeneralInformation extends Component {
       StaffService.getStaffById(staff.staffId).then(({ data }) => {
         setStaff(data);
         this.setState({
-          isAddDocumentation: false
+          isAddDocumentation: false,
+          docNumber: '',
+          docExpeditionDate: new Date(),
+          docExpirationDate: new Date(),
+          docExtension: '',
+          doc: {},
+          docType: ''
         });
       });
     });
@@ -432,10 +433,10 @@ class StaffProfileGeneralInformation extends Component {
       staff,
       isLoadingStaff,
       staffResponse,
-      errorStaff
+      errorStaff,
+      isEdit
     } = this.props;
     const {
-      isEditData,
       isAddDocumentation,
       isOpenDocument,
       firstName,
@@ -651,7 +652,7 @@ class StaffProfileGeneralInformation extends Component {
           >
             Personal Information :
           </Typography>
-          {!isEditData ? (
+          {!isEdit ? (
             <div>
               <Tooltip title="Edit">
                 <Button
@@ -667,7 +668,7 @@ class StaffProfileGeneralInformation extends Component {
             <div />
           )}
         </div>
-        {!isEditData ? (
+        {!isEdit ? (
           <div>
             <div
               style={{
@@ -1012,7 +1013,7 @@ class StaffProfileGeneralInformation extends Component {
           <div />
         )}
 
-        {isEditData ? (
+        {isEdit ? (
           <div>
             <Grid
               container
@@ -1228,7 +1229,7 @@ class StaffProfileGeneralInformation extends Component {
         )}
 
         <div className={classes.divSpace}>
-          {!isEditData ? (
+          {!isEdit ? (
             <Typography
               variant="subtitle1"
               style={{
@@ -1244,7 +1245,7 @@ class StaffProfileGeneralInformation extends Component {
           ) : (
             <div />
           )}
-          {!isEditData ? (
+          {!isEdit ? (
             <div>
               <Tooltip title="Edit">
                 <Button
@@ -1260,7 +1261,7 @@ class StaffProfileGeneralInformation extends Component {
             <div />
           )}
         </div>
-        {!isEditData ? (
+        {!isEdit ? (
           <div>
             <Table className={classes.table} aria-label="">
               <TableHead>
@@ -1320,7 +1321,8 @@ const mapStateToProps = state => ({
   allStaff: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors
+  errorStaff: state.getIn(['staffs']).errors,
+  isEdit: state.getIn(['staffs']).isEditStaff
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

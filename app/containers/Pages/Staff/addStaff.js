@@ -48,11 +48,11 @@ import styles from './staff-jss';
 import AddressBlock from '../Address';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
-import ContractTypeService from '../../Services/ContractTypeService';
-import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import StaffEconomicContractInformation from './StaffEconomicContractInformation';
 import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
+import { getAllContractTypeByState } from '../../../redux/contractType/actions';
+import { getAllLegalCategoryTypeByCompany } from '../../../redux/legalCategoryType/actions';
 import notification from '../../../components/Notification/Notification';
 
 const SmallAvatar = withStyles(theme => ({
@@ -144,8 +144,6 @@ class AddStaff extends React.Component {
       passportDocExtension: '',
       professionalIdCardDocExtension: '',
       hnsCardDocExtension: '',
-      contractTypes: [],
-      legalCategoryTypes: [],
       contractSalary: 0,
       companyContractCost: 0,
       expenses: 0,
@@ -388,7 +386,9 @@ class AddStaff extends React.Component {
       hnsCardNumber,
       hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
       hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
-      hnsCardDocExtension
+      hnsCardDocExtension,
+
+      createdAt: new Date().toISOString().slice(0, 10)
     };
 
     const formData = new FormData();
@@ -671,14 +671,11 @@ class AddStaff extends React.Component {
   };
 
   handleChangeCompany = (ev, value) => {
-    LegalCategoryTypeService.getAllByCompany(value.financialCompanyId).then(
-      ({ data }) => {
-        this.setState({
-          legalCategoryTypes: data,
-          company: value
-        });
-      }
-    );
+    const { getAllLegalCategoryTypeByCompany } = this.props;
+    getAllLegalCategoryTypeByCompany(value.financialCompanyId);
+    this.setState({
+      company: value
+    });
   };
 
   handleChangeHiringCountry = (ev, value) => {
@@ -691,9 +688,9 @@ class AddStaff extends React.Component {
   };
 
   handleChangeHiringState = (ev, value) => {
-    ContractTypeService.getAllByState(value.stateCountryId).then(({ data }) => {
-      this.setState({ contractTypes: data, hiringState: value });
-    });
+    const { getAllContractTypeByState } = this.props;
+    this.setState({ hiringState: value });
+    getAllContractTypeByState(value.stateCountryId);
   };
 
   /* getAll = () => {
@@ -719,7 +716,12 @@ class AddStaff extends React.Component {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, isLoadingStaff, staffResponse, errorStaff
+      classes,
+      isLoadingStaff,
+      staffResponse,
+      errorStaff,
+      allContractTypeByState,
+      allLegalCategoryTypeByCompany
     } = this.props;
     const {
       firstName,
@@ -774,9 +776,7 @@ class AddStaff extends React.Component {
       professionalIdCardExpirationDate,
       hnsCardNumber,
       hnsCardExpeditionDate,
-      hnsCardExpirationDate,
-      contractTypes,
-      legalCategoryTypes
+      hnsCardExpirationDate
     } = this.state;
     !isLoadingStaff
       && staffResponse
@@ -1724,7 +1724,7 @@ class AddStaff extends React.Component {
                         options={companies}
                         getOptionLabel={option => (option ? option.name : '')}
                         onChange={this.handleChangeCompany}
-                        style={{ width: '30%', marginTop: 7 }}
+                        style={{ width: '45%', marginTop: 7 }}
                         clearOnEscape
                         renderInput={params => (
                           <TextField
@@ -1819,7 +1819,7 @@ class AddStaff extends React.Component {
                           value={contractType}
                           onChange={this.handleChange}
                         >
-                          {contractTypes.map(type => (
+                          {allContractTypeByState.map(type => (
                             <MenuItem
                               key={type.code}
                               value={type.contractTypeId}
@@ -1840,7 +1840,7 @@ class AddStaff extends React.Component {
                           value={legalCategoryType}
                           onChange={this.handleChange}
                         >
-                          {legalCategoryTypes.map(type => (
+                          {allLegalCategoryTypeByCompany.map(type => (
                             <MenuItem
                               key={type.code}
                               value={type.legalCategoryTypeId}
@@ -1986,15 +1986,20 @@ class AddStaff extends React.Component {
 }; */
 
 const mapStateToProps = state => ({
+  allContractTypeByState: state.getIn(['contractTypes']).allContractTypeByState,
+  allLegalCategoryTypeByCompany: state.getIn(['legalCategoryTypes'])
+    .allLegalCategoryTypeByCompany,
   allStaff: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors
+  errorStaff: state.getIn(['staffs']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     saveStaff,
-    getAllStaff
+    getAllStaff,
+    getAllContractTypeByState,
+    getAllLegalCategoryTypeByCompany
   },
   dispatch
 );
