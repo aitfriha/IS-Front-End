@@ -8,6 +8,9 @@ import {
   GET_ALL_LEGALCATEGORYTYPES,
   GET_ALL_LEGALCATEGORYTYPES_FAILURE,
   GET_ALL_LEGALCATEGORYTYPES_SUCCESS,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_FAILURE,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_SUCCESS,
   UPDATE_LEGALCATEGORYTYPE,
   UPDATE_LEGALCATEGORYTYPE_FAILURE,
   UPDATE_LEGALCATEGORYTYPE_SUCCESS
@@ -17,7 +20,8 @@ const initialState = {
   isLoading: false,
   errors: {},
   legalCategoryTypeResponse: '',
-  allLegalCategoryType: []
+  allLegalCategoryType: [],
+  allLegalCategoryTypeByCompany: []
 };
 
 export default function legalCategoryTypeReducer(state = initialState, action) {
@@ -25,6 +29,7 @@ export default function legalCategoryTypeReducer(state = initialState, action) {
     // TRIGGERING ACTIONS
     // TRIGGERING ACTIONS
     case GET_ALL_LEGALCATEGORYTYPES:
+    case GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY:
     case ADD_LEGALCATEGORYTYPE:
     case UPDATE_LEGALCATEGORYTYPE:
     case DELETE_LEGALCATEGORYTYPE:
@@ -54,8 +59,18 @@ export default function legalCategoryTypeReducer(state = initialState, action) {
         legalCategoryTypeResponse: ''
       };
 
+    case GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_SUCCESS:
+      console.log(action.payload);
+      return {
+        ...state,
+        isLoading: false,
+        allLegalCategoryTypeByCompany: action.payload,
+        legalCategoryTypeResponse: ''
+      };
+
     // FAILURE ACTIONS
     case GET_ALL_LEGALCATEGORYTYPES_FAILURE:
+    case GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_FAILURE:
     case ADD_LEGALCATEGORYTYPE_FAILURE:
     case UPDATE_LEGALCATEGORYTYPE_FAILURE:
     case DELETE_LEGALCATEGORYTYPE_FAILURE:

@@ -20,12 +20,12 @@ import styles from './legalCategoryType-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import '../Configurations/map/app.css';
-import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   getAllLegalCategoryType,
+  getAllLegalCategoryTypeByCompany,
   saveLegalCategoryType
 } from '../../../redux/legalCategoryType/actions';
 import notification from '../../../components/Notification/Notification';
@@ -40,7 +40,6 @@ class AddLegalCategoryType extends React.Component {
       name: '',
       functions: '',
       company: {},
-      legalCategoryTypes: [],
       companies: []
     };
   }
@@ -58,28 +57,12 @@ class AddLegalCategoryType extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  handleChangeCompany = ev => {
-    LegalCategoryTypeService.getAllByCompany(ev.target.value).then(
-      ({ data }) => {
-        this.setState({
-          legalCategoryTypes: data,
-          [ev.target.name]: ev.target.value
-        });
-      }
-    );
-  };
-
   handleChangeCompany = (ev, value) => {
-    console.log(value);
-    LegalCategoryTypeService.getAllByCompany(value.financialCompanyId).then(
-      ({ data }) => {
-        console.log(data);
-        this.setState({
-          company: value,
-          legalCategoryTypes: data.payload
-        });
-      }
-    );
+    const { getAllLegalCategoryTypeByCompany } = this.props;
+    this.setState({
+      company: value
+    });
+    getAllLegalCategoryTypeByCompany(value.financialCompanyId);
   };
 
   handleSubmitLegalCategoryType = () => {
@@ -106,12 +89,6 @@ class AddLegalCategoryType extends React.Component {
         notification('danger', result);
       }
     });
-
-    /* LegalCategoryTypeService.saveLegalCategoryType(legalCategoryType).then(
-      () => {
-        history.push('/app/hh-rr/legalCategoryType');
-      }
-    ); */
   };
 
   handleValueChange = (value, type) => {
@@ -124,21 +101,18 @@ class AddLegalCategoryType extends React.Component {
       classes,
       isLoadingLegalCategoryType,
       legalCategoryTypeResponse,
-      errorsLegalCategoryType
+      errorLegalCategoryType,
+      allLegalCategoryTypeByCompany
     } = this.props;
     const {
-      name,
-      functions,
-      company,
-      legalCategoryTypes,
-      companies
+      name, functions, company, companies
     } = this.state;
     !isLoadingLegalCategoryType
       && legalCategoryTypeResponse
       && this.editingPromiseResolve(legalCategoryTypeResponse);
     !isLoadingLegalCategoryType
       && !legalCategoryTypeResponse
-      && this.editingPromiseResolve(errorsLegalCategoryType);
+      && this.editingPromiseResolve(errorLegalCategoryType);
     return (
       <div>
         <PapperBlock
@@ -196,7 +170,7 @@ class AddLegalCategoryType extends React.Component {
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Name"
-                  data={legalCategoryTypes}
+                  data={allLegalCategoryTypeByCompany}
                   type="name"
                   attribute="name"
                 />
@@ -255,15 +229,18 @@ class AddLegalCategoryType extends React.Component {
 const mapStateToProps = state => ({
   allLegalCategoryType: state.getIn(['legalCategoryTypes'])
     .allLegalCategoryType,
+  allLegalCategoryTypeByCompany: state.getIn(['legalCategoryTypes'])
+    .allLegalCategoryTypeByCompany,
   legalCategoryTypeResponse: state.getIn(['legalCategoryTypes'])
     .legalCategoryTypeResponse,
   isLoadingLegalCategoryType: state.getIn(['legalCategoryTypes']).isLoading,
-  errorsLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
+  errorLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     saveLegalCategoryType,
-    getAllLegalCategoryType
+    getAllLegalCategoryType,
+    getAllLegalCategoryTypeByCompany
   },
   dispatch
 );

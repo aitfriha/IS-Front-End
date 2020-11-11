@@ -384,7 +384,7 @@ class LevelsBlock extends React.Component {
     FunctionalStructureService.getLevelByType('Level 1').then(({ data }) => {
       console.log(data);
       this.setState({
-        levels: data
+        levels: data.payload
       });
     });
     StaffService.getNotAssignedStaffs().then(({ data }) => {
@@ -513,7 +513,7 @@ class LevelsBlock extends React.Component {
       allFunctionalStructureLevel,
       isLoadingfunctionalStructureLevel,
       functionalStructureLevelResponse,
-      errorsfunctionalStructureLevel
+      errorfunctionalStructureLevel
     } = this.props;
     const {
       isStaffAssignation,
@@ -551,7 +551,8 @@ class LevelsBlock extends React.Component {
       && this.editingPromiseResolve(functionalStructureLevelResponse);
     !isLoadingfunctionalStructureLevel
       && !functionalStructureLevelResponse
-      && this.editingPromiseResolve(errorsfunctionalStructureLevel);
+      && this.editingPromiseResolve(errorfunctionalStructureLevel);
+    console.log(levels);
     levels.sort((a, b) => {
       const textA = a.name.toUpperCase();
       const textB = b.name.toUpperCase();
@@ -1046,7 +1047,7 @@ const mapStateToProps = state => ({
     .functionalStructureLevelResponse,
   isLoadingfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
     .isLoading,
-  errorsfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+  errorfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
     .errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(

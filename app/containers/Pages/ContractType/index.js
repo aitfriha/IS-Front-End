@@ -21,7 +21,6 @@ import { connect } from 'react-redux';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './contractType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
-import ContractTypeService from '../../Services/ContractTypeService';
 import {
   getAllContractType,
   updateContractType,
@@ -188,7 +187,7 @@ class ContractType extends React.Component {
       allContractType,
       isLoadingContractType,
       contractTypeResponse,
-      errorsContractType
+      errorContractType
     } = this.props;
     const {
       code, name, description, isDialogOpen
@@ -214,7 +213,7 @@ class ContractType extends React.Component {
       && this.editingPromiseResolve(contractTypeResponse);
     !isLoadingContractType
       && !contractTypeResponse
-      && this.editingPromiseResolve(errorsContractType);
+      && this.editingPromiseResolve(errorContractType);
     return (
       <div>
         <Helmet>
@@ -306,7 +305,7 @@ const mapStateToProps = state => ({
   allContractType: state.getIn(['contractTypes']).allContractType,
   contractTypeResponse: state.getIn(['contractTypes']).contractTypeResponse,
   isLoadingContractType: state.getIn(['contractTypes']).isLoading,
-  errorsContractType: state.getIn(['contractTypes']).errors
+  errorContractType: state.getIn(['contractTypes']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

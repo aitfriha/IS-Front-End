@@ -14,13 +14,13 @@ import history from '../../../utils/history';
 import '../Configurations/map/app.css';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import { isString } from 'lodash';
-import ContractTypeService from '../../Services/ContractTypeService';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   getAllContractType,
+  getAllContractTypeByState,
   saveContractType
 } from '../../../redux/contractType/actions';
 import notification from '../../../components/Notification/Notification';
@@ -38,8 +38,7 @@ class AddContractType extends React.Component {
       country: {},
       state: {},
       countries: [],
-      states: [],
-      contractTypes: []
+      states: []
     };
   }
 
@@ -80,10 +79,6 @@ class AddContractType extends React.Component {
         notification('danger', result);
       }
     });
-    /* ContractTypeService.saveContractType(contractType).then(({ data }) => {
-      console.log(data);
-      history.push('/app/hh-rr/contractType');
-    }); */
   };
 
   handleChangeCountry = (ev, value) => {
@@ -97,9 +92,9 @@ class AddContractType extends React.Component {
   };
 
   handleChangeState = (ev, value) => {
-    ContractTypeService.getAllByState(value.stateCountryId).then(({ data }) => {
-      this.setState({ contractTypes: data, state: value });
-    });
+    const { getAllContractTypeByState } = this.props;
+    this.setState({ state: value });
+    getAllContractTypeByState(value.stateCountryId);
   };
 
   handleValueChange = (value, type) => {
@@ -109,7 +104,11 @@ class AddContractType extends React.Component {
 
   render() {
     const {
-      classes, isLoadingContractType, contractTypeResponse, errorsContractType
+      classes,
+      isLoadingContractType,
+      contractTypeResponse,
+      errorContractType,
+      allContractTypeByState
     } = this.props;
     const {
       code,
@@ -118,13 +117,14 @@ class AddContractType extends React.Component {
       countries,
       states,
       country,
-      state,
-      contractTypes
+      state
     } = this.state;
     !isLoadingContractType
       && contractTypeResponse
       && this.editingPromiseResolve(contractTypeResponse);
-    !isLoadingContractType && !contractTypeResponse && this.editingPromiseResolve(errorsContractType);
+    !isLoadingContractType
+      && !contractTypeResponse
+      && this.editingPromiseResolve(errorContractType);
     return (
       <div>
         <PapperBlock
@@ -205,7 +205,7 @@ class AddContractType extends React.Component {
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Code"
-                  data={contractTypes}
+                  data={allContractTypeByState}
                   type="code"
                   attribute="code"
                 />
@@ -220,7 +220,7 @@ class AddContractType extends React.Component {
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Name"
-                  data={contractTypes}
+                  data={allContractTypeByState}
                   type="name"
                   attribute="name"
                   disabled={Object.keys(states).length === 0}
@@ -276,25 +276,26 @@ class AddContractType extends React.Component {
   }
 }
 
-
 const mapStateToProps = state => ({
   allContractType: state.getIn(['contractTypes']).allContractType,
+  allContractTypeByState: state.getIn(['contractTypes']).allContractTypeByState,
   contractTypeResponse: state.getIn(['contractTypes']).contractTypeResponse,
   isLoadingContractType: state.getIn(['contractTypes']).isLoading,
-  errorsContractType: state.getIn(['contractTypes']).errors
+  errorContractType: state.getIn(['contractTypes']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     saveContractType,
-    getAllContractType
+    getAllContractType,
+    getAllContractTypeByState
   },
   dispatch
 );
 
 const AddContractTypeMapped = connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(AddContractType)
+  mapStateToProps,
+  mapDispatchToProps
+)(AddContractType);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

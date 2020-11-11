@@ -25,7 +25,6 @@ import { connect } from 'react-redux';
 import styles from './legalCategoryType-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
-import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import {
   getAllLegalCategoryType,
   updateLegalCategoryType,
@@ -173,7 +172,7 @@ class LegalCategoryType extends React.Component {
       allLegalCategoryType,
       isLoadingLegalCategoryType,
       legalCategoryTypeResponse,
-      errorsLegalCategoryType
+      errorLegalCategoryType
     } = this.props;
     const { name, functions, isDialogOpen } = this.state;
     const title = brand.name + ' - Types of legal category';
@@ -197,7 +196,7 @@ class LegalCategoryType extends React.Component {
       && this.editingPromiseResolve(legalCategoryTypeResponse);
     !isLoadingLegalCategoryType
       && !legalCategoryTypeResponse
-      && this.editingPromiseResolve(errorsLegalCategoryType);
+      && this.editingPromiseResolve(errorLegalCategoryType);
     return (
       <div>
         <Helmet>
@@ -281,7 +280,7 @@ const mapStateToProps = state => ({
   legalCategoryTypeResponse: state.getIn(['legalCategoryTypes'])
     .legalCategoryTypeResponse,
   isLoadingLegalCategoryType: state.getIn(['legalCategoryTypes']).isLoading,
-  errorsLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
+  errorLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

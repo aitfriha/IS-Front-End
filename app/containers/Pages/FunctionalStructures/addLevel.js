@@ -373,7 +373,7 @@ class AddLevel extends React.Component {
       allFunctionalStructureLevel,
       isLoadingfunctionalStructureLevel,
       functionalStructureLevelResponse,
-      errorsfunctionalStructureLevel
+      errorfunctionalStructureLevel
     } = this.props;
     const {
       description1,
@@ -417,7 +417,7 @@ class AddLevel extends React.Component {
       && this.editingPromiseResolve(functionalStructureLevelResponse);
     !isLoadingfunctionalStructureLevel
       && !functionalStructureLevelResponse
-      && this.editingPromiseResolve(errorsfunctionalStructureLevel);
+      && this.editingPromiseResolve(errorfunctionalStructureLevel);
     return (
       <div>
         <PapperBlock
@@ -805,7 +805,7 @@ const mapStateToProps = state => ({
     .functionalStructureLevelResponse,
   isLoadingfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
     .isLoading,
-  errorsfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
+  errorfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
     .errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(

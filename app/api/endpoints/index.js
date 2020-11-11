@@ -15,6 +15,7 @@ const ENDPOINTS = {
   ASSIGNMENT: 'http://localhost:9000/api/assignment',
   CLIENT: 'http://localhost:9000/api/client',
   STAFF: 'http://localhost:9000/api/staff',
+  STAFFCONTRACT: 'http://localhost:9000/api/staffContract',
   SECTORCOMPANY: 'http://localhost:9000/api/SectorCompany',
   CONTACT: 'http://localhost:9000/api/contact',
   CONTRACTTYPE: 'http://localhost:9000/api/contractType',
