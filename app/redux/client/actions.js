@@ -2,6 +2,7 @@ import {
   ADD_CLIENT_COMMERCIAL,
   DELETE_CLIENT,
   GET_ALL_CLIENTS,
+  GET_ALL_CLIENTS_BYCOUNTRY,
   UPDATE_CLIENT
 } from './constants';
 
@@ -22,4 +23,9 @@ export const deleteClient = (clientId) => ({
 
 export const getAllClient = () => ({
   type: GET_ALL_CLIENTS,
+});
+
+export const getAllClientByCountry = (country) => ({
+  type: GET_ALL_CLIENTS_BYCOUNTRY,
+  country
 });

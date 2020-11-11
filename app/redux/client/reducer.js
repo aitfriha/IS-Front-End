@@ -10,7 +10,11 @@ import {
   GET_ALL_CLIENTS_SUCCESS,
   UPDATE_CLIENT,
   UPDATE_CLIENT_FAILURE,
-  UPDATE_CLIENT_SUCCESS
+  UPDATE_CLIENT_SUCCESS,
+
+  GET_ALL_CLIENTS_BYCOUNTRY,
+  GET_ALL_CLIENTS_BYCOUNTRY_FAILURE,
+  GET_ALL_CLIENTS_BYCOUNTRY_SUCCESS,
 } from './constants';
 
 const initialState = {
@@ -24,6 +28,7 @@ export default function clientReducer(state = initialState, action) {
   switch (action.type) {
     // TRIGGERING ACTIONS
     case GET_ALL_CLIENTS:
+    case GET_ALL_CLIENTS_BYCOUNTRY:
     case ADD_CLIENT_COMMERCIAL:
     case UPDATE_CLIENT:
     case DELETE_CLIENT:
@@ -45,6 +50,7 @@ export default function clientReducer(state = initialState, action) {
       };
 
     case GET_ALL_CLIENTS_SUCCESS:
+    case GET_ALL_CLIENTS_BYCOUNTRY_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -54,6 +60,7 @@ export default function clientReducer(state = initialState, action) {
 
       // FAILURE ACTIONS
     case GET_ALL_CLIENTS_FAILURE:
+    case GET_ALL_CLIENTS_BYCOUNTRY_FAILURE:
     case ADD_CLIENT_FAILURE:
     case UPDATE_CLIENT_FAILURE:
     case DELETE_CLIENT_FAILURE:

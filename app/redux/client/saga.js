@@ -13,7 +13,11 @@ import {
   GET_ALL_CLIENTS_SUCCESS,
   UPDATE_CLIENT,
   UPDATE_CLIENT_FAILURE,
-  UPDATE_CLIENT_SUCCESS
+  UPDATE_CLIENT_SUCCESS,
+
+  GET_ALL_CLIENTS_BYCOUNTRY,
+  GET_ALL_CLIENTS_BYCOUNTRY_FAILURE,
+  GET_ALL_CLIENTS_BYCOUNTRY_SUCCESS,
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -107,11 +111,33 @@ function* getAllClient() {
   }
 }
 
+function* getAllClientByCountry(action) {
+  try {
+    const {
+      country
+    } = action;
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.CLIENT + '/all/' + country
+    });
+    yield put({
+      type: GET_ALL_CLIENTS_BYCOUNTRY_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_CLIENTS_BYCOUNTRY_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* clientSaga() {
   yield all([
     takeLatest(ADD_CLIENT_COMMERCIAL, addClientCommercial),
     takeLatest(UPDATE_CLIENT, updateClient),
     takeLatest(DELETE_CLIENT, deleteClient),
     takeLatest(GET_ALL_CLIENTS, getAllClient),
+    takeLatest(GET_ALL_CLIENTS_BYCOUNTRY, getAllClientByCountry),
   ]);
 }

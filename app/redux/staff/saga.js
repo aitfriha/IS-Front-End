@@ -87,12 +87,12 @@ function* getAllStaff() {
   try {
     const request = yield axios({
       method: 'get',
-      url: ENDPOINTS.STAFF + '/all'
+      url: ENDPOINTS.STAFF + '/allaid'
     });
     console.log(request);
     yield put({
       type: GET_ALL_STAFFS_SUCCESS,
-      payload: request.data
+      payload: request.data.payload
     });
   } catch (errors) {
     yield put({

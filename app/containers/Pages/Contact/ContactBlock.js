@@ -2,7 +2,8 @@ import React from 'react';
 import MUIDataTable from 'mui-datatables';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import styles from './Contact-jss'; 0;
+import styles from './Contact-jss';
+import CustomToolbar from "../../../components/CustomToolbar/CustomToolbar";
 const columns = [
   {
     name: 'client',
@@ -98,6 +99,9 @@ class ContactBlock extends React.Component {
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
+      customToolbar: () => (
+          <CustomToolbar url="/app/gestion-commercial/contact/addContact" tooltip="Add contact" />
+      )
     };
 
     return (
