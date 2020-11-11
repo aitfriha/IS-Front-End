@@ -441,7 +441,7 @@ class Commercial extends React.Component {
                         id="free-solo-demo"
                         onChange={(event, value) => this.handleStaff(event, value)}
                         options={allStaffs && allStaffs}
-                        getOptionLabel={option => option.firstName + ' ' + option.fatherFamilyName}
+                        getOptionLabel={option => option.fatherFamilyName}
                         renderInput={(params) => (
                           <TextField
                             {...params}

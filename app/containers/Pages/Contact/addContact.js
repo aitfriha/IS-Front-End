@@ -46,6 +46,7 @@ import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
+import { getAllClient } from '../../../redux/client/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -169,6 +170,7 @@ class AddStaff extends React.Component {
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
+    getAllClient();
   }
 
   handleChange = ev => {
@@ -209,255 +211,39 @@ class AddStaff extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      personalPhone,
-      personalEmail,
       companyName,
-      companyPhone,
+      department,
+      position,
+      companyFixPhone,
       companyMobilePhone,
       companyEmail,
+      personalMobilePhone,
+      personalEmail,
       skype,
-      birthday,
-      birthCountry,
-      emergencyContactName,
-      emergencyContactPhone,
       photo,
-      fullAddress,
-      postCode,
-      city,
-      staffContractId,
-      associateOffice,
-      hiringCountry,
-      townContract,
-      personalNumber,
-      contractType,
-      legalCategoryType,
-      highDate,
-      lowDate,
-      registrationDate,
-      preContractDate,
-      internalRulesDoc,
-      contractDoc,
-      preContractDoc,
-      passportDoc,
-      professionalIdCardDoc,
-      hnsCardDoc,
-      idCardDocExtension,
-      idCardDoc,
-      passportDocExtension,
-      professionalIdCardDocExtension,
-      hnsCardDocExtension,
-      idCardNumber,
-      idCardExpeditionDate,
-      idCardExpirationDate,
-      passportNumber,
-      passportExpeditionDate,
-      passportExpirationDate,
-      professionalIdCardNumber,
-      professionalIdCardExpeditionDate,
-      professionalIdCardExpirationDate,
-      hnsCardNumber,
-      hnsCardExpeditionDate,
-      hnsCardExpirationDate,
-      contractSalary,
-      companyContractCost,
-      expenses,
-      companyExpensesCost,
-      objectives,
-      companyObjectivesCost,
-      totalCompanyCost,
-      contractSalaryDateGoing,
-      contractSalaryDateOut,
-      companyContractCostDateGoing,
-      companyContractCostDateOut,
-      expensesDateGoing,
-      expensesDateOut,
-      companyExpensesCostDateGoing,
-      companyExpensesCostDateOut,
-      objectivesDateGoing,
-      objectivesDateOut,
-      companyObjectivesCostDateGoing,
-      companyObjectivesCostDateOut,
-      totalCompanyCostDateGoing,
-      totalCompanyCostDateOut
     } = this.state;
 
     console.log(city);
-    console.log(contractType);
-    console.log(legalCategoryType);
 
-    const total = parseInt(companyContractCost)
-      + parseInt(companyExpensesCost)
-      + parseInt(companyObjectivesCost);
-    const staff = {
+    const contact = {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      personalPhone,
-      personalEmail,
-      companyPhone,
+      companyName,
+      department,
+      position,
+      companyFixPhone,
       companyMobilePhone,
       companyEmail,
+      personalMobilePhone,
+      personalEmail,
       skype,
-      birthday: birthday.toISOString().slice(0, 10),
-      birthCountry: birthCountry.countryName,
-      emergencyContactName,
-      emergencyContactPhone,
       photo,
-      isLeader: 'no',
-      cityId: city.cityId,
-      fullAddress,
-      postCode,
-
-      staffContractId,
-      companyName,
-      associateOffice,
-      hiringCountry: hiringCountry.countryName,
-      townContract,
-      personalNumber,
-      highDate: highDate.toISOString().slice(0, 10),
-      lowDate: lowDate.toISOString().slice(0, 10),
-      registrationDate: registrationDate.toISOString().slice(0, 10),
-      preContractDate: preContractDate.toISOString().slice(0, 10),
-      contractType,
-      legalCategoryType,
-
-      contractSalary,
-      companyContractCost,
-      expenses,
-      companyExpensesCost,
-      objectives,
-      companyObjectivesCost,
-      totalCompanyCost: total,
-      contractSalaryDateGoing: contractSalaryDateGoing
-        .toISOString()
-        .slice(0, 10),
-      contractSalaryDateOut: contractSalaryDateOut.toISOString().slice(0, 10),
-      companyContractCostDateGoing: companyContractCostDateGoing
-        .toISOString()
-        .slice(0, 10),
-      companyContractCostDateOut: companyContractCostDateOut
-        .toISOString()
-        .slice(0, 10),
-      expensesDateGoing: expensesDateGoing.toISOString().slice(0, 10),
-      expensesDateOut: expensesDateOut.toISOString().slice(0, 10),
-      companyExpensesCostDateGoing: companyExpensesCostDateGoing
-        .toISOString()
-        .slice(0, 10),
-      companyExpensesCostDateOut: companyExpensesCostDateOut
-        .toISOString()
-        .slice(0, 10),
-      objectivesDateGoing: objectivesDateGoing.toISOString().slice(0, 10),
-      objectivesDateOut: objectivesDateOut.toISOString().slice(0, 10),
-      companyObjectivesCostDateGoing: companyObjectivesCostDateGoing
-        .toISOString()
-        .slice(0, 10),
-      companyObjectivesCostDateOut: companyObjectivesCostDateOut
-        .toISOString()
-        .slice(0, 10),
-      totalCompanyCostDateGoing: totalCompanyCostDateGoing
-        .toISOString()
-        .slice(0, 10),
-      totalCompanyCostDateOut: totalCompanyCostDateOut
-        .toISOString()
-        .slice(0, 10),
-
-      idCardNumber,
-      idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
-      idCardExpirationDate: idCardExpirationDate.toISOString().slice(0, 10),
-      idCardDocExtension,
-      passportNumber,
-      passportExpeditionDate: passportExpeditionDate.toISOString().slice(0, 10),
-      passportExpirationDate: passportExpirationDate.toISOString().slice(0, 10),
-      passportDocExtension,
-      professionalIdCardNumber,
-      professionalIdCardExpeditionDate: professionalIdCardExpeditionDate
-        .toISOString()
-        .slice(0, 10),
-      professionalIdCardExpirationDate: professionalIdCardExpirationDate
-        .toISOString()
-        .slice(0, 10),
-      professionalIdCardDocExtension,
-      hnsCardNumber,
-      hnsCardExpeditionDate: hnsCardExpeditionDate.toISOString().slice(0, 10),
-      hnsCardExpirationDate: hnsCardExpirationDate.toISOString().slice(0, 10),
-      hnsCardDocExtension
     };
 
-    const formData = new FormData();
-    Object.keys(staff).forEach(e => formData.append(e, staff[e]));
-    if (contractDoc.constructor !== Object) {
-      formData.append('contractDoc', contractDoc);
-    } else {
-      formData.append(
-        'contractDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (internalRulesDoc.constructor !== Object) {
-      formData.append('internalRulesDoc', internalRulesDoc);
-    } else {
-      formData.append(
-        'internalRulesDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (preContractDoc.constructor !== Object) {
-      formData.append('preContractDoc', preContractDoc);
-    } else {
-      formData.append(
-        'preContractDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (idCardDoc.constructor !== Object) {
-      formData.append('idCardDoc', idCardDoc);
-    } else {
-      formData.append(
-        'idCardDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (passportDoc.constructor !== Object) {
-      formData.append('passportDoc', passportDoc);
-    } else {
-      formData.append(
-        'passportDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (professionalIdCardDoc.constructor !== Object) {
-      formData.append('professionalIdCardDoc', professionalIdCardDoc);
-    } else {
-      formData.append(
-        'professionalIdCardDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
-    if (hnsCardDoc.constructor !== Object) {
-      formData.append('hnsCardDoc', hnsCardDoc);
-    } else {
-      formData.append(
-        'hnsCardDoc',
-        new Blob([JSON.stringify({})], {
-          type: 'application/json'
-        })
-      );
-    }
     const promise = new Promise(resolve => {
       // get client information
-      saveStaff(formData);
+      addContact(contact);
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
@@ -468,21 +254,6 @@ class AddStaff extends React.Component {
         notification('danger', result);
       }
     });
-    /*    StaffContractService.saveStaffContract(
-      contractData,
-      contractType,
-      legalCategoryType
-    ).then(response => {
-      staffData.append(
-        'staffContract',
-        new Blob([JSON.stringify(response.data)], {
-          type: 'application/json'
-        })
-      );
-      StaffService.saveStaff(staffData).then(({ data }) => {
-        history.push('/app/hh-rr/staff', {});
-      });
-    }); */
   };
 
   handleDialogClose = () => {
@@ -510,252 +281,31 @@ class AddStaff extends React.Component {
     // add here the upload logic...
   };
 
-  handleUploadContractDocClick = () => {
-    inputContractDoc.current.click();
+  handleChangeCompany = (ev, value) => {
+    console.log(value.name);
   };
-
-  handleUploadInternalRulesDocClick = () => {
-    inputInternalRulesDoc.current.click();
-  };
-
-  handleUploadPreContractDocClick = () => {
-    inputPreContractDoc.current.click();
-  };
-
-  handleUploadIdCardDocClick = () => {
-    inputIdCardDoc.current.click();
-  };
-
-  handleUploadPassportDocClick = () => {
-    inputPassportDoc.current.click();
-  };
-
-  handleUploadProfessionalIdCardDocClick = () => {
-    inputProfessionalIdCardDoc.current.click();
-  };
-
-  handleUploadHnsCardDocClick = () => {
-    inputHnsCardDoc.current.click();
-  };
-
-  handleContractDocChange = () => {
-    const lastDot = inputContractDoc.current.files[0].name.lastIndexOf('.');
-    const ext = inputContractDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (ext === 'pdf') {
-      this.setState({
-        contractDoc: inputContractDoc.current.files[0]
-      });
-    }
-  };
-
-  handleInternalRulesDocChange = () => {
-    const lastDot = inputInternalRulesDoc.current.files[0].name.lastIndexOf(
-      '.'
-    );
-    const ext = inputInternalRulesDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (ext === 'pdf') {
-      this.setState({
-        internalRulesDoc: inputInternalRulesDoc.current.files[0]
-      });
-    }
-  };
-
-  handlePreContractDocChange = () => {
-    const lastDot = inputPreContractDoc.current.files[0].name.lastIndexOf('.');
-    const ext = inputPreContractDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (ext === 'pdf') {
-      this.setState({
-        preContractDoc: inputPreContractDoc.current.files[0]
-      });
-    }
-  };
-
-  handleIdCardDocChange = () => {
-    console.log('eeeeeeeeeeeeeee');
-    const lastDot = inputIdCardDoc.current.files[0].name.lastIndexOf('.');
-    const ext = inputIdCardDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (extList.includes(ext)) {
-      this.setState({
-        idCardDoc: inputIdCardDoc.current.files[0],
-        idCardDocExtension: ext
-      });
-    }
-  };
-
-  handlePassportDocChange = () => {
-    const lastDot = inputPassportDoc.current.files[0].name.lastIndexOf('.');
-    const ext = inputPassportDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (extList.includes(ext)) {
-      this.setState({
-        passportDoc: inputPassportDoc.current.files[0],
-        passportDocExtension: ext
-      });
-    }
-  };
-
-  handleProfessionalIdCardDocChange = () => {
-    const lastDot = inputProfessionalIdCardDoc.current.files[0].name.lastIndexOf(
-      '.'
-    );
-    const ext = inputProfessionalIdCardDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (extList.includes(ext)) {
-      this.setState({
-        professionalIdCardDoc: inputProfessionalIdCardDoc.current.files[0],
-        professionalIdCardDocExtension: ext
-      });
-    }
-  };
-
-  handleHnsCardDocChange = () => {
-    const lastDot = inputHnsCardDoc.current.files[0].name.lastIndexOf('.');
-    const ext = inputHnsCardDoc.current.files[0].name
-      .substring(lastDot + 1)
-      .toLowerCase();
-    if (extList.includes(ext)) {
-      this.setState({
-        hnsCardDoc: inputHnsCardDoc.current.files[0],
-        hnsCardDocExtension: ext
-      });
-    }
-  };
-
-  handleExpandClick = compName => {
-    const {
-      isPersonalInformation,
-      isGeneralContractInformation,
-      isEconomicContractInformation,
-      isStaffDocumentation
-    } = this.state;
-    if (compName === 'personalInformation') {
-      this.setState({
-        isPersonalInformation: !isPersonalInformation
-      });
-    } else if (compName === 'generalContractInformation') {
-      this.setState({
-        isGeneralContractInformation: !isGeneralContractInformation
-      });
-    } else if (compName === 'economicContractInformation') {
-      this.setState({
-        isEconomicContractInformation: !isEconomicContractInformation
-      });
-    } else if (compName === 'staffDocumentation') {
-      this.setState({
-        isStaffDocumentation: !isStaffDocumentation
-      });
-    }
-  };
-
-  handleChangeBirthCountry = (ev, value) => {
-    this.setState({ birthCountry: value });
-  };
-
-  handleChangeHiringCountry = (ev, value) => {
-    StateCountryService.getStatesByCountry(value.countryId).then(({ data }) => {
-      this.setState({
-        hiringCountry: value,
-        states: data.payload
-      });
-    });
-  };
-
-  handleChangeHiringState = (ev, value) => {
-    ContractTypeService.getAllByState(value.stateCountryId).then(({ data }) => {
-      this.setState({ contractTypes: data, hiringState: value });
-    });
-  };
-
-  /* getAll = () => {
-    TestClassService.getFiles().then(response => {
-      const binaryString = window.atob(response.data[0].contractDoc);
-      const binaryLen = binaryString.length;
-      const bytes = new Uint8Array(binaryLen);
-      for (let i = 0; i < binaryLen; i++) {
-        const ascii = binaryString.charCodeAt(i);
-        bytes[i] = ascii;
-      }
-      const blob = new Blob([bytes], {
-        type: 'application/pdf'
-      });
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = 'myFileName.pdf';
-      link.click();
-    });
-  }; */
 
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, isLoadingStaff, staffResponse, errorStaff
+      classes, isLoadingStaff, staffResponse, errorStaff, allClients
     } = this.props;
     const {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      personalPhone,
-      personalEmail,
       companyName,
-      companyPhone,
+      department,
+      position,
+      companyFixPhone,
       companyMobilePhone,
       companyEmail,
+      personalMobilePhone,
+      personalEmail,
       skype,
-      birthday,
-      birthCountry,
-      emergencyContactName,
-      emergencyContactPhone,
       photo,
-      isPersonalInformation,
-      isGeneralContractInformation,
-      isEconomicContractInformation,
-      isStaffDocumentation,
       isChangeProfilePic,
-      countries,
-      states,
-      associateOffice,
-      hiringCountry,
-      hiringState,
-      townContract,
-      personalNumber,
-      highDate,
-      lowDate,
-      registrationDate,
-      preContractDate,
-      contractType,
-      legalCategoryType,
-      contractDoc,
-      preContractDoc,
-      internalRulesDoc,
-      idCardDoc,
-      passportDoc,
-      professionalIdCardDoc,
-      hnsCardDoc,
-      idCardNumber,
-      idCardExpeditionDate,
-      idCardExpirationDate,
-      passportNumber,
-      passportExpeditionDate,
-      passportExpirationDate,
-      professionalIdCardNumber,
-      professionalIdCardExpeditionDate,
-      professionalIdCardExpirationDate,
-      hnsCardNumber,
-      hnsCardExpeditionDate,
-      hnsCardExpirationDate,
-      contractTypes,
-      legalCategoryTypes
     } = this.state;
     const companies = [
       { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
@@ -920,50 +470,66 @@ class AddStaff extends React.Component {
                   variant="fullWidth"
                   style={{ marginBottom: '10px', marginTop: '10px' }}
                 />
-                <TextField
-                  id="outlined-basic"
-                  label="phone number"
-                  variant="outlined"
-                  name="personalPhone"
-                  fullWidth
-                  value={personalPhone}
-                  className={classes.textField}
-                  onChange={this.handleChange}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Company Email"
-                  variant="outlined"
-                  name="personalEmail"
-                  fullWidth
-                  required
-                  value={personalEmail}
-                  className={classes.textField}
-                  onChange={this.handleChange}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Comapany"
-                  variant="outlined"
-                  name="companyPhone"
-                  fullWidth
-                  value={companyPhone}
-                  className={classes.textField}
-                  onChange={this.handleChange}
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allClients && allClients}
+                  getOptionLabel={option => (option ? option.name : '')}
+                  onChange={this.handleChangeCompany}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the company"
+                      variant="outlined"
+                    />
+                  )}
                 />
                 <TextField
                   id="outlined-basic"
                   label="Department"
                   variant="outlined"
-                  name="companyMobilePhone"
+                  name="department"
                   fullWidth
-                  value={companyMobilePhone}
+                  value={department}
                   className={classes.textField}
                   onChange={this.handleChange}
                 />
                 <TextField
                   id="outlined-basic"
                   label="Position"
+                  variant="outlined"
+                  name="position"
+                  fullWidth
+                  required
+                  value={position}
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Company fix phone"
+                  variant="outlined"
+                  name="companyFixPhone"
+                  fullWidth
+                  required
+                  value={companyFixPhone}
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Company mobile phone"
+                  variant="outlined"
+                  name="companyMobilePhone"
+                  fullWidth
+                  required
+                  value={companyMobilePhone}
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Company Email"
                   variant="outlined"
                   name="companyEmail"
                   fullWidth
@@ -974,11 +540,30 @@ class AddStaff extends React.Component {
                 />
                 <TextField
                   id="outlined-basic"
+                  label="personal mobile phone"
+                  variant="outlined"
+                  name="personalMobilePhone"
+                  fullWidth
+                  value={personalMobilePhone}
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="personal email"
+                  variant="outlined"
+                  name="personalEmail"
+                  fullWidth
+                  value={personalEmail}
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
                   label="Skype"
                   variant="outlined"
                   name="skype"
                   fullWidth
-                  required
                   value={skype}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1022,12 +607,16 @@ const mapStateToProps = state => ({
   allStaff: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors
+  errorsStaff: state.getIn(['staffs']).errors,
+  // client
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoading: state.getIn(['clients']).isLoading,
+  errors: state.getIn(['clients']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    saveStaff,
-    getAllStaff
+    getAllClient
   },
   dispatch
 );
