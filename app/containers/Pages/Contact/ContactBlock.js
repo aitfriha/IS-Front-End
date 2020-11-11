@@ -3,39 +3,39 @@ import MUIDataTable from 'mui-datatables';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import styles from './Contact-jss';
-import CustomToolbar from "../../../components/CustomToolbar/CustomToolbar";
+import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 const columns = [
   {
-    name: 'client',
-    label: 'Client',
+    name: 'firstName',
+    label: 'first Name',
     options: {
       filter: true
     }
   },
   {
-    label: 'Operation',
-    name: 'op',
+    label: 'father Family Name',
+    name: 'fatherFamilyName',
     options: {
       filter: true
     }
   },
   {
-    label: 'Responsible Commercial',
-    name: 'resp',
+    label: 'mother Family Name',
+    name: 'motherFamilyName',
     options: {
       filter: true
     }
   },
   {
-    label: 'Assistant Commercial',
-    name: 'assis',
+    label: 'department',
+    name: 'department',
     options: {
       filter: true
     }
   },
   {
-    label: 'Operation',
-    name: 'op',
+    label: 'position',
+    name: 'position',
     options: {
       filter: true
     }
@@ -48,36 +48,36 @@ const columns = [
     }
   },
   {
-    label: 'First Name',
-    name: 'firstName',
+    label: 'company Fix Phone',
+    name: 'companyFixPhone',
     options: {
       filter: true
     }
   },
   {
-    label: 'Department',
-    name: 'department',
+    label: 'company Mobile Phone',
+    name: 'companyMobilePhone',
     options: {
       filter: true
     }
   },
   {
-    label: 'Position',
-    name: 'position',
+    label: 'company Email',
+    name: 'companyEmail',
     options: {
       filter: true
     }
   },
   {
-    label: 'Email',
-    name: 'email',
+    label: 'personal Mobile Phone',
+    name: 'personalMobilePhone',
     options: {
       filter: true
     }
   },
   {
-    label: 'Phone',
-    name: 'phone',
+    label: 'personal Email',
+    name: 'personalEmail',
     options: {
       filter: true
     }
@@ -100,7 +100,7 @@ class ContactBlock extends React.Component {
       responsive: 'stacked',
       rowsPerPage: 10,
       customToolbar: () => (
-          <CustomToolbar url="/app/gestion-commercial/contact/addContact" tooltip="Add contact" />
+        <CustomToolbar url="/app/gestion-commercial/contact/addContact" tooltip="Add contact" />
       )
     };
 

@@ -16,6 +16,7 @@ const ENDPOINTS = {
   CLIENT: 'http://localhost:9000/api/client',
   STAFF: 'http://localhost:9000/api/staff',
   SECTORCOMPANY: 'http://localhost:9000/api/SectorCompany',
+  CONTACT: 'http://localhost:9000/api/contact',
   CONTRACTTYPE: 'http://localhost:9000/api/contractType',
   ABSENCETYPE: 'http://localhost:9000/api/absenceType',
   LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
