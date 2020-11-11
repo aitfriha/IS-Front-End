@@ -2,8 +2,13 @@ import React from 'react';
 import MUIDataTable from 'mui-datatables';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import styles from './Contact-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
+import { getAllClient } from '../../../redux/client/actions';
+import { getAllContact } from '../../../redux/contact/actions';
+import CountryService from '../../Services/CountryService';
 const columns = [
   {
     name: 'firstName',
@@ -91,8 +96,13 @@ const columns = [
   },
 ];
 class ContactBlock extends React.Component {
+  componentDidMount() {
+    const { getAllContact } = this.props;
+    getAllContact();
+  }
+
   render() {
-    const { sectorsConfig } = this.props;
+    const { allContacts } = this.props;
     const options = {
       filter: true,
       selectableRows: false,
@@ -108,7 +118,7 @@ class ContactBlock extends React.Component {
       <div>
         <MUIDataTable
           title="Contacts"
-          data={sectorsConfig}
+          data={allContacts && allContacts}
           columns={columns}
           options={options}
         />
@@ -120,5 +130,22 @@ ContactBlock.propTypes = {
   classes: PropTypes.object.isRequired,
   sectorsConfig: PropTypes.array.isRequired
 };
-
-export default withStyles(styles)(ContactBlock);
+const mapStateToProps = state => ({
+  // contacts
+  allContacts: state.getIn(['contacts']).allContacts,
+  contactResponse: state.getIn(['contacts']).contactResponse,
+  isLoading: state.getIn(['contacts']).isLoading,
+  errors: state.getIn(['contacts']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    getAllContact
+  },
+  dispatch
+);
+export default withStyles(styles)(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(ContactBlock)
+);
