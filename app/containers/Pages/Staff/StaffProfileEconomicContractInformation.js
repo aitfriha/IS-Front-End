@@ -74,18 +74,6 @@ class StaffProfileEconomicContractInformation extends Component {
       }
     },
     {
-      name: 'staffEconomicContractInformationHistory',
-      label: 'Created at',
-      options: {
-        filter: true,
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {new Date(value.createdAt).toISOString().slice(0, 10)}
-          </React.Fragment>
-        )
-      }
-    },
-    {
       name: 'Actions',
       options: {
         filter: false,
@@ -105,6 +93,18 @@ class StaffProfileEconomicContractInformation extends Component {
       }
     }
   ];
+
+  /*
+    name: 'staffEconomicContractInformationHistory',
+    label: 'Created at',
+    options: {
+      filter: true,
+      customBodyRender: (value, tableMeta) => (
+        <React.Fragment>
+          {new Date(value.createdAt).toISOString().slice(0, 10)}
+        </React.Fragment>
+      )
+    } */
 
   componentDidMount() {
     const { staff } = this.props;
@@ -1231,7 +1231,7 @@ const mapStateToProps = state => ({
   allStaff: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors
+  errorStaff: state.getIn(['staffs']).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

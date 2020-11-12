@@ -45,7 +45,7 @@ function* updateStaff(action) {
     const { staffWithId } = action;
 
     const request = yield axios({
-      method: 'post',
+      method: 'put',
       url: ENDPOINTS.STAFF + '/update',
       data: staffWithId
     });
@@ -92,7 +92,7 @@ function* getAllStaff() {
     console.log(request);
     yield put({
       type: GET_ALL_STAFFS_SUCCESS,
-      payload: request.data
+      payload: request.data.payload
     });
   } catch (errors) {
     yield put({

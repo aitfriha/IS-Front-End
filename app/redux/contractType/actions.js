@@ -2,6 +2,7 @@ import {
   ADD_CONTRACTTYPE,
   DELETE_CONTRACTTYPE,
   GET_ALL_CONTRACTTYPES,
+  GET_ALL_CONTRACTTYPES_BY_STATE,
   UPDATE_CONTRACTTYPE
 } from './constants';
 
@@ -22,4 +23,9 @@ export const deleteContractType = contractTypeId => ({
 
 export const getAllContractType = () => ({
   type: GET_ALL_CONTRACTTYPES
+});
+
+export const getAllContractTypeByState = stateId => ({
+  type: GET_ALL_CONTRACTTYPES_BY_STATE,
+  stateId
 });

@@ -45,6 +45,24 @@ class ClientBlock extends React.Component {
           label: 'Name',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -122,20 +140,56 @@ class ClientBlock extends React.Component {
           name: 'code',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
-        {
+        /*        {
           label: 'Sector Leader',
           name: 'sectorLeader',
           options: {
             filter: true,
           }
-        },
+        }, */
         {
           label: 'Country Leader',
           name: 'countryLeader',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -143,6 +197,24 @@ class ClientBlock extends React.Component {
           name: 'responsibleCommercial',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -150,6 +222,24 @@ class ClientBlock extends React.Component {
           name: 'assistantCommercial',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -157,6 +247,24 @@ class ClientBlock extends React.Component {
           label: 'Sector 1',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -164,6 +272,24 @@ class ClientBlock extends React.Component {
           label: 'Sector 2',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -171,6 +297,24 @@ class ClientBlock extends React.Component {
           label: 'Sector 3',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -179,6 +323,24 @@ class ClientBlock extends React.Component {
           options: {
             filter: true,
             sort: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -187,6 +349,24 @@ class ClientBlock extends React.Component {
           options: {
             filter: true,
             sort: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -195,6 +375,24 @@ class ClientBlock extends React.Component {
           options: {
             filter: true,
             sort: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -203,6 +401,24 @@ class ClientBlock extends React.Component {
           options: {
             filter: true,
             sort: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -233,6 +449,24 @@ class ClientBlock extends React.Component {
             filter: false,
             sort: false,
             empty: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value, data) => (
               <div>
                 <Grid container spacing={1}>
@@ -286,13 +520,15 @@ class ClientBlock extends React.Component {
       data, columns, openPopUp, selectedClient
     } = this.state;
     const options = {
+      fixedHeader: true,
+      fixedSelectColumn: false,
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
       customToolbar: () => (
-        <CustomToolbar csvData={data} url="/app/gestion-commercial/clients/create-client" tooltip="update Client" />
+        <CustomToolbar csvData={data} url="/app/gestion-commercial/clients/create-client" tooltip="Add Client" />
       )
     };
     return (

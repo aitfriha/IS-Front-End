@@ -2,6 +2,7 @@ import {
   ADD_LEGALCATEGORYTYPE,
   DELETE_LEGALCATEGORYTYPE,
   GET_ALL_LEGALCATEGORYTYPES,
+  GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY,
   UPDATE_LEGALCATEGORYTYPE
 } from './constants';
 
@@ -22,4 +23,9 @@ export const deleteLegalCategoryType = legalCategoryTypeId => ({
 
 export const getAllLegalCategoryType = () => ({
   type: GET_ALL_LEGALCATEGORYTYPES
+});
+
+export const getAllLegalCategoryTypeByCompany = companyId => ({
+  type: GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY,
+  companyId
 });

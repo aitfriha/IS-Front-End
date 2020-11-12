@@ -11,6 +11,9 @@ import {
   GET_ALL_CONTRACTTYPES,
   GET_ALL_CONTRACTTYPES_FAILURE,
   GET_ALL_CONTRACTTYPES_SUCCESS,
+  GET_ALL_CONTRACTTYPES_BY_STATE,
+  GET_ALL_CONTRACTTYPES_BY_STATE_FAILURE,
+  GET_ALL_CONTRACTTYPES_BY_STATE_SUCCESS,
   UPDATE_CONTRACTTYPE,
   UPDATE_CONTRACTTYPE_FAILURE,
   UPDATE_CONTRACTTYPE_SUCCESS
@@ -100,11 +103,32 @@ function* getAllContractType() {
   }
 }
 
+function* getAllContractTypeByState(action) {
+  try {
+    const { stateId } = action;
+
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.CONTRACTTYPE + '/all-by-state/' + stateId
+    });
+    yield put({
+      type: GET_ALL_CONTRACTTYPES_BY_STATE_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_CONTRACTTYPES_BY_STATE_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* contractTypeSaga() {
   yield all([
     takeLatest(ADD_CONTRACTTYPE, saveContractType),
     takeLatest(UPDATE_CONTRACTTYPE, updateContractType),
     takeLatest(DELETE_CONTRACTTYPE, deleteContractType),
-    takeLatest(GET_ALL_CONTRACTTYPES, getAllContractType)
+    takeLatest(GET_ALL_CONTRACTTYPES, getAllContractType),
+    takeLatest(GET_ALL_CONTRACTTYPES_BY_STATE, getAllContractTypeByState)
   ]);
 }

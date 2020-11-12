@@ -36,20 +36,16 @@ import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styles from './staff-jss';
-import StaffService from '../../Services/StaffService';
+import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
-import ContractTypeService from '../../Services/ContractTypeService';
-import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
 import StaffContractService from '../../Services/StaffContractService';
 import StaffContractHistoryService from '../../Services/StaffContractHistoryService';
 import { ThemeContext } from '../../App/ThemeWrapper';
-import {
-  setStaff,
-  setEdit,
-  getAllStaff,
-  updateStaff
-} from '../../../redux/staff/actions';
+import { setStaff, getAllStaff } from '../../../redux/staff/actions';
+import { getAllContractTypeByState } from '../../../redux/contractType/actions';
+import { getAllLegalCategoryTypeByCompany } from '../../../redux/legalCategoryType/actions';
+import { updateStaffContract } from '../../../redux/staffContract/actions';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   pdfjs.version
@@ -88,11 +84,12 @@ class StaffProfileContractInformation extends Component {
     newPreContractDoc: {},
     countries: [],
     states: [],
-    companyName: '',
-    contractTypes: [],
-    legalCategoryTypes: [],
+    company: {},
+    companies: [],
     history: []
   };
+
+  editingPromiseResolve = () => {};
 
   columns = [
     {
@@ -105,15 +102,10 @@ class StaffProfileContractInformation extends Component {
       }
     },
     {
-      name: 'staffContractHistory',
+      name: 'updatedAt',
       label: 'Created at',
       options: {
-        filter: true,
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {new Date(value.createdAt).toISOString().slice(0, 10)}
-          </React.Fragment>
-        )
+        filter: true
       }
     },
     {
@@ -138,31 +130,23 @@ class StaffProfileContractInformation extends Component {
   ];
 
   componentDidMount() {
-    const { staff } = this.props;
+    const {
+      staff,
+      getAllContractTypeByState,
+      getAllLegalCategoryTypeByCompany
+    } = this.props;
     this.setInitialData();
+    getAllContractTypeByState(staff.contractTypeStateId);
+    getAllLegalCategoryTypeByCompany(staff.companyId);
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
     StateCountryService.getStatesByCountry(staff.contractTypeCountryId).then(
       response => {
         this.setState({
-          hiringCountry: data.staffContract.hiringCountry,
+          hiringCountry: staff.hiringCountry,
           states: response.data.payload
         });
-      }
-    );
-    ContractTypeService.getAllByState(staff.contractTypeStateId).then(
-      response => {
-        console.log(response.data);
-        this.setState({
-          contractTypes: response.data,
-          hiringState: data.staffContract.hiringState
-        });
-      }
-    );
-    LegalCategoryTypeService.getAllByCompany(staff.companyId).then(
-      ({ data }) => {
-        this.setState({ legalCategoryTypes: data });
       }
     );
     StaffContractHistoryService.getStaffContractHistoryByStaff(
@@ -171,6 +155,10 @@ class StaffProfileContractInformation extends Component {
       this.setState({
         history: data
       });
+    });
+    FinancialCompanyService.getCompany().then(({ data }) => {
+      console.log(data);
+      this.setState({ companies: data });
     });
   }
 
@@ -181,7 +169,7 @@ class StaffProfileContractInformation extends Component {
       legalCategoryType: staff.legalCategoryTypeId,
       associateOffice: staff.associateOffice,
       hiringCountry: staff.hiringCountry,
-      hiringState: staff.contractTypeState,
+      hiringState: staff.hiringState,
       townContract: staff.townContract,
       personalNumber: staff.personalNumber,
       highDate: new Date(staff.highDate),
@@ -190,8 +178,7 @@ class StaffProfileContractInformation extends Component {
       preContractDate: new Date(staff.preContractDate),
       internalRulesDoc: staff.internalRulesDoc,
       contractDoc: staff.contractDoc,
-      preContractDoc: staff.preContractDoc,
-      companyName: staff.companyName
+      preContractDoc: staff.preContractDoc
     };
     this.setState({
       ...staffContract,
@@ -303,7 +290,6 @@ class StaffProfileContractInformation extends Component {
       internalRulesDoc: staff.internalRulesDoc,
       contractDoc: staff.contractDoc,
       preContractDoc: staff.preContractDoc,
-      companyName: staff.companyName,
       isEditData: false,
       isViewHistory: false,
       newContractDoc: {},
@@ -332,20 +318,21 @@ class StaffProfileContractInformation extends Component {
   };
 
   handleChangeHiringState = (ev, value) => {
-    ContractTypeService.getAllByState(value.stateCountryId).then(({ data }) => {
-      this.setState({ contractTypes: data, hiringState: value });
-    });
+    const { getAllContractTypeByState } = this.props;
+    this.setState({ hiringState: value });
+    getAllContractTypeByState(value.stateCountryId);
   };
 
   handleChange = ev => {
-    if (ev.target.name === 'companyName') {
-      LegalCategoryTypeService.getAllLegalCategoryTypesByCompany(
-        ev.target.value
-      ).then(({ data }) => {
-        this.setState({ legalCategoryTypes: data });
-      });
-    }
     this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  handleChangeCompany = (ev, value) => {
+    const { getAllLegalCategoryTypeByCompany } = this.props;
+    getAllLegalCategoryTypeByCompany(value.financialCompanyId);
+    this.setState({
+      company: value
+    });
   };
 
   handleDateValue = (value, name) => {
@@ -427,7 +414,7 @@ class StaffProfileContractInformation extends Component {
   };
 
   handleUpdate = () => {
-    const { staff } = this.props;
+    const { staff, updateStaffContract } = this.props;
     const {
       staffContractId,
       associateOffice,
@@ -444,12 +431,11 @@ class StaffProfileContractInformation extends Component {
       newInternalRulesDoc,
       newContractDoc,
       newPreContractDoc,
-      history,
-      companyName
+      company
     } = this.state;
     const contract = {
-      staffContractId,
-      companyName,
+      staffContractId: staff.staffContractId,
+      companyId: company.companyId,
       associateOffice,
       hiringCountry: hiringCountry.countryName,
       townContract,
@@ -457,17 +443,18 @@ class StaffProfileContractInformation extends Component {
       highDate: highDate.toISOString().slice(0, 10),
       lowDate: lowDate.toISOString().slice(0, 10),
       registrationDate: registrationDate.toISOString().slice(0, 10),
-      preContractDate: preContractDate.toISOString().slice(0, 10)
+      preContractDate: preContractDate.toISOString().slice(0, 10),
+      contractTypeId: contractType.contractTypeId,
+      legalCategoryTypeId: legalCategoryType.legalCategoryTypeId,
+      updatedAt: new Date().toISOString().slice(0, 10)
     };
 
-    const id = staff.staffContractId;
-
-    const contractData = new FormData();
-
+    const formData = new FormData();
+    Object.keys(contract).forEach(e => formData.append(e, contract[e]));
     if (newContractDoc.constructor !== Object) {
-      contractData.append('contractDoc', newContractDoc);
+      formData.append('contractDoc', newContractDoc);
     } else {
-      contractData.append(
+      formData.append(
         'contractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -475,9 +462,9 @@ class StaffProfileContractInformation extends Component {
       );
     }
     if (newInternalRulesDoc.constructor !== Object) {
-      contractData.append('internalRulesDoc', newInternalRulesDoc);
+      formData.append('internalRulesDoc', newInternalRulesDoc);
     } else {
-      contractData.append(
+      formData.append(
         'internalRulesDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
@@ -485,23 +472,37 @@ class StaffProfileContractInformation extends Component {
       );
     }
     if (newPreContractDoc.constructor !== Object) {
-      contractData.append('preContractDoc', newPreContractDoc);
+      formData.append('preContractDoc', newPreContractDoc);
     } else {
-      contractData.append(
+      formData.append(
         'preContractDoc',
         new Blob([JSON.stringify({})], {
           type: 'application/json'
         })
       );
     }
-    contractData.append(
-      'staffContract',
-      new Blob([JSON.stringify(contract)], {
-        type: 'application/json'
-      })
-    );
 
-    StaffContractService.updateStaffContract(
+    const promise = new Promise(resolve => {
+      // get client information
+      updateStaffContract(formData);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+        this.setState({
+          isEditData: false,
+          newContractDoc: {},
+          newInternalRulesDoc: {},
+          newPreContractDoc: {}
+        });
+      } else {
+        notification('danger', result);
+      }
+    });
+
+    /* StaffContractService.updateStaffContract(
       id,
       contractData,
       contractType,
@@ -533,11 +534,19 @@ class StaffProfileContractInformation extends Component {
         newPreContractDoc: {},
         hiringCountry: hiringCountry.countryName
       });
-    });
+    }); */
   };
 
   render() {
-    const { staff, classes } = this.props;
+    const {
+      staff,
+      classes,
+      allContractTypeByState,
+      allLegalCategoryTypes,
+      isLoadingStaffContract,
+      staffContractResponse,
+      errorStaffContract
+    } = this.props;
     const {
       isOpenDocument,
       pageNumber,
@@ -559,9 +568,8 @@ class StaffProfileContractInformation extends Component {
       contractDoc,
       preContractDoc,
       internalRulesDoc,
-      contractTypes,
-      legalCategoryTypes,
-      companyName,
+      company,
+      companies,
       history
     } = this.state;
 
@@ -573,20 +581,12 @@ class StaffProfileContractInformation extends Component {
       rowsPerPage: 3,
       rowsPerPageOptions: [3]
     };
-
-    const companies = [
-      { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
-      {
-        name: 'Implemental Systems',
-        phone: '+21265482154',
-        email: 'implemental@gmail.com'
-      },
-      {
-        name: 'International GDE',
-        phone: '+21265482154',
-        email: 'internationalgde@gmail.com'
-      }
-    ];
+    !isLoadingStaffContract
+      && staffContractResponse
+      && this.editingPromiseResolve(staffContractResponse);
+    !isLoadingStaffContract
+      && !staffContractResponse
+      && this.editingPromiseResolve(errorStaffContract);
     return (
       <div>
         <Dialog
@@ -1269,23 +1269,23 @@ class StaffProfileContractInformation extends Component {
               >
                 <Grid item xs={12}>
                   <div className={classes.divSpace} style={{ width: '100%' }}>
-                    <FormControl
-                      className={classes.formControl}
-                      style={{ width: '45%' }}
-                    >
-                      <InputLabel>Company</InputLabel>
-                      <Select
-                        name="companyName"
-                        value={companyName}
-                        onChange={this.handleChange}
-                      >
-                        {companies.map(company => (
-                          <MenuItem key={company.name} value={company.name}>
-                            {company.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      id="combo-box-demo"
+                      value={company}
+                      options={companies}
+                      getOptionLabel={option => (option ? option.name : '')}
+                      onChange={this.handleChangeCompany}
+                      style={{ width: '45%', marginTop: 7 }}
+                      clearOnEscape
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Company"
+                          variant="outlined"
+                        />
+                      )}
+                    />
                     <TextField
                       id="outlined-basic"
                       label="Associate office"
@@ -1368,7 +1368,7 @@ class StaffProfileContractInformation extends Component {
                         value={contractType}
                         onChange={this.handleChange}
                       >
-                        {contractTypes.map(type => (
+                        {allContractTypeByState.map(type => (
                           <MenuItem key={type.code} value={type.contractTypeId}>
                             {type.name}
                           </MenuItem>
@@ -1385,7 +1385,7 @@ class StaffProfileContractInformation extends Component {
                         value={legalCategoryType}
                         onChange={this.handleChange}
                       >
-                        {legalCategoryTypes.map(type => (
+                        {allLegalCategoryTypes.map(type => (
                           <MenuItem
                             key={type.code}
                             value={type.legalCategoryTypeId}
@@ -1506,19 +1506,22 @@ class StaffProfileContractInformation extends Component {
 }
 
 const mapStateToProps = state => ({
+  allContractTypeByState: state.getIn(['contractTypes']).allContractTypeByState,
+  allLegalCategoryTypes: state.getIn(['legalCategoryTypes'])
+    .allLegalCategoryTypes,
   staff: state.getIn(['staffs']).selectedStaff,
-  allStaff: state.getIn(['staffs']).allStaff,
-  staffResponse: state.getIn(['staffs']).staffResponse,
-  isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors
+  staffContractResponse: state.getIn(['staffContracts']).staffResponse,
+  isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
+  errorStaffContract: state.getIn(['staffContracts']).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    updateStaff,
     getAllStaff,
     setStaff,
-    setEdit
+    getAllContractTypeByState,
+    getAllLegalCategoryTypeByCompany,
+    updateStaffContract
   },
   dispatch
 );

@@ -31,7 +31,11 @@ import StaffProfileEconomicContractInformation from './StaffProfileEconomicContr
 import StaffProfileContractInformation from './StaffProfileContractInformation';
 import StaffProfileGeneralInformation from './StaffProfileGeneralInformation';
 import StaffService from '../../Services/StaffService';
-import { setStaff } from '../../../redux/staff/actions';
+import {
+  setStaff,
+  getAllStaff,
+  updateStaff
+} from '../../../redux/staff/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -59,10 +63,12 @@ export class StaffProfile extends Component {
   componentDidMount() {
     const { staff } = this.props;
     const { functionalStructureTree } = this.state;
-    if (staff.level && !functionalStructureTree.level1) {
-      const { type } = staff.level;
-      FunctionalStructureService.getLevelTree(staff.level.levelId).then(
+    console.log(staff);
+    if (staff.levelId && !functionalStructureTree.level1) {
+      const type = staff.levelType;
+      FunctionalStructureService.getLevelTree(staff.levelId).then(
         ({ data }) => {
+          console.log(data);
           let tree = {};
           if (type === 'Level 1') {
             tree = {
@@ -103,17 +109,17 @@ export class StaffProfile extends Component {
     let doc = null;
     let docName = null;
     if (documentType === 'contract') {
-      doc = staff.staffContract.contractDoc;
+      doc = staff.contractDoc;
       docName = `${staff.firstName}-${staff.fatherFamilyName}-${
         staff.motherFamilyName
       }_Contract`;
     } else if (documentType === 'internalRules') {
-      doc = staff.staffContract.internalRulesDoc;
+      doc = staff.internalRulesDoc;
       docName = `${staff.firstName}-${staff.fatherFamilyName}-${
         staff.motherFamilyName
       }_Internal-Rules`;
     } else if (documentType === 'preContract') {
-      doc = staff.staffContract.preContractDoc;
+      doc = staff.preContractDoc;
       docName = `${staff.firstName}-${staff.fatherFamilyName}-${
         staff.motherFamilyName
       }_PreContract`;
@@ -202,15 +208,15 @@ export class StaffProfile extends Component {
     switch (documentType) {
       case 'contract':
         return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffContract.contractDoc
+          staff.contractDoc
         }`;
       case 'internalRules':
         return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffContract.internalRulesDoc
+          staff.internalRulesDoc
         }`;
       case 'preContract':
         return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffContract.preContractDoc
+          staff.preContractDoc
         }`;
       case 'ID Card':
         return `data:${this.handleFileDataType(docExtension)};base64,${
@@ -249,7 +255,9 @@ export class StaffProfile extends Component {
   };
 
   handleUpload = () => {
-    const { staff, setStaffData } = this.props;
+    const {
+      setStaff, staff, updateStaff, getAllStaff
+    } = this.props;
     // const PP = this.profilePicture.current;
     /* const imageData = PP.getData();
         const file = imageData.file; */
@@ -260,20 +268,25 @@ export class StaffProfile extends Component {
       ...staff,
       photo
     };
-    StaffService.updateStaff(
-      staff.staffId,
-      staff.address.city._id,
-      newStaff
-    ).then(({ data }) => {
-      this.setState(
-        {
-          photo,
-          isChangeProfilePic: false
-        },
-        () => {
-          setStaffData(data);
-        }
-      );
+
+    const promise = new Promise(resolve => {
+      updateStaff(newStaff);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+        setEdit(false);
+        StaffService.getStaffById(staff.staffId).then(({ data }) => {
+          setStaff(data);
+          this.setState({
+            isEditData: false
+          });
+        });
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
@@ -368,7 +381,7 @@ export class StaffProfile extends Component {
           spacing={4}
           direction="row"
           justify="center"
-          alignItems="start"
+          alignItems="flex-start"
         >
           <Grid
             item
@@ -612,8 +625,8 @@ export class StaffProfile extends Component {
                   }}
                   color="secondary"
                 >
-                  {staff.level
-                    ? `Current Level : ${staff.level.type}`
+                  {staff.levelType
+                    ? `Current Level : ${staff.levelType}`
                     : 'Level : none '}
                 </Typography>
               </div>
@@ -714,7 +727,7 @@ export class StaffProfile extends Component {
                   id="1"
                   hidden={value !== 1}
                 >
-                  <StaffProfileContractInformation data={staff} />
+                  <StaffProfileContractInformation />
                 </Paper>
 
                 <Paper
@@ -727,9 +740,7 @@ export class StaffProfile extends Component {
                   id="2"
                   hidden={value !== 2}
                 >
-                  <StaffProfileEconomicContractInformation
-                    data={staff.staffEconomicContractInformation}
-                  />
+                  <StaffProfileEconomicContractInformation />
                 </Paper>
               </div>
             </div>
@@ -740,22 +751,19 @@ export class StaffProfile extends Component {
   }
 }
 
-StaffProfile.propTypes = {
-  classes: PropTypes.object.isRequired,
-  staff: PropTypes.object.isRequired,
-  showProfile: PropTypes.func.isRequired,
-  isEdit: PropTypes.bool.isRequired,
-  setStaffData: PropTypes.func.isRequired
-};
-
 const mapStateToProps = state => ({
-  staff: state.get('staffs').selectedStaff,
-  isEdit: state.get('staffs').isEditStaff
+  staff: state.getIn(['staffs']).selectedStaff,
+  isEdit: state.getIn(['staffs']).isEditStaff
 });
 
-const mapDispatchToProps = dispatch => ({
-  setStaffData: bindActionCreators(setStaff, dispatch)
-});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    updateStaff,
+    getAllStaff,
+    setStaff
+  },
+  dispatch
+);
 
 const StaffProfileMapped = connect(
   mapStateToProps,
