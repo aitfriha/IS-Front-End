@@ -21,7 +21,7 @@ class Contact extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Contacts" icon="ios-people-outline" noMargin>
+        <PapperBlock title="Contacts" icon="ios-people-outline" desc="" noMargin>
           <ContactBlock />
         </PapperBlock>
       </div>

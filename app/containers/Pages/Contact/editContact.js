@@ -70,16 +70,12 @@ const reader = new FileReader();
 
 const useStyles = makeStyles(styles);
 
-class AddContact extends React.Component {
+class EditContact extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {};
     this.state = {
       isChangeProfilePic: false,
-      isPersonalInformation: true,
-      isGeneralContractInformation: false,
-      isEconomicContractInformation: false,
-      isStaffDocumentation: false,
       firstName: '',
       fatherFamilyName: '',
       motherFamilyName: '',
@@ -90,76 +86,9 @@ class AddContact extends React.Component {
       companyMobilePhone: '',
       companyEmail: '',
       skype: '',
-      birthday: new Date(),
-      birthCountry: '',
-      emergencyContactName: '',
-      emergencyContactPhone: '',
       photo: '',
       fullAddress: '',
-      company: {},
-      adCountry: {},
-      postCode: '',
-      state: {},
       city: {},
-      contractType: '',
-      legalCategoryType: '',
-      associateOffice: '',
-      hiringCountry: '',
-      hiringState: '',
-      townContract: '',
-      personalNumber: '',
-      highDate: new Date(),
-      lowDate: new Date(),
-      registrationDate: new Date(),
-      preContractDate: new Date(),
-      internalRulesDoc: {},
-      contractDoc: {},
-      preContractDoc: {},
-      countries: [],
-      states: [],
-      idCardNumber: '',
-      idCardExpeditionDate: new Date(),
-      idCardExpirationDate: new Date(),
-      passportNumber: '',
-      passportExpeditionDate: new Date(),
-      passportExpirationDate: new Date(),
-      professionalIdCardNumber: '',
-      professionalIdCardExpeditionDate: new Date(),
-      professionalIdCardExpirationDate: new Date(),
-      hnsCardNumber: '',
-      hnsCardExpeditionDate: new Date(),
-      hnsCardExpirationDate: new Date(),
-      idCardDoc: {},
-      passportDoc: {},
-      professionalIdCardDoc: {},
-      hnsCardDoc: {},
-      idCardDocExtension: '',
-      passportDocExtension: '',
-      professionalIdCardDocExtension: '',
-      hnsCardDocExtension: '',
-      contractTypes: [],
-      legalCategoryTypes: [],
-      contractSalary: 0,
-      companyContractCost: 0,
-      expenses: 0,
-      companyExpensesCost: 0,
-      objectives: 0,
-      companyObjectivesCost: 0,
-      totalCompanyCost: 0,
-      contractSalaryDateGoing: new Date(),
-      contractSalaryDateOut: new Date(),
-      companyContractCostDateGoing: new Date(),
-      companyContractCostDateOut: new Date(),
-      expensesDateGoing: new Date(),
-      expensesDateOut: new Date(),
-      companyExpensesCostDateGoing: new Date(),
-      companyExpensesCostDateOut: new Date(),
-      objectivesDateGoing: new Date(),
-      objectivesDateOut: new Date(),
-      companyObjectivesCostDateGoing: new Date(),
-      companyObjectivesCostDateOut: new Date(),
-      totalCompanyCostDateGoing: new Date(),
-      totalCompanyCostDateOut: new Date()
     };
   }
 
@@ -275,8 +204,6 @@ class AddContact extends React.Component {
   }
 
   render() {
-    const title = brand.name + ' - Clients';
-    const description = brand.desc;
     const {
       classes, isLoadingContact, contactResponse, errorsContact, allClients
     } = this.props;
@@ -299,14 +226,6 @@ class AddContact extends React.Component {
     (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
     return (
       <div>
-        <Helmet>
-          <title>{title}</title>
-          <meta name="description" content={description} />
-          <meta property="og:title" content={title} />
-          <meta property="og:description" content={description} />
-          <meta property="twitter:title" content={title} />
-          <meta property="twitter:description" content={description} />
-        </Helmet>
         <Dialog
           disableBackdropClick
           disableEscapeKeyDown
@@ -337,12 +256,7 @@ class AddContact extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-
-        <PapperBlock
-          title="New contact"
-          desc="Please, Fill in the all field"
-          icon="ios-person"
-        >
+        <div>
           <div>
             <Grid
               container
@@ -583,7 +497,7 @@ class AddContact extends React.Component {
               Save Contact
             </Button>
           </div>
-        </PapperBlock>
+        </div>
       </div>
     );
   }
@@ -614,5 +528,5 @@ export default withStyles(styles)(
   connect(
     mapStateToProps,
     mapDispatchToProps
-  )(AddContact)
+  )(EditContact)
 );
