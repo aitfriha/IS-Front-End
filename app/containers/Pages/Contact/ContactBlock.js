@@ -14,84 +14,300 @@ const columns = [
     name: 'firstName',
     label: 'first Name',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'father Family Name',
     name: 'fatherFamilyName',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'mother Family Name',
     name: 'motherFamilyName',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'department',
     name: 'department',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'position',
     name: 'position',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'Name',
     name: 'name',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'company Fix Phone',
     name: 'companyFixPhone',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'company Mobile Phone',
     name: 'companyMobilePhone',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'company Email',
     name: 'companyEmail',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'personal Mobile Phone',
     name: 'personalMobilePhone',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'personal Email',
     name: 'personalEmail',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
   {
     label: 'Skype',
     name: 'skype',
     options: {
-      filter: true
+      filter: true,
+      setCellProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: "0",
+          background: "white",
+          zIndex: 100
+        }
+      }),
+      setCellHeaderProps: () => ({
+        style: {
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          background: "white",
+          zIndex: 101
+        }
+      })
     }
   },
 ];
@@ -104,6 +320,8 @@ class ContactBlock extends React.Component {
   render() {
     const { allContacts } = this.props;
     const options = {
+      fixedHeader: true,
+      fixedSelectColumn: false,
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',

@@ -47,6 +47,7 @@ import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
+import { addContact } from '../../../redux/contact/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -84,7 +85,7 @@ class AddStaff extends React.Component {
       motherFamilyName: '',
       personalPhone: '',
       personalEmail: '',
-      companyName: '',
+      companyId: '',
       companyPhone: '',
       companyMobilePhone: '',
       companyEmail: '',
@@ -165,7 +166,7 @@ class AddStaff extends React.Component {
   profilePictureRef = React.createRef();
 
   componentDidMount() {
-    // const { changeTheme } = this.props;
+    const { getAllClient } = this.props;
     // changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
@@ -174,28 +175,7 @@ class AddStaff extends React.Component {
   }
 
   handleChange = ev => {
-    const {
-      personalPhone,
-      companyPhone,
-      companyMobilePhone,
-      emergencyContactPhone
-    } = this.state;
-    if (ev.target.name === 'adCountry') {
-      this.setState({
-        personalPhone: ev.target.value.phonePrefix + personalPhone,
-        companyPhone: ev.target.value.phonePrefix + companyPhone,
-        companyMobilePhone: ev.target.value.phonePrefix + companyMobilePhone,
-        emergencyContactPhone:
-          ev.target.value.phonePrefix + emergencyContactPhone
-      });
-    }
-    if (ev.target.name === 'companyName') {
-      LegalCategoryTypeService.getAllLegalCategoryTypesByCompany(
-        ev.target.value
-      ).then(({ data }) => {
-        this.setState({ legalCategoryTypes: data });
-      });
-    }
+    console.log(ev.target.name);
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
@@ -206,12 +186,12 @@ class AddStaff extends React.Component {
   };
 
   handleSubmitStaff = () => {
-    const { saveStaff, getAllStaff } = this.props;
+    const { addContact, getAllStaff } = this.props;
     const {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyName,
+      companyId,
       department,
       position,
       companyFixPhone,
@@ -221,15 +201,17 @@ class AddStaff extends React.Component {
       personalEmail,
       skype,
       photo,
+      city,
+      fullAddress,
+      postCode
     } = this.state;
 
-    console.log(city);
 
     const contact = {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyName,
+      companyId,
       department,
       position,
       companyFixPhone,
@@ -239,8 +221,11 @@ class AddStaff extends React.Component {
       personalEmail,
       skype,
       photo,
+      cityId:city.cityId,
+      fullAddress,
+      postCode
     };
-
+    console.log(contact);
     const promise = new Promise(resolve => {
       // get client information
       addContact(contact);
@@ -249,7 +234,7 @@ class AddStaff extends React.Component {
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
-        getAllStaff();
+        //   getAllStaff();
       } else {
         notification('danger', result);
       }
@@ -282,20 +267,23 @@ class AddStaff extends React.Component {
   };
 
   handleChangeCompany = (ev, value) => {
-    console.log(value.name);
+    this.setState({ companyId: value.clientId });
   };
+
+  onChangeInput = () => {
+
+  }
 
   render() {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, isLoadingStaff, staffResponse, errorStaff, allClients
+      classes, isLoadingContact, contactResponse, errorsContact, allClients
     } = this.props;
     const {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyName,
       department,
       position,
       companyFixPhone,
@@ -307,23 +295,8 @@ class AddStaff extends React.Component {
       photo,
       isChangeProfilePic,
     } = this.state;
-    const companies = [
-      { name: 'TechniU', phone: '+21265482154', email: 'techniU@gmail.com' },
-      {
-        name: 'Implemental Systems',
-        phone: '+21265482154',
-        email: 'implemental@gmail.com'
-      },
-      {
-        name: 'International GDE',
-        phone: '+21265482154',
-        email: 'internationalgde@gmail.com'
-      }
-    ];
-    !isLoadingStaff
-      && staffResponse
-      && this.editingPromiseResolve(staffResponse);
-    !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
+    (!isLoadingContact && contactResponse) && this.editingPromiseResolve(contactResponse);
+    (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
     return (
       <div>
         <Helmet>
@@ -484,6 +457,20 @@ class AddStaff extends React.Component {
                     />
                   )}
                 />
+                {/*                <FormControl
+                    className={classes.formControl}
+                    style={{ width: '48%' }}
+                    required
+                >
+                  <InputLabel>Type</InputLabel>
+                  <Select name="type"  onChange={this.handleChange}>
+                    {allClients && allClients.map(tp => (
+                        <MenuItem key={tp} value={tp.name}>
+                          {tp.name}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl> */}
                 <TextField
                   id="outlined-basic"
                   label="Department"
@@ -604,10 +591,11 @@ class AddStaff extends React.Component {
 
 
 const mapStateToProps = state => ({
-  allStaff: state.getIn(['staffs']).allStaff,
-  staffResponse: state.getIn(['staffs']).staffResponse,
-  isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorsStaff: state.getIn(['staffs']).errors,
+  // contacts
+  allContacts: state.getIn(['contacts']).allContacts,
+  contactResponse: state.getIn(['contacts']).contactResponse,
+  isLoadingContact: state.getIn(['contacts']).isLoading,
+  errorsContact: state.getIn(['contacts']).errors,
   // client
   allClients: state.getIn(['clients']).allClients,
   clientResponse: state.getIn(['clients']).clientResponse,
@@ -616,7 +604,8 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    getAllClient
+    getAllClient,
+    addContact
   },
   dispatch
 );
