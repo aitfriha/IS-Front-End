@@ -23,8 +23,15 @@ class ContactBlock extends React.Component {
     this.state = {
       openPopUp: false,
       data: [],
-      selectedClient: [],
+      selectedContact: {},
       columns: [
+        {
+          name: 'contactId',
+          label: 'contactId',
+          options: {
+            display: 'excluded'
+          }
+        },
         {
           name: 'firstName',
           label: 'first Name',
@@ -342,12 +349,24 @@ class ContactBlock extends React.Component {
     };
   }
 
+  handleClose = () => {
+    this.setState({ openPopUp: false });
+  };
+
   handleDetails = (data) => {
     /* const { getAllStateByCountry, getAllCityByState } = this.props;
     this.setState({ selectedClient: data });
     getAllStateByCountry(data[21]);
     this.setState({ openPopUp: true });
     getAllCityByState(data[22]); */
+    console.log(data);
+    const { allContacts } = this.props;
+    for (const key in allContacts) {
+      if (allContacts[key].contactId === data[0]) {
+        this.setState({ selectedContact: allContacts[key] });
+        break;
+      }
+    }
     this.setState({ openPopUp: true });
   }
 
@@ -358,7 +377,7 @@ class ContactBlock extends React.Component {
 
   render() {
     const { allContacts } = this.props;
-    const { columns, openPopUp } = this.state;
+    const { columns, openPopUp, selectedContact } = this.state;
     const options = {
       fixedHeader: true,
       fixedSelectColumn: false,
@@ -390,9 +409,9 @@ class ContactBlock extends React.Component {
           fullWidth=""
           maxWidth=""
         >
-          <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
+          <DialogTitle id="alert-dialog-slide-title"> update contact</DialogTitle>
           <DialogContent dividers>
-            <EditContact  />
+            <EditContact selectedContact={selectedContact} />
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleClose}>

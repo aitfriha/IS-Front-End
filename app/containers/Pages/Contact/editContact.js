@@ -1,13 +1,8 @@
 import React, { useContext } from 'react';
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { PapperBlock } from 'dan-components';
 import {
   Grid,
-  FormControl,
   TextField,
   Button,
-  Collapse,
   Badge,
   Tooltip,
   Dialog,
@@ -16,38 +11,26 @@ import {
   DialogActions,
   Avatar,
   withStyles,
-  makeStyles,
-  Paper,
   Chip,
   Divider,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
-  Typography
 } from '@material-ui/core';
 import ProfilePicture from 'profile-picture';
 import 'profile-picture/build/ProfilePicture.css';
 import '../Configurations/map/app.css';
-import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
-import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
 import EditRoundedIcon from '@material-ui/core/SvgIcon/SvgIcon';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import styles from '../Staff/staff-jss';
 import CountryService from '../../Services/CountryService';
-import StateCountryService from '../../Services/StateCountryService';
-import ContractTypeService from '../../Services/ContractTypeService';
-import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
-import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
 import { addContact } from '../../../redux/contact/actions';
+import { getAllCountry } from '../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -56,19 +39,6 @@ const SmallAvatar = withStyles(theme => ({
     border: `2px solid ${theme.palette.background.paper}`
   }
 }))(Avatar);
-
-const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
-
-const inputContractDoc = React.createRef();
-const inputInternalRulesDoc = React.createRef();
-const inputPreContractDoc = React.createRef();
-const inputIdCardDoc = React.createRef();
-const inputPassportDoc = React.createRef();
-const inputProfessionalIdCardDoc = React.createRef();
-const inputHnsCardDoc = React.createRef();
-const reader = new FileReader();
-
-const useStyles = makeStyles(styles);
 
 class EditContact extends React.Component {
   constructor(props) {
@@ -82,24 +52,35 @@ class EditContact extends React.Component {
       personalPhone: '',
       personalEmail: '',
       companyId: '',
+      department: '',
       companyPhone: '',
+      position: '',
+      companyFixPhone: '',
       companyMobilePhone: '',
       companyEmail: '',
+      personalMobilePhone: '',
       skype: '',
       photo: '',
       fullAddress: '',
+      postCode: '',
       city: {},
+      keyCountry:'',
+      keyState:'',
+      keyCity:'',
+      fullAddress:'',
     };
   }
 
-  profilePictureRef = React.createRef();
-
   componentDidMount() {
-    const { getAllClient } = this.props;
+    const {
+      getAllCountry, selectedContact, getAllStateByCountry, getAllClient
+    } = this.props;
+    getAllCountry();
+    getAllStateByCountry(selectedContact.contactId);
     // changeTheme('blueCyanTheme');
-    CountryService.getCountries().then(({ data }) => {
+    /*    CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
-    });
+    }); */
     getAllClient();
   }
 
@@ -114,8 +95,50 @@ class EditContact extends React.Component {
     });
   };
 
+  componentWillReceiveProps(newProps) {
+    this.setState({ firstName: newProps.selectedContact.firstName });
+    this.setState({ fatherFamilyName: newProps.selectedContact.fatherFamilyName });
+    this.setState({ motherFamilyName: newProps.selectedContact.motherFamilyName });
+    this.setState({ department: newProps.selectedContact.department });
+    this.setState({ position: newProps.selectedContact.position });
+
+    this.setState({ companyFixPhone: newProps.selectedContact.companyFixPhone });
+    this.setState({ companyMobilePhone: newProps.selectedContact.companyMobilePhone });
+    this.setState({ companyEmail: newProps.selectedContact.companyEmail });
+    this.setState({ personalMobilePhone: newProps.selectedContact.personalMobilePhone });
+
+    this.setState({ personalEmail: newProps.selectedContact.personalEmail });
+    this.setState({ skype: newProps.selectedContact.skype });
+
+    this.setState({ fullAddress: newProps.selectedContact.fullAddress });
+    this.setState({ postCode: newProps.selectedContact.postCode });
+
+    if (newProps.selectedContact !== this.props.selectedContact) {
+      // console.log(newProps.selectedClient);
+      for (const key in newProps.allCountrys) {
+        if (newProps.allCountrys[key].countryName === newProps.selectedContact.countryName) {
+          this.setState({ keyCountry: newProps.allCountrys[key] });
+          break;
+        }
+      }
+    }
+    for (const key in newProps.allStateCountrys) {
+      if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedContact.stateName) {
+        this.setState({ keyState: newProps.allStateCountrys[key] });
+        break;
+      }
+    }
+    for (const key in newProps.allCitys) {
+      if (newProps.allCitys[key].cityName === newProps.selectedContact.cityName) {
+        this.setState({ keyCity: newProps.allCitys[key] });
+        this.setState({ cityId: newProps.allCitys[key].cityId });
+        break;
+      }
+    }
+  }
+
   handleSubmitStaff = () => {
-    const { addContact, getAllStaff } = this.props;
+    const { addContact } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -150,7 +173,7 @@ class EditContact extends React.Component {
       personalEmail,
       skype,
       photo,
-      cityId:city.cityId,
+      cityId: city.cityId,
       fullAddress,
       postCode
     };
@@ -205,7 +228,8 @@ class EditContact extends React.Component {
 
   render() {
     const {
-      classes, isLoadingContact, contactResponse, errorsContact, allClients
+      classes, isLoadingContact, contactResponse, errorsContact, allClients,
+      allCountrys, allCitys, allStateCountrys
     } = this.props;
     const {
       firstName,
@@ -221,6 +245,11 @@ class EditContact extends React.Component {
       skype,
       photo,
       isChangeProfilePic,
+      keyCountry,
+      keyState,
+      keyCity,
+      fullAddress,
+      postCode
     } = this.state;
     (!isLoadingContact && contactResponse) && this.editingPromiseResolve(contactResponse);
     (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
@@ -481,7 +510,76 @@ class EditContact extends React.Component {
                   style={{ marginBottom: '10px', marginTop: '10px' }}
                 />
                 <div style={{ marginTop: 25 }}>
-                  <AddressBlock onChangeInput={this.handleChange} />
+                  {/* <AddressBlock onChangeInput={this.handleChange} /> */}
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={allCountrys}
+                    getOptionLabel={option => option.countryName}
+                    value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
+                    onChange={this.handleChangeCountry}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Choose the country"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={allStateCountrys}
+                    getOptionLabel={option => option.stateName}
+                    value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
+                    onChange={this.handleChangeState}
+                    style={{ marginTop: 15 }}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Choose the state"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={allCitys}
+                    getOptionLabel={option => option.cityName}
+                    value={allCitys.find(v => v.cityName === keyCity.cityName) || ''}
+                    onChange={this.handleChangeCity}
+                    style={{ marginTop: 15 }}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Choose the city"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Name of address"
+                    variant="outlined"
+                    name="fullAddress"
+                    fullWidth
+                    required
+                    value={fullAddress}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Post Code"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    name="postCode"
+                    value={postCode}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
                 </div>
               </Grid>
             </Grid>
@@ -515,11 +613,29 @@ const mapStateToProps = state => ({
   clientResponse: state.getIn(['clients']).clientResponse,
   isLoading: state.getIn(['clients']).isLoading,
   errors: state.getIn(['clients']).errors,
+  // country
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoadingCounty: state.getIn(['countries']).isLoading,
+  errorsCountry: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getAllClient,
-    addContact
+    addContact,
+    getAllCountry,
+    getAllStateByCountry,
+    getAllCityByState
   },
   dispatch
 );
