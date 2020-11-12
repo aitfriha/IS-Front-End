@@ -1,21 +1,23 @@
 import React from 'react';
 import MUIDataTable from 'mui-datatables';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import DetailsIcon from '@material-ui/icons/Details';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle
+  Dialog, DialogContent, DialogTitle
 } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import EditContract from './editContract';
+import ContractService from '../../../Services/ContractService';
 
 class CompaniesBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       openPopUp: false,
-      data: [],
+      contract: {},
+      datas: [],
       columns: [
         {
           label: ' ',
@@ -36,31 +38,58 @@ class CompaniesBlock extends React.Component {
           }
         },
         {
-          name: 'client',
-          label: 'Client',
+          label: 'Title',
+          name: 'contractTitle',
           options: {
             filter: true
           }
         },
         {
-          name: 'operation',
+          name: 'client',
+          label: 'Client',
+          options: {
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                { value.name }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'commercialOperation',
           label: 'Operation',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                { value.name }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Company',
-          name: 'company',
+          name: 'financialCompany',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                { value.name }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'State',
-          name: 'state',
+          name: 'contractStatus',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                { value.statusName }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -78,7 +107,7 @@ class CompaniesBlock extends React.Component {
           }
         },
         {
-          name: 'endDate',
+          name: 'finalReelDate',
           label: 'End Date',
           options: {
             filter: true
@@ -92,31 +121,65 @@ class CompaniesBlock extends React.Component {
           }
         },
         {
-          name: 'amount',
+          name: 'conceptTotalAmount',
+          label: 'Amount ',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Currency',
+          name: 'currency',
+          options: {
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                { value.currencyCode }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'conceptTotalAmountEuro',
           label: 'Amount (€)',
           options: {
             filter: true
           }
         },
         {
-          name: 'penalties',
-          label: 'Penalties',
+          name: 'penaltyValue',
+          label: 'penalties',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (penaltyValue) => (
+              <React.Fragment>
+                { penaltyValue.length > 1 ? 'Yes' : 'No' }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'insure',
+          name: 'amountInsured',
           label: 'Insure',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (amountInsured) => (
+              <React.Fragment>
+                { amountInsured > 0 ? 'Yes' : 'No' }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'purchaseOrder',
+          name: 'purchaseOrderNumber',
           label: 'Purchase Order',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (purchaseOrderNumber) => (
+              <React.Fragment>
+                { purchaseOrderNumber.length > 1 ? 'Yes' : 'No' }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -126,16 +189,15 @@ class CompaniesBlock extends React.Component {
             filter: false,
             sort: false,
             empty: true,
-            customBodyRender: () => (
-              <div>
-                <Grid container spacing={1}>
-                  <Grid item xs={4}>
-                    <IconButton onClick={() => this.handleDetails()}>
-                      <DetailsIcon color="secondary" />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </div>
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                  <DetailsIcon color="secondary" />
+                </IconButton>
+                <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                  <DeleteIcon color="primary" />
+                </IconButton>
+              </React.Fragment>
             )
           }
         }
@@ -144,64 +206,68 @@ class CompaniesBlock extends React.Component {
   }
 
   // eslint-disable-next-line react/sort-comp
-  handleDetails = () => {
-    this.setState({ openPopUp: true });
+  handleDetails = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].financialContractId;
+    ContractService.getContractById(id).then(result => {
+      const contract = result.data;
+      this.setState({ openPopUp: true, contract });
+    });
   }
+
+  handleDelete = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].financialContractId;
+    ContractService.deleteContract(id).then(result => {
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        const date1 = new Date(row.finalReelDate);
+        const date2 = new Date(row.startDate);
+        const durationS = date1.getTime() - date2.getTime();
+        const durationM = Math.round(((durationS / 86400000) / 30) + 0.4);
+        row.duration = durationM;
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length > 1) row.isActive = 'Yes';
+        if (row.purchaseOrderNumber.length <= 1) row.isActive = 'No';
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
+      });
+      this.setState({ datas: result.data });
+    });
+  };
 
   handleClose = () => {
     this.setState({ openPopUp: false });
   };
 
-  componentDidMount() {}
+  myCallback = (dataFromChild) => {
+    this.setState({ openPopUp: dataFromChild });
+  };
+
+  componentDidMount() {
+    ContractService.getContract().then(result => {
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        const date1 = new Date(row.finalReelDate);
+        const date2 = new Date(row.startDate);
+        const durationS = date1.getTime() - date2.getTime();
+        const durationM = Math.round(((durationS / 86400000) / 30) + 0.4);
+        row.duration = durationM;
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length > 1) row.isActive = 'Yes';
+        if (row.purchaseOrderNumber.length <= 1) row.isActive = 'No';
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
+      });
+      this.setState({ datas: result.data });
+      console.log(this.state);
+    });
+  }
 
   render() {
-    const { data, columns, openPopUp } = this.state;
-    const datas = [
-      {
-        operation: 'Evolution ISFlights 14',
-        client: 'WFS-FRANCIA',
-        company: 'Implemental System',
-        state: 'FINISHED',
-        signedDate: '17/11/2019',
-        startDate: '01/01/2020',
-        endDate: '01/01/2021',
-        duration: '12 Months',
-        amount: '850000',
-        penalties: 'Yes',
-        purchaseOrder: 'No',
-        insure: 'No',
-        isActive: 'No'
-      },
-      {
-        operation: 'Evolution SSRS 3',
-        client: 'WFS-FRANCIA',
-        company: ' TechniBout',
-        state: 'SIGNED',
-        signedDate: '01/10/2020',
-        startDate: '01/01/2020',
-        endDate: '31/12/2023',
-        duration: '35 Months',
-        amount: '95000000',
-        penalties: 'Yes',
-        purchaseOrder: 'Yes',
-        insure: 'Yes',
-        isActive: 'Zombie'
-      },
-      {
-        operation: 'Evolution ISFlights 14',
-        client: 'Water Supply',
-        company: 'TechniU ',
-        state: ' IN PROGRESS',
-        signedDate: '01/10/2018',
-        startDate: '01/01/2019',
-        endDate: '01/06/2020',
-        duration: '17 Months',
-        amount: '1000000',
-        penalties: 'Yes',
-        purchaseOrder: 'Yes',
-        insure: 'Yes',
-        isActive: 'Yes'
-      }];
+    const {
+      datas, columns, openPopUp, contract
+    } = this.state;
     const options = {
       filter: true,
       selectableRows: false,
@@ -210,7 +276,7 @@ class CompaniesBlock extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={data}
+          csvData={datas}
           url="/app/gestion-financial/Add-Contract"
           tooltip="add new Contract"
         />
@@ -237,20 +303,8 @@ class CompaniesBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
           <DialogContent dividers>
-            <EditContract />
+            <EditContract Info={contract} callbackFromParent={this.myCallback} />
           </DialogContent>
-          <DialogActions>
-            <Button color="secondary" onClick={this.handleClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleClose}
-            >
-              save
-            </Button>
-          </DialogActions>
         </Dialog>
       </div>
     );
