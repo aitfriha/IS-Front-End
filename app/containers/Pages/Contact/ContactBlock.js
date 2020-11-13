@@ -16,6 +16,9 @@ import { getAllClient } from '../../../redux/client/actions';
 import { getAllContact } from '../../../redux/contact/actions';
 import CountryService from '../../Services/CountryService';
 import EditContact from './editContact';
+import EditClient from "../Clients/EditClient";
+import { getAllStateByCountry } from "../../../redux/stateCountry/actions";
+import { getAllCityByState } from "../../../redux/city/actions";
 
 class ContactBlock extends React.Component {
   constructor(props) {
@@ -359,11 +362,13 @@ class ContactBlock extends React.Component {
     getAllStateByCountry(data[21]);
     this.setState({ openPopUp: true });
     getAllCityByState(data[22]); */
-    console.log(data);
-    const { allContacts } = this.props;
+
+    const { allContacts,getAllStateByCountry,getAllCityByState } = this.props;
     for (const key in allContacts) {
       if (allContacts[key].contactId === data[0]) {
         this.setState({ selectedContact: allContacts[key] });
+        getAllStateByCountry(allContacts[key].countryId);
+        getAllCityByState(allContacts[key].countryStateId);
         break;
       }
     }
@@ -376,7 +381,7 @@ class ContactBlock extends React.Component {
   }
 
   render() {
-    const { allContacts } = this.props;
+    const { allContacts, allStateCountrys, allCitys } = this.props;
     const { columns, openPopUp, selectedContact } = this.state;
     const options = {
       fixedHeader: true,
@@ -409,9 +414,9 @@ class ContactBlock extends React.Component {
           fullWidth=""
           maxWidth=""
         >
-          <DialogTitle id="alert-dialog-slide-title"> update contact</DialogTitle>
+          <DialogTitle id="alert-dialog-slide-title"> Update contact</DialogTitle>
           <DialogContent dividers>
-            <EditContact selectedContact={selectedContact} />
+            <EditContact selectedContact={ selectedContact} allStateCountrys={allStateCountrys} allCitys={allCitys} handleClose={this.handleClose} />
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleClose}>
@@ -439,10 +444,23 @@ const mapStateToProps = state => ({
   contactResponse: state.getIn(['contacts']).contactResponse,
   isLoading: state.getIn(['contacts']).isLoading,
   errors: state.getIn(['contacts']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    getAllContact
+    getAllContact,
+    getAllStateByCountry,
+    getAllCityByState
   },
   dispatch
 );

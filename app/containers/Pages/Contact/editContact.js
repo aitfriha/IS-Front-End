@@ -27,7 +27,7 @@ import CountryService from '../../Services/CountryService';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
-import { addContact } from '../../../redux/contact/actions';
+import { addContact, updateContact } from '../../../redux/contact/actions';
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
@@ -47,6 +47,7 @@ class EditContact extends React.Component {
     this.state = {
       isChangeProfilePic: false,
       firstName: '',
+      cityId: '',
       fatherFamilyName: '',
       motherFamilyName: '',
       personalPhone: '',
@@ -64,10 +65,11 @@ class EditContact extends React.Component {
       fullAddress: '',
       postCode: '',
       city: {},
-      keyCountry:'',
-      keyState:'',
-      keyCity:'',
-      fullAddress:'',
+      keyCountry: {},
+      keyState: {},
+      keyCity: {},
+      keyClient: {},
+      contactId:'',
     };
   }
 
@@ -75,8 +77,10 @@ class EditContact extends React.Component {
     const {
       getAllCountry, selectedContact, getAllStateByCountry, getAllClient
     } = this.props;
+    console.log(selectedContact);
     getAllCountry();
-    getAllStateByCountry(selectedContact.contactId);
+    // console.log(selectedContact)
+    // getAllStateByCountry(selectedContact.countryName);
     // changeTheme('blueCyanTheme');
     /*    CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
@@ -96,6 +100,7 @@ class EditContact extends React.Component {
   };
 
   componentWillReceiveProps(newProps) {
+    this.setState({ contactId: newProps.selectedContact.contactId });
     this.setState({ firstName: newProps.selectedContact.firstName });
     this.setState({ fatherFamilyName: newProps.selectedContact.fatherFamilyName });
     this.setState({ motherFamilyName: newProps.selectedContact.motherFamilyName });
@@ -122,28 +127,53 @@ class EditContact extends React.Component {
         }
       }
     }
-    for (const key in newProps.allStateCountrys) {
-      if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedContact.stateName) {
-        this.setState({ keyState: newProps.allStateCountrys[key] });
-        break;
+    if (newProps.allStateCountrys === this.props.allStateCountrys) {
+      for (const key in newProps.allStateCountrys) {
+        console.log(newProps.allStateCountrys);
+        if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedContact.countryStateId) {
+          this.setState({ keyState: newProps.allStateCountrys[key] });
+          break;
+        }
       }
-    }
-    for (const key in newProps.allCitys) {
-      if (newProps.allCitys[key].cityName === newProps.selectedContact.cityName) {
-        this.setState({ keyCity: newProps.allCitys[key] });
-        this.setState({ cityId: newProps.allCitys[key].cityId });
-        break;
+      for (const key in this.props.allClients) {
+        if (this.props.allClients[key].clientId === newProps.selectedContact.companyId) {
+          this.setState({ keyClient: this.props.allClients[key]  });
+          break;
+        }
+      }
+      for (const key in newProps.allCitys) {
+        if (newProps.allCitys[key].cityName === newProps.selectedContact.cityName) {
+          this.setState({ keyCity: newProps.allCitys[key] });
+          this.setState({ cityId: newProps.allCitys[key].cityId });
+          break;
+        }
       }
     }
   }
 
-  handleSubmitStaff = () => {
-    const { addContact } = this.props;
+  handleChangeCountry = (ev, value) => {
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+    this.setState({ keyCountry: value });
+  };
+
+  handleChangeState = (ev, value) => {
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+    this.setState({ keyState: value });
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ cityId: value.cityId });
+    this.setState({ keyCity: value });
+  };
+
+  handleSubmitContact = () => {
+    const { updateContact } = this.props;
     const {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyId,
       department,
       position,
       companyFixPhone,
@@ -153,9 +183,11 @@ class EditContact extends React.Component {
       personalEmail,
       skype,
       photo,
-      city,
+      cityId,
       fullAddress,
-      postCode
+      postCode,
+      keyClient,
+      contactId
     } = this.state;
 
 
@@ -163,7 +195,6 @@ class EditContact extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyId,
       department,
       position,
       companyFixPhone,
@@ -173,18 +204,22 @@ class EditContact extends React.Component {
       personalEmail,
       skype,
       photo,
-      cityId: city.cityId,
+      cityId,
       fullAddress,
-      postCode
+      postCode,
+      contactId,
+      companyId: keyClient.clientId
     };
     console.log(contact);
     const promise = new Promise(resolve => {
       // get client information
-      addContact(contact);
+      updateContact(contact);
       this.editingPromiseResolve = resolve;
     });
+
     promise.then(result => {
       if (isString(result)) {
+        this.props.handleClose();
         notification('success', result);
         //   getAllStaff();
       } else {
@@ -220,16 +255,13 @@ class EditContact extends React.Component {
 
   handleChangeCompany = (ev, value) => {
     this.setState({ companyId: value.clientId });
+    this.setState({ keyClient: value  });
   };
-
-  onChangeInput = () => {
-
-  }
 
   render() {
     const {
       classes, isLoadingContact, contactResponse, errorsContact, allClients,
-      allCountrys, allCitys, allStateCountrys
+      allCountrys, allCitys, allStateCountrys, selectedContact
     } = this.props;
     const {
       firstName,
@@ -248,8 +280,9 @@ class EditContact extends React.Component {
       keyCountry,
       keyState,
       keyCity,
+      keyClient,
       fullAddress,
-      postCode
+      postCode,
     } = this.state;
     (!isLoadingContact && contactResponse) && this.editingPromiseResolve(contactResponse);
     (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
@@ -390,6 +423,7 @@ class EditContact extends React.Component {
                   id="combo-box-demo"
                   options={allClients && allClients}
                   getOptionLabel={option => (option ? option.name : '')}
+                  value={allClients.find(v => v.name === keyClient.name) || ''}
                   onChange={this.handleChangeCompany}
                   renderInput={params => (
                     <TextField
@@ -400,20 +434,6 @@ class EditContact extends React.Component {
                     />
                   )}
                 />
-                {/*                <FormControl
-                    className={classes.formControl}
-                    style={{ width: '48%' }}
-                    required
-                >
-                  <InputLabel>Type</InputLabel>
-                  <Select name="type"  onChange={this.handleChange}>
-                    {allClients && allClients.map(tp => (
-                        <MenuItem key={tp} value={tp.name}>
-                          {tp.name}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl> */}
                 <TextField
                   id="outlined-basic"
                   label="Department"
@@ -590,9 +610,9 @@ class EditContact extends React.Component {
               color="primary"
               variant="contained"
               size="small"
-              onClick={this.handleSubmitStaff}
+              onClick={this.handleSubmitContact}
             >
-              Save Contact
+              Update Contact
             </Button>
           </div>
         </div>
@@ -635,7 +655,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     addContact,
     getAllCountry,
     getAllStateByCountry,
-    getAllCityByState
+    getAllCityByState,
+    updateContact
   },
   dispatch
 );
