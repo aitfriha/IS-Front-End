@@ -19,6 +19,10 @@ import {
   GET_ALL_SUBCHILDSECTORCOMPANYS,
   GET_ALL_SUBCHILDSECTORCOMPANYS_SUCCESS,
   GET_ALL_SUBCHILDSECTORCOMPANYS_FAILURE,
+
+  DELETECONFIRMATION_SECTORCOMPANY,
+  DELETECONFIRMATION_SECTORCOMPANY_SUCCESS,
+  DELETECONFIRMATION_SECTORCOMPANY_FAILURE
 } from './constants';
 
 const initialState = {
@@ -39,6 +43,7 @@ export default function sectorComapnyReducer(state = initialState, action) {
     case ADD_SECTORCOMPANY:
     case UPDATE_SECTORCOMPANY:
     case DELETE_SECTORCOMPANY:
+    case DELETECONFIRMATION_SECTORCOMPANY:
       return {
         ...state,
         isLoading: true,
@@ -49,6 +54,7 @@ export default function sectorComapnyReducer(state = initialState, action) {
     case ADD_SECTORCOMPANY_SUCCESS:
     case UPDATE_SECTORCOMPANY_SUCCESS:
     case DELETE_SECTORCOMPANY_SUCCESS:
+    case DELETECONFIRMATION_SECTORCOMPANY_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -95,6 +101,7 @@ export default function sectorComapnyReducer(state = initialState, action) {
     case ADD_SECTORCOMPANY_FAILURE:
     case UPDATE_SECTORCOMPANY_FAILURE:
     case DELETE_SECTORCOMPANY_FAILURE:
+    case DELETECONFIRMATION_SECTORCOMPANY_FAILURE:
       return {
         ...state,
         isLoading: false,

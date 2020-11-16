@@ -24,6 +24,10 @@ import {
   GET_ALL_SUBCHILDSECTORCOMPANYS,
   GET_ALL_SUBCHILDSECTORCOMPANYS_SUCCESS,
   GET_ALL_SUBCHILDSECTORCOMPANYS_FAILURE,
+
+  DELETECONFIRMATION_SECTORCOMPANY,
+  DELETECONFIRMATION_SECTORCOMPANY_FAILURE,
+  DELETECONFIRMATION_SECTORCOMPANY_SUCCESS,
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -83,7 +87,7 @@ function* deleteSectorCompany(action) {
 
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.SECTORCOMPANY + '/delete/' + firstSectorName + '/' + secondSectorName + '/' + thirdSectorName
+      url: ENDPOINTS.SECTORCOMPANY + '/deleteVerfication/' + firstSectorName + '/' + secondSectorName + '/' + thirdSectorName
     });
 
     yield put({
@@ -93,6 +97,29 @@ function* deleteSectorCompany(action) {
   } catch (errors) {
     yield put({
       type: DELETE_SECTORCOMPANY_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
+function* deleteConfirmationSectorCompany(action) {
+  try {
+    const {
+      firstSectorName, secondSectorName, thirdSectorName
+    } = action;
+
+    const request = yield axios({
+      method: 'delete',
+      url: ENDPOINTS.SECTORCOMPANY + '/deleteConfirmation/' + firstSectorName + '/' + secondSectorName + '/' + thirdSectorName
+    });
+
+    yield put({
+      type: DELETECONFIRMATION_SECTORCOMPANY_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: DELETECONFIRMATION_SECTORCOMPANY_FAILURE,
       errors: errors.response.data.errors
     });
   }
@@ -182,6 +209,7 @@ export default function* sectorCompanySaga() {
     takeLatest(ADD_SECTORCOMPANY, addSectorCompany),
     takeLatest(UPDATE_SECTORCOMPANY, updateSectorCompany),
     takeLatest(DELETE_SECTORCOMPANY, deleteSectorCompany),
+    takeLatest(DELETECONFIRMATION_SECTORCOMPANY, deleteConfirmationSectorCompany),
     takeLatest(GET_ALL_SECTORCOMPANYS, getAllSectorCompany),
     takeLatest(GET_ALL_CHILDSECTORCOMPANYS, getAllChildSectorCompany),
     takeLatest(GET_ALL_SUBCHILDSECTORCOMPANYS, getAllSubChildSectorCompany),

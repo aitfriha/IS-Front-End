@@ -7,7 +7,7 @@ import brand from 'dan-api/dummy/brand';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
-  Button, Grid, TextField, Typography
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { isString } from 'lodash';
@@ -15,12 +15,13 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import MUIDataTable from 'mui-datatables';
+import Divider from '@material-ui/core/Divider';
 import styles from './sectors-jss';
 import SectorsBlock from './SectorsBlock';
 import AddSector from './addSector';
 
 import {
-  addSectorCompany, deleteSectorCompany,
+  addSectorCompany, deleteConfirmationSectorCompany, deleteSectorCompany,
   getAllChildSectorCompany,
   getAllPrimarySectorCompany,
   getAllSectorCompany
@@ -30,6 +31,7 @@ import SectorConfigService from '../../Services/SectorConfigService';
 import notification from '../../../components/Notification/Notification';
 import { getAllClient } from '../../../redux/client/actions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
+import EditClient from '../Clients/EditClient';
 
 class sector extends React.Component {
   constructor(props) {
@@ -41,6 +43,8 @@ class sector extends React.Component {
       description2: '',
       description3: '',
       thirdSectorName: '',
+      openPopUp: false,
+      message: '',
       isDisabled: true,
       columns: [
         {
@@ -64,7 +68,7 @@ class sector extends React.Component {
             filter: true
           }
         },
-/*        {
+        /*        {
           label: 'Client',
           name: 'client',
           options: {
@@ -74,7 +78,7 @@ class sector extends React.Component {
               </React.Fragment>
             )
           }
-        },*/
+        }, */
         {
           label: ' ',
           name: ' ',
@@ -95,9 +99,23 @@ class sector extends React.Component {
     };
   }
 
+  /* componentDidUpdate(prevProps, prevState, snapshot) {
+    console.log('2');
+    console.log(this.state.message);
+  } */
+
+  handleClose = () => {
+    this.setState({ openPopUp: false });
+  };
+
   // eslint-disable-next-line react/sort-comp
   delete = (a, b, c) => {
-    const { deleteSectorCompany,getAllSectorCompany,getAllPrimarySectorCompany } = this.props;
+    this.setState({ sector1: a });
+    this.setState({ sector2: b });
+    this.setState({ sector3: c });
+
+    this.setState({ openPopUp: true });
+    const { deleteSectorCompany, getAllSectorCompany, getAllPrimarySectorCompany } = this.props;
     if (b === undefined) { b = null; }
     if (c === undefined) { c = null; }
     if (c === '') { c = null; }
@@ -107,10 +125,36 @@ class sector extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
+        this.setState({ message: result.message });
+        // notification('success', result);
+       // getAllSectorCompany();
+      //  getAllPrimarySectorCompany();
+      } else {
+        this.setState({ message: result.message });
+      //  notification('danger', result);
+      }
+    });
+  };
+
+  deleteConfirmation = () => {
+    let { sector1, sector2, sector3 } = this.state;
+    const { deleteConfirmationSectorCompany, getAllSectorCompany, getAllPrimarySectorCompany } = this.props;
+    if (sector2 === undefined) { sector2 = null; }
+    if (sector3 === undefined) { sector3 = null; }
+    if (sector3 === '') { sector3 = null; }
+    const promise = new Promise((resolve) => {
+      deleteConfirmationSectorCompany(sector1, sector2, sector3);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        this.setState({ message: result });
+        this.setState({ openPopUp: false });
         notification('success', result);
         getAllSectorCompany();
         getAllPrimarySectorCompany();
       } else {
+        this.setState({ openPopUp: false });
         notification('danger', result);
       }
     });
@@ -192,8 +236,9 @@ class sector extends React.Component {
     const title = brand.name + ' - Sectors';
     const description = brand.desc;
     const {
-      description1, description2, description3, thirdSectorName, isDisabled, columns
+      description1, description2, description3, thirdSectorName, isDisabled, columns, openPopUp, message
     } = this.state;
+    console.log('display message : ', message);
     const {
       // eslint-disable-next-line no-shadow
       errors, isLoading, sectorComapnyResponse, allSectorComapnys, allSectorPimaryComapnys, deleteSectorCompany
@@ -205,7 +250,6 @@ class sector extends React.Component {
     } = this.props;
     if (allSectorChildComapnys === undefined) {
       allSectorChildComapnys = [{ secondSectorName: '' }];
-      console.log(allSectorChildComapnys);
     } else {
       console.log('allSectorChildComapnys ', allSectorChildComapnys);
     }
@@ -393,6 +437,33 @@ class sector extends React.Component {
             />
           </div>
         </PapperBlock>
+        <Dialog
+          open={openPopUp}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth=""
+          maxWidth=""
+        >
+          <DialogTitle id="alert-dialog-slide-title"> Delete Sector </DialogTitle>
+          <DialogContent dividers>
+            <p style={{ color: 'red' }}>{message}</p>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.deleteConfirmation}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
@@ -423,7 +494,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllSectorCompany,
   getAllChildSectorCompany,
   getAllPrimarySectorCompany,
-  deleteSectorCompany
+  deleteSectorCompany,
+  deleteConfirmationSectorCompany
 }, dispatch);
 
 export default withStyles(styles)(connect(

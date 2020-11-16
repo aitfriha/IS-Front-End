@@ -1,6 +1,7 @@
 import {
   ADD_SECTORCOMPANY,
   DELETE_SECTORCOMPANY,
+  DELETECONFIRMATION_SECTORCOMPANY,
   GET_ALL_SECTORCOMPANYS,
   UPDATE_SECTORCOMPANY,
   GET_ALL_CHILDSECTORCOMPANYS,
@@ -21,6 +22,13 @@ export const updateSectorCompany = (sectorCompanyWithId) => ({
 
 export const deleteSectorCompany = (firstSectorName, secondSectorName, thirdSectorName) => ({
   type: DELETE_SECTORCOMPANY,
+  firstSectorName,
+  secondSectorName,
+  thirdSectorName
+});
+
+export const deleteConfirmationSectorCompany = (firstSectorName, secondSectorName, thirdSectorName) => ({
+  type: DELETECONFIRMATION_SECTORCOMPANY,
   firstSectorName,
   secondSectorName,
   thirdSectorName
