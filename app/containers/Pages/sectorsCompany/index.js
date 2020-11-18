@@ -125,9 +125,10 @@ class sector extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
-        this.setState({ message: result.message });
+       // this.setState({ message: result.message });
+         this.setState({ message: 'Are you sure you want to delete ?'});
         // notification('success', result);
-       // getAllSectorCompany();
+        // getAllSectorCompany();
       //  getAllPrimarySectorCompany();
       } else {
         this.setState({ message: result.message });
@@ -449,7 +450,11 @@ class sector extends React.Component {
         >
           <DialogTitle id="alert-dialog-slide-title"> Delete Sector </DialogTitle>
           <DialogContent dividers>
-            <p style={{ color: 'red' }}>{message}</p>
+            {message !== 'Are you sure you want to delete ?' ? (
+                <p style={{ color: 'red' }}>{message}</p>
+            ) : (
+                <p>{message}</p>
+            )}
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleClose}>

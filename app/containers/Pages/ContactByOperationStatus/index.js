@@ -106,7 +106,7 @@ class ContactByOperationStatus extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Contact by Operation" noMargin>
+        <PapperBlock title="Contact by Operation status" noMargin>
           <Grid
             container
             spacing={3}
@@ -173,7 +173,7 @@ class ContactByOperationStatus extends React.Component {
               alignContent="center"
               alignItems="center"
             >
-              <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>Contact</Typography>
+              <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>Contact type</Typography>
               <div style={{ width: '80%' }}>
                 <AutoCompleteMultiLineDisabled data={data1} />
               </div>

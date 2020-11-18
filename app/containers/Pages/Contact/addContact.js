@@ -47,7 +47,8 @@ import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
-import { addContact } from '../../../redux/contact/actions';
+import { addContact, getAllContact } from '../../../redux/contact/actions';
+import history from '../../../utils/history';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -186,7 +187,7 @@ class AddContact extends React.Component {
   };
 
   handleSubmitStaff = () => {
-    const { addContact, getAllStaff } = this.props;
+    const { addContact, getAllContact } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -225,7 +226,6 @@ class AddContact extends React.Component {
       fullAddress,
       postCode
     };
-    console.log(contact);
     const promise = new Promise(resolve => {
       // get client information
       addContact(contact);
@@ -234,7 +234,8 @@ class AddContact extends React.Component {
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
-        //   getAllStaff();
+        getAllContact();
+        history.push('/app/gestion-commercial/contacts');
       } else {
         notification('danger', result);
       }
@@ -416,7 +417,6 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="fatherFamilyName"
                   fullWidth
-                  required
                   value={fatherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -427,7 +427,6 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="motherFamilyName"
                   fullWidth
-                  required
                   value={motherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -452,7 +451,7 @@ class AddContact extends React.Component {
                     <TextField
                       fullWidth
                       {...params}
-                      label="Choose the company"
+                      label="Choose the company*"
                       variant="outlined"
                     />
                   )}
@@ -605,7 +604,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getAllClient,
-    addContact
+    addContact,
+    getAllContact
   },
   dispatch
 );

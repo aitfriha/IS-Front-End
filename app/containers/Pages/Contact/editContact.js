@@ -27,7 +27,7 @@ import CountryService from '../../Services/CountryService';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
-import { addContact, updateContact } from '../../../redux/contact/actions';
+import { addContact, getAllContact, updateContact } from '../../../redux/contact/actions';
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
@@ -100,24 +100,25 @@ class EditContact extends React.Component {
   };
 
   componentWillReceiveProps(newProps) {
-    this.setState({ contactId: newProps.selectedContact.contactId });
-    this.setState({ firstName: newProps.selectedContact.firstName });
-    this.setState({ fatherFamilyName: newProps.selectedContact.fatherFamilyName });
-    this.setState({ motherFamilyName: newProps.selectedContact.motherFamilyName });
-    this.setState({ department: newProps.selectedContact.department });
-    this.setState({ position: newProps.selectedContact.position });
+    if (newProps.selectedContact !== this.props.selectedContact) {
+      this.setState({contactId: newProps.selectedContact.contactId});
+      this.setState({firstName: newProps.selectedContact.firstName});
+      this.setState({fatherFamilyName: newProps.selectedContact.fatherFamilyName});
+      this.setState({motherFamilyName: newProps.selectedContact.motherFamilyName});
+      this.setState({department: newProps.selectedContact.department});
+      this.setState({position: newProps.selectedContact.position});
 
-    this.setState({ companyFixPhone: newProps.selectedContact.companyFixPhone });
-    this.setState({ companyMobilePhone: newProps.selectedContact.companyMobilePhone });
-    this.setState({ companyEmail: newProps.selectedContact.companyEmail });
-    this.setState({ personalMobilePhone: newProps.selectedContact.personalMobilePhone });
+      this.setState({companyFixPhone: newProps.selectedContact.companyFixPhone});
+      this.setState({companyMobilePhone: newProps.selectedContact.companyMobilePhone});
+      this.setState({companyEmail: newProps.selectedContact.companyEmail});
+      this.setState({personalMobilePhone: newProps.selectedContact.personalMobilePhone});
 
-    this.setState({ personalEmail: newProps.selectedContact.personalEmail });
-    this.setState({ skype: newProps.selectedContact.skype });
+      this.setState({personalEmail: newProps.selectedContact.personalEmail});
+      this.setState({skype: newProps.selectedContact.skype});
 
-    this.setState({ fullAddress: newProps.selectedContact.fullAddress });
-    this.setState({ postCode: newProps.selectedContact.postCode });
-
+      this.setState({fullAddress: newProps.selectedContact.fullAddress});
+      this.setState({postCode: newProps.selectedContact.postCode});
+    }
     if (newProps.selectedContact !== this.props.selectedContact) {
       // console.log(newProps.selectedClient);
       for (const key in newProps.allCountrys) {
@@ -169,7 +170,7 @@ class EditContact extends React.Component {
   };
 
   handleSubmitContact = () => {
-    const { updateContact } = this.props;
+    const { updateContact, getAllContact } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -221,8 +222,10 @@ class EditContact extends React.Component {
       if (isString(result)) {
         this.props.handleClose();
         notification('success', result);
+        getAllContact();
         //   getAllStaff();
       } else {
+        this.props.handleClose();
         notification('danger', result);
       }
     });
@@ -392,7 +395,6 @@ class EditContact extends React.Component {
                   variant="outlined"
                   name="fatherFamilyName"
                   fullWidth
-                  required
                   value={fatherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -403,7 +405,6 @@ class EditContact extends React.Component {
                   variant="outlined"
                   name="motherFamilyName"
                   fullWidth
-                  required
                   value={motherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -430,6 +431,7 @@ class EditContact extends React.Component {
                       fullWidth
                       {...params}
                       label="Choose the company"
+                      required
                       variant="outlined"
                     />
                   )}
@@ -656,7 +658,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     getAllCountry,
     getAllStateByCountry,
     getAllCityByState,
-    updateContact
+    updateContact,
+    getAllContact
   },
   dispatch
 );
