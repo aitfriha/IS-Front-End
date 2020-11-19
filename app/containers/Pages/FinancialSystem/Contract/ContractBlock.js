@@ -96,21 +96,42 @@ class CompaniesBlock extends React.Component {
           label: 'Signed Date',
           name: 'signedDate',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Start Date',
           name: 'startDate',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           name: 'finalReelDate',
           label: 'End Date',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
           }
         },
         {

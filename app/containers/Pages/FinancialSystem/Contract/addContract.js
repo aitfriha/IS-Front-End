@@ -360,7 +360,6 @@ class AddContract extends React.Component {
   handleDeletePenalty = (row) => {
     // eslint-disable-next-line react/destructuring-assignment
     if (this.state.penaltiesListe.length > 1) {
-      console.log(row);
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.penaltiesListe.filter(rows => rows !== row);
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
