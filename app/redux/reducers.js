@@ -32,6 +32,7 @@ import functionalStructureReducer from './functionalStructure/reducer';
 import assignmentReducer from './assignment/reducer';
 import staffContractReducer from './staffContract/reducer';
 import contactReducer from './contact/reducer';
+import contactByOperationReducer from './contactByOperation/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -64,6 +65,7 @@ export default function createReducer(injectedReducers = {}) {
     functionalStructureLevels: functionalStructureReducer,
     assignments: assignmentReducer,
     contacts: contactReducer,
+    contactByOperations: contactByOperationReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers
