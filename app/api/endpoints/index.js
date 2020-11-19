@@ -22,6 +22,7 @@ const ENDPOINTS = {
   ABSENCETYPE: 'http://localhost:9000/api/absenceType',
   LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
   FUNCTIONALSTRUCTURE: 'http://localhost:9000/api/functionalStructure',
+  CONTACTBYOPERATION: 'http://localhost:9000/api/contactByOperation',
   CONTRACTING: {
     APPLICATIONS: '/api/applications',
     CONTRACTS: '/api/contract'
