@@ -21,9 +21,10 @@ import EditContact from '../Contact/editContact';
 import ContactByOperationStatusBlock from './Block';
 import AutoCompleteMultiLineDisabled from './AutoCompleteWithDisabled';
 import {
-  addCommercialOperationStatus, deleteCommercialOperationStatus,
-  getAllCommercialOperationStatus, updateCommercialOperationStatus
+  getAllCommercialOperationStatus,
 } from '../../../redux/commercialOperationStatus/actions';
+
+const mondatoryList = [];
 class ContactByOperationStatus extends React.Component {
   constructor(props) {
     super(props);
@@ -31,7 +32,7 @@ class ContactByOperationStatus extends React.Component {
       statusName: '',
       createOrUpdate: true,
       contacts: [],
-      statusDescription: '',
+      description: '',
       openPopUp: false,
       c00: false,
       c01: false,
@@ -47,6 +48,8 @@ class ContactByOperationStatus extends React.Component {
       c22: false,
       buttonControle: true,
       operationName: '',
+      statusId: '',
+      contactsTypes: []
     };
   }
 
@@ -65,12 +68,18 @@ class ContactByOperationStatus extends React.Component {
   };
 
   handleSubmitStatus = () => {
-    const { statusName, statusDescription, contacts } = this.state;
-    this.setState({ contacts: [...contacts, { statusName, statusDescription }], statusDescription: '', statusName: '' });
+    const { statusId, description, contactsTypes } = this.state;
+    const cbo = {
+      statusId,
+      description,
+      contactsTypes
+    }
+    console.log(cbo);
+    this.setState({ openPopUp: false });
   };
 
   handleCancel = () => {
-    this.setState({ createOrUpdate: true, statusDescription: '', statusName: '' });
+    this.setState({ createOrUpdate: true, description: '', statusName: '' });
   }
 
   handleClose = () => {
@@ -78,33 +87,44 @@ class ContactByOperationStatus extends React.Component {
   };
 
   handleChangeSelectedStatus = (status) => {
+    console.log(status);
     this.setState(
       {
         statusName: status.statusName,
-        statusDescription: status.statusDescription,
+
+        description: status.description,
         createOrUpdate: false,
         buttonControle: false,
       });
   };
 
-  handleChangeState= (ev,value) => {
+  handleChangeState= (ev, value) => {
     this.setState(
       {
         buttonControle: false,
-        operationName: value.name
+        operationName: value.name,
+        statusId: value.commercialOperationStatusId,
       });
   }
 
    handleChangeCheck = (event) => {
      this.setState({ [event.target.name]: event.target.checked });
-     console.log(event.target.value);
+     const index = mondatoryList.findIndex(x => x === event.target.value);
+     if (index === -1) {
+       mondatoryList.push(event.target.value);
+     } else {
+       mondatoryList.splice(mondatoryList.indexOf(event.target.value), 1);
+     }
+     this.setState(
+       {
+         contactsTypes: mondatoryList,
+       });
    };
 
    render() {
      const title = brand.name + ' - Contact by Operation';
-     const description = brand.desc;
      const {
-       contacts, createOrUpdate, statusName, statusDescription, openPopUp,
+       contacts, createOrUpdate, statusName, description, openPopUp,
        c00, c01, c02, c03, c04, c05,
        c10, c11, c12,
        c20, c21, c22,
@@ -171,8 +191,8 @@ class ContactByOperationStatus extends React.Component {
                    label="Description"
                    variant="outlined"
                    required
-                   value={statusDescription}
-                   name="statusDescription"
+                   value={description}
+                   name="description"
                    onChange={this.handleChange}
                  />
                </div>
@@ -215,7 +235,11 @@ class ContactByOperationStatus extends React.Component {
              fullWidth
              maxWidth="xl"
            >
-             <DialogTitle id="alert-dialog-slide-title"> Mondatory contact type for status : <span style={{ color: 'blue' }}>{operationName}</span></DialogTitle>
+             <DialogTitle id="alert-dialog-slide-title">
+               {' '}
+Mondatory contact type for status :
+               <span style={{ color: 'blue' }}>{operationName}</span>
+             </DialogTitle>
              <DialogContent dividers>
                <Grid
                  container
@@ -240,23 +264,23 @@ class ContactByOperationStatus extends React.Component {
                          label="contact of the decision-maker"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c01} onChange={this.handleChangeCheck} name="c01" />}
+                         control={<Checkbox checked={c01} onChange={this.handleChangeCheck} name="c01" value="contact of the technical leader" />}
                          label="contact of the technical leader"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c02} onChange={this.handleChangeCheck} name="c02" />}
+                         control={<Checkbox checked={c02} onChange={this.handleChangeCheck} name="c02" value="contact of the person close to the decision-maker" />}
                          label="contact of the person close to the decision-maker"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c03} onChange={this.handleChangeCheck} name="c03" />}
+                         control={<Checkbox checked={c03} onChange={this.handleChangeCheck} name="c03" value="Other contact 1" />}
                          label="Other contact 1"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c04} onChange={this.handleChangeCheck} name="c04" />}
+                         control={<Checkbox checked={c04} onChange={this.handleChangeCheck} name="c04" value="Other contact 2" />}
                          label="Other contact 2"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c05} onChange={this.handleChangeCheck} name="c05" />}
+                         control={<Checkbox checked={c05} onChange={this.handleChangeCheck} name="c05" value="Other contact 3" />}
                          label="Other contact 3"
                        />
                      </FormGroup>
@@ -277,15 +301,15 @@ class ContactByOperationStatus extends React.Component {
                      {/*     <FormLabel component="legend">Assign responsibility</FormLabel> */}
                      <FormGroup>
                        <FormControlLabel
-                         control={<Checkbox checked={c10} onChange={this.handleChangeCheck} name="c10" />}
+                         control={<Checkbox checked={c10} onChange={this.handleChangeCheck} name="c10" value="pd contact 1" />}
                          label="Contact 1"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c11} onChange={this.handleChangeCheck} name="c11" />}
+                         control={<Checkbox checked={c11} onChange={this.handleChangeCheck} name="c11" value="pd contact 2" />}
                          label="Contact 2"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c12} onChange={this.handleChangeCheck} name="c12" />}
+                         control={<Checkbox checked={c12} onChange={this.handleChangeCheck} name="c12" value="pd contact 3" />}
                          label="Contact 3"
                        />
                      </FormGroup>
@@ -306,15 +330,15 @@ class ContactByOperationStatus extends React.Component {
                      {/* <FormLabel component="legend">Assign responsibility</FormLabel> */}
                      <FormGroup>
                        <FormControlLabel
-                         control={<Checkbox checked={c20} onChange={this.handleChangeCheck} name="c20" />}
+                         control={<Checkbox checked={c20} onChange={this.handleChangeCheck} name="c20" value="la contact 1" />}
                          label="Contact 1"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c21} onChange={this.handleChangeCheck} name="c21" />}
+                         control={<Checkbox checked={c21} onChange={this.handleChangeCheck} name="c21" value="la contact 2" />}
                          label="Contact 2"
                        />
                        <FormControlLabel
-                         control={<Checkbox checked={c22} onChange={this.handleChangeCheck} name="c22" />}
+                         control={<Checkbox checked={c22} onChange={this.handleChangeCheck} name="c22" value="la contact 3" />}
                          label="Contact 3"
                        />
                      </FormGroup>
@@ -330,7 +354,7 @@ class ContactByOperationStatus extends React.Component {
                <Button
                  variant="contained"
                  color="primary"
-                 onClick={this.handleClose}
+                 onClick={this.handleSubmitStatus}
                >
                 Add
                </Button>
