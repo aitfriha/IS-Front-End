@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   Grid, TextField
@@ -6,13 +6,16 @@ import {
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 import history from '../../../../utils/history';
-import styles from '../../Companies/companies-jss';
 import ContractStatusService from '../../../Services/ContractStatusService';
+
+const useStyles = makeStyles();
 
 class AddStatus extends React.Component {
   constructor(props) {
@@ -22,6 +25,14 @@ class AddStatus extends React.Component {
       statusName: '',
       description: ''
     };
+  }
+
+  componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
     handleSubmit = () => {
@@ -101,6 +112,8 @@ class AddStatus extends React.Component {
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
+                <br />
+                <br />
                 <TextField
                   id="outlined-basic"
                   label="Status Name"
@@ -112,6 +125,8 @@ class AddStatus extends React.Component {
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
+                <br />
+                <br />
                 <TextField
                   id="outlined-basic"
                   label="Description "
@@ -143,4 +158,10 @@ class AddStatus extends React.Component {
 AddStatus.propTypes = {
   classes: PropTypes.object.isRequired
 };
-export default withStyles(styles)(AddStatus);
+const StatusBlockMapped = connect()(AddStatus);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StatusBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

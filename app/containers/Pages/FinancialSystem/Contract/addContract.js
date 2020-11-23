@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -12,6 +12,7 @@ import {
   TextField,
   Typography
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -26,7 +27,6 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
 import history from '../../../../utils/history';
 import CurrencyService from '../../../Services/CurrencyService';
 import ContractStatusService from '../../../Services/ContractStatusService';
@@ -38,8 +38,10 @@ import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
-import styles from '../../Companies/companies-jss';
 import ContractService from '../../../Services/ContractService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class AddContract extends React.Component {
   constructor(props) {
@@ -113,6 +115,11 @@ class AddContract extends React.Component {
   }
 
   componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
@@ -1722,7 +1729,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const AddContractMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddContract));
+)(AddContract);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddContractMapped changeTheme={changeTheme} classes={classes} />;
+};

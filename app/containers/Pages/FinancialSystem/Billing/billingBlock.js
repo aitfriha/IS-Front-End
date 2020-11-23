@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
@@ -7,9 +7,14 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import { connect } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import BillService from '../../../Services/BillService';
 import EditBill from './editBill';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class BillingBlock extends React.Component {
   constructor(props) {
@@ -35,13 +40,49 @@ class BillingBlock extends React.Component {
                 </IconButton>
               </React.Fragment>
             )
-          }
+          },
+          setCellProps: () => ({
+            style: {
+              whiteSpace: 'nowrap',
+              position: 'sticky',
+              left: '0',
+              background: 'white',
+              zIndex: 100
+            }
+          }),
+          setCellHeaderProps: () => ({
+            style: {
+              whiteSpace: 'nowrap',
+              position: 'sticky',
+              left: 0,
+              background: 'white',
+              zIndex: 101
+            }
+          })
         },
         {
           name: 'code',
           label: 'Code',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         /*        {
@@ -56,6 +97,24 @@ class BillingBlock extends React.Component {
           label: 'Invoice Date',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -70,6 +129,24 @@ class BillingBlock extends React.Component {
           label: 'Bill Date',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -84,6 +161,24 @@ class BillingBlock extends React.Component {
           label: 'Payment Date',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -97,7 +192,25 @@ class BillingBlock extends React.Component {
           name: 'paymentsBDDay',
           label: 'Payment Days',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -105,6 +218,24 @@ class BillingBlock extends React.Component {
           label: 'Reel Payment Date',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -118,7 +249,25 @@ class BillingBlock extends React.Component {
           name: 'reelPaymentDays',
           label: 'Reel Payment Days',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -126,6 +275,24 @@ class BillingBlock extends React.Component {
           label: 'Payment Done ?',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -140,6 +307,24 @@ class BillingBlock extends React.Component {
           name: 'financialCompany',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (financialCompany) => (
               <React.Fragment>
                 {
@@ -154,6 +339,24 @@ class BillingBlock extends React.Component {
           name: 'client',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (client) => (
               <React.Fragment>
                 {
@@ -168,6 +371,24 @@ class BillingBlock extends React.Component {
           name: 'commercialOperation',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (commercialOperation) => (
               <React.Fragment>
                 {
@@ -182,6 +403,24 @@ class BillingBlock extends React.Component {
           name: 'clientSigned',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (clientSigned) => (
               <React.Fragment>
                 {
@@ -195,14 +434,50 @@ class BillingBlock extends React.Component {
           name: 'purchaseOrderNumber',
           label: 'Purchase Order',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'totalLocal',
           label: 'Total USD (L)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -210,6 +485,24 @@ class BillingBlock extends React.Component {
           label: 'Currency',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (currency) => (
               <React.Fragment>
                 {
@@ -223,7 +516,25 @@ class BillingBlock extends React.Component {
           name: 'totalEuro',
           label: 'Total (€)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -231,6 +542,24 @@ class BillingBlock extends React.Component {
           label: 'IVA %',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (iva) => (
               <React.Fragment>
                 {
@@ -244,28 +573,100 @@ class BillingBlock extends React.Component {
           name: 'valueIVAEuro',
           label: 'Total IVA (€)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'valueIVALocal',
           label: 'Total IVA (L)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'totalAmountLocal',
           label: 'Total Amount (L)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'totalAmountEuro',
           label: 'Total Amount (€)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -275,6 +676,24 @@ class BillingBlock extends React.Component {
             filter: false,
             sort: false,
             empty: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 <IconButton onClick={() => this.handleDetails(tableMeta)}>
@@ -292,6 +711,11 @@ class BillingBlock extends React.Component {
   }
 
   componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
     BillService.getBill().then(result => {
       const today = new Date();
       // eslint-disable-next-line array-callback-return
@@ -387,6 +811,10 @@ class BillingBlock extends React.Component {
     );
   }
 }
+const BillingBlockMapped = connect()(BillingBlock);
 
-
-export default BillingBlock;
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <BillingBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

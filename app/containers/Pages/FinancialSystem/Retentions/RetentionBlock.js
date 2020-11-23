@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -14,11 +14,15 @@ import Chip from '@material-ui/core/Chip';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { makeStyles } from '@material-ui/core/styles';
 import RetentionService from '../../../Services/RetentionService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class RetentionBlock extends React.Component {
   constructor(props) {
@@ -171,6 +175,11 @@ class RetentionBlock extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   handleChangeCountry = (ev, value) => {
@@ -372,7 +381,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCityByState,
 }, dispatch);
 
-export default connect(
+const RetentionBlockMapped = connect(
   mapStateToProps,
   mapDispatchToProps
 )(RetentionBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <RetentionBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

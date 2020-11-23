@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   Button, Grid, TextField
@@ -9,19 +9,21 @@ import Divider from '@material-ui/core/Divider';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import history from '../../../../utils/history';
-import styles from '../../Companies/companies-jss';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
 import RetentionService from '../../../Services/RetentionService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class AddRetention extends React.Component {
   constructor(props) {
@@ -37,6 +39,11 @@ class AddRetention extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   handleChangeCountry = (ev, value) => {
@@ -138,6 +145,7 @@ class AddRetention extends React.Component {
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
+                <br /><br />
                 <TextField
                   id="description"
                   label="Description"
@@ -253,7 +261,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const AddRetentionMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddRetention));
+)(AddRetention);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddRetentionMapped changeTheme={changeTheme} classes={classes} />;
+};

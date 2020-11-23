@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
@@ -7,11 +7,17 @@ import {
   Dialog, DialogContent, DialogTitle
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import EditContract from './editContract';
 import ContractService from '../../../Services/ContractService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+import styles from './contract-jss';
 
-class CompaniesBlock extends React.Component {
+const useStyles = makeStyles(styles);
+
+class ContractBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,7 +47,25 @@ class CompaniesBlock extends React.Component {
           label: 'Title',
           name: 'contractTitle',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -49,6 +73,24 @@ class CompaniesBlock extends React.Component {
           label: 'Client',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 { value.name }
@@ -61,6 +103,24 @@ class CompaniesBlock extends React.Component {
           label: 'Operation',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 { value.name }
@@ -73,6 +133,24 @@ class CompaniesBlock extends React.Component {
           name: 'financialCompany',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 { value.name }
@@ -85,6 +163,24 @@ class CompaniesBlock extends React.Component {
           name: 'contractStatus',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 { value.statusName }
@@ -97,6 +193,24 @@ class CompaniesBlock extends React.Component {
           name: 'signedDate',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -111,6 +225,24 @@ class CompaniesBlock extends React.Component {
           name: 'startDate',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -125,6 +257,24 @@ class CompaniesBlock extends React.Component {
           label: 'End Date',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 {
@@ -138,14 +288,50 @@ class CompaniesBlock extends React.Component {
           name: 'duration',
           label: 'Duration',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'conceptTotalAmount',
           label: 'Amount ',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -153,6 +339,24 @@ class CompaniesBlock extends React.Component {
           name: 'currency',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value) => (
               <React.Fragment>
                 { value.currencyCode }
@@ -164,7 +368,25 @@ class CompaniesBlock extends React.Component {
           name: 'conceptTotalAmountEuro',
           label: 'Amount (€)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -172,6 +394,24 @@ class CompaniesBlock extends React.Component {
           label: 'penalties',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (penaltyValue) => (
               <React.Fragment>
                 { penaltyValue.length > 1 ? 'Yes' : 'No' }
@@ -184,6 +424,24 @@ class CompaniesBlock extends React.Component {
           label: 'Insure',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (amountInsured) => (
               <React.Fragment>
                 { amountInsured > 0 ? 'Yes' : 'No' }
@@ -196,6 +454,24 @@ class CompaniesBlock extends React.Component {
           label: 'Purchase Order',
           options: {
             filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (purchaseOrderNumber) => (
               <React.Fragment>
                 { purchaseOrderNumber.length > 1 ? 'Yes' : 'No' }
@@ -210,6 +486,24 @@ class CompaniesBlock extends React.Component {
             filter: false,
             sort: false,
             empty: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 <IconButton onClick={() => this.handleDetails(tableMeta)}>
@@ -224,6 +518,29 @@ class CompaniesBlock extends React.Component {
         }
       ]
     };
+  }
+
+  componentDidMount() {
+    ContractService.getContract().then(result => {
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        const date1 = new Date(row.finalReelDate);
+        const date2 = new Date(row.startDate);
+        const durationS = date1.getTime() - date2.getTime();
+        const durationM = Math.round(((durationS / 86400000) / 30) + 0.4);
+        row.duration = durationM;
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length > 1) row.isActive = 'Yes';
+        if (row.purchaseOrderNumber.length <= 1) row.isActive = 'No';
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
+      });
+      this.setState({ datas: result.data });
+      console.log(this.state);
+    });
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   // eslint-disable-next-line react/sort-comp
@@ -266,24 +583,6 @@ class CompaniesBlock extends React.Component {
   myCallback = (dataFromChild) => {
     this.setState({ openPopUp: dataFromChild });
   };
-
-  componentDidMount() {
-    ContractService.getContract().then(result => {
-      // eslint-disable-next-line array-callback-return
-      result.data.map(row => {
-        const date1 = new Date(row.finalReelDate);
-        const date2 = new Date(row.startDate);
-        const durationS = date1.getTime() - date2.getTime();
-        const durationM = Math.round(((durationS / 86400000) / 30) + 0.4);
-        row.duration = durationM;
-        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length > 1) row.isActive = 'Yes';
-        if (row.purchaseOrderNumber.length <= 1) row.isActive = 'No';
-        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
-      });
-      this.setState({ datas: result.data });
-      console.log(this.state);
-    });
-  }
 
   render() {
     const {
@@ -331,6 +630,10 @@ class CompaniesBlock extends React.Component {
     );
   }
 }
+const ContractBlockMapped = connect()(ContractBlock);
 
-
-export default CompaniesBlock;
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ContractBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

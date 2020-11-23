@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -21,6 +21,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import { makeStyles } from '@material-ui/core/styles';
 import history from '../../../../utils/history';
 import CurrencyService from '../../../Services/CurrencyService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
@@ -32,6 +33,9 @@ import { getAllCityByState } from '../../../../redux/city/actions';
 import IvaService from '../../../Services/IvaService';
 import ContractService from '../../../Services/ContractService';
 import BillService from '../../../Services/BillService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class AddBilling extends React.Component {
   constructor(props) {
@@ -73,6 +77,11 @@ class AddBilling extends React.Component {
   }
 
   componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
@@ -786,7 +795,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCityByState
 }, dispatch);
 
-export default connect(
+const AddBillingMapped = connect(
   mapStateToProps,
   mapDispatchToProps
 )(AddBilling);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddBillingMapped changeTheme={changeTheme} classes={classes} />;
+};
