@@ -151,9 +151,9 @@ class EditContract extends React.Component {
         level1: contract.functionalStructureLevel._id,
         level2: contract.functionalStructureLevel._id,
         level3: contract.functionalStructureLevel._id,
-        signedDate: contract.signedDate.slice(0, 10),
-        startDate: contract.startDate.slice(0, 10),
-        endDate: contract.endDate.slice(0, 10),
+        signedDate: contract.signedDate ? contract.signedDate.slice(0, 10) : '',
+        startDate: contract.startDate ? contract.startDate.slice(0, 10) : '',
+        endDate: contract.endDate ? contract.endDate.slice(0, 10) : '',
         finalReelDate: contract.finalReelDate.slice(0, 10),
         contractTradeVolume: contract.contractTradeVolume,
         contractTradeVolumeEuro: contract.contractTradeVolumeEuro,
@@ -176,11 +176,15 @@ class EditContract extends React.Component {
         penaltyMaxType: contract.penaltyMaxType,
         penaltiesListe: contract.penaltiesListe,
         purchaseOrders: contract.purchaseOrders,
+        penalties: (contract.penaltyValue.length > 0),
+        insure: (contract.amountInsured > 0),
+        purchaseOrder: (contract.purchaseOrders.length > 0),
+        proposal: (contract.proposalDocumentation !== '' || contract.proposalDocumentationDuo.length > 0),
         purchaseOrderDocumentation: contract.purchaseOrderDocumentation,
         purchaseOrderNumber: contract.purchaseOrderNumber,
         purchaseOrderReceiveDate: contract.purchaseOrderReceiveDate,
-        firstDayInsured: contract.firstDayInsured.slice(0, 10),
-        lastDayInsured: contract.lastDayInsured.slice(0, 10),
+        firstDayInsured: contract.firstDayInsured ? contract.firstDayInsured.slice(0, 10) : '',
+        lastDayInsured: contract.lastDayInsured ? contract.lastDayInsured.slice(0, 10) : '',
         amountInsured: contract.amountInsured,
         amountInsuredEuro: contract.amountInsuredEuro,
         proposalDocumentation: contract.proposalDocumentation,
@@ -1301,7 +1305,7 @@ class EditContract extends React.Component {
               id="insure"
               name="insure"
               value={insure}
-              control={<Checkbox color="primary" onChange={this.handleCheck} />}
+              control={<Checkbox color="primary" checked={insure} onChange={this.handleCheck} />}
               label="Insure"
               labelPlacement="start"
             />
@@ -1421,7 +1425,7 @@ class EditContract extends React.Component {
               id="purchaseOrder"
               name="purchaseOrder"
               value={purchaseOrder}
-              control={<Checkbox color="primary" onChange={this.handleCheck2} />}
+              control={<Checkbox color="primary" checked={purchaseOrder} onChange={this.handleCheck2} />}
               label="Purchase Order"
               labelPlacement="start"
             />
@@ -1500,7 +1504,7 @@ class EditContract extends React.Component {
               id="proposal"
               name="proposal"
               value={proposal}
-              control={<Checkbox color="primary" onChange={this.handleCheck3} />}
+              control={<Checkbox color="primary" checked={proposal} onChange={this.handleCheck3} />}
               label="Proposal"
               labelPlacement="start"
             />
@@ -1597,7 +1601,7 @@ class EditContract extends React.Component {
               id="penalties"
               name="penalties"
               value={penalties}
-              control={<Checkbox color="primary" onChange={this.handleCheck4} />}
+              control={<Checkbox color="primary" checked={penalties} onChange={this.handleCheck4} />}
               label="Penalties"
               labelPlacement="start"
             />

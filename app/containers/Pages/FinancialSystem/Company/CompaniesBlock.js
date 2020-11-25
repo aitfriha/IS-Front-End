@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -17,12 +17,15 @@ import Divider from '@material-ui/core/Divider';
 import FormLabel from '@material-ui/core/FormLabel';
 import { Image } from '@material-ui/icons';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import styles from './companies-jss';
+
+const useStyles = makeStyles(styles);
 
 class CompaniesBlock extends React.Component {
   constructor(props) {
@@ -162,10 +165,21 @@ class CompaniesBlock extends React.Component {
         }
       ]
     };
+  }
+
+  componentDidMount() {
     FinancialCompanyService.getCompany().then(result => {
       console.log(result);
       this.setState({ datas: result.data });
     });
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   // eslint-disable-next-line react/sort-comp
@@ -223,16 +237,6 @@ class CompaniesBlock extends React.Component {
   handleClose = () => {
     this.setState({ openPopUp: false });
   };
-
-  componentDidMount() {
-    FinancialCompanyService.getCompany().then(result => {
-      console.log(result);
-      this.setState({ datas: result.data });
-    });
-    // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllCountry } = this.props;
-    getAllCountry();
-  }
 
   handleChangeCountry = (ev, value) => {
     // eslint-disable-next-line no-shadow,react/prop-types
@@ -522,7 +526,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCityByState,
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const CompaniesBlockMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(CompaniesBlock));
+)(CompaniesBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <CompaniesBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

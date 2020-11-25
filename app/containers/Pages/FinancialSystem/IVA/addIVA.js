@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   Grid, TextField, Typography
@@ -6,7 +6,6 @@ import {
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
@@ -14,13 +13,16 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
+import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 import history from '../../../../utils/history';
-import styles from '../../Companies/companies-jss';
 import IvaService from '../../../Services/IvaService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
+
+const useStyles = makeStyles();
 
 class AddIVA extends React.Component {
   constructor(props) {
@@ -39,6 +41,11 @@ class AddIVA extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   handleChangeCountry = (ev, value) => {
@@ -131,6 +138,7 @@ class AddIVA extends React.Component {
                 </Typography>
               </Grid>
               <Grid item xs={12} md={2} sm={2}>
+                <br />
                 <TextField
                   id="ivaCode"
                   label="I.V.A Code"
@@ -178,6 +186,7 @@ class AddIVA extends React.Component {
                 />
               </Grid>
               <Grid item xs={12} md={2} sm={2}>
+                <br />
                 <TextField
                   id="value"
                   label="I.V.A Value %"
@@ -277,7 +286,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllStateByCountry,
   getAllCityByState
 }, dispatch);
-export default withStyles(styles)(connect(
+const AddIVAMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddIVA));
+)(AddIVA);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddIVAMapped changeTheme={changeTheme} classes={classes} />;
+};

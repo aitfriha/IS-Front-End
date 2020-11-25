@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
@@ -17,14 +17,16 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import IvaService from '../../../Services/IvaService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
-import styles from '../../Companies/companies-jss';
+
+const useStyles = makeStyles();
 
 class IvaBlock extends React.Component {
   constructor(props) {
@@ -156,6 +158,11 @@ class IvaBlock extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
     // eslint-disable-next-line react/sort-comp
@@ -239,7 +246,7 @@ class IvaBlock extends React.Component {
         allCountrys, allStateCountrys
       } = this.props;
       const {
-        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode, state, stateCountry
+        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode
       } = this.state;
       const options = {
         filter: true,
@@ -437,7 +444,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllStateByCountry,
   getAllCityByState
 }, dispatch);
-export default withStyles(styles)(connect(
+const IvaBlockMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(IvaBlock));
+)(IvaBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <IvaBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

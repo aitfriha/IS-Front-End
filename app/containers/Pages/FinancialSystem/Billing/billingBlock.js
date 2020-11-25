@@ -1,130 +1,672 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle
+  Dialog, DialogContent, DialogTitle
 } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import { connect } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
+import BillService from '../../../Services/BillService';
+import EditBill from './editBill';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class BillingBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       openPopUp: false,
-      data: [],
+      datas: [],
+      bill: {},
       columns: [
+        {
+          label: ' ',
+          name: 'state',
+          options: {
+            customBodyRender: (value) => (
+              <React.Fragment>
+                <IconButton>
+                  <RadioButtonUncheckedIcon style={{
+                    backgroundColor: value === 'Yes' ? 'green' : (value === 'Zombie' ? 'orange' : 'red'),
+                    color: value === 'Yes' ? 'green' : (value === 'Zombie' ? 'orange' : 'red'),
+                    borderRadius: '100%'
+                  }}
+                  />
+                </IconButton>
+              </React.Fragment>
+            )
+          },
+          setCellProps: () => ({
+            style: {
+              whiteSpace: 'nowrap',
+              position: 'sticky',
+              left: '0',
+              background: 'white',
+              zIndex: 100
+            }
+          }),
+          setCellHeaderProps: () => ({
+            style: {
+              whiteSpace: 'nowrap',
+              position: 'sticky',
+              left: 0,
+              background: 'white',
+              zIndex: 101
+            }
+          })
+        },
         {
           name: 'code',
           label: 'Code',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
-        {
+        /*        {
           name: 'billNumber',
           label: 'Bill Number',
           options: {
             filter: true
           }
-        },
+        },  */
         {
           name: 'billingDate',
+          label: 'Invoice Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'paymentDay',
           label: 'Bill Date',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'paymentDate',
+          label: 'Payment Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'paymentsBDDay',
+          label: 'Payment Days',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'reelPaymentDay',
+          label: 'Reel Payment Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.toString().slice(0, 10)
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'reelPaymentDays',
+          label: 'Reel Payment Days',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'paymentDone',
+          label: 'Payment Done ?',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value ? 'Yes' : 'No'
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Contractor',
-          name: 'contractor',
+          name: 'financialCompany',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (financialCompany) => (
+              <React.Fragment>
+                {
+                  financialCompany.name
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Client',
           name: 'client',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (client) => (
+              <React.Fragment>
+                {
+                  client.name
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          label: 'Commercial Operation',
+          label: 'Operation',
           name: 'commercialOperation',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (commercialOperation) => (
+              <React.Fragment>
+                {
+                  commercialOperation.name
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          label: 'Client Contract Signed',
-          name: 'clientContractSigned',
+          label: 'Client Signed',
+          name: 'clientSigned',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (clientSigned) => (
+              <React.Fragment>
+                {
+                  clientSigned.name
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           name: 'purchaseOrderNumber',
           label: 'Purchase Order',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'totalLocal',
+          label: 'Total USD (L)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'currency',
+          label: 'Currency',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (currency) => (
+              <React.Fragment>
+                {
+                  currency.currencyCode
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           name: 'totalEuro',
           label: 'Total (€)',
           options: {
-            filter: true
-          }
-        },
-        {
-          name: 'totalLocal',
-          label: 'Total USD (Local)',
-          options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'iva',
-          label: 'I.V.A ',
+          label: 'IVA %',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (iva) => (
+              <React.Fragment>
+                {
+                  iva.value ? iva.value : ''
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'totalIVAEuro',
-          label: 'Total I.V.A (€)',
+          name: 'valueIVAEuro',
+          label: 'Total IVA (€)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
-          name: 'totalIVALocal',
-          label: 'Total I.V.A (Local)',
+          name: 'valueIVALocal',
+          label: 'Total IVA (L)',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'totalAmountLocal',
+          label: 'Total Amount (L)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
           name: 'totalAmountEuro',
           label: 'Total Amount (€)',
           options: {
-            filter: true
-          }
-        },
-        {
-          name: 'totalAmountLocal',
-          label: 'Total Amount (Local)',
-          options: {
-            filter: true
-          }
-        },
-        {
-          name: 'localCurrency',
-          label: 'Local Currency',
-          options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
         {
@@ -134,16 +676,33 @@ class BillingBlock extends React.Component {
             filter: false,
             sort: false,
             empty: true,
-            customBodyRender: () => (
-              <div>
-                <Grid container spacing={1}>
-                  <Grid item xs={4}>
-                    <IconButton onClick={() => this.handleDetails()}>
-                      <DetailsIcon color="secondary" />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </div>
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                  <DetailsIcon color="secondary" />
+                </IconButton>
+                <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                  <DeleteIcon color="primary" />
+                </IconButton>
+              </React.Fragment>
             )
           }
         }
@@ -151,128 +710,111 @@ class BillingBlock extends React.Component {
     };
   }
 
-    // eslint-disable-next-line react/sort-comp
-    handleDetails = () => {
-      this.setState({ openPopUp: true });
-    }
+  componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
+    BillService.getBill().then(result => {
+      const today = new Date();
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        if (row.paymentDone) row.state = 'Yes';
+        if (today.getTime() < (new Date(row.paymentDate).getTime()) && !row.paymentDone) row.state = 'Zombie';
+        if (today.getTime() > (new Date(row.paymentDate).getTime()) && !row.paymentDone) row.state = 'No';
+      });
+      this.setState({ datas: result.data });
+    });
+  }
+
+  // eslint-disable-next-line react/sort-comp
+  handleDetails = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].billId;
+    BillService.getBillById(id).then(result => {
+      const bill = result.data;
+      this.setState({ openPopUp: true, bill });
+    });
+  }
+
+  handleDelete = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].billId;
+    BillService.deleteBill(id).then(result => {
+      const today = new Date();
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        if (row.paymentDone) row.state = 'Yes';
+        if (today.getTime() < (new Date(row.paymentDate).getTime()) && !row.paymentDone) row.state = 'Zombie';
+        if (today.getTime() > (new Date(row.paymentDate).getTime()) && !row.paymentDone) row.state = 'No';
+      });
+      this.setState({ datas: result.data });
+    });
+  };
 
     handleClose = () => {
       this.setState({ openPopUp: false });
     };
 
-    componentDidMount() {}
+  myCallback = (dataFromChild) => {
+    this.setState({ openPopUp: dataFromChild });
+  };
 
-    render() {
-      const { data, columns, openPopUp } = this.state;
-      const datas = [
-        {
-          code: '1',
-          billNumber: '2020/003',
-          billingDate: '10/10/2020',
-          contractor: 'TechniU',
-          client: 'SVF Flight',
-          commercialOperation: 'Is-Flight Version 5',
-          clientContractSigned: 'SVF Flight',
-          purchaseOrderNumber: '545124',
-          totalEuro: '50000',
-          totalLocal: '650000',
-          iva: '2.5 %',
-          totalIVAEuro: '750',
-          totalIVALocal: '6400',
-          totalAmountEuro: '49350',
-          totalAmountLocal: '590000',
-          localCurrency: 'MAD'
-        },
-        {
-          code: '2',
-          billNumber: '2020/004',
-          billingDate: '01/12/2020',
-          contractor: 'TechniU',
-          client: 'SVF Flight',
-          commercialOperation: 'Is-Flight Version 6',
-          clientContractSigned: 'SVF Flight',
-          purchaseOrderNumber: '600501',
-          totalEuro: '750000',
-          totalLocal: '1000000',
-          iva: '1.7 %',
-          totalIVAEuro: '50000',
-          totalIVALocal: '90025',
-          totalAmountEuro: '700000',
-          totalAmountLocal: '913500',
-          localCurrency: 'POS'
-        },
-        {
-          code: '1',
-          billNumber: '2019/001',
-          billingDate: '05/05/2019',
-          contractor: 'Implemental Systems',
-          client: 'Water Supply',
-          commercialOperation: 'IS-Water Distribution',
-          clientContractSigned: 'Water Supply',
-          purchaseOrderNumber: '120050',
-          totalEuro: '3500000',
-          totalLocal: '4000000',
-          iva: '1 %',
-          totalIVAEuro: '35000',
-          totalIVALocal: '400000',
-          totalAmountEuro: '31500000',
-          totalAmountLocal: '36000000',
-          localCurrency: 'USD'
-        }];
-      const options = {
-        filter: true,
-        selectableRows: false,
-        filterType: 'dropdown',
-        responsive: 'stacked',
-        rowsPerPage: 10,
-        customToolbar: () => (
-          <CustomToolbar
-            csvData={data}
-            url="/app/gestion-financial/Add-Bill"
-            tooltip="Add New Bill"
-          />
-        )
-      };
+  render() {
+    const {
+      datas, columns, openPopUp, bill
+    } = this.state;
+    const options = {
+      filter: true,
+      selectableRows: false,
+      filterType: 'dropdown',
+      responsive: 'stacked',
+      rowsPerPage: 10,
+      customToolbar: () => (
+        <CustomToolbar
+          csvData={datas}
+          url="/app/gestion-financial/Add-Bill"
+          tooltip="Add New Bill"
+        />
+      )
+    };
 
-      return (
-        <div>
-          <MUIDataTable
-            title="The Bills List"
-            data={datas}
-            columns={columns}
-            options={options}
-          />
-          <Dialog
-            open={openPopUp}
-            keepMounted
-            scroll="body"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth=""
-            maxWidth=""
-          >
-            <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
-            <DialogContent dividers>
-              <div />
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleClose}>
-                            Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleClose}
-              >
-                            save
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </div>
-      );
-    }
+    return (
+      <div>
+        <MUIDataTable
+          title="The Bills List"
+          data={datas}
+          columns={columns}
+          options={options}
+        />
+        <Dialog
+          open={openPopUp}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth=""
+          maxWidth=""
+        >
+          <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
+          <DialogContent dividers>
+            <EditBill Info={bill} callbackFromParent={this.myCallback} />
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
 }
+const BillingBlockMapped = connect()(BillingBlock);
 
-
-export default BillingBlock;
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <BillingBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

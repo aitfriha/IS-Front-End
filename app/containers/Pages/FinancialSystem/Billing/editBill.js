@@ -1,8 +1,5 @@
-import React, { useContext } from 'react';
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
+import React from 'react';
 import { PapperBlock } from 'dan-components';
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import {
   FormControl,
   Grid,
@@ -21,8 +18,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { makeStyles } from '@material-ui/core/styles';
-import history from '../../../../utils/history';
 import CurrencyService from '../../../Services/CurrencyService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import CommercialOperationService from '../../../Services/CommercialOperationService';
@@ -33,14 +28,12 @@ import { getAllCityByState } from '../../../../redux/city/actions';
 import IvaService from '../../../Services/IvaService';
 import ContractService from '../../../Services/ContractService';
 import BillService from '../../../Services/BillService';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
-const useStyles = makeStyles();
-
-class AddBilling extends React.Component {
+class EditBill extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      billId: '',
       code: '',
       billingDate: '',
       contractor: '',
@@ -77,11 +70,6 @@ class AddBilling extends React.Component {
   }
 
   componentDidMount() {
-    const {
-      // eslint-disable-next-line react/prop-types
-      changeTheme
-    } = this.props;
-    changeTheme('greyTheme');
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
@@ -106,21 +94,57 @@ class AddBilling extends React.Component {
     });
   }
 
-  handleChangeCountry = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllStateByCountry } = this.props;
-    getAllStateByCountry(value.countryId);
-  };
+  componentWillReceiveProps(props) {
+    // eslint-disable-next-line react/prop-types
+    const bill = props.Info; console.log(bill);
+    if (bill._id) {
+      this.setState({
+        billId: bill._id,
+        code: bill.code,
+        billingDate: bill.billingDate ? bill.billingDate.slice(0, 10) : '',
+        clientId: bill.client._id,
+        commercialOperationId: bill.commercialOperation._id,
+        contractor: bill.financialCompany._id,
+        financialContractId: bill.financialContract._id,
+        clientContractSigned: bill.clientSigned._id,
+        localCurrency: bill.currency._id,
+        purchaseOrderNumber: bill.purchaseOrderNumber,
+        totalEuro: bill.totalEuro,
+        totalLocal: bill.totalLocal,
+        ivaCountry: bill.iva.stateCountry.country.countryName,
+        ivaState: bill.iva.stateCountry.stateName,
+        valueIVALocal: bill.valueIVALocal,
+        valueIVAEuro: bill.valueIVAEuro,
+        totalAmountLocal: bill.totalAmountLocal,
+        totalAmountEuro: bill.totalAmountEuro,
+        nbrConcepts: bill.nbrConcepts,
+        desc: bill.desc,
+        descTotalUSD: bill.descTotalUSD,
+        paymentsBDDay: bill.paymentsBDDay,
+        reelPaymentDays: bill.reelPaymentDays,
+        paymentDay: bill.paymentDay.toString().slice(0, 10),
+        reelPaymentDay: bill.reelPaymentDay.toString().slice(0, 10),
+        paymentDone: bill.paymentDone,
+        openDoc: true
+      });
+    }
+  }
 
-  handleChangeState = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllCityByState } = this.props;
-    getAllCityByState(value.stateCountryId);
-  };
+    handleChangeCountry = (ev, value) => {
+      // eslint-disable-next-line no-shadow,react/prop-types
+      const { getAllStateByCountry } = this.props;
+      getAllStateByCountry(value.countryId);
+    };
 
-  handleChangeCity = (ev, value) => {
-    this.setState({ currentCity: value.cityId });
-  };
+    handleChangeState = (ev, value) => {
+      // eslint-disable-next-line no-shadow,react/prop-types
+      const { getAllCityByState } = this.props;
+      getAllCityByState(value.stateCountryId);
+    };
+
+    handleChangeCity = (ev, value) => {
+      this.setState({ currentCity: value.cityId });
+    };
 
     handleChange = (ev) => {
       if (ev.target.name === 'ivaState') {
@@ -188,7 +212,7 @@ class AddBilling extends React.Component {
 
     handleCreate = () => {
       const {
-        code, billingDate, contractor, financialContractId, contracts, reelPaymentDay, nbrConcepts,
+        code, billingDate, contractor, financialContractId, contracts, reelPaymentDay, billId, nbrConcepts,
         clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, paymentDay, paymentDone,
         totalEuro, totalLocal, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
@@ -212,6 +236,7 @@ class AddBilling extends React.Component {
       const difference = reelPaymentDate.getTime() - paymentDate2.getTime();
       const reelPaymentDays = Math.ceil(difference / (1000 * 3600 * 24));
       const Bill = {
+        billId,
         client,
         clientSigned,
         commercialOperation,
@@ -239,24 +264,26 @@ class AddBilling extends React.Component {
         descTotalUSD
       };
       console.log(Bill);
-      BillService.saveBill(Bill).then(result => {
+      BillService.updateBill(Bill).then(result => {
         console.log(result.data);
-        history.push('/app/gestion-financial/Billing');
+        // eslint-disable-next-line react/prop-types,react/destructuring-assignment
+        this.props.callbackFromParent(false);
       });
     }
 
     handleGoBack = () => {
-      history.push('/app/gestion-financial/Billing');
+      // eslint-disable-next-line react/prop-types,react/destructuring-assignment
+      this.props.callbackFromParent(false);
     }
 
-  handleCheck = () => {
-    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-    const ok = !this.state.paymentDone;
-    this.setState({ paymentDone: ok });
-  }
+    handleCheck = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const ok = !this.state.paymentDone;
+      this.setState({ paymentDone: ok });
+    }
 
     handleOpenConcept = () => {
-    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newElement = this.state.nbrConcepts.length + 1;
       // eslint-disable-next-line react/destructuring-assignment
       this.state.nbrConcepts.push(newElement);
@@ -264,9 +291,9 @@ class AddBilling extends React.Component {
     }
 
     handleDeleteConcept = (row) => {
-    // eslint-disable-next-line react/destructuring-assignment
+      // eslint-disable-next-line react/destructuring-assignment
       if (this.state.nbrConcepts.length > 1) {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const newDocs = this.state.nbrConcepts.filter(rows => rows !== row);
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const newDocs2 = this.state.desc.filter((e, i) => i !== (row));
@@ -292,29 +319,11 @@ class AddBilling extends React.Component {
         clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDay, paymentDone, reelPaymentDay,
         totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
-      const title = brand.name + ' - Add New Bill';
-      const description = brand.desc;
       return (
         <div>
-          <Helmet>
-            <title>{title}</title>
-            <meta name="description" content={description} />
-            <meta property="og:title" content={title} />
-            <meta property="og:description" content={description} />
-            <meta property="twitter:title" content={title} />
-            <meta property="twitter:description" content={description} />
-          </Helmet>
           <PapperBlock title="Billing" desc="Create new bill" icon="ios-add-circle-outline">
-            <Grid container spacing={1}>
-              <Grid item xs={11} />
-              <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
-              </Grid>
-            </Grid>
             <Typography variant="subtitle2" component="h2" color="primary">
-                       General Bill Informations
+                        Bill Informations
             </Typography>
             <br />
             <div>
@@ -484,7 +493,7 @@ class AddBilling extends React.Component {
                 <Grid item xs={1} align="center">
                   <Typography variant="subtitle2" component="h3" color="grey">
                     <br />
-                    Item
+                                    Item
                     {' '}
                     { row }
                   </Typography>
@@ -540,7 +549,7 @@ class AddBilling extends React.Component {
               <Grid item xs={12} md={6}>
                 <br />
                 <Typography variant="subtitle2" component="h2" color="primary">
-                        Total Amount Net
+                                Total Amount Net
                 </Typography>
               </Grid>
               <Grid item md={3} />
@@ -593,7 +602,7 @@ class AddBilling extends React.Component {
               <Grid item md={0} />
               <Grid item xs={12} md={6}>
                 <Typography variant="subtitle2" component="h2" color="primary">
-                    I.V.A Taxes
+                                I.V.A Taxes
                 </Typography>
               </Grid>
               <Grid item md={3} />
@@ -664,7 +673,7 @@ class AddBilling extends React.Component {
               <Grid item md={0} />
               <Grid item xs={12} md={6}>
                 <Typography variant="subtitle2" component="h2" color="primary">
-                        Total Amount
+                                Total Amount
                 </Typography>
               </Grid>
               <Grid item md={3} />
@@ -700,7 +709,7 @@ class AddBilling extends React.Component {
             <br />
             <br />
             <Typography variant="subtitle2" component="h2" color="primary">
-                Payment Management
+                        Payment Management
             </Typography>
             <Grid
               container
@@ -743,7 +752,7 @@ class AddBilling extends React.Component {
                   id="paymentDone"
                   name="paymentDone"
                   value={paymentDone}
-                  control={<Checkbox color="primary" onChange={this.handleCheck} />}
+                  control={<Checkbox color="primary" checked={paymentDone} onChange={this.handleCheck} />}
                   label="payment Done"
                   labelPlacement="end"
                   InputLabelProps={{
@@ -754,7 +763,7 @@ class AddBilling extends React.Component {
             </Grid>
             <br />
             <Typography variant="subtitle2" component="h2" color="primary">
-                Possible Retentions
+                        Possible Retentions
             </Typography>
             <br />
             <br />
@@ -770,7 +779,7 @@ class AddBilling extends React.Component {
     }
 }
 
-AddBilling.propTypes = {
+EditBill.propTypes = {
   classes: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
@@ -795,13 +804,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCityByState
 }, dispatch);
 
-const AddBillingMapped = connect(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddBilling);
-
-export default () => {
-  const { changeTheme } = useContext(ThemeContext);
-  const classes = useStyles();
-  return <AddBillingMapped changeTheme={changeTheme} classes={classes} />;
-};
+)(EditBill);

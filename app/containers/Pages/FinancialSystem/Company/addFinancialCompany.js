@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   Button, FormControl, Grid, TextField
@@ -11,7 +11,7 @@ import { Image } from '@material-ui/icons';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -24,6 +24,9 @@ import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles(styles);
 
 class AddFinancialCompany extends React.Component {
   constructor(props) {
@@ -44,6 +47,11 @@ class AddFinancialCompany extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   handleChangeCountry = (ev, value) => {
@@ -351,7 +359,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const AddFinancialCompanyMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddFinancialCompany));
+)(AddFinancialCompany);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddFinancialCompanyMapped changeTheme={changeTheme} classes={classes} />;
+};
