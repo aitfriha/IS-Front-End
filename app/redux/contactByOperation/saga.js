@@ -68,12 +68,13 @@ function* updateContactByOperation(action) {
 function* deleteContactByOperation(action) {
   try {
     const {
-      contactByOperationId
+      contactByOperationId,
+      contactTypeName
     } = action;
 
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.CONTACTBYOPERATION + '/delete/' + contactByOperationId
+      url: ENDPOINTS.CONTACTBYOPERATION + '/delete/' + contactByOperationId + '/' + contactTypeName
     });
 
     yield put({

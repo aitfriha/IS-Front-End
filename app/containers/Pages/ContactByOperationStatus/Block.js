@@ -4,10 +4,73 @@ import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import {
+  Avatar,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid, withStyles
+} from '@material-ui/core';
+import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox/Checkbox';
+import FormLabel from '@material-ui/core/FormLabel';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import notification from '../../../components/Notification/Notification';
+import {
+  deleteContactByOperation,
+  getAllContactByOperation,
+  updateContactByOperation
+} from '../../../redux/contactByOperation/actions';
+import styles from '../Staff/staff-jss';
+let mondatoryList = [];
 class ContactByOperationStatusBlock extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
+      openPopUp: false,
+      c00: false,
+      c01: false,
+      c02: false,
+      c03: false,
+      c04: false,
+      c05: false,
+      c10: false,
+      c11: false,
+      c12: false,
+      c20: false,
+      c21: false,
+      c22: false,
+
+      firstName: false,
+      fatherFamilyName: false,
+      motherFamilyName: false,
+      company: false,
+      department: false,
+      position: false,
+      companyFixPhone: false,
+      companyMobilePhone: false,
+      companyEmail: false,
+      personalMobilePhone: false,
+      personalEmail: false,
+      skype: false,
+      fullAddress: false,
+      postCode: false,
+      operationName: '',
+      contactTypeName: '',
+      openPopUpAttributes: false,
+      buttonUpdateAttributes: false,
+      statusId: '',
       columns: [
         {
           name: 'statusName',
@@ -17,10 +80,37 @@ class ContactByOperationStatusBlock extends React.Component {
           }
         },
         {
-          name: 'statusDescription',
+          name: 'description',
           label: 'Status Description',
           options: {
             filter: true
+          }
+        },
+        {
+          name: 'contactsType',
+          label: 'contacts Type',
+          options: {
+            filter: true
+          }
+        },
+        {
+          name: 'contactByOperationId',
+          label: 'contacts Type',
+          options: {
+            display: 'excluded'
+          }
+        },
+        {
+          name: 'description',
+          label: 'mandatory Attributes',
+          options: {
+            customBodyRender: (value, data) => (
+              <React.Fragment>
+                <IconButton onClick={() => this.showMondatoryAttributes(data.rowIndex, data)}>
+                  <VisibilityIcon color="secondary" />
+                </IconButton>
+              </React.Fragment>
+            )
           }
         },
         {
@@ -29,10 +119,10 @@ class ContactByOperationStatusBlock extends React.Component {
           options: {
             customBodyRender: (value, data) => (
               <React.Fragment>
-                <IconButton onClick={() => this.updateStatus(data.rowIndex)}>
+                <IconButton onClick={() => this.updateStatus(data.rowIndex, data)}>
                   <EditIcon color="secondary" />
                 </IconButton>
-                <IconButton onClick={() => console.log(value)}>
+                <IconButton onClick={() => this.deleteMondatoryAttributes(data.rowIndex, data)}>
                   <DeleteIcon color="primary" />
                 </IconButton>
               </React.Fragment>
@@ -40,13 +130,262 @@ class ContactByOperationStatusBlock extends React.Component {
           }
         }
       ]
-    }
+    };
   }
-  updateStatus = (rowIndex) => {
-    const { onSelected, contacts } = this.props;
-    onSelected(contacts[rowIndex]);
+
+  /*  showMondatoryAttributes= (data) => {
+    const { contacts } = this.props;
+    console.log(contacts[data].contactsTypes);
+    for (const key in contacts[data].contactsTypes) {
+      if (contacts[data].contactsTypes[key] === 'contact of the decision-maker') {
+        this.setState({ c00: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'contact of the technical leader') {
+        this.setState({ c01: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'contact of the person close to the decision-maker') {
+        this.setState({ c02: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'Other contact 1') {
+        this.setState({ c03: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'Other contact 2') {
+        this.setState({ c04: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'Other contact 3') {
+        this.setState({ c05: true });
+      }
+      /!** ******************** *!/
+      if (contacts[data].contactsTypes[key] === 'pd contact 1') {
+        this.setState({ c10: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'pd contact 2') {
+        this.setState({ c11: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'pd contact 3') {
+        this.setState({ c12: true });
+      }
+      /!** ******************** *!/
+      if (contacts[data].contactsTypes[key] === 'la contact 1') {
+        this.setState({ c20: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'la contact 2') {
+        this.setState({ c21: true });
+      }
+      if (contacts[data].contactsTypes[key] === 'la contact 3') {
+        this.setState({ c22: true });
+      }
+    }
+    this.setState({ openPopUp: true });
+  }; */
+  showMondatoryAttributes= (data, aaa) => {
+    console.log(aaa.rowData[0]);
+    console.log(aaa.rowData[2]);
+    const { contacts } = this.props;
+    this.setState(
+      {
+        firstName: false,
+        fatherFamilyName: false,
+        motherFamilyName: false,
+        company: false,
+        department: false,
+        position: false,
+        companyFixPhone: false,
+        companyMobilePhone: false,
+        companyEmail: false,
+        personalMobilePhone: false,
+        personalEmail: false,
+        skype: false,
+        fullAddress: false,
+        postCode: false,
+        buttonUpdateAttributes: false,
+        operationName: aaa.rowData[0],
+        contactTypeName: aaa.rowData[2],
+        statusId: aaa.rowData[3],
+      });
+
+
+    for (const key in contacts[data].mandatoryAttributes) {
+      if (contacts[data].mandatoryAttributes[key] === 'first name') {
+        this.setState({ firstName: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'father family name') {
+        this.setState({ fatherFamilyName: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'mother family name') {
+        this.setState({ motherFamilyName: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'company') {
+        this.setState({ company: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'department') {
+        this.setState({ department: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'position') {
+        this.setState({ position: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'companyFixPhone') {
+        this.setState({ companyFixPhone: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'companyMobilePhone') {
+        this.setState({ companyMobilePhone: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'companyEmail') {
+        this.setState({ companyEmail: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'personalMobilePhone') {
+        this.setState({ personalMobilePhone: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'personalEmail') {
+        this.setState({ personalEmail: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'skype') {
+        this.setState({ skype: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'fullAddress') {
+        this.setState({ fullAddress: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'postCode') {
+        this.setState({ postCode: true });
+      }
+    }
+    this.setState({ openPopUpAttributes: true });
   };
 
+  deleteMondatoryAttributes= (data, aaa) => {
+    console.log('statusId', aaa.rowData[3]);
+    console.log('contactTypeName', aaa.rowData[2]);
+    const { deleteContactByOperation,refresh } = this.props;
+    const  statusId=aaa.rowData[3];
+    const  contactTypeName=aaa.rowData[2];
+    const promise = new Promise((resolve) => {
+      console.log('eeeeeeeeeeeee');
+      deleteContactByOperation(statusId, contactTypeName);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        refresh();
+      } else {
+        notification('danger', result);
+      }
+    });
+  }
+
+  updateStatus = (data, aaa) => {
+    // fill all attributes in a list
+    console.log(aaa.rowData[0]);
+    console.log(aaa.rowData[2]);
+    const { contacts } = this.props;
+    this.setState(
+      {
+        firstName: false,
+        fatherFamilyName: false,
+        motherFamilyName: false,
+        company: false,
+        department: false,
+        position: false,
+        companyFixPhone: false,
+        companyMobilePhone: false,
+        companyEmail: false,
+        personalMobilePhone: false,
+        personalEmail: false,
+        skype: false,
+        fullAddress: false,
+        postCode: false,
+        buttonUpdateAttributes: true,
+        operationName: aaa.rowData[0],
+        contactTypeName: aaa.rowData[2],
+        statusId: aaa.rowData[3],
+      });
+    mondatoryList = contacts[data].mandatoryAttributes;
+
+    for (const key in contacts[data].mandatoryAttributes) {
+      if (contacts[data].mandatoryAttributes[key] === 'first name') {
+        this.setState({ firstName: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'father family name') {
+        this.setState({ fatherFamilyName: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'mother family name') {
+        this.setState({ motherFamilyName: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'company') {
+        this.setState({ company: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'department') {
+        this.setState({ department: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'position') {
+        this.setState({ position: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'companyFixPhone') {
+        this.setState({ companyFixPhone: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'companyMobilePhone') {
+        this.setState({ companyMobilePhone: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'companyEmail') {
+        this.setState({ companyEmail: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'personalMobilePhone') {
+        this.setState({ personalMobilePhone: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'personalEmail') {
+        this.setState({ personalEmail: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'skype') {
+        this.setState({ skype: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'fullAddress') {
+        this.setState({ fullAddress: true });
+      }
+      if (contacts[data].mandatoryAttributes[key] === 'postCode') {
+        this.setState({ postCode: true });
+      }
+    }
+    this.setState({ openPopUpAttributes: true });
+  };
+
+  handleClose = () => {
+    this.setState({ openPopUpAttributes: false });
+  };
+
+  updateContactByOperation = () => {
+    const { contactTypeName, statusId } = this.state;
+    const { getAllContactByOperation, updateContactByOperation } = this.props;
+    const contactByOperationObject = {
+      contactByOperationId: statusId,
+      contactsType: contactTypeName,
+      mandatoryAttributes: mondatoryList,
+    };
+    const promise = new Promise((resolve) => {
+      updateContactByOperation(contactByOperationObject);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        // getAllContactByOperation();
+      } else {
+        notification('danger', result);
+      }
+    });
+    this.setState({ openPopUpAttributes: false });
+  };
+
+  handleChangeCheckAddAttributes = (event) => {
+    this.setState({ [event.target.name]: event.target.checked });
+    const index = mondatoryList.findIndex(x => x === event.target.value);
+    if (index === -1) {
+      mondatoryList.push(event.target.value);
+    }
+    /** ******** ELSE ******** */
+    else {
+      mondatoryList.splice(mondatoryList.indexOf(event.target.value), 1);
+    }
+  }
 
   render() {
     const options = {
@@ -56,8 +395,20 @@ class ContactByOperationStatusBlock extends React.Component {
       responsive: 'stacked',
       rowsPerPage: 10,
     };
-    const { columns } = this.state;
-    const { contacts } = this.props;
+    const {
+      columns, openPopUp,
+      c00, c01, c02, c03, c04, c05,
+      c10, c11, c12,
+      c20, c21, c22,
+      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes,
+      firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
+    } = this.state;
+    const {
+      contacts, classes,
+      isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation
+    } = this.props;
+    (!isLoadingContactByOperation && contactByOperationResponse) && this.editingPromiseResolve(contactByOperationResponse);
+    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
     return (
       <div>
         <MUIDataTable
@@ -66,13 +417,436 @@ class ContactByOperationStatusBlock extends React.Component {
           columns={columns}
           options={options}
         />
+        {/*   <Dialog
+          open={openPopUp}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="xl"
+        >
+          <DialogTitle id="alert-dialog-slide-title">
+            {' '}
+            Mondatory contact type for status :
+             <span style={{ color: 'blue' }}>{operationName}</span>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Grid
+              container
+              spacing={4}
+              direction="row"
+            >
+              <Grid item xs={12} md={4}>
+                <Chip
+                  label="Qualification Process Contacts"
+                  avatar={<Avatar>1</Avatar>}
+                  color="primary"
+                />
+                <Divider
+                  variant="fullWidth"
+                  style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <FormControl component="fieldset" className={classes.formControl}>
+                   <FormLabel component="legend">Qualification Process Contacts</FormLabel>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={<Checkbox checked={c00} onChange={this.handleChangeCheck} name="c00" value="contact of the decision-maker" />}
+                      label="contact of the decision-maker"
+                    />
+                     <FormLabel component="legend">Label Placement</FormLabel>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleSubmitStatus}
+                    >
+                      Add
+                    </Button>
+                    <FormControlLabel
+                      control={<Checkbox checked={c01} onChange={this.handleChangeCheck} name="c01" value="contact of the technical leader" />}
+                      label="contact of the technical leader"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c02} onChange={this.handleChangeCheck} name="c02" value="contact of the person close to the decision-maker" />}
+                      label="contact of the person close to the decision-maker"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c03} onChange={this.handleChangeCheck} name="c03" value="Other contact 1" />}
+                      label="Other contact 1"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c04} onChange={this.handleChangeCheck} name="c04" value="Other contact 2" />}
+                      label="Other contact 2"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c05} onChange={this.handleChangeCheck} name="c05" value="Other contact 3" />}
+                      label="Other contact 3"
+                    />
+                  </FormGroup>
+                    <FormHelperText>Be careful</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Chip
+                  label="Procurement Department"
+                  avatar={<Avatar>2</Avatar>}
+                  color="primary"
+                />
+                <Divider
+                  variant="fullWidth"
+                  style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <FormControl component="fieldset" className={classes.formControl}>
+                       <FormLabel component="legend">Assign responsibility</FormLabel>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={<Checkbox checked={c10} onChange={this.handleChangeCheck} name="c10" value="pd contact 1" />}
+                      label="Contact 1"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c11} onChange={this.handleChangeCheck} name="c11" value="pd contact 2" />}
+                      label="Contact 2"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c12} onChange={this.handleChangeCheck} name="c12" value="pd contact 3" />}
+                      label="Contact 3"
+                    />
+                  </FormGroup>
+                   <FormHelperText>Be careful</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Chip
+                  label="Legal Area"
+                  avatar={<Avatar>3</Avatar>}
+                  color="primary"
+                />
+                <Divider
+                  variant="fullWidth"
+                  style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <FormControl component="fieldset" className={classes.formControl}>
+                   <FormLabel component="legend">Assign responsibility</FormLabel>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={<Checkbox checked={c20} onChange={this.handleChangeCheck} name="c20" value="la contact 1" />}
+                      label="Contact 1"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c21} onChange={this.handleChangeCheck} name="c21" value="la contact 2" />}
+                      label="Contact 2"
+                    />
+                    <FormControlLabel
+                      control={<Checkbox checked={c22} onChange={this.handleChangeCheck} name="c22" value="la contact 3" />}
+                      label="Contact 3"
+                    />
+                  </FormGroup>
+                   <FormHelperText>Be careful</FormHelperText>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleClose}>
+              close
+            </Button>
+          </DialogActions>
+        </Dialog> */}
+        <Dialog
+          open={openPopUpAttributes}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="xl"
+        >
+          <DialogTitle id="alert-dialog-slide-title">
+            {' '}
+            Mondatory attributes for Status :
+            <span style={{ color: 'blue' }}>
+              {' '}
+              {operationName}
+              {' '}
+            </span>
+            contact type :
+            <span style={{ color: 'blue' }}>
+              {' '}
+              {contactTypeName}
+              {' '}
+            </span>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Grid
+              container
+              spacing={4}
+              direction="row"
+            >
+              <Grid item xs={12} md={4}>
+                <Chip
+                  label="Personnal information"
+                  avatar={<Avatar>p</Avatar>}
+                  color="primary"
+                />
+                <Divider
+                  variant="fullWidth"
+                  style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <FormControl component="fieldset" className={classes.formControl}>
+                  <FormGroup>
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={firstName} onChange={this.handleChangeCheckAddAttributes} name="firstName" value="first name" />}
+                        label="first name"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={firstName} name="firstName" value="first name" />}
+                        label="first name"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={fatherFamilyName} onChange={this.handleChangeCheckAddAttributes} name="fatherFamilyName" value="father family name" />}
+                        label="father family name"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={fatherFamilyName} name="fatherFamilyName" value="father family name" />}
+                        label="father family name"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={motherFamilyName} onChange={this.handleChangeCheckAddAttributes} name="motherFamilyName" value="mother family name" />}
+                        label="mother family name"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={motherFamilyName} name="motherFamilyName" value="mother family name" />}
+                        label="mother family name"
+                      />
+                    )
+                    }
+                  </FormGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Chip
+                  label="Contact information"
+                  avatar={<Avatar>2</Avatar>}
+                  color="primary"
+                />
+                <Divider
+                  variant="fullWidth"
+                  style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <FormControl component="fieldset" className={classes.formControl}>
+                  <FormGroup>
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={company} onChange={this.handleChangeCheckAddAttributes} name="company" value="company" />}
+                        label="company"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={company} name="company" value="company" />}
+                        label="company"
+                      />
+                    )
+                    }
+
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={department} onChange={this.handleChangeCheckAddAttributes} name="department" value="department" />}
+                        label="department"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={department} name="department" value="department" />}
+                        label="department"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={position} onChange={this.handleChangeCheckAddAttributes} name="position" value="position" />}
+                        label="position"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={position} name="position" value="position" />}
+                        label="position"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={companyFixPhone} onChange={this.handleChangeCheckAddAttributes} name="companyFixPhone" value="companyFixPhone" />}
+                        label="company fix phone"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={companyFixPhone} name="companyFixPhone" value="companyFixPhone" />}
+                        label="company fix phone"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={companyMobilePhone} onChange={this.handleChangeCheckAddAttributes} name="companyMobilePhone" value="companyMobilePhone" />}
+                        label="company mobile phone"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={companyMobilePhone} name="companyMobilePhone" value="companyMobilePhone" />}
+                        label="company mobile phone"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={companyEmail} onChange={this.handleChangeCheckAddAttributes} name="companyEmail" value="companyEmail" />}
+                        label="company email"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={companyEmail} name="companyEmail" value="companyEmail" />}
+                        label="company email"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={personalMobilePhone} onChange={this.handleChangeCheckAddAttributes} name="personalMobilePhone" value="personalMobilePhone" />}
+                        label="personal email"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={personalMobilePhone} name="personalMobilePhone" value="personalMobilePhone" />}
+                        label="personal email"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={personalEmail} onChange={this.handleChangeCheckAddAttributes} name="personalEmail" value="personalEmail" />}
+                        label="personal email"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={personalEmail} name="personalEmail" value="personalEmail" />}
+                        label="personal email"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={skype} onChange={this.handleChangeCheckAddAttributes} name="skype" value="skype" />}
+                        label="skype"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={skype} name="skype" value="skype" />}
+                        label="skype"
+                      />
+                    )
+                    }
+                  </FormGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Chip
+                  label="Address"
+                  avatar={<Avatar>3</Avatar>}
+                  color="primary"
+                />
+                <Divider
+                  variant="fullWidth"
+                  style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <FormControl component="fieldset" className={classes.formControl}>
+                  <FormGroup>
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={fullAddress} onChange={this.handleChangeCheckAddAttributes} name="fullAddress" value="fullAddress" />}
+                        label="name of address"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={fullAddress} name="fullAddress" value="fullAddress" />}
+                        label="name of address"
+                      />
+                    )
+                    }
+
+                    {buttonUpdateAttributes == true ? (
+                      <FormControlLabel
+                        control={<Checkbox checked={postCode} onChange={this.handleChangeCheckAddAttributes} name="postCode" value="postCode" />}
+                        label="post code"
+                      />
+                    ) : (
+                      <FormControlLabel
+                        control={<Checkbox checked={postCode} name="postCode" value="postCode" />}
+                        label="post code"
+                      />
+                    )
+                    }
+                  </FormGroup>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleClose}>
+              Close
+            </Button>
+            {buttonUpdateAttributes == true ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.updateContactByOperation}
+              >
+                Update
+              </Button>
+            ) : (<br />)
+            }
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
 }
-ContactByOperationStatusBlock.propTypes = {
-  classes: PropTypes.object.isRequired,
-  onSelected: PropTypes.func.isRequired,
-  contacts: PropTypes.array.isRequired
-};
-export default (ContactByOperationStatusBlock);
+
+const mapStateToProps = state => ({
+  //
+  allContactByOperations: state.getIn(['contactByOperations']).allContactByOperations,
+  contactByOperationResponse: state.getIn(['contactByOperations']).contactByOperationResponse,
+  isLoadingContactByOperation: state.getIn(['contactByOperations']).isLoading,
+  errorsContactByOperation: state.getIn(['contactByOperations']).errors
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllContactByOperation,
+  updateContactByOperation,
+  deleteContactByOperation
+}, dispatch);
+export default withStyles(styles)(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(ContactByOperationStatusBlock)
+);

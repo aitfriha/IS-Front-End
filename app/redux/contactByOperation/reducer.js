@@ -17,7 +17,7 @@ const initialState = {
   isLoading: false,
   errors: {},
   contactByOperationResponse: '',
-  allCommercialOperationStatuss: []
+  allContactByOperations: []
 };
 
 export default function contactByOperationReducer(state = initialState, action) {
@@ -48,7 +48,7 @@ export default function contactByOperationReducer(state = initialState, action) 
       return {
         ...state,
         isLoading: false,
-        allCommercialOperationStatuss: action.payload,
+        allContactByOperations: action.payload,
         contactByOperationResponse: ''
       };
 
