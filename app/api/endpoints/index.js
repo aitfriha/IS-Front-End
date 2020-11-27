@@ -23,6 +23,7 @@ const ENDPOINTS = {
   LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
   FUNCTIONALSTRUCTURE: 'http://localhost:9000/api/functionalStructure',
   CONTACTBYOPERATION: 'http://localhost:9000/api/contactByOperation',
+  CIVILITYTITLE: 'http://localhost:9000/api/civilityTitle',
   CONTRACTING: {
     APPLICATIONS: '/api/applications',
     CONTRACTS: '/api/contract'

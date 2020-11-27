@@ -659,6 +659,7 @@ class ContactByOperationStatus extends React.Component {
     } = this.props;
     (!isLoadingContactByOperation && contactByOperationResponse) && this.editingPromiseResolve(contactByOperationResponse);
     (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
+
     return (
       <div>
         <Helmet>

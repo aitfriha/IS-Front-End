@@ -37,6 +37,9 @@ class ContactByOperationStatusBlock extends React.Component {
     super(props);
     this.editingPromiseResolve = () => {
     };
+    this.editingPromiseResolveDelete = () => {
+    };
+
     this.state = {
       openPopUp: false,
       c00: false,
@@ -70,7 +73,10 @@ class ContactByOperationStatusBlock extends React.Component {
       contactTypeName: '',
       openPopUpAttributes: false,
       buttonUpdateAttributes: false,
+      openPopUpDelete: false,
       statusId: '',
+      statusIdToDelete: '',
+      contactTypeNameToDelete: '',
       columns: [
         {
           name: 'statusName',
@@ -253,25 +259,36 @@ class ContactByOperationStatusBlock extends React.Component {
   };
 
   deleteMondatoryAttributes= (data, aaa) => {
-    console.log('statusId', aaa.rowData[3]);
-    console.log('contactTypeName', aaa.rowData[2]);
-    const { deleteContactByOperation,refresh } = this.props;
-    const  statusId=aaa.rowData[3];
-    const  contactTypeName=aaa.rowData[2];
+    this.setState({ openPopUpDelete: true,
+      statusIdToDelete: aaa.rowData[3],
+      contactTypeNameToDelete: aaa.rowData[2]
+    });
+
+  };
+
+  deleteConfirmeMondatoryAttributes= () => {
+   const {statusIdToDelete,contactTypeNameToDelete} = this.state;
+    const { deleteContactByOperation,refresh,getAllContactByOperation } = this.props;
     const promise = new Promise((resolve) => {
-      console.log('eeeeeeeeeeeee');
-      deleteContactByOperation(statusId, contactTypeName);
-      this.editingPromiseResolve = resolve;
+      deleteContactByOperation(statusIdToDelete, contactTypeNameToDelete);
+      this.editingPromiseResolveDelete = resolve;
     });
     promise.then((result) => {
+      console.log(result);
       if (isString(result)) {
         notification('success', result);
-        refresh();
+        getAllContactByOperation();
       } else {
         notification('danger', result);
+        getAllContactByOperation();
       }
     });
-  }
+    this.setState({ openPopUpDelete: false });
+  };
+
+  handleCloseDelete = () => {
+    this.setState({ openPopUpDelete: false });
+  };
 
   updateStatus = (data, aaa) => {
     // fill all attributes in a list
@@ -352,6 +369,8 @@ class ContactByOperationStatusBlock extends React.Component {
     this.setState({ openPopUpAttributes: false });
   };
 
+
+
   updateContactByOperation = () => {
     const { contactTypeName, statusId } = this.state;
     const { getAllContactByOperation, updateContactByOperation } = this.props;
@@ -385,6 +404,31 @@ class ContactByOperationStatusBlock extends React.Component {
     else {
       mondatoryList.splice(mondatoryList.indexOf(event.target.value), 1);
     }
+  };
+
+  componentDidUpdate(prevProps) {
+    const {allContactByOperations} = this.props;
+    if(allContactByOperations!=prevProps.allContactByOperations)
+    {
+     // console.log()
+    }
+/*    console.log('componentDidUpdate');
+    const {
+      errorsContactByOperation, isLoadingContactByOperation, contactByOperationResponse,
+    } = this.props;
+    console.log('contactByOperationResponse:',contactByOperationResponse);
+    console.log('contactByOperationResponse prev :',prevProps.contactByOperationResponse);
+
+    if (contactByOperationResponse && contactByOperationResponse == 'deleted') {
+      (!isLoadingContactByOperation && contactByOperationResponse) && notification('success', contactByOperationResponse);
+      (!isLoadingContactByOperation && !contactByOperationResponse) && notification('danger', errorsContactByOperation);
+    }
+    if (contactByOperationResponse && contactByOperationResponse == '') {
+      console.log('eeeeeeeeeeee');
+    (!isLoadingContactByOperation && contactByOperationResponse) && notification('success', contactByOperationResponse);
+      (isLoadingContactByOperation && !contactByOperationResponse) && notification('danger', errorsContactByOperation);
+    }*/
+
   }
 
   render() {
@@ -396,19 +440,24 @@ class ContactByOperationStatusBlock extends React.Component {
       rowsPerPage: 10,
     };
     const {
-      columns, openPopUp,
-      c00, c01, c02, c03, c04, c05,
-      c10, c11, c12,
-      c20, c21, c22,
-      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes,
+      columns,
+      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes,openPopUpDelete,
       firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
     } = this.state;
     const {
       contacts, classes,
-      isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation
+      isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation,
     } = this.props;
+    console.log('debut');
+    console.log('errorsContactByOperation ',isLoadingContactByOperation);
+    console.log('contactByOperationResponse ',contactByOperationResponse);
+    console.log('isLoadingContactByOperation ', isLoadingContactByOperation);
+    console.log('fin');
     (!isLoadingContactByOperation && contactByOperationResponse) && this.editingPromiseResolve(contactByOperationResponse);
     (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
+
+    (!isLoadingContactByOperation && contactByOperationResponse=='deleted') && this.editingPromiseResolveDelete(contactByOperationResponse);
+/*    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolveDelete(errorsContactByOperation);*/
     return (
       <div>
         <MUIDataTable
@@ -827,6 +876,33 @@ class ContactByOperationStatusBlock extends React.Component {
             }
           </DialogActions>
         </Dialog>
+        <Dialog
+            open={openPopUpDelete}
+            keepMounted
+            scroll="body"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth=""
+            maxWidth=""
+        >
+          <DialogTitle id="alert-dialog-slide-title"> Delete contact type by operation </DialogTitle>
+          <DialogContent dividers>
+           Are you sure you want to delete ?
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleCloseDelete}>
+              Cancel
+            </Button>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={this.deleteConfirmeMondatoryAttributes}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
@@ -837,7 +913,7 @@ const mapStateToProps = state => ({
   allContactByOperations: state.getIn(['contactByOperations']).allContactByOperations,
   contactByOperationResponse: state.getIn(['contactByOperations']).contactByOperationResponse,
   isLoadingContactByOperation: state.getIn(['contactByOperations']).isLoading,
-  errorsContactByOperation: state.getIn(['contactByOperations']).errors
+  errorsContactByOperation: state.getIn(['contactByOperations']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllContactByOperation,
