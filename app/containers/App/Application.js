@@ -58,7 +58,7 @@ import {
   LegalCategoryType,
   AddLegalCategoryType,
   AbsenceType,
-  AddAbsenceType, SectorsCompany
+  AddAbsenceType, SectorsCompany,CivilityTitle
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -118,6 +118,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/sectorsCompany"
           component={SectorsCompany}
+        />
+        <Route
+            exact
+            path="/app/gestion-commercial/civilityTitle"
+            component={CivilityTitle}
         />
         <Route
           exact
