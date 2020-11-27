@@ -85,15 +85,8 @@ class BillingBlock extends React.Component {
             })
           }
         },
-        /*        {
-          name: 'billNumber',
-          label: 'Bill Number',
-          options: {
-            filter: true
-          }
-        },  */
         {
-          name: 'billingDate',
+          name: 'invoiceDate',
           label: 'Invoice Date',
           options: {
             filter: true,
@@ -118,15 +111,15 @@ class BillingBlock extends React.Component {
             customBodyRender: (value) => (
               <React.Fragment>
                 {
-                  value.toString().slice(0, 10)
+                  value ? value.toString().slice(0, 10) : ''
                 }
               </React.Fragment>
             )
           }
         },
         {
-          name: 'paymentDay',
-          label: 'Bill Date',
+          name: 'registerDate',
+          label: 'Register Date',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -150,39 +143,7 @@ class BillingBlock extends React.Component {
             customBodyRender: (value) => (
               <React.Fragment>
                 {
-                  value.toString().slice(0, 10)
-                }
-              </React.Fragment>
-            )
-          }
-        },
-        {
-          name: 'paymentDate',
-          label: 'Payment Date',
-          options: {
-            filter: true,
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-            customBodyRender: (value) => (
-              <React.Fragment>
-                {
-                  value.toString().slice(0, 10)
+                  value ? value.toString().slice(0, 10) : ''
                 }
               </React.Fragment>
             )
@@ -214,6 +175,70 @@ class BillingBlock extends React.Component {
           }
         },
         {
+          name: 'paymentDate',
+          label: 'Payment Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value ? value.toString().slice(0, 10) : ''
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'delayDate',
+          label: 'Delay Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value ? value.toString().slice(0, 10) : ''
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
           name: 'reelPaymentDay',
           label: 'Reel Payment Date',
           options: {
@@ -239,7 +264,7 @@ class BillingBlock extends React.Component {
             customBodyRender: (value) => (
               <React.Fragment>
                 {
-                  value.toString().slice(0, 10)
+                  value ? value.toString().slice(0, 10) : ''
                 }
               </React.Fragment>
             )
@@ -267,7 +292,14 @@ class BillingBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value === 0 ? '' : value
+                }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -762,7 +794,16 @@ class BillingBlock extends React.Component {
     };
 
   myCallback = (dataFromChild) => {
-    this.setState({ openPopUp: dataFromChild });
+    BillService.getBill().then(result => {
+      const today = new Date();
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        if (row.paymentDone) row.state = 'Yes';
+        if (today.getTime() < (new Date(row.paymentDate).getTime()) && !row.paymentDone) row.state = 'Zombie';
+        if (today.getTime() > (new Date(row.paymentDate).getTime()) && !row.paymentDone) row.state = 'No';
+      });
+      this.setState({ datas: result.data, openPopUp: dataFromChild });
+    });
   };
 
   render() {

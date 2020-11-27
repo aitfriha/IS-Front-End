@@ -13,7 +13,6 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -35,7 +34,7 @@ class EditBill extends React.Component {
     this.state = {
       billId: '',
       code: '',
-      billingDate: '',
+      invoiceDate: '',
       contractor: '',
       clientId: '',
       clients: [],
@@ -63,8 +62,11 @@ class EditBill extends React.Component {
       items: [],
       desc: [],
       descTotalUSD: [],
-      paymentDay: '',
+      paymentDate: '',
       reelPaymentDay: '',
+      reelPaymentDays: '',
+      registerDate: '',
+      delayDate: '',
       paymentDone: false
     };
   }
@@ -101,7 +103,7 @@ class EditBill extends React.Component {
       this.setState({
         billId: bill._id,
         code: bill.code,
-        billingDate: bill.billingDate ? bill.billingDate.slice(0, 10) : '',
+        invoiceDate: bill.invoiceDate ? bill.invoiceDate.slice(0, 10) : '',
         clientId: bill.client._id,
         commercialOperationId: bill.commercialOperation._id,
         contractor: bill.financialCompany._id,
@@ -121,10 +123,10 @@ class EditBill extends React.Component {
         desc: bill.desc,
         descTotalUSD: bill.descTotalUSD,
         paymentsBDDay: bill.paymentsBDDay,
-        reelPaymentDays: bill.reelPaymentDays,
-        paymentDay: bill.paymentDay.toString().slice(0, 10),
-        reelPaymentDay: bill.reelPaymentDay.toString().slice(0, 10),
+        reelPaymentDays: bill.reelPaymentDays ? bill.reelPaymentDays : '',
+        reelPaymentDay: bill.reelPaymentDay ? bill.reelPaymentDay.toString().slice(0, 10) : '',
         paymentDone: bill.paymentDone,
+        registerDate: bill.registerDate.toString().slice(0, 10),
         openDoc: true
       });
     }
@@ -147,6 +149,10 @@ class EditBill extends React.Component {
     };
 
     handleChange = (ev) => {
+      if (ev.target.name === 'reelPaymentDay') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        this.setState({ paymentDone: true });
+      }
       if (ev.target.name === 'ivaState') {
         const id = ev.target.value;
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -212,8 +218,8 @@ class EditBill extends React.Component {
 
     handleCreate = () => {
       const {
-        code, billingDate, contractor, financialContractId, contracts, reelPaymentDay, billId, nbrConcepts,
-        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, paymentDay, paymentDone,
+        code, invoiceDate, contractor, financialContractId, reelPaymentDay, nbrConcepts, contracts, billId,
+        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, paymentDone,
         totalEuro, totalLocal, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
       const id = clientId;
@@ -224,17 +230,20 @@ class EditBill extends React.Component {
       const iva = { _id: ivaState };
       const financialContract = { _id: financialContractId };
       const clientSigned = { _id: clientContractSigned };
+      const delaiDay = 20;
       let paymentsBDDay = 0;
       // eslint-disable-next-line array-callback-return
       contracts.map(contract => {
         if (contract.financialContractId === financialContractId) paymentsBDDay = contract.paymentsBDDays;
       });
-      const paymentDate = new Date(paymentDay);
+      const paymentDate = new Date(invoiceDate);
       paymentDate.setDate(paymentDate.getDate() + paymentsBDDay);
       const reelPaymentDate = new Date(reelPaymentDay);
-      const paymentDate2 = new Date(paymentDay);
-      const difference = reelPaymentDate.getTime() - paymentDate2.getTime();
+      const difference = reelPaymentDate.getTime() - paymentDate.getTime();
       const reelPaymentDays = Math.ceil(difference / (1000 * 3600 * 24));
+      const delayDate = new Date(paymentDate);
+      delayDate.setDate(delayDate.getDate() + delaiDay);
+      const registerDate = new Date();
       const Bill = {
         billId,
         client,
@@ -245,14 +254,15 @@ class EditBill extends React.Component {
         iva,
         financialContract,
         code,
-        billingDate,
+        invoiceDate,
         purchaseOrderNumber,
-        paymentDay,
         paymentsBDDay,
         paymentDate,
         reelPaymentDay,
         reelPaymentDays,
+        registerDate,
         paymentDone,
+        delayDate,
         totalEuro,
         totalLocal,
         valueIVALocal,
@@ -274,12 +284,6 @@ class EditBill extends React.Component {
     handleGoBack = () => {
       // eslint-disable-next-line react/prop-types,react/destructuring-assignment
       this.props.callbackFromParent(false);
-    }
-
-    handleCheck = () => {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const ok = !this.state.paymentDone;
-      this.setState({ paymentDone: ok });
     }
 
     handleOpenConcept = () => {
@@ -315,8 +319,8 @@ class EditBill extends React.Component {
           label: '2',
         }];
       const {
-        code, billingDate, contractor, clients, companies, operations, currencies, ivas, ivaStates, contracts,
-        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDay, paymentDone, reelPaymentDay,
+        code, invoiceDate, contractor, clients, companies, operations, currencies, ivas, ivaStates, contracts,
+        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDone, reelPaymentDay,
         totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
       return (
@@ -357,10 +361,10 @@ class EditBill extends React.Component {
                 </Grid>
                 <Grid item xs={12} md={3} sm={3}>
                   <TextField
-                    id="billingDate"
+                    id="invoiceDate"
                     label="Invoice Date"
-                    name="billingDate"
-                    value={billingDate}
+                    name="invoiceDate"
+                    value={invoiceDate}
                     type="date"
                     onChange={this.handleChange}
                     InputLabelProps={{
@@ -720,20 +724,6 @@ class EditBill extends React.Component {
             >
               <Grid item xs={4}>
                 <TextField
-                  id="paymentDay"
-                  label="Payment Date  "
-                  name="paymentDay"
-                  value={paymentDay}
-                  type="date"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
                   id="reelPaymentDay"
                   label="Reel Payment Date"
                   name="reelPaymentDay"
@@ -752,7 +742,7 @@ class EditBill extends React.Component {
                   id="paymentDone"
                   name="paymentDone"
                   value={paymentDone}
-                  control={<Checkbox color="primary" checked={paymentDone} onChange={this.handleCheck} />}
+                  control={<Checkbox color="primary" checked={paymentDone} />}
                   label="payment Done"
                   labelPlacement="end"
                   InputLabelProps={{
@@ -778,10 +768,6 @@ class EditBill extends React.Component {
       );
     }
 }
-
-EditBill.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 const mapStateToProps = state => ({
   allCountrys: state.getIn(['countries']).allCountrys,
   countryResponse: state.getIn(['countries']).countryResponse,
