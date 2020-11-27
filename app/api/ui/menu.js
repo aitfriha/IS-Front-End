@@ -90,6 +90,12 @@ module.exports = [
             link: '/app/gestion-commercial/sectorsCompany',
             icon: 'ios-people-outline'
           },
+          {
+            key: 'civilityTitle',
+            name: 'Civility Title',
+            link: '/app/gestion-commercial/civilityTitle',
+            icon: 'ios-people-outline'
+          },
 
           /* {
             key: 'countries',

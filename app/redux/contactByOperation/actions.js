@@ -15,9 +15,10 @@ export const updateContactByOperation = (contactByOperationWithId) => ({
   contactByOperationWithId
 });
 
-export const deleteContactByOperation = (contactByOperationId) => ({
+export const deleteContactByOperation = (contactByOperationId,contactTypeName) => ({
   type: DELETE_CONTACTBYOPERATION,
-  contactByOperationId
+  contactByOperationId,
+  contactTypeName
 });
 
 export const getAllContactByOperation = () => ({
