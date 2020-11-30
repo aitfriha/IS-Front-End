@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
@@ -6,8 +6,13 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {
   Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import ContractStatusService from '../../../Services/ContractStatusService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class StatusBlock extends React.Component {
   constructor(props) {
@@ -63,9 +68,17 @@ class StatusBlock extends React.Component {
         }
       ]
     };
+  }
+
+  componentDidMount() {
     ContractStatusService.getContractStatus().then(result => {
       this.setState({ datas: result.data });
     });
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
   // eslint-disable-next-line react/sort-comp
@@ -226,4 +239,10 @@ class StatusBlock extends React.Component {
   }
 }
 
-export default StatusBlock;
+const StatusBlockMapped = connect()(StatusBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StatusBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
@@ -6,8 +6,13 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {
   Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, TextField
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import CurrencyService from '../../../Services/CurrencyService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class CurrencyBlock extends React.Component {
   constructor(props) {
@@ -81,9 +86,17 @@ class CurrencyBlock extends React.Component {
         }
       ]
     };
+  }
+
+  componentDidMount() {
     CurrencyService.getCurrency().then(result => {
       this.setState({ datas: result.data });
     });
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
     // eslint-disable-next-line react/sort-comp
@@ -330,5 +343,10 @@ class CurrencyBlock extends React.Component {
       );
     }
 }
+const CurrencyBlockMapped = connect()(CurrencyBlock);
 
-export default CurrencyBlock;
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <CurrencyBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -12,6 +12,7 @@ import {
   TextField,
   Typography
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -26,7 +27,6 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
 import history from '../../../../utils/history';
 import CurrencyService from '../../../Services/CurrencyService';
 import ContractStatusService from '../../../Services/ContractStatusService';
@@ -38,7 +38,10 @@ import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
-import styles from '../../Companies/companies-jss';
+import ContractService from '../../../Services/ContractService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class AddContract extends React.Component {
   constructor(props) {
@@ -66,7 +69,8 @@ class AddContract extends React.Component {
       contractTradeVolume: 0,
       contractTradeVolumeEuro: 0,
       currencies: [],
-      currency: '',
+      currencyId: '',
+      currencyCode: '',
       changeFactor: 0,
       paymentsBDDays: '',
       nbrConcepts: ['1'],
@@ -100,7 +104,7 @@ class AddContract extends React.Component {
       insureDocumentations: ['1'],
       contractDocumentation: [],
       contractDocumentations: ['1'],
-      contractDocDescreption: '',
+      contractDocDescreption: [],
       radio: '',
       open: false,
       open2: false,
@@ -111,6 +115,11 @@ class AddContract extends React.Component {
   }
 
   componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
@@ -131,7 +140,7 @@ class AddContract extends React.Component {
       this.setState({ clients: result.data.payload });
     });
     FunctionalStructureService.getLevels().then(result => {
-      this.setState({ levels: result.data });
+      this.setState({ levels: result.data.payload });
     });
   }
 
@@ -153,15 +162,19 @@ class AddContract extends React.Component {
 
     handleChange = (ev) => {
       let changeFactor;
-      if (ev.target.name === 'currency') {
+      if (ev.target.name === 'currencyId') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const tradeValue = this.state.contractTradeVolume;
+        let currencyCode;
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.currencies.map(currency => {
           // eslint-disable-next-line prefer-destructuring
-          if (currency.currencyCode === ev.target.value) changeFactor = currency.changeFactor;
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+          }
         });
-        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
+        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor, currencyCode });
       }
       if (ev.target.name === 'amountInsured') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -208,6 +221,13 @@ class AddContract extends React.Component {
         tab[0] = 0;
         tab[row] = event.target.value;
         this.setState({ purchaseOrderNumber: tab });
+      }
+      if (event.target.name === 'contractDocDescreption') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.contractDocDescreption;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ contractDocDescreption: tab });
       }
     }
 
@@ -278,9 +298,14 @@ class AddContract extends React.Component {
   handleDeleteDoc3 = (row) => {
     // eslint-disable-next-line react/destructuring-assignment
     if (this.state.contractDocumentations.length > 1) {
+      console.log(row);
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.contractDocumentations.filter(rows => rows !== row);
-      this.setState({ contractDocumentations: newDocs });
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs2 = this.state.contractDocDescreption.filter((e, i) => i !== (row));
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newDocs3 = this.state.contractDocumentation.filter((e, i) => i !== (row - 1));
+      this.setState({ contractDocumentations: newDocs, contractDocDescreption: newDocs2, contractDocumentation: newDocs3 });
     }
   }
 
@@ -342,7 +367,6 @@ class AddContract extends React.Component {
   handleDeletePenalty = (row) => {
     // eslint-disable-next-line react/destructuring-assignment
     if (this.state.penaltiesListe.length > 1) {
-      console.log(row);
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const newDocs = this.state.penaltiesListe.filter(rows => rows !== row);
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -379,7 +403,79 @@ class AddContract extends React.Component {
   }
 
     handleCreate = () => {
-      history.push('/app/gestion-financial/Contracts');
+      const {
+        contractDocDescreption, contractDocumentation, insureDocumentation, proposalDocumentation, proposalDocumentationDuo, purchaseOrderDocumentation,
+        operation, company, state, taxeIdentityNumber, contractTitle,
+        conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptTotalAmount, conceptTotalAmountEuro,
+        signedDate, startDate, endDate, finalReelDate, contractTradeVolume, contractTradeVolumeEuro,
+        penaltyMaxType, currencyId, paymentsBDDays, penaltyQuantity, penaltyValue, currentCity,
+        penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrderNumber, purchaseOrderReceiveDate,
+        firstDayInsured, lastDayInsured, amountInsured, amountInsuredEuro, level3,
+        penaltiesListe, purchaseOrders, insureDocumentations, contractDocumentations, nbrConcepts
+      } = this.state;
+      // eslint-disable-next-line react/destructuring-assignment
+      const id = this.state.client;
+      const client = { _id: id };
+      const commercialOperation = { _id: operation };
+      const financialCompany = { _id: company };
+      const contractStatus = { _id: state };
+      const city = { _id: currentCity };
+      const address = { city };
+      const currency = { _id: currencyId };
+      const functionalStructureLevel = { _id: level3 };
+      const FinancialContract = {
+        client,
+        commercialOperation,
+        financialCompany,
+        contractStatus,
+        contractTitle,
+        contractDocumentation,
+        contractDocDescreption,
+        functionalStructureLevel,
+        taxeIdentityNumber,
+        address,
+        signedDate,
+        startDate,
+        endDate,
+        finalReelDate,
+        contractTradeVolume,
+        currency,
+        contractTradeVolumeEuro,
+        paymentsBDDays,
+        conceptTotalAmount,
+        conceptTotalAmountEuro,
+        conceptType,
+        conceptValue,
+        conceptValueEuro,
+        conceptValueLocal,
+        firstDayInsured,
+        lastDayInsured,
+        amountInsured,
+        amountInsuredEuro,
+        insureDocumentation,
+        purchaseOrderNumber,
+        purchaseOrderReceiveDate,
+        purchaseOrderDocumentation,
+        proposalDocumentation,
+        proposalDocumentationDuo,
+        penaltyQuantity,
+        penaltyValue,
+        penaltyCost,
+        penaltyPer,
+        penaltyMaxValue,
+        penaltyMaxType,
+        penaltiesListe,
+        purchaseOrders,
+        insureDocumentations,
+        contractDocumentations,
+        nbrConcepts
+      };
+      if (parseFloat(contractTradeVolume) === conceptTotalAmount) {
+        ContractService.saveContract(FinancialContract).then(result => {
+          console.log(result);
+          history.push('/app/gestion-financial/Contracts');
+        });
+      }
     }
 
     handleGoBack = () => {
@@ -533,7 +629,7 @@ class AddContract extends React.Component {
       client, operation, company, state, taxeIdentityNumber, nbrConcepts, radio, status, currencies, contractTitle,
       conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptTotalAmount, conceptTotalAmountEuro,
       signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies, operations, clients, contractTradeVolumeEuro,
-      penaltyMaxType, currency, paymentsBDDays, penalties, penaltyQuantity, penaltyValue, levels, amountInsuredEuro,
+      penaltyMaxType, currencyId, currencyCode, paymentsBDDays, penalties, penaltyQuantity, penaltyValue, levels, amountInsuredEuro,
       penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, purchaseOrders,
       insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption
     } = this.state;
@@ -689,8 +785,8 @@ class AddContract extends React.Component {
                             id="contractDocDescreption"
                             label="Description"
                             name="contractDocDescreption"
-                            value={contractDocDescreption}
-                            onChange={this.handleChange}
+                            value={contractDocDescreption[row]}
+                            onChange={event => this.handleConcept(event, row)}
                             fullWidth
                             required
                           />
@@ -733,8 +829,8 @@ class AddContract extends React.Component {
                     >
                       {
                         levels.map((clt) => (
-                          <MenuItem key={clt.value} value={clt.value}>
-                            {clt.label}
+                          <MenuItem key={clt.levelId} value={clt.levelId}>
+                            {clt.name}
                           </MenuItem>
                         ))
                       }
@@ -751,8 +847,8 @@ class AddContract extends React.Component {
                     >
                       {
                         levels.map((clt) => (
-                          <MenuItem key={clt.value} value={clt.value}>
-                            {clt.label}
+                          <MenuItem key={clt.levelId} value={clt.levelId}>
+                            {clt.name}
                           </MenuItem>
                         ))
                       }
@@ -769,8 +865,8 @@ class AddContract extends React.Component {
                     >
                       {
                         levels.map((clt) => (
-                          <MenuItem key={clt.value} value={clt.value}>
-                            {clt.label}
+                          <MenuItem key={clt.levelId} value={clt.levelId}>
+                            {clt.name}
                           </MenuItem>
                         ))
                       }
@@ -951,13 +1047,13 @@ class AddContract extends React.Component {
               <FormControl fullWidth required>
                 <InputLabel>Select Currency</InputLabel>
                 <Select
-                  name="currency"
-                  value={currency}
+                  name="currencyId"
+                  value={currencyId}
                   onChange={this.handleChange}
                 >
                   {
                     currencies.map((clt) => (
-                      <MenuItem key={clt.currencyId} value={clt.currencyCode}>
+                      <MenuItem key={clt.currencyId} value={clt.currencyId}>
                         {clt.currencyName}
                       </MenuItem>
                     ))
@@ -1069,7 +1165,7 @@ class AddContract extends React.Component {
                   id="conceptCurrency"
                   label="Currency"
                   name="conceptCurrency"
-                  value={currency}
+                  value={currencyCode}
                   onChange={this.handleChange}
                   fullWidth
                   InputProps={{
@@ -1213,7 +1309,7 @@ class AddContract extends React.Component {
                         id="conceptCurrency"
                         label="Currency"
                         name="conceptCurrency"
-                        value={currency}
+                        value={currencyCode}
                         onChange={this.handleChange}
                         fullWidth
                         InputProps={{
@@ -1633,7 +1729,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const AddContractMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddContract));
+)(AddContract);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddContractMapped changeTheme={changeTheme} classes={classes} />;
+};

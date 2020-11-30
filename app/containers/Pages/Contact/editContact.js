@@ -1,13 +1,8 @@
 import React, { useContext } from 'react';
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { PapperBlock } from 'dan-components';
 import {
   Grid,
-  FormControl,
   TextField,
   Button,
-  Collapse,
   Badge,
   Tooltip,
   Dialog,
@@ -16,39 +11,26 @@ import {
   DialogActions,
   Avatar,
   withStyles,
-  makeStyles,
-  Paper,
   Chip,
   Divider,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
-  Typography
 } from '@material-ui/core';
 import ProfilePicture from 'profile-picture';
 import 'profile-picture/build/ProfilePicture.css';
 import '../Configurations/map/app.css';
-import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
-import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
 import EditRoundedIcon from '@material-ui/core/SvgIcon/SvgIcon';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import styles from '../Staff/staff-jss';
 import CountryService from '../../Services/CountryService';
-import StateCountryService from '../../Services/StateCountryService';
-import ContractTypeService from '../../Services/ContractTypeService';
-import LegalCategoryTypeService from '../../Services/LegalCategoryTypeService';
-import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
-import { addContact, getAllContact } from '../../../redux/contact/actions';
-import history from '../../../utils/history';
+import { addContact, getAllContact, updateContact } from '../../../redux/contact/actions';
+import { getAllCountry } from '../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -58,120 +40,51 @@ const SmallAvatar = withStyles(theme => ({
   }
 }))(Avatar);
 
-const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
-
-const inputContractDoc = React.createRef();
-const inputInternalRulesDoc = React.createRef();
-const inputPreContractDoc = React.createRef();
-const inputIdCardDoc = React.createRef();
-const inputPassportDoc = React.createRef();
-const inputProfessionalIdCardDoc = React.createRef();
-const inputHnsCardDoc = React.createRef();
-const reader = new FileReader();
-
-const useStyles = makeStyles(styles);
-
-class AddContact extends React.Component {
+class EditContact extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {};
     this.state = {
       isChangeProfilePic: false,
-      isPersonalInformation: true,
-      isGeneralContractInformation: false,
-      isEconomicContractInformation: false,
-      isStaffDocumentation: false,
       firstName: '',
+      cityId: '',
       fatherFamilyName: '',
       motherFamilyName: '',
       personalPhone: '',
       personalEmail: '',
       companyId: '',
+      department: '',
       companyPhone: '',
+      position: '',
+      companyFixPhone: '',
       companyMobilePhone: '',
       companyEmail: '',
+      personalMobilePhone: '',
       skype: '',
-      birthday: new Date(),
-      birthCountry: '',
-      emergencyContactName: '',
-      emergencyContactPhone: '',
       photo: '',
       fullAddress: '',
-      company: {},
-      adCountry: {},
       postCode: '',
-      state: {},
       city: {},
-      contractType: '',
-      legalCategoryType: '',
-      associateOffice: '',
-      hiringCountry: '',
-      hiringState: '',
-      townContract: '',
-      personalNumber: '',
-      highDate: new Date(),
-      lowDate: new Date(),
-      registrationDate: new Date(),
-      preContractDate: new Date(),
-      internalRulesDoc: {},
-      contractDoc: {},
-      preContractDoc: {},
-      countries: [],
-      states: [],
-      idCardNumber: '',
-      idCardExpeditionDate: new Date(),
-      idCardExpirationDate: new Date(),
-      passportNumber: '',
-      passportExpeditionDate: new Date(),
-      passportExpirationDate: new Date(),
-      professionalIdCardNumber: '',
-      professionalIdCardExpeditionDate: new Date(),
-      professionalIdCardExpirationDate: new Date(),
-      hnsCardNumber: '',
-      hnsCardExpeditionDate: new Date(),
-      hnsCardExpirationDate: new Date(),
-      idCardDoc: {},
-      passportDoc: {},
-      professionalIdCardDoc: {},
-      hnsCardDoc: {},
-      idCardDocExtension: '',
-      passportDocExtension: '',
-      professionalIdCardDocExtension: '',
-      hnsCardDocExtension: '',
-      contractTypes: [],
-      legalCategoryTypes: [],
-      contractSalary: 0,
-      companyContractCost: 0,
-      expenses: 0,
-      companyExpensesCost: 0,
-      objectives: 0,
-      companyObjectivesCost: 0,
-      totalCompanyCost: 0,
-      contractSalaryDateGoing: new Date(),
-      contractSalaryDateOut: new Date(),
-      companyContractCostDateGoing: new Date(),
-      companyContractCostDateOut: new Date(),
-      expensesDateGoing: new Date(),
-      expensesDateOut: new Date(),
-      companyExpensesCostDateGoing: new Date(),
-      companyExpensesCostDateOut: new Date(),
-      objectivesDateGoing: new Date(),
-      objectivesDateOut: new Date(),
-      companyObjectivesCostDateGoing: new Date(),
-      companyObjectivesCostDateOut: new Date(),
-      totalCompanyCostDateGoing: new Date(),
-      totalCompanyCostDateOut: new Date()
+      keyCountry: {},
+      keyState: {},
+      keyCity: {},
+      keyClient: {},
+      contactId:'',
     };
   }
 
-  profilePictureRef = React.createRef();
-
   componentDidMount() {
-    const { getAllClient } = this.props;
+    const {
+      getAllCountry, selectedContact, getAllStateByCountry, getAllClient
+    } = this.props;
+    console.log(selectedContact);
+    getAllCountry();
+    // console.log(selectedContact)
+    // getAllStateByCountry(selectedContact.countryName);
     // changeTheme('blueCyanTheme');
-    CountryService.getCountries().then(({ data }) => {
+    /*    CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
-    });
+    }); */
     getAllClient();
   }
 
@@ -186,13 +99,82 @@ class AddContact extends React.Component {
     });
   };
 
-  handleSubmitStaff = () => {
-    const { addContact, getAllContact } = this.props;
+  componentWillReceiveProps(newProps) {
+    if (newProps.selectedContact !== this.props.selectedContact) {
+      this.setState({contactId: newProps.selectedContact.contactId});
+      this.setState({firstName: newProps.selectedContact.firstName});
+      this.setState({fatherFamilyName: newProps.selectedContact.fatherFamilyName});
+      this.setState({motherFamilyName: newProps.selectedContact.motherFamilyName});
+      this.setState({department: newProps.selectedContact.department});
+      this.setState({position: newProps.selectedContact.position});
+
+      this.setState({companyFixPhone: newProps.selectedContact.companyFixPhone});
+      this.setState({companyMobilePhone: newProps.selectedContact.companyMobilePhone});
+      this.setState({companyEmail: newProps.selectedContact.companyEmail});
+      this.setState({personalMobilePhone: newProps.selectedContact.personalMobilePhone});
+
+      this.setState({personalEmail: newProps.selectedContact.personalEmail});
+      this.setState({skype: newProps.selectedContact.skype});
+
+      this.setState({fullAddress: newProps.selectedContact.fullAddress});
+      this.setState({postCode: newProps.selectedContact.postCode});
+    }
+    if (newProps.selectedContact !== this.props.selectedContact) {
+      // console.log(newProps.selectedClient);
+      for (const key in newProps.allCountrys) {
+        if (newProps.allCountrys[key].countryName === newProps.selectedContact.countryName) {
+          this.setState({ keyCountry: newProps.allCountrys[key] });
+          break;
+        }
+      }
+    }
+    if (newProps.allStateCountrys === this.props.allStateCountrys) {
+      for (const key in newProps.allStateCountrys) {
+        console.log(newProps.allStateCountrys);
+        if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedContact.countryStateId) {
+          this.setState({ keyState: newProps.allStateCountrys[key] });
+          break;
+        }
+      }
+      for (const key in this.props.allClients) {
+        if (this.props.allClients[key].clientId === newProps.selectedContact.companyId) {
+          this.setState({ keyClient: this.props.allClients[key]  });
+          break;
+        }
+      }
+      for (const key in newProps.allCitys) {
+        if (newProps.allCitys[key].cityName === newProps.selectedContact.cityName) {
+          this.setState({ keyCity: newProps.allCitys[key] });
+          this.setState({ cityId: newProps.allCitys[key].cityId });
+          break;
+        }
+      }
+    }
+  }
+
+  handleChangeCountry = (ev, value) => {
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+    this.setState({ keyCountry: value });
+  };
+
+  handleChangeState = (ev, value) => {
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+    this.setState({ keyState: value });
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ cityId: value.cityId });
+    this.setState({ keyCity: value });
+  };
+
+  handleSubmitContact = () => {
+    const { updateContact, getAllContact } = this.props;
     const {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyId,
       department,
       position,
       companyFixPhone,
@@ -202,9 +184,11 @@ class AddContact extends React.Component {
       personalEmail,
       skype,
       photo,
-      city,
+      cityId,
       fullAddress,
-      postCode
+      postCode,
+      keyClient,
+      contactId
     } = this.state;
 
 
@@ -212,7 +196,6 @@ class AddContact extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      companyId,
       department,
       position,
       companyFixPhone,
@@ -222,21 +205,27 @@ class AddContact extends React.Component {
       personalEmail,
       skype,
       photo,
-      cityId:city.cityId,
+      cityId,
       fullAddress,
-      postCode
+      postCode,
+      contactId,
+      companyId: keyClient.clientId
     };
+    console.log(contact);
     const promise = new Promise(resolve => {
       // get client information
-      addContact(contact);
+      updateContact(contact);
       this.editingPromiseResolve = resolve;
     });
+
     promise.then(result => {
       if (isString(result)) {
+        this.props.handleClose();
         notification('success', result);
         getAllContact();
-        history.push('/app/gestion-commercial/contacts');
+        //   getAllStaff();
       } else {
+        this.props.handleClose();
         notification('danger', result);
       }
     });
@@ -269,17 +258,13 @@ class AddContact extends React.Component {
 
   handleChangeCompany = (ev, value) => {
     this.setState({ companyId: value.clientId });
+    this.setState({ keyClient: value  });
   };
 
-  onChangeInput = () => {
-
-  }
-
   render() {
-    const title = brand.name + ' - Clients';
-    const description = brand.desc;
     const {
-      classes, isLoadingContact, contactResponse, errorsContact, allClients
+      classes, isLoadingContact, contactResponse, errorsContact, allClients,
+      allCountrys, allCitys, allStateCountrys, selectedContact
     } = this.props;
     const {
       firstName,
@@ -295,19 +280,17 @@ class AddContact extends React.Component {
       skype,
       photo,
       isChangeProfilePic,
+      keyCountry,
+      keyState,
+      keyCity,
+      keyClient,
+      fullAddress,
+      postCode,
     } = this.state;
     (!isLoadingContact && contactResponse) && this.editingPromiseResolve(contactResponse);
     (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
     return (
       <div>
-        <Helmet>
-          <title>{title}</title>
-          <meta name="description" content={description} />
-          <meta property="og:title" content={title} />
-          <meta property="og:description" content={description} />
-          <meta property="twitter:title" content={title} />
-          <meta property="twitter:description" content={description} />
-        </Helmet>
         <Dialog
           disableBackdropClick
           disableEscapeKeyDown
@@ -338,12 +321,7 @@ class AddContact extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-
-        <PapperBlock
-          title="New contact"
-          desc="Please, Fill in the all field"
-          icon="ios-person"
-        >
+        <div>
           <div>
             <Grid
               container
@@ -446,30 +424,18 @@ class AddContact extends React.Component {
                   id="combo-box-demo"
                   options={allClients && allClients}
                   getOptionLabel={option => (option ? option.name : '')}
+                  value={allClients.find(v => v.name === keyClient.name) || ''}
                   onChange={this.handleChangeCompany}
                   renderInput={params => (
                     <TextField
                       fullWidth
                       {...params}
-                      label="Choose the company*"
+                      label="Choose the company"
+                      required
                       variant="outlined"
                     />
                   )}
                 />
-                {/*                <FormControl
-                    className={classes.formControl}
-                    style={{ width: '48%' }}
-                    required
-                >
-                  <InputLabel>Type</InputLabel>
-                  <Select name="type"  onChange={this.handleChange}>
-                    {allClients && allClients.map(tp => (
-                        <MenuItem key={tp} value={tp.name}>
-                          {tp.name}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl> */}
                 <TextField
                   id="outlined-basic"
                   label="Department"
@@ -566,7 +532,76 @@ class AddContact extends React.Component {
                   style={{ marginBottom: '10px', marginTop: '10px' }}
                 />
                 <div style={{ marginTop: 25 }}>
-                  <AddressBlock onChangeInput={this.handleChange} />
+                  {/* <AddressBlock onChangeInput={this.handleChange} /> */}
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={allCountrys}
+                    getOptionLabel={option => option.countryName}
+                    value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
+                    onChange={this.handleChangeCountry}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Choose the country"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={allStateCountrys}
+                    getOptionLabel={option => option.stateName}
+                    value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
+                    onChange={this.handleChangeState}
+                    style={{ marginTop: 15 }}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Choose the state"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={allCitys}
+                    getOptionLabel={option => option.cityName}
+                    value={allCitys.find(v => v.cityName === keyCity.cityName) || ''}
+                    onChange={this.handleChangeCity}
+                    style={{ marginTop: 15 }}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Choose the city"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Name of address"
+                    variant="outlined"
+                    name="fullAddress"
+                    fullWidth
+                    required
+                    value={fullAddress}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Post Code"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    name="postCode"
+                    value={postCode}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
                 </div>
               </Grid>
             </Grid>
@@ -577,12 +612,12 @@ class AddContact extends React.Component {
               color="primary"
               variant="contained"
               size="small"
-              onClick={this.handleSubmitStaff}
+              onClick={this.handleSubmitContact}
             >
-              Save Contact
+              Update Contact
             </Button>
           </div>
-        </PapperBlock>
+        </div>
       </div>
     );
   }
@@ -600,11 +635,30 @@ const mapStateToProps = state => ({
   clientResponse: state.getIn(['clients']).clientResponse,
   isLoading: state.getIn(['clients']).isLoading,
   errors: state.getIn(['clients']).errors,
+  // country
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoadingCounty: state.getIn(['countries']).isLoading,
+  errorsCountry: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getAllClient,
     addContact,
+    getAllCountry,
+    getAllStateByCountry,
+    getAllCityByState,
+    updateContact,
     getAllContact
   },
   dispatch
@@ -614,5 +668,5 @@ export default withStyles(styles)(
   connect(
     mapStateToProps,
     mapDispatchToProps
-  )(AddContact)
+  )(EditContact)
 );

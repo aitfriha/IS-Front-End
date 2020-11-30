@@ -39,6 +39,9 @@ import staffContractHistoryReducer from './staffContractHistory/reducer';
 import staffDocumentReducer from './staffDocument/reducer';
 import staffEconomicContractInformationReducer from './staffEconomicContractInformation/reducer';
 import staffEconomicContractInformationHistoryReducer from './staffEconomicContractInformationHistory/reducer';
+import contactReducer from './contact/reducer';
+import contactByOperationReducer from './contactByOperation/reducer';
+import civilityTitleReducer from './civilityTitle/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -78,6 +81,9 @@ export default function createReducer(injectedReducers = {}) {
     functionalStructureAssignationHistories: functionalStructureAssignationHistoryReducer,
     administrativeStructureAssignationHistories: administrativeStructureAssignationHistoryReducer,
     assignments: assignmentReducer,
+    contacts: contactReducer,
+    contactByOperations: contactByOperationReducer,
+    civilityTitle: civilityTitleReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers

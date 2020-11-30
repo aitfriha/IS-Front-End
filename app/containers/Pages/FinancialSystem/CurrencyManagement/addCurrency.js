@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   FormControl,
@@ -6,14 +6,17 @@ import {
 } from '@material-ui/core';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import { connect } from 'react-redux';
 import history from '../../../../utils/history';
-import styles from '../../Companies/companies-jss';
 import CurrencyService from '../../../Services/CurrencyService';
+
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles();
 
 class AddCurrency extends React.Component {
   constructor(props) {
@@ -27,6 +30,14 @@ class AddCurrency extends React.Component {
       month: '',
       changeFactor: '',
     };
+  }
+
+  componentDidMount() {
+    const {
+      // eslint-disable-next-line react/prop-types
+      changeTheme
+    } = this.props;
+    changeTheme('greyTheme');
   }
 
     handleSubmit = () => {
@@ -117,7 +128,6 @@ class AddCurrency extends React.Component {
       const {
         currencyName, currencyCode, year, month, changeFactor
       } = this.state;
-      const { classes } = this.props;
       return (
         <div>
           <Helmet>
@@ -235,7 +245,11 @@ class AddCurrency extends React.Component {
       );
     }
 }
-AddCurrency.propTypes = {
-  classes: PropTypes.object.isRequired
+
+const AddCurrencyMapped = connect()(AddCurrency);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AddCurrencyMapped changeTheme={changeTheme} classes={classes} />;
 };
-export default withStyles(styles)(AddCurrency);

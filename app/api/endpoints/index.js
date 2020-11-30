@@ -23,6 +23,7 @@ const ENDPOINTS = {
   STAFFECONOMICCONTRACTINFORMATIONHISTORY:
     'http://localhost:9000/api/staffEconomicContractInformationHistory',
   SECTORCOMPANY: 'http://localhost:9000/api/SectorCompany',
+  CONTACT: 'http://localhost:9000/api/contact',
   CONTRACTTYPE: 'http://localhost:9000/api/contractType',
   ABSENCETYPE: 'http://localhost:9000/api/absenceType',
   LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
@@ -33,6 +34,8 @@ const ENDPOINTS = {
     'http://localhost:9000/api/functionalStructureAssignationHistory',
     ADMINISTRATIVESTRUCTUREASSIGNATIONHISTORY:
     'http://localhost:9000/api/administrativeStructureAssignationHistory',
+  CONTACTBYOPERATION: 'http://localhost:9000/api/contactByOperation',
+  CIVILITYTITLE: 'http://localhost:9000/api/civilityTitle',
   CONTRACTING: {
     APPLICATIONS: '/api/applications',
     CONTRACTS: '/api/contract'

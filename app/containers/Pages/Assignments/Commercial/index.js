@@ -73,21 +73,21 @@ class Commercial extends React.Component {
         },
         {
           // eslint-disable-next-line no-useless-concat
-          title: 'Email',
-          field: 'email',
+          title: 'sector1',
+          field: 'sector1',
           /* cellStyle: { width: 100, maxWidth: 100 },
           headerStyle: { width: 130, maxWidth: 130 } */
         },
         {
           // eslint-disable-next-line no-useless-concat
-          title: 'Phone',
-          field: 'phone'
+          title: 'sector2',
+          field: 'sector2'
           /* cellStyle: { width: 155, maxWidth: 155 },
           headerStyle: { width: 180, maxWidth: 180 } */
         },
         {
-          title: 'Description',
-          field: 'description',
+          title: 'sector3',
+          field: 'sector3',
           /* cellStyle: { width: 155, maxWidth: 155 },
           headerStyle: { width: 100, maxWidth: 180 } */
         },

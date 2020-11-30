@@ -31,6 +31,8 @@ import {
 } from '@material-ui/pickers';
 import { isString } from 'lodash';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import FormLabel from '@material-ui/core/FormLabel';
+import DeleteIcon from '@material-ui/icons/Delete';
 import Contact from './contact';
 import Transition from '../../../components/Transition/transition';
 import Converter from '../../../components/CurrencyConverter/Converter';
@@ -46,7 +48,13 @@ import { getAllCommercialOperationStatus } from '../../../redux/commercialOperat
 import notification from '../../../components/Notification/Notification';
 import { addCommercialOperation } from '../../../redux/commercialOperation/actions';
 import { getAllCommercialServiceType } from '../../../redux/serviceType/actions';
-
+import { getAllContact } from '../../../redux/contact/actions';
+import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
+import EditContact from '../Contact/editContact';
+import AddContact from '../Contact/addContact';
+const qpcListAdd = [];
+const pdcListAdd = [];
+const lacListAdd = [];
 class AddCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
@@ -81,31 +89,178 @@ class AddCommercialOperation extends React.Component {
       progress: 0,
       open: false,
       contactType: '',
+      decisionMakers: [],
+      technicalLeaders: [],
+      administrativeContactTechnicalLeader: '',
+      closeDecisionMakers: [],
+
+      qpcOthercontacts: [1],
+      qpcOthercontact: [],
+      qpcListAddOtherOperation: [],
+
+      pdcOthercontacts: [1],
+      pdcListAddOtherOperation: [],
+      pdcOthercontact: [],
+
+      lacOthercontacts: [1],
+      lacListAddOtherOperation: [],
+      lacOthercontact: [],
+
+      openPopUp: false,
     };
   }
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllClient, getAllCommercialOperationStatus, getAllCommercialServiceType } = this.props;
+    const {
+      getAllClient, getAllCommercialOperationStatus, getAllCommercialServiceType, getAllContact
+    } = this.props;
     getAllClient(); getAllCommercialOperationStatus();
     getAllCommercialServiceType();
+    getAllClient();
+    getAllContact();
   }
 
+  handleOpenDoc3 = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const newElement = this.state.qpcOthercontacts.length + 1;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.state.qpcOthercontacts.push(newElement);
+    this.setState({ openDoc: true });
+  }
+
+  handleOpenDocpdc = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const newElement = this.state.pdcOthercontacts.length + 1;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.state.pdcOthercontacts.push(newElement);
+    this.setState({ openDoc: true });
+  }
+
+  handleOpenDoclac = () => {
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const newElement = this.state.lacOthercontacts.length + 1;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.state.lacOthercontacts.push(newElement);
+    this.setState({ openDoc: true });
+  }
+
+  handleDeleteConcept = (row) => {
+    const { qpcListAddOtherOperation, qpcOthercontacts } = this.state;
+    const index = qpcListAddOtherOperation.indexOf(qpcListAddOtherOperation[row - 1]);
+    if (index !== -1) {
+      qpcListAddOtherOperation.splice(index, 1);
+    }
+    console.log(qpcListAddOtherOperation);
+    this.setState({ qpcListAddOtherOperation: qpcListAdd });
+    if (qpcOthercontacts.length > 1) {
+      const newDocs = qpcOthercontacts.filter(rows => rows !== row);
+      this.setState({
+        qpcOthercontacts: newDocs
+      });
+    }
+  }
+
+  handleDeleteConceptpdc = (row) => {
+    const { pdcListAddOtherOperation, pdcOthercontacts } = this.state;
+    const index = pdcListAddOtherOperation.indexOf(pdcListAddOtherOperation[row - 1]);
+    if (index !== -1) {
+      pdcListAddOtherOperation.splice(index, 1);
+    }
+    this.setState({ pdcListAddOtherOperation: pdcListAdd });
+    if (pdcOthercontacts.length > 1) {
+      const newDocs = pdcOthercontacts.filter(rows => rows !== row);
+      this.setState({
+        pdcOthercontacts: newDocs
+      });
+    }
+  }
+
+  handleDeleteConceptlac = (row) => {
+    const { lacListAddOtherOperation, lacOthercontacts } = this.state;
+    const index = lacListAddOtherOperation.indexOf(lacListAddOtherOperation[row - 1]);
+    if (index !== -1) {
+      lacListAddOtherOperation.splice(index, 1);
+    }
+    this.setState({ pdcListAddOtherOperation: lacListAdd });
+    if (lacOthercontacts.length > 1) {
+      const newDocs = lacOthercontacts.filter(rows => rows !== row);
+      this.setState({
+        lacOthercontacts: newDocs
+      });
+    }
+  }
+
+
   handleChange = (ev) => {
+    this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  handleChangeOtheter= (ev) => {
+    qpcListAdd.push(ev.target.value);
+    this.setState({ qpcListAddOtherOperation: qpcListAdd });
+    console.log(qpcListAdd);
+  };
+
+
+  handleChangeMaker = (ev) => {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
   handleChangeClient = (ev) => {
     const { allClients } = this.props;
     this.setState({ [ev.target.name]: ev.target.value });
+
     for (const key in allClients) {
-      console.log('allClients[key].countryId ', allClients[key].countryId);
-      console.log('ev.target.value ', ev.target.value);
       if (allClients[key].clientId === ev.target.value) {
         this.setState({ countryName: allClients[key].country });
         break;
       }
     }
+
+    const { allContacts } = this.props;
+    const { decisionMakers } = this.state;
+    /** ************************* */
+    const decisionMakersVar = [];
+    for (const key in allContacts) {
+      if (allContacts[key].position === 'maker') {
+        decisionMakersVar.push(allContacts[key]);
+        this.setState({ decisionMakers: decisionMakersVar });
+      }
+    }
+    /** ************************* */
+    const technicalLeadersList = [];
+    for (const key in allContacts) {
+      if (allContacts[key].position === 'technical leader') {
+        technicalLeadersList.push(allContacts[key]);
+        this.setState({ technicalLeaders: technicalLeadersList });
+      }
+    }
+    /** ************************* */
+    const closeDecisionMakersList = [];
+    for (const key in allContacts) {
+      if (allContacts[key].position === 'close decision maker') {
+        closeDecisionMakersList.push(allContacts[key]);
+        this.setState({ closeDecisionMakers: closeDecisionMakersList });
+      }
+    }
+    /** ************************* */
+    const spcOtherContactList = [];
+    for (const key in allContacts) {
+      if (allContacts[key].position === 'qpcOther') {
+        spcOtherContactList.push(allContacts[key]);
+        this.setState({ qpcOthercontact: spcOtherContactList });
+      }
+    }
+    /** ************************* */
+    const pdcOtherContactList = [];
+    for (const key in allContacts) {
+      if (allContacts[key].position === 'pdcOther') {
+        pdcOtherContactList.push(allContacts[key]);
+        this.setState({ pdcOthercontact: pdcOtherContactList });
+      }
+    }
+    /** ************************* */
   };
 
     handleDocumentationDateChange = documentationDate => {
@@ -187,10 +342,11 @@ class AddCommercialOperation extends React.Component {
 
   handleOpen = (type) => {
     this.setState({ contactType: type, open: true });
+    this.setState({ openPopUp: true });
   }
 
   handleCloseContact = () => {
-    this.setState({ open: false });
+    this.setState({ openPopUp: false });
   }
 
   myCallback = (estimatedTradeVolume, devise, estimatedTradeVolumeInEuro) => {
@@ -250,6 +406,7 @@ class AddCommercialOperation extends React.Component {
         value: '3',
         label: 'Mr. Aymen Souiat',
       }];
+
     const {
       client, statusOperation, countryName, serviceType,
       nameOperation, descriptionOperation, plannedDateQ,
@@ -257,7 +414,8 @@ class AddCommercialOperation extends React.Component {
       contractDate, estimatedTradeVolume, contractVolume,
       managementContact, administrativeContact, legalAreaMainContact,
       commercialResponsible, commercialResponsibleAssistant,
-      open
+      open, decisionMakers, technicalLeaders, administrativeContactTechnicalLeader, closeDecisionMakers, closeDecisionMaker, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
+      lacOthercontacts, lacOthercontact, openPopUp
     } = this.state;
     const title = brand.name + ' - Blank Page';
     const description = brand.desc;
@@ -569,12 +727,14 @@ class AddCommercialOperation extends React.Component {
                   <Select
                     name="administrativeContact"
                     value={administrativeContact}
-                    onChange={this.handleChange}
+                    onChange={this.handleChangeMaker}
                   >
                     {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
+                      decisionMakers && decisionMakers.map((type) => (
+                        <MenuItem key={type.contactId} value={type.contactId}>
+                          {type.firstName}
+                          {' '}
+                          {type.fatherFamilyName}
                         </MenuItem>
                       ))
                     }
@@ -588,14 +748,16 @@ class AddCommercialOperation extends React.Component {
                 <FormControl fullWidth required>
                   <InputLabel>contact the technical leader</InputLabel>
                   <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
+                    name="administrativeContactTechnicalLeader"
+                    value={administrativeContactTechnicalLeader}
                     onChange={this.handleChange}
                   >
                     {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
+                      technicalLeaders && technicalLeaders.map((type) => (
+                        <MenuItem key={type.contactId} value={type.contactId}>
+                          {type.firstName}
+                          {' '}
+                          {type.fatherFamilyName}
                         </MenuItem>
                       ))
                     }
@@ -609,14 +771,16 @@ class AddCommercialOperation extends React.Component {
                 <FormControl fullWidth required>
                   <InputLabel>contact of the person close to the decision - maker</InputLabel>
                   <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
+                    name="closeDecisionMaker"
+                    value={closeDecisionMaker}
                     onChange={this.handleChange}
                   >
                     {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
+                      closeDecisionMakers && closeDecisionMakers.map((type) => (
+                        <MenuItem key={type.contactId} value={type.contactId}>
+                          {type.firstName}
+                          {' '}
+                          {type.fatherFamilyName}
                         </MenuItem>
                       ))
                     }
@@ -626,69 +790,34 @@ class AddCommercialOperation extends React.Component {
                   <AddIcon />
                 </IconButton>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Other Contact 1</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Other Contact 2</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Other Contact 3</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
+              {qpcOthercontacts.map((row) => (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Other Contact 1</InputLabel>
+                    <Select
+                      name="administrativeContact"
+                      value={administrativeContact[row]}
+                      onChange={this.handleChangeOtheter}
+                    >
+                      {
+                        qpcOthercontact && qpcOthercontact.map((type) => (
+                          <MenuItem key={type.contactId} value={type.contactId}>
+                            {type.firstName}
+                            {' '}
+                            {type.fatherFamilyName}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                  <IconButton size="medium" color="primary" onClick={() => this.handleOpenDoc3()}>
+                    <AddIcon />
+                  </IconButton>
+                  <IconButton size="small" color="primary" onClick={() => this.handleDeleteConcept(row)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </div>
+              ))}
             </Grid>
             <Grid
               item
@@ -699,69 +828,68 @@ class AddCommercialOperation extends React.Component {
               <Typography variant="subtitle2" component="h2" color="primary">
                   Procurement Department Contacts
               </Typography>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Contact 1</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
+              <div align="center">
+                <Button variant="contained" color="primary" type="button" onClick={this.handleOpen}>
+                  {/* <CustomToolbar  url="/app/gestion-commercial/Add-Operation" tooltip="add new Operation" /> */}
+                  {' '}
+Add Contact
+                </Button>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Contact 2</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
+              <Dialog
+                open={openPopUp}
+                keepMounted
+                scroll="body"
+                onClose={this.handleClose}
+                aria-labelledby="alert-dialog-slide-title"
+                aria-describedby="alert-dialog-slide-description"
+                fullWidth=""
+                maxWidth=""
+              >
+                <DialogTitle id="alert-dialog-slide-title"> Add contact</DialogTitle>
+                <DialogContent dividers>
+                  <AddContact handleClose={this.handleClose} />
+                </DialogContent>
+                <DialogActions>
+                  <Button color="secondary" onClick={this.handleCloseContact}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={this.handleClose}
                   >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Contact 3</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
+                    Add Contact
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              {pdcOthercontacts.map((row) => (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Other Contact 1</InputLabel>
+                    <Select
+                      name="administrativeContact"
+                      value={administrativeContact[row]}
+                      onChange={this.handleChangeOtheter}
+                    >
+                      {
+                        pdcOthercontact && pdcOthercontact.map((type) => (
+                          <MenuItem key={type.contactId} value={type.contactId}>
+                            {type.firstName}
+                            {' '}
+                            {type.fatherFamilyName}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                  <IconButton size="medium" color="primary" onClick={() => this.handleOpenDocpdc()}>
+                    <AddIcon />
+                  </IconButton>
+                  <IconButton size="small" color="primary" onClick={() => this.handleDeleteConceptpdc(row)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </div>
+              ))}
             </Grid>
             <Grid
               item
@@ -772,69 +900,34 @@ class AddCommercialOperation extends React.Component {
               <Typography variant="subtitle2" component="h2" color="primary">
                   Legal Area Contact
               </Typography>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Contact 1</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton className={classes.btnHover} color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Contact 2</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton className={classes.btnHover} color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Contact 3</InputLabel>
-                  <Select
-                    name="administrativeContact"
-                    value={administrativeContact}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contacts.map((type) => (
-                        <MenuItem key={type.value} value={type.value}>
-                          {type.label}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
-                  <AddIcon />
-                </IconButton>
-              </div>
+              {lacOthercontacts.map((row) => (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Other Contact 1</InputLabel>
+                    <Select
+                      name="administrativeContact"
+                      value={administrativeContact[row]}
+                      onChange={this.handleChangeOtheter}
+                    >
+                      {
+                        lacOthercontact && lacOthercontact.map((type) => (
+                          <MenuItem key={type.contactId} value={type.contactId}>
+                            {type.firstName}
+                            {' '}
+                            {type.fatherFamilyName}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                  <IconButton size="medium" color="primary" onClick={() => this.handleOpenDoclac()}>
+                    <AddIcon />
+                  </IconButton>
+                  <IconButton size="small" color="primary" onClick={() => this.handleDeleteConceptlac(row)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </div>
+              ))}
             </Grid>
           </Grid>
           <br />
@@ -845,7 +938,7 @@ class AddCommercialOperation extends React.Component {
             </Button>
           </div>
         </PapperBlock>
-        <React.Fragment>
+        {/* <React.Fragment>
           <Dialog
             open={open}
             TransitionComponent={Transition}
@@ -869,7 +962,7 @@ class AddCommercialOperation extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
-        </React.Fragment>
+        </React.Fragment> */}
       </div>
     );
   }
@@ -878,7 +971,6 @@ class AddCommercialOperation extends React.Component {
 AddCommercialOperation.propTypes = {
   classes: PropTypes.object.isRequired,
   // add: PropTypes.func.isRequired,
-  back: PropTypes.func.isRequired,
   addClientCommercial: PropTypes.func.isRequired,
   updateClient: PropTypes.func.isRequired,
   deleteClient: PropTypes.func.isRequired,
@@ -916,7 +1008,11 @@ const mapStateToProps = state => ({
 
   // service type
   allCommercialServiceType: state.getIn(['commercialServiceType']).allCommercialServiceType,
-
+  // contacts
+  allContacts: state.getIn(['contacts']).allContacts,
+  contactResponse: state.getIn(['contacts']).contactResponse,
+  isLoadingContact: state.getIn(['contacts']).isLoading,
+  errorsContact: state.getIn(['contacts']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,
@@ -928,6 +1024,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialOperationStatus,
   addCommercialOperation,
   getAllCommercialServiceType,
+  getAllContact,
 }, dispatch);
 
 export default withStyles(styles)(connect(
