@@ -51,7 +51,6 @@ export default function legalCategoryTypeReducer(state = initialState, action) {
       };
 
     case GET_ALL_LEGALCATEGORYTYPES_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         isLoading: false,
@@ -60,7 +59,6 @@ export default function legalCategoryTypeReducer(state = initialState, action) {
       };
 
     case GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         isLoading: false,

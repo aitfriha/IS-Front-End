@@ -43,6 +43,8 @@ class AddContractType extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });

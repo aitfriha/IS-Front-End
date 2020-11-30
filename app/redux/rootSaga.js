@@ -12,8 +12,16 @@ import staffSaga from './staff/saga';
 import contractTypeSaga from './contractType/saga';
 import absenceTypeSaga from './absenceType/saga';
 import legalCategoryTypeSaga from './legalCategoryType/saga';
+import contractModelSaga from './contractModel/saga';
 import functionalStructureSaga from './functionalStructure/saga';
+import functionalStructureAssignationHistorySaga from './functionalStructureAssignationHistory/saga';
+import administrativeStructureSaga from './administrativeStructure/saga';
+import administrativeStructureAssignationHistorySaga from './administrativeStructureAssignationHistory/saga';
 import staffContractSaga from './staffContract/saga';
+import staffContractHistorySaga from './staffContractHistory/saga';
+import staffDocumentSaga from './staffDocument/saga';
+import staffEconomicContractInformationSaga from './staffEconomicContractInformation/saga';
+import staffEconomicContractInformationHistorySaga from './staffEconomicContractInformationHistory/saga';
 
 import assignmentSaga from './assignment/saga';
 // import watchers from other files
@@ -31,9 +39,17 @@ export default function* rootSaga() {
     contractTypeSaga(),
     absenceTypeSaga(),
     legalCategoryTypeSaga(),
+    contractModelSaga(),
     functionalStructureSaga(),
+    functionalStructureAssignationHistorySaga(),
+    administrativeStructureSaga(),
+    administrativeStructureAssignationHistorySaga(),
     assignmentSaga(),
-    staffContractSaga()
+    staffContractSaga(),
+    staffContractHistorySaga(),
+    staffDocumentSaga(),
+    staffEconomicContractInformationSaga(),
+    staffEconomicContractInformationHistorySaga()
     // add other watchers to the array
   ]);
 }

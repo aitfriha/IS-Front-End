@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
-import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import Slide from '@material-ui/core/Slide';
 import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
 import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import {
@@ -25,24 +25,33 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  makeStyles
+  makeStyles,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
 } from '@material-ui/core';
 import interact from 'interactjs';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import HistoryIcon from '@material-ui/icons/History';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './levels-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import AutoComplete from '../../../components/AutoComplete';
-import FunctionalStructureService from '../../Services/FunctionalStructureService';
+import AdministrativeStructureService from '../../Services/AdministrativeStructureService';
 import StaffService from '../../Services/StaffService';
 import {
-  getAllFunctionalStructureLevel,
-  updateFunctionalStructureLevel,
-  deleteFunctionalStructureLevel
-} from '../../../redux/functionalStructure/actions';
+  getAllAdministrativeStructureLevel,
+  updateAdministrativeStructureLevel,
+  deleteAdministrativeStructureLevel
+} from '../../../redux/administrativeStructure/actions';
+import { getAllAdministrativeStructureAssignationHistoryByLevel } from '../../../redux/administrativeStructureAssignationHistory/actions';
 import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
@@ -55,6 +64,8 @@ class LevelsBlock extends React.Component {
     index2: -1,
     staffs: [],
     staffAssigned: [],
+    originalLevelStaffs: [],
+    levelStaffs: [],
     staffNotAssigned: [],
     isStaffAssignation: false,
     isLevelEdit: false,
@@ -64,8 +75,7 @@ class LevelsBlock extends React.Component {
     newLeader: null,
     description: '',
     levelName: '',
-    isProductionLevel: '',
-    isCommercialLevel: ''
+    isViewHistory: false
   };
 
   editingPromiseResolve = () => {};
@@ -93,15 +103,8 @@ class LevelsBlock extends React.Component {
       }
     },
     {
-      label: 'Is production level?',
-      name: 'isProductionLevel',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Is commercial level?',
-      name: 'isCommercialLevel',
+      label: 'Company',
+      name: 'companyName',
       options: {
         filter: true
       }
@@ -237,32 +240,41 @@ class LevelsBlock extends React.Component {
   };
 
   addStaffToLevel = event => {
-    const { staffs, staffAssigned, level } = this.state;
+    const {
+      staffs,
+      staffAssigned,
+      levelStaffs,
+      staffNotAssigned,
+      originalLevelStaffs
+    } = this.state;
     const item = event.relatedTarget;
     item.classList.remove('dragging', 'cannot-drop');
-    /* console.log('event');
-    console.log(event);
-    console.log(
-      'the item: '
-        + event.relatedTarget.id
-        + ' is dropped in: '
-        + event.currentTarget.id
-    );
-    console.log('event');
-    console.log(event);
-    console.log(event.relatedTarget.id.substr(12)); */
     const draggedId = parseInt(event.relatedTarget.id.substr(12));
-    staffAssigned.push(staffs[draggedId]);
+    const staffNotAssigned2 = staffNotAssigned.filter(
+      value => value.staffId !== staffs[draggedId].staffId
+    );
+    console.log(originalLevelStaffs);
+    const exist = originalLevelStaffs.some(
+      staff => staff.staffId === staffs[draggedId].staffId
+    );
+    if (!exist) {
+      staffAssigned.push(staffs[draggedId]);
+    }
+    levelStaffs.push(staffs[draggedId]);
+
     staffs.splice(draggedId, 1);
-    console.log(staffs);
     this.setState({
       staffs,
-      staffAssigned
+      staffAssigned,
+      levelStaffs,
+      staffNotAssigned: staffNotAssigned2
     });
   };
 
   removeStaffFromLevel = event => {
-    const { staffs, staffAssigned, staffNotAssigned } = this.state;
+    const {
+      staffs, staffAssigned, levelStaffs, staffNotAssigned
+    } = this.state;
     const item = event.relatedTarget;
     item.classList.remove('dragging', 'cannot-drop');
     console.log('event');
@@ -273,57 +285,70 @@ class LevelsBlock extends React.Component {
         + ' is dropped in: '
         + event.currentTarget.id
     );
-    console.log('event');
-    console.log(event);
     const draggedId = parseInt(event.relatedTarget.id.substr(12));
-    console.log('drop id 2');
     staffs.push(staffAssigned[draggedId]);
     staffNotAssigned.push(staffAssigned[draggedId]);
     staffAssigned.splice(draggedId, 1);
-
+    levelStaffs.splice(draggedId, 1);
     this.setState({
       staffs,
+      levelStaffs,
       staffAssigned,
       staffNotAssigned
     });
   };
 
   handleOpenAssignation = level => {
-    console.log(level);
+    const {
+      getAllAdministrativeStructureAssignationHistoryByLevel
+    } = this.props;
     const { levelId } = level;
-    StaffService.getStaffsByLevel(levelId, 'no').then(({ data }) => {
-      console.log(data);
+    getAllAdministrativeStructureAssignationHistoryByLevel(levelId);
+    StaffService.getAdministrativeNotAssignedStaffsByCompany(
+      level.companyId
+    ).then(({ data }) => {
       data.sort((a, b) => {
         const textA = a.firstName.toUpperCase();
         const textB = b.firstName.toUpperCase();
         return textA < textB ? -1 : textA > textB ? 1 : 0;
       });
-      console.log(data);
-      this.setState({
-        level,
-        isStaffAssignation: true,
-        staffAssigned: data
-      });
+      this.setState({ staffs: data });
     });
-    StaffService.getStaffsByLevel(levelId, 'yes').then(({ data }) => {
-      console.log(data);
-      this.setState({
-        leader: data[0]
-      });
-    });
+    StaffService.getStaffsByAdministrativeLevel(levelId, 'no').then(
+      ({ data }) => {
+        data.sort((a, b) => {
+          const textA = a.firstName.toUpperCase();
+          const textB = b.firstName.toUpperCase();
+          return textA < textB ? -1 : textA > textB ? 1 : 0;
+        });
+        this.setState({
+          level,
+          originalLevelStaffs: JSON.parse(JSON.stringify(data)),
+          levelStaffs: JSON.parse(JSON.stringify(data)),
+          staffAssigned: JSON.parse(JSON.stringify(data))
+        });
+      }
+    );
+    StaffService.getStaffsByAdministrativeLevel(levelId, 'yes').then(
+      ({ data }) => {
+        console.log(data);
+        this.setState({
+          isStaffAssignation: true,
+          leader: data[0]
+        });
+      }
+    );
   };
 
   handleOpenEdit = tableMeta => {
-    const { allFunctionalStructureLevel } = this.props;
+    const { allAdministrativeStructureLevel } = this.props;
     const { staffs } = this.state;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
-    console.log(allFunctionalStructureLevel[index]);
-    StaffService.getStaffsByLevel(
-      allFunctionalStructureLevel[index].levelId,
+    StaffService.getStaffsByAdministrativeLevel(
+      allAdministrativeStructureLevel[index].levelId,
       'yes'
     ).then(({ data }) => {
-      console.log(data);
       const staffList = staffs;
       if (data[0]) {
         staffList.push(data[0]);
@@ -331,11 +356,9 @@ class LevelsBlock extends React.Component {
       this.setState({
         oldLeader: data[0],
         newLeader: data[0],
-        level: allFunctionalStructureLevel[index],
-        levelName: allFunctionalStructureLevel[index].name,
-        description: allFunctionalStructureLevel[index].description,
-        isProductionLevel: allFunctionalStructureLevel[index].isProductionLevel,
-        isCommercialLevel: allFunctionalStructureLevel[index].isCommercialLevel,
+        level: allAdministrativeStructureLevel[index],
+        levelName: allAdministrativeStructureLevel[index].name,
+        description: allAdministrativeStructureLevel[index].description,
         isLevelEdit: true,
         staffs: staffList
       });
@@ -343,11 +366,11 @@ class LevelsBlock extends React.Component {
   };
 
   handleOpenDelete = tableMeta => {
-    const { allFunctionalStructureLevel } = this.props;
+    const { allAdministrativeStructureLevel } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     this.setState({
-      level: allFunctionalStructureLevel[index],
+      level: allAdministrativeStructureLevel[index],
       isLevelDelete: true
     });
   };
@@ -359,44 +382,36 @@ class LevelsBlock extends React.Component {
     this.setState({
       isStaffAssignation: false,
       isLevelEdit: false,
-      isLevelDelete: false
+      isLevelDelete: false,
+      isViewHistory: false
     });
   };
 
   handleSave = () => {
-    const {
-      level, staffAssigned, staffs, staffNotAssigned
-    } = this.state;
-    const items = [level, staffAssigned, staffNotAssigned];
-    const items2 = {
+    const { level, staffAssigned, staffNotAssigned } = this.state;
+    console.log(staffAssigned);
+    const items = [
       level,
       staffAssigned,
-      staffNotAssigned
-    };
-    StaffService.assignLevelToStaff(items).then(() => {
+      staffNotAssigned,
+      new Date().toISOString().slice(0, 10),
+      new Date().toISOString().slice(0, 10)
+    ];
+    StaffService.assignAdministrativeLevelToStaff(items).then(() => {
       this.handleClose();
     });
   };
 
   updateData = () => {
-    const { getAllFunctionalStructureLevel } = this.props;
-    getAllFunctionalStructureLevel();
-    FunctionalStructureService.getLevelByType('Level 1').then(({ data }) => {
-      console.log(data);
-      this.setState({
-        levels: data.payload
-      });
-    });
-    StaffService.getNotAssignedStaffs().then(({ data }) => {
-      console.log(data);
-      data.sort((a, b) => {
-        const textA = a.firstName.toUpperCase();
-        const textB = b.firstName.toUpperCase();
-        return textA < textB ? -1 : textA > textB ? 1 : 0;
-      });
-      console.log(data);
-      this.setState({ staffs: data });
-    });
+    const { getAllAdministrativeStructureLevel } = this.props;
+    getAllAdministrativeStructureLevel();
+    AdministrativeStructureService.getLevelByType('Level 1').then(
+      ({ data }) => {
+        this.setState({
+          levels: data.payload
+        });
+      }
+    );
   };
 
   handleExpandClick = (index, level) => {
@@ -422,45 +437,26 @@ class LevelsBlock extends React.Component {
 
   handleChange = ev => {
     this.setState({ [ev.target.name]: ev.target.value });
-    if (ev.target.name === 'isProductionLevel' && ev.target.value === 'yes') {
-      this.setState({
-        isCommercialLevel: 'no'
-      });
-    } else if (
-      ev.target.name === 'isCommercialLevel'
-      && ev.target.value === 'yes'
-    ) {
-      this.setState({
-        isProductionLevel: 'no'
-      });
-    }
   };
 
   getLevels = () => {
-    const { allFunctionalStructureLevel } = this.props;
+    const { allAdministrativeStructureLevel } = this.props;
     const { level } = this.state;
     if (level) {
-      console.log(
-        allFunctionalStructureLevel.filter(lvl => lvl.type === level.type)
+      return allAdministrativeStructureLevel.filter(
+        lvl => lvl.type === level.type
       );
-      return allFunctionalStructureLevel.filter(lvl => lvl.type === level.type);
     }
     return [];
   };
 
   handleUpdateLevel = () => {
     const {
-      updateFunctionalStructureLevel,
-      getAllFunctionalStructureLevel
+      updateAdministrativeStructureLevel,
+      getAllAdministrativeStructureLevel
     } = this.props;
     const {
-      levelName,
-      description,
-      isProductionLevel,
-      isCommercialLevel,
-      oldLeader,
-      newLeader,
-      level
+      levelName, description, oldLeader, newLeader, level
     } = this.state;
 
     const lvl = {
@@ -468,19 +464,17 @@ class LevelsBlock extends React.Component {
       name: levelName,
       description,
       type: level.type,
-      isProductionLevel,
-      isCommercialLevel,
       oldLeaderId: oldLeader.staffId,
       newLeaderId: newLeader.staffId
     };
     const promise = new Promise(resolve => {
-      updateFunctionalStructureLevel(lvl);
+      updateAdministrativeStructureLevel(lvl);
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
-        getAllFunctionalStructureLevel();
+        getAllAdministrativeStructureLevel();
         this.handleClose();
       } else {
         notification('danger', result);
@@ -489,17 +483,17 @@ class LevelsBlock extends React.Component {
   };
 
   handleDeleteLevel = () => {
-    const { deleteFunctionalStructureLevel } = this.props;
+    const { deleteAdministrativeStructureLevel } = this.props;
     const { level } = this.state;
 
     const promise = new Promise(resolve => {
-      deleteFunctionalStructureLevel(level.levelId);
+      deleteAdministrativeStructureLevel(level.levelId);
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
-        getAllFunctionalStructureLevel();
+        getAllAdministrativeStructureLevel();
       } else {
         notification('danger', result);
       }
@@ -507,20 +501,34 @@ class LevelsBlock extends React.Component {
     });
   };
 
+  handleOpenViewHistory = () => {
+    this.setState({
+      isViewHistory: true
+    });
+  };
+
+  handleCloseViewHistory = () => {
+    this.setState({
+      isViewHistory: false
+    });
+  };
+
   render() {
     const {
       classes,
-      allFunctionalStructureLevel,
-      isLoadingfunctionalStructureLevel,
-      functionalStructureLevelResponse,
-      errorfunctionalStructureLevel
+      allAdministrativeStructureLevel,
+      isLoadingadministrativeStructureLevel,
+      administrativeStructureLevelResponse,
+      erroradministrativeStructureLevel,
+      allAdministrativeStructureAssignationHistoryByLevel
     } = this.props;
     const {
       isStaffAssignation,
       isLevelEdit,
       isLevelDelete,
       staffs,
-      staffAssigned,
+      levelStaffs,
+      originalLevelStaffs,
       level,
       levels,
       index1,
@@ -529,8 +537,7 @@ class LevelsBlock extends React.Component {
       newLeader,
       levelName,
       description,
-      isProductionLevel,
-      isCommercialLevel
+      isViewHistory
     } = this.state;
     const options = {
       filter: true,
@@ -540,19 +547,18 @@ class LevelsBlock extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={allFunctionalStructureLevel}
-          url="/app/hh-rr/functionalStructure/create-level"
+          csvData={allAdministrativeStructureLevel}
+          url="/app/hh-rr/administrativeStructure/create-level"
           tooltip="add new Level"
         />
       )
     };
-    !isLoadingfunctionalStructureLevel
-      && functionalStructureLevelResponse
-      && this.editingPromiseResolve(functionalStructureLevelResponse);
-    !isLoadingfunctionalStructureLevel
-      && !functionalStructureLevelResponse
-      && this.editingPromiseResolve(errorfunctionalStructureLevel);
-    console.log(levels);
+    !isLoadingadministrativeStructureLevel
+      && administrativeStructureLevelResponse
+      && this.editingPromiseResolve(administrativeStructureLevelResponse);
+    !isLoadingadministrativeStructureLevel
+      && !administrativeStructureLevelResponse
+      && this.editingPromiseResolve(erroradministrativeStructureLevel);
     levels.sort((a, b) => {
       const textA = a.name.toUpperCase();
       const textB = b.name.toUpperCase();
@@ -568,7 +574,7 @@ class LevelsBlock extends React.Component {
           fullWidth
           maxWidth="sm"
         >
-          <DialogTitle id="alert-dialog-title">Edit Level</DialogTitle>
+          <DialogTitle id="alert-dialog-title">Delete Level</DialogTitle>
           <DialogContent>
             <Typography
               variant="subtitle1"
@@ -644,30 +650,6 @@ class LevelsBlock extends React.Component {
                 />
               )}
             />
-            <FormControl component="fieldset" fullWidth>
-              <FormLabel component="legend">Is it production level?</FormLabel>
-              <RadioGroup
-                aria-label="isProductionLevel"
-                name="isProductionLevel"
-                value={isProductionLevel}
-                onChange={this.handleChange}
-              >
-                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio />} label="No" />
-              </RadioGroup>
-            </FormControl>
-            <FormControl component="fieldset" fullWidth>
-              <FormLabel component="legend">Is it Commercial level?</FormLabel>
-              <RadioGroup
-                aria-label="isCommercialLevel"
-                name="isCommercialLevel"
-                value={isCommercialLevel}
-                onChange={this.handleChange}
-              >
-                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio />} label="No" />
-              </RadioGroup>
-            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button autoFocus color="primary" onClick={this.handleClose}>
@@ -692,214 +674,251 @@ class LevelsBlock extends React.Component {
           fullWidth
           maxWidth="sm"
         >
-          <DialogTitle id="alert-dialog-title">{level.name}</DialogTitle>
+          <DialogTitle id="alert-dialog-title">
+            {isViewHistory ? `${level.name} History` : level.name}
+          </DialogTitle>
           <DialogContent>
-            <Typography
-              variant="subtitle1"
-              style={{
-                fontFamily: 'sans-serif , Arial',
-                fontSize: '17px'
-              }}
-              color="primary"
+            <Slide
+              direction="right"
+              in={!isViewHistory}
+              style={{ transitionDelay: !isViewHistory ? '500ms' : '0ms' }}
+              mountOnEnter
+              unmountOnExit
             >
-              Description :
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              style={{
-                color: '#000',
-                fontFamily: 'sans-serif , Arial',
-                fontSize: '17px',
-                opacity: 0.7
-              }}
-            >
-              {level.description || 'empty'}
-            </Typography>
-            <div className={classes.divInline}>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px'
-                }}
-                color="primary"
-              >
-                Is it production level :
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px',
-                  opacity: 0.7,
-                  marginLeft: 10
-                }}
-              >
-                {level.isProductionLevel}
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px',
-                  marginLeft: 20
-                }}
-                color="primary"
-              >
-                Is it commercial level :
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px',
-                  opacity: 0.7,
-                  marginLeft: 10
-                }}
-              >
-                {level.isCommercialLevel}
-              </Typography>
-            </div>
-            <div className={classes.divInline}>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px'
-                }}
-                color="primary"
-              >
-                Leader :
-              </Typography>
-              {leader ? (
-                <Tooltip
-                  title={`${leader.firstName} ${leader.fatherFamilyName} ${
-                    leader.motherFamilyName
-                  }`}
+              <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '100%'
+                  }}
                 >
-                  <Avatar
-                    className={classes.avatar}
-                    alt={leader.firstName}
-                    src={leader.photo}
-                    style={{ marginLeft: 20 }}
-                  />
-                </Tooltip>
-              ) : (
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px'
+                    }}
+                    color="primary"
+                  >
+                    Description :
+                  </Typography>
+                  <IconButton onClick={this.handleOpenViewHistory}>
+                    <HistoryIcon color="secondary" />
+                  </IconButton>
+                </div>
+
                 <Typography
                   variant="subtitle1"
                   style={{
                     color: '#000',
                     fontFamily: 'sans-serif , Arial',
                     fontSize: '17px',
-                    opacity: 0.7,
-                    marginLeft: 10
+                    opacity: 0.7
                   }}
                 >
-                  none
+                  {level.description || 'empty'}
                 </Typography>
-              )}
-            </div>
-            <Typography
-              variant="subtitle1"
-              style={{
-                fontFamily: 'sans-serif , Arial',
-                fontSize: '20px',
-                marginTop: 10
-              }}
-              color="primary"
-            >
-              Staff
-            </Typography>
-            <Divider variant="fullWidth" style={{ marginBottom: '10px' }} />
-            <div
-              style={{
-                height: '175px',
-                width: '100%',
-                marginBottom: 10,
-                border: '1px solid gray',
-                display: 'flex',
-                flexWrap: 'wrap',
-                overflowX: 'auto',
-                marginTop: 20
-              }}
-              id="staffDropzone"
-            >
-              {staffs.length > 0 ? (
-                staffs.map((row, index) => (
-                  <div
+                <div className={classes.divInline}>
+                  <Typography
+                    variant="subtitle1"
                     style={{
-                      margin: 10
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px'
                     }}
-                    id={`staffElement${index}`}
+                    color="primary"
                   >
+                    Company :
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      opacity: 0.7,
+                      marginLeft: 10
+                    }}
+                  >
+                    {level.companyName}
+                  </Typography>
+                </div>
+                <div className={classes.divInline}>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px'
+                    }}
+                    color="primary"
+                  >
+                    Leader :
+                  </Typography>
+                  {leader ? (
                     <Tooltip
-                      title={`${row.firstName} ${row.fatherFamilyName} ${
-                        row.motherFamilyName
+                      title={`${leader.firstName} ${leader.fatherFamilyName} ${
+                        leader.motherFamilyName
                       }`}
                     >
                       <Avatar
                         className={classes.avatar}
-                        alt={row.name}
-                        src={row.photo}
+                        alt={leader.firstName}
+                        src={leader.photo}
+                        style={{ marginLeft: 20 }}
                       />
                     </Tooltip>
-                  </div>
-                ))
-              ) : (
-                <div />
-              )}
-            </div>
-            <Typography
-              variant="subtitle1"
-              style={{
-                fontFamily: 'sans-serif , Arial',
-                fontSize: '20px'
-              }}
-              color="primary"
-            >
-              Assigned Staff
-            </Typography>
-            <Divider variant="fullWidth" style={{ marginBottom: '10px' }} />
-            <div
-              style={{
-                height: '175px',
-                width: '100%',
-                border: '1px solid gray',
-                display: 'flex',
-                direction: 'column',
-                overflowX: 'auto',
-                whiteSpace: 'nowrap',
-                marginTop: 20
-              }}
-              id="levelDropzone"
-            >
-              {staffAssigned.length > 0 ? (
-                staffAssigned.map((row, index) => (
-                  <div
-                    style={{
-                      margin: 10
-                    }}
-                    id={`levelElement${index}`}
-                  >
-                    <Tooltip
-                      title={`${row.firstName} ${row.fatherFamilyName} ${
-                        row.motherFamilyName
-                      }`}
+                  ) : (
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        color: '#000',
+                        fontFamily: 'sans-serif , Arial',
+                        fontSize: '17px',
+                        opacity: 0.7,
+                        marginLeft: 10
+                      }}
                     >
-                      <Avatar
-                        className={classes.avatar}
-                        alt={row.name}
-                        src={row.photo}
-                      />
-                    </Tooltip>
-                  </div>
-                ))
-              ) : (
-                <div />
-              )}
-            </div>
+                      none
+                    </Typography>
+                  )}
+                </div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '20px',
+                    marginTop: 10
+                  }}
+                  color="primary"
+                >
+                  Staff
+                </Typography>
+                <Divider variant="fullWidth" style={{ marginBottom: '10px' }} />
+                <div
+                  style={{
+                    height: '175px',
+                    width: '100%',
+                    marginBottom: 10,
+                    border: '1px solid gray',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    overflowX: 'auto',
+                    marginTop: 20
+                  }}
+                  id="staffDropzone"
+                >
+                  {staffs.length > 0 ? (
+                    staffs.map((row, index) => (
+                      <div
+                        style={{
+                          margin: 10
+                        }}
+                        id={`staffElement${index}`}
+                      >
+                        <Tooltip
+                          title={`${row.firstName} ${row.fatherFamilyName} ${
+                            row.motherFamilyName
+                          }`}
+                        >
+                          <Avatar
+                            className={classes.avatar}
+                            alt={row.name}
+                            src={row.photo}
+                          />
+                        </Tooltip>
+                      </div>
+                    ))
+                  ) : (
+                    <div />
+                  )}
+                </div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '20px'
+                  }}
+                  color="primary"
+                >
+                  Assigned Staff
+                </Typography>
+                <Divider variant="fullWidth" style={{ marginBottom: '10px' }} />
+                <div
+                  style={{
+                    height: '175px',
+                    width: '100%',
+                    border: '1px solid gray',
+                    display: 'flex',
+                    direction: 'column',
+                    overflowX: 'auto',
+                    whiteSpace: 'nowrap',
+                    marginTop: 20
+                  }}
+                  id="levelDropzone"
+                >
+                  {levelStaffs.length > 0 ? (
+                    levelStaffs.map((row, index) => (
+                      <div
+                        style={{
+                          margin: 10
+                        }}
+                        id={`levelElement${index}`}
+                      >
+                        <Tooltip
+                          title={`${row.firstName} ${row.fatherFamilyName} ${
+                            row.motherFamilyName
+                          }`}
+                        >
+                          <Avatar
+                            className={classes.avatar}
+                            alt={row.name}
+                            src={row.photo}
+                          />
+                        </Tooltip>
+                      </div>
+                    ))
+                  ) : (
+                    <div />
+                  )}
+                </div>
+              </div>
+            </Slide>
+            <Slide
+              direction="right"
+              in={isViewHistory}
+              style={{ transitionDelay: isViewHistory ? '500ms' : '0ms' }}
+              mountOnEnter
+              unmountOnExit
+            >
+              <div>
+                <div>
+                  <IconButton onClick={this.handleCloseViewHistory}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </div>
+                <Table className={classes.table} aria-label="">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="right">Staff</TableCell>
+                      <TableCell align="right">Start Date</TableCell>
+                      <TableCell align="right">End Date</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {allAdministrativeStructureAssignationHistoryByLevel.map(
+                      (row, index) => (
+                        <TableRow key="row">
+                          <TableCell align="right">{row.staffName}</TableCell>
+                          <TableCell align="right">{row.startDate}</TableCell>
+                          <TableCell align="right">{row.endDate}</TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </Slide>
           </DialogContent>
           <DialogActions>
             <Button autoFocus color="primary" onClick={this.handleClose}>
@@ -911,19 +930,19 @@ class LevelsBlock extends React.Component {
           </DialogActions>
         </Dialog>
         <PapperBlock
-          title="Functional Structure Levels Table"
+          title="Administrative Structure Levels Table"
           icon="md-menu"
           noMargin
         >
           <MUIDataTable
             title=""
-            data={allFunctionalStructureLevel}
+            data={allAdministrativeStructureLevel}
             columns={this.columns}
             options={options}
           />
         </PapperBlock>
         <PapperBlock
-          title="Functional Structure Levels Tree"
+          title="Administrative Structure Levels Tree"
           icon="md-menu"
           noMargin
         >
@@ -1041,20 +1060,28 @@ class LevelsBlock extends React.Component {
   }
 }
 const mapStateToProps = state => ({
-  allFunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
-    .allFunctionalStructureLevel,
-  functionalStructureLevelResponse: state.getIn(['functionalStructureLevels'])
-    .functionalStructureLevelResponse,
-  isLoadingfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
-    .isLoading,
-  errorfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
-    .errors
+  allAdministrativeStructureLevel: state.getIn([
+    'administrativeStructureLevels'
+  ]).allAdministrativeStructureLevel,
+  administrativeStructureLevelResponse: state.getIn([
+    'administrativeStructureLevels'
+  ]).administrativeStructureLevelResponse,
+  isLoadingadministrativeStructureLevel: state.getIn([
+    'administrativeStructureLevels'
+  ]).isLoading,
+  erroradministrativeStructureLevel: state.getIn([
+    'administrativeStructureLevels'
+  ]).errors,
+  allAdministrativeStructureAssignationHistoryByLevel: state.getIn([
+    'administrativeStructureAssignationHistories'
+  ]).allAdministrativeStructureAssignationHistoryByLevel
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    updateFunctionalStructureLevel,
-    deleteFunctionalStructureLevel,
-    getAllFunctionalStructureLevel
+    updateAdministrativeStructureLevel,
+    deleteAdministrativeStructureLevel,
+    getAllAdministrativeStructureLevel,
+    getAllAdministrativeStructureAssignationHistoryByLevel
   },
   dispatch
 );

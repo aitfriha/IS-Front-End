@@ -98,11 +98,19 @@ export const AddArea = Loadable({
   loading: Loading
 });
 export const FunctionalStructure = Loadable({
-  loader: () => import('./Pages/FunctionalStructures'),
+  loader: () => import('./Pages/FunctionalStructure'),
   loading: Loading
 });
-export const AddLevel = Loadable({
-  loader: () => import('./Pages/FunctionalStructures/addLevel'),
+export const AddFunctionalLevel = Loadable({
+  loader: () => import('./Pages/FunctionalStructure/addLevel'),
+  loading: Loading
+});
+export const AdministrativeStructure = Loadable({
+  loader: () => import('./Pages/AdministrativeStructure'),
+  loading: Loading
+});
+export const AddAdministrativeLevel = Loadable({
+  loader: () => import('./Pages/AdministrativeStructure/addLevel'),
   loading: Loading
 });
 export const ContractType = Loadable({
@@ -119,6 +127,14 @@ export const LegalCategoryType = Loadable({
 });
 export const AddLegalCategoryType = Loadable({
   loader: () => import('./Pages/LegalCategoryType/addLegalCategoryType'),
+  loading: Loading
+});
+export const ContractModel = Loadable({
+  loader: () => import('./Pages/ContractModel'),
+  loading: Loading
+});
+export const AddContractModel = Loadable({
+  loader: () => import('./Pages/ContractModel/addContractModel'),
   loading: Loading
 });
 export const AbsenceType = Loadable({

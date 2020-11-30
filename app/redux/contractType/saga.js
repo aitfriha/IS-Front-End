@@ -66,11 +66,15 @@ function* updateContractType(action) {
 
 function* deleteContractType(action) {
   try {
-    const { contractTypeId } = action;
-
+    const { oldContractTypeId, newContractTypeId } = action;
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.CONTRACTTYPE + '/delete/' + contractTypeId
+      url:
+        ENDPOINTS.CONTRACTTYPE
+        + '/delete/oldId='
+        + oldContractTypeId
+        + '&newId='
+        + newContractTypeId
     });
 
     yield put({

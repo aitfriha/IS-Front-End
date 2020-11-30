@@ -89,7 +89,6 @@ function* getAllStaff() {
       method: 'get',
       url: ENDPOINTS.STAFF + '/all'
     });
-    console.log(request);
     yield put({
       type: GET_ALL_STAFFS_SUCCESS,
       payload: request.data.payload

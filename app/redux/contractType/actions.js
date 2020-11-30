@@ -16,9 +16,10 @@ export const updateContractType = contractTypeWithId => ({
   contractTypeWithId
 });
 
-export const deleteContractType = contractTypeId => ({
+export const deleteContractType = (oldContractTypeId, newContractTypeId) => ({
   type: DELETE_CONTRACTTYPE,
-  contractTypeId
+  oldContractTypeId,
+  newContractTypeId
 });
 
 export const getAllContractType = () => ({

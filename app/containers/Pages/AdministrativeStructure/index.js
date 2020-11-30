@@ -4,7 +4,7 @@ import brand from 'dan-api/dummy/brand';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import LevelsBlock from './LevelsBlock';
 
-class FunctionalStructure extends React.Component {
+class AdministrativeStructure extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -18,7 +18,7 @@ class FunctionalStructure extends React.Component {
   }
 
   render() {
-    const title = brand.name + ' - Functional Structures';
+    const title = brand.name + ' - Administrative Structures';
     const description = brand.desc;
     const { data } = this.state;
     return (
@@ -40,5 +40,5 @@ class FunctionalStructure extends React.Component {
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
-  return <FunctionalStructure changeTheme={changeTheme} />;
+  return <AdministrativeStructure changeTheme={changeTheme} />;
 };

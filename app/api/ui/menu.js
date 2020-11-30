@@ -89,7 +89,7 @@ module.exports = [
             name: 'Sectors Company',
             link: '/app/gestion-commercial/sectorsCompany',
             icon: 'ios-people-outline'
-          },
+          }
 
           /* {
             key: 'countries',
@@ -190,15 +190,21 @@ module.exports = [
         keyParent: 'hhrrSystem',
         child: [
           {
+            key: 'staff',
+            name: 'Staff',
+            link: '/app/hh-rr/staff'
+          },
+          {
             key: 'functionalStructure',
             name: 'Functional Structure',
             link: '/app/hh-rr/functionalStructure',
             icon: 'ios-people-outline'
           },
           {
-            key: 'staff',
-            name: 'Staff',
-            link: '/app/hh-rr/staff'
+            key: 'administrativeStructure',
+            name: 'Administrative Structure',
+            link: '/app/hh-rr/administrativeStructure',
+            icon: 'ios-people-outline'
           }
         ]
       },
@@ -218,6 +224,12 @@ module.exports = [
             key: 'legalCategoryType',
             name: 'Types of legal category',
             link: '/app/hh-rr/LegalCategoryType',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'contractModel',
+            name: 'Contract models',
+            link: '/app/hh-rr/ContractModel',
             icon: 'ios-paper-outline'
           },
           {

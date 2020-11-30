@@ -35,14 +35,16 @@ class AddAbsenceType extends React.Component {
       code: '',
       name: '',
       description: '',
-      country: {},
-      state: {},
+      country: null,
+      state: null,
       countries: [],
       states: []
     };
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });

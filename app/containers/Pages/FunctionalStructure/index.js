@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
-import { PapperBlock } from 'dan-components';
-import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import brand from 'dan-api/dummy/brand';
-import styles from './levels-jss';
+import { ThemeContext } from '../../App/ThemeWrapper';
 import LevelsBlock from './LevelsBlock';
-import editLevel from './editLevel';
-import DragAndDropTest from './DragAndDropTest';
 
 class FunctionalStructure extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: []
+    };
+  }
+
+  componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('blueCyanTheme');
+  }
+
   render() {
-    const title = brand.name + ' - Functional Structure';
+    const title = brand.name + ' - Functional Structures';
     const description = brand.desc;
+    const { data } = this.state;
     return (
       <div>
         <Helmet>
@@ -23,15 +31,14 @@ class FunctionalStructure extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Levels" icon="ios-person" noMargin overflowX>
-          <LevelsBlock />
-        </PapperBlock>
+
+        <LevelsBlock levelsConfig={data} />
       </div>
     );
   }
 }
-FunctionalStructure.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 
-export default withStyles(styles)(FunctionalStructure);
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  return <FunctionalStructure changeTheme={changeTheme} />;
+};

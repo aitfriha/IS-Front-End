@@ -12,7 +12,11 @@ class StaffService {
 
   getStaffById = staffId => axios.get(`${API}/staff/staff-by-id/${staffId}`);
 
-  getNotAssignedStaffs = () => axios.get(`${API}/staff/staff-no-assigned`);
+  getFunctionalNotAssignedStaffs = () => axios.get(`${API}/staff/staff-no-assigned-functional`);
+
+  getAdministrativeNotAssignedStaffs = () => axios.get(`${API}/staff/staff-no-assigned-administrative`);
+
+  getAdministrativeNotAssignedStaffsByCompany = companyId => axios.get(`${API}/staff/staff-no-assigned-administrative-by-company/${companyId}`);
 
   saveStaff = data => axios.post(`${API}/staff/staff-add`, data, config);
 
@@ -21,10 +25,24 @@ class StaffService {
     data
   );
 
-  assignLevelToStaff = objects => axios.post(`${API}/staff/assign-level-staff`, objects);
+  assignFunctionalLevelToStaff = objects => axios.post(`${API}/staff/assign-functional-level-staff`, objects);
 
-  getStaffsByLevel = (levelId, isLeader) => axios.get(
-    `${API}/staff/get-staff-by-level/levelId=${levelId}&isLeader=${isLeader}/`
+  assignAdministrativeLevelToStaff = objects => axios.post(`${API}/staff/assign-administrative-level-staff`, objects);
+
+  getStaffsByFunctionalLevel = (levelId, isFunctionalLeader) => axios.get(
+    `${API}/staff/get-staff-by-functional-level/levelId=${levelId}&isFunctionalLeader=${isFunctionalLeader}/`
+  );
+
+  getStaffsByAdministrativeLevel = (levelId, isAdministrativeLeader) => axios.get(
+    `${API}/staff/get-staff-by-administrative-level/levelId=${levelId}&isAdministrativeLeader=${isAdministrativeLeader}/`
+  );
+
+  getStaffsByIsFunctionalLeader = isFunctionalLeader => axios.get(
+    `${API}/staff/get-staff-by-isFunctionalLeader/isFunctionalLeader=${isFunctionalLeader}/`
+  );
+
+  getStaffsByIsAdministrativeLeader = isAdministrativeLeader => axios.get(
+    `${API}/staff/get-staff-by-isAdministrativeLeader/isAdministrativeLeader=${isAdministrativeLeader}/`
   );
 }
 export default new StaffService();

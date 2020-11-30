@@ -12,6 +12,7 @@ import {
   TextField,
   makeStyles,
   Button,
+  Typography,
   FormControl,
   InputLabel,
   Select,
@@ -30,6 +31,7 @@ import {
   updateLegalCategoryType,
   deleteLegalCategoryType
 } from '../../../redux/legalCategoryType/actions';
+import { getAllStaffContractByLegalCategoryType } from '../../../redux/staffContract/actions';
 import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
@@ -39,10 +41,17 @@ class LegalCategoryType extends React.Component {
     name: '',
     functions: '',
     isDialogOpen: false,
-    legalCategoryTypeIndex: 0
+    isDeleteDialogOpen: false,
+    isRelated: false,
+    legalCategoryTypeIndex: 0,
+    replaceLegalCategoryTypeList: [],
+    oldId: '',
+    newId: ''
   };
 
-  editingPromiseResolve = () => {};
+  editingPromiseResolve1 = () => {};
+
+  editingPromiseResolve2 = () => {};
 
   columns = [
     {
@@ -75,7 +84,7 @@ class LegalCategoryType extends React.Component {
             <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
               <EditIcon color="secondary" />
             </IconButton>
-            <IconButton onClick={() => this.handleDeleteType(tableMeta)}>
+            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
               <DeleteIcon color="primary" />
             </IconButton>
           </React.Fragment>
@@ -109,7 +118,7 @@ class LegalCategoryType extends React.Component {
     };
     const promise = new Promise(resolve => {
       updateLegalCategoryType(legalCategoryType);
-      this.editingPromiseResolve = resolve;
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
@@ -138,28 +147,57 @@ class LegalCategoryType extends React.Component {
     });
   };
 
-  handleClose = () => {
-    this.setState({
-      isDialogOpen: false
-    });
-  };
-
-  handleDeleteType = tableMeta => {
-    const {
-      allLegalCategoryType,
-      getAllLegalCategoryType,
-      deleteLegalCategoryType
-    } = this.props;
+  handleOpenDeleteDialog = tableMeta => {
+    const { allLegalCategoryType, getAllStaffContractByLegalCategoryType } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     const promise = new Promise(resolve => {
-      deleteLegalCategoryType(allLegalCategoryType[index].legalCategoryTypeId);
-      this.editingPromiseResolve = resolve;
+      // get client information
+      getAllStaffContractByLegalCategoryType(allLegalCategoryType[index].legalCategoryTypeId);
+      this.editingPromiseResolve2 = resolve;
+    });
+    promise.then(result => {
+      if (this.props.allStaffContractByLegalCategoryType.length === 0) {
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: false,
+          oldId: allLegalCategoryType[index].legalCategoryTypeId
+        });
+      } else {
+        const replaceLegalCategoryTypeList = allLegalCategoryType.filter(
+          type => type.legalCategoryTypeId !== allLegalCategoryType[index].legalCategoryTypeId
+        );
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: true,
+          oldId: allLegalCategoryType[index].legalCategoryTypeId,
+          replaceLegalCategoryTypeList
+        });
+      }
+    });
+  };
+
+
+  handleClose = () => {
+    this.setState({
+      isDialogOpen: false,
+      isDeleteDialogOpen: false,
+      newId: ''
+    });
+  };
+
+  handleDeleteType = () => {
+    const { getAllLegalCategoryType, deleteLegalCategoryType } = this.props;
+    const { oldId, newId } = this.state;
+    const promise = new Promise(resolve => {
+      deleteLegalCategoryType(oldId, newId);
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
         getAllLegalCategoryType();
+        this.handleClose();
       } else {
         notification('danger', result);
       }
@@ -172,9 +210,15 @@ class LegalCategoryType extends React.Component {
       allLegalCategoryType,
       isLoadingLegalCategoryType,
       legalCategoryTypeResponse,
-      errorLegalCategoryType
+      errorLegalCategoryType,
+      isLoadingStaffContract,
+      staffContractResponse,
+      errorStaffContract
     } = this.props;
-    const { name, functions, isDialogOpen } = this.state;
+    const { name, functions, isDialogOpen,isDeleteDialogOpen,
+      isRelated,
+      replaceLegalCategoryTypeList,
+      newId } = this.state;
     const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
@@ -193,10 +237,17 @@ class LegalCategoryType extends React.Component {
     };
     !isLoadingLegalCategoryType
       && legalCategoryTypeResponse
-      && this.editingPromiseResolve(legalCategoryTypeResponse);
+      && this.editingPromiseResolve1(legalCategoryTypeResponse);
     !isLoadingLegalCategoryType
       && !legalCategoryTypeResponse
-      && this.editingPromiseResolve(errorLegalCategoryType);
+      && this.editingPromiseResolve1(errorLegalCategoryType);
+
+      !isLoadingStaffContract
+      && staffContractResponse
+      && this.editingPromiseResolve2(staffContractResponse);
+    !isLoadingStaffContract
+      && !staffContractResponse
+      && this.editingPromiseResolve2(errorStaffContract);
     return (
       <div>
         <Helmet>
@@ -207,6 +258,94 @@ class LegalCategoryType extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          open={isDeleteDialogOpen}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete Legal Category Type
+          </DialogTitle>
+          <DialogContent>
+            {isRelated ? (
+              <div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px'
+                  }}
+                >
+                  this type is related to some contracts, choose an other
+                  legal category type to replace it:
+                </Typography>
+                <div>
+                  <FormControl
+                    className={classes.formControl}
+                    required
+                    style={{ width: '30%' }}
+                  >
+                    <InputLabel>Legal category type</InputLabel>
+                    <Select
+                      name="newId"
+                      value={newId}
+                      onChange={this.handleChange}
+                    >
+                      {replaceLegalCategoryTypeList.map(type => (
+                        <MenuItem key={type.code} value={type.legalCategoryTypeId}>
+                          {type.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    color: '#dc3545',
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '14px'
+                  }}
+                >
+                  Notice that all the staff contract history related to this
+                  legal category type will be deleted permanently
+                </Typography>
+              </div>
+            ) : (
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px'
+                }}
+              >
+                this type is not related to any contract, are you sure you want
+                to delete this type?
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            {isRelated ? (
+              <Button
+                color="primary"
+                disabled={newId === ''}
+                onClick={this.handleDeleteType}
+              >
+                Replace and delete
+              </Button>
+            ) : (
+              <Button color="primary" onClick={this.handleDeleteType}>
+                Delete
+              </Button>
+            )}
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={isDialogOpen}
           disableBackdropClick
@@ -280,13 +419,19 @@ const mapStateToProps = state => ({
   legalCategoryTypeResponse: state.getIn(['legalCategoryTypes'])
     .legalCategoryTypeResponse,
   isLoadingLegalCategoryType: state.getIn(['legalCategoryTypes']).isLoading,
-  errorLegalCategoryType: state.getIn(['legalCategoryTypes']).errors
+  errorLegalCategoryType: state.getIn(['legalCategoryTypes']).errors,
+  staffContractResponse: state.getIn(['staffContracts']).staffContractResponse,
+  isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
+  errorStaffContract: state.getIn(['staffContracts']).errors,
+  allStaffContractByLegalCategoryType: state.getIn(['staffContracts'])
+    .allStaffContractByLegalCategoryType
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     updateLegalCategoryType,
     getAllLegalCategoryType,
-    deleteLegalCategoryType
+    deleteLegalCategoryType,
+    getAllStaffContractByLegalCategoryType
   },
   dispatch
 );

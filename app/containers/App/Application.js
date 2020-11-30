@@ -19,7 +19,9 @@ import {
   Sectors,
   AddSector,
   FunctionalStructure,
-  AddLevel,
+  AddFunctionalLevel,
+  AdministrativeStructure,
+  AddAdministrativeLevel,
   Areas,
   AddArea,
   CountryConfig,
@@ -57,8 +59,11 @@ import {
   AddContractType,
   LegalCategoryType,
   AddLegalCategoryType,
+  ContractModel,
+  AddContractModel,
   AbsenceType,
-  AddAbsenceType, SectorsCompany
+  AddAbsenceType,
+  SectorsCompany
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -132,7 +137,17 @@ function Application(props) {
         <Route
           exact
           path="/app/hh-rr/functionalStructure/create-level"
-          component={AddLevel}
+          component={AddFunctionalLevel}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/AdministrativeStructure"
+          component={AdministrativeStructure}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/AdministrativeStructure/create-level"
+          component={AddAdministrativeLevel}
         />
         <Route exact path="/app/hh-rr/contractType" component={ContractType} />
         <Route
@@ -149,6 +164,16 @@ function Application(props) {
           exact
           path="/app/hh-rr/legalCategoryType/create-legal-category-type"
           component={AddLegalCategoryType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/contractModel"
+          component={ContractModel}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/contractModel/create-contract-model"
+          component={AddContractModel}
         />
         <Route exact path="/app/hh-rr/absenceType" component={AbsenceType} />
         <Route
@@ -273,10 +298,26 @@ function Application(props) {
         />
         <Route exact path="/app/gestion-financial/IVA" component={IVA} />
         <Route exact path="/app/gestion-financial/Add-IVA" component={AddIVA} />
-        <Route exact path="/app/gestion-financial/Currency-Management" component={Currency} />
-        <Route exact path="/app/gestion-financial/Add-Currency" component={AddCurrency} />
-        <Route exact path="/app/gestion-financial/Retention" component={Retention} />
-        <Route exact path="/app/gestion-financial/Add-Retention" component={AddRetention} />
+        <Route
+          exact
+          path="/app/gestion-financial/Currency-Management"
+          component={Currency}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-Currency"
+          component={AddCurrency}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Retention"
+          component={Retention}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-Retention"
+          component={AddRetention}
+        />
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>
