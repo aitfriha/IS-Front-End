@@ -261,3 +261,11 @@ export const AddRetention = Loadable({
   loader: () => import('./Pages/FinancialSystem/Retentions/addRetention'),
   loading: Loading
 });
+export const EconomicStaff = Loadable({
+  loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement'),
+  loading: Loading
+});
+export const AddEconomicStaff = Loadable({
+  loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
+  loading: Loading
+});

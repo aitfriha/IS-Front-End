@@ -58,7 +58,9 @@ import {
   LegalCategoryType,
   AddLegalCategoryType,
   AbsenceType,
-  AddAbsenceType, SectorsCompany,CivilityTitle
+  EconomicStaff,
+  AddEconomicStaff,
+  AddAbsenceType, SectorsCompany, CivilityTitle
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -120,9 +122,9 @@ function Application(props) {
           component={SectorsCompany}
         />
         <Route
-            exact
-            path="/app/gestion-commercial/civilityTitle"
-            component={CivilityTitle}
+          exact
+          path="/app/gestion-commercial/civilityTitle"
+          component={CivilityTitle}
         />
         <Route
           exact
@@ -282,6 +284,8 @@ function Application(props) {
         <Route exact path="/app/gestion-financial/Add-Currency" component={AddCurrency} />
         <Route exact path="/app/gestion-financial/Retention" component={Retention} />
         <Route exact path="/app/gestion-financial/Add-Retention" component={AddRetention} />
+        <Route exact path="/app/gestion-financial/Staff Economic Management" component={EconomicStaff} />
+        <Route exact path="/app/gestion-financial/Add Economic Staff" component={AddEconomicStaff} />
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>
