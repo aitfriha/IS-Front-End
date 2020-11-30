@@ -66,11 +66,17 @@ function* updateLegalCategoryType(action) {
 
 function* deleteLegalCategoryType(action) {
   try {
-    const { legalCategoryTypeId } = action;
+    const { oldLegalCategoryTypeId, newLegalCategoryTypeId } = action;
 
+    console.log(new Date().toISOString().slice(0, 10));
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.LEGALCATEGORYTYPE + '/delete/' + legalCategoryTypeId
+      url:
+        ENDPOINTS.LEGALCATEGORYTYPE
+        + '/delete/oldId='
+        + oldLegalCategoryTypeId
+        + '&newId='
+        + newLegalCategoryTypeId
     });
 
     yield put({
@@ -91,7 +97,6 @@ function* getAllLegalCategoryType() {
       method: 'get',
       url: ENDPOINTS.LEGALCATEGORYTYPE + '/all'
     });
-    console.log(request);
     yield put({
       type: GET_ALL_LEGALCATEGORYTYPES_SUCCESS,
       payload: request.data.payload
@@ -112,7 +117,6 @@ function* getAllLegalCategoryTypeByCompany(action) {
       method: 'get',
       url: ENDPOINTS.LEGALCATEGORYTYPE + '/all-by-company/' + companyId
     });
-    console.log(request);
     yield put({
       type: GET_ALL_LEGALCATEGORYTYPES_BY_COMPANY_SUCCESS,
       payload: request.data.payload

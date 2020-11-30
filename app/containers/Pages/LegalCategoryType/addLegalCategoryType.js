@@ -39,7 +39,7 @@ class AddLegalCategoryType extends React.Component {
     this.state = {
       name: '',
       functions: '',
-      company: {},
+      company: null,
       companies: []
     };
   }

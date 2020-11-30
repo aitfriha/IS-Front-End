@@ -162,6 +162,7 @@ class AddressBlock extends React.Component {
               {...params}
               label="Choose the country"
               variant="outlined"
+              required
             />
           )}
         />
@@ -177,6 +178,7 @@ class AddressBlock extends React.Component {
               {...params}
               label="Choose the state"
               variant="outlined"
+              required
             />
           )}
         />
@@ -192,6 +194,7 @@ class AddressBlock extends React.Component {
               {...params}
               label="Choose the city"
               variant="outlined"
+              required
             />
           )}
         />
@@ -212,11 +215,11 @@ class AddressBlock extends React.Component {
         )}
         <TextField
           id="outlined-basic"
-          label="Name of address"
+          label="Full Address"
           variant="outlined"
           name="fullAddress"
           fullWidth
-          required
+          multiline
           className={classes.textField}
           onChange={this.handleChange}
         />

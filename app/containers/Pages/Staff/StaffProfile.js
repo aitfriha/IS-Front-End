@@ -14,12 +14,18 @@ import {
   Tab,
   Tabs,
   Badge,
-  Tooltip
+  Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
 } from '@material-ui/core';
 import ProfilePicture from 'profile-picture';
 import 'profile-picture/build/ProfilePicture.css';
 import '../Configurations/map/app.css';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
@@ -48,36 +54,65 @@ const SmallAvatar = withStyles(theme => ({
 export class StaffProfile extends Component {
   state = {
     value: 0,
-    isOpenDocument: false,
     documentType: '',
     docExtension: '',
     numPages: null,
     pageNumber: 1,
     functionalStructureTree: {},
     isChangeProfilePic: false,
-    photo: ''
+    photo: '',
+    isOpenLevelsDialog: false,
+    functionalLevelsTreesList: [],
+    administrativeLevelsTreesList: []
   };
 
   profilePictureRef = React.createRef();
 
   componentDidMount() {
     const { staff } = this.props;
-    const { functionalStructureTree } = this.state;
-    console.log(staff);
-    if (staff.levelId && !functionalStructureTree.level1) {
-      const type = staff.levelType;
-      FunctionalStructureService.getLevelTree(staff.levelId).then(
-        ({ data }) => {
-          console.log(data);
-          let tree = {};
+    let tree = {};
+    if (staff.functionalStructureLevels.length === 1) {
+      const { type } = staff.functionalStructureLevels[0];
+      FunctionalStructureService.getLevelTree(
+        staff.functionalStructureLevels[0]._id
+      ).then(({ data }) => {
+        if (type === 'Level 1') {
+          tree = {
+            level1: data[0].name
+          };
+        } else if (type === 'Level 2') {
+          tree = {
+            level1: data[0].name,
+            level2: data[1].name
+          };
+        } else if (type === 'Level 3') {
+          tree = {
+            level1: data[0].name,
+            level2: data[1].name,
+            level3: data[2].name
+          };
+        }
+        this.setState({
+          functionalStructureTree: tree
+        });
+      });
+    } else if (staff.functionalStructureLevels.length > 1) {
+      const functionalLevelsTreesList = [];
+      let tree = {};
+      staff.functionalStructureLevels.forEach(level => {
+        const { type } = level;
+        FunctionalStructureService.getLevelTree(level._id).then(({ data }) => {
           if (type === 'Level 1') {
             tree = {
-              level1: data[0].name
+              level1: data[0].name,
+              level2: 'none',
+              level3: 'none'
             };
           } else if (type === 'Level 2') {
             tree = {
               level1: data[0].name,
-              level2: data[1].name
+              level2: data[1].name,
+              level3: 'none'
             };
           } else if (type === 'Level 3') {
             tree = {
@@ -86,11 +121,12 @@ export class StaffProfile extends Component {
               level3: data[2].name
             };
           }
-          this.setState({
-            functionalStructureTree: tree
-          });
-        }
-      );
+          functionalLevelsTreesList.push(tree);
+        });
+      });
+      this.setState({
+        functionalLevelsTreesList
+      });
     }
     this.setState({
       photo: staff.photo
@@ -103,143 +139,9 @@ export class StaffProfile extends Component {
     });
   };
 
-  handleDownload = () => {
-    const { staff } = this.props;
-    const { documentType, docExtension } = this.state;
-    let doc = null;
-    let docName = null;
-    if (documentType === 'contract') {
-      doc = staff.contractDoc;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_Contract`;
-    } else if (documentType === 'internalRules') {
-      doc = staff.internalRulesDoc;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_Internal-Rules`;
-    } else if (documentType === 'preContract') {
-      doc = staff.preContractDoc;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_PreContract`;
-    } else if (documentType === 'ID Card') {
-      doc = staff.staffDocuments.find(doc => doc.name === 'ID Card').document;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_ID_Card`;
-    } else if (documentType === 'Passport') {
-      doc = staff.staffDocuments.find(doc => doc.name === 'Passport').document;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_Passport`;
-    } else if (documentType === 'Professional ID Card') {
-      doc = staff.staffDocuments.find(
-        doc => doc.name === 'Professional ID Card'
-      ).document;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_Professional_ID_Card`;
-    } else if (documentType === 'Health National Security Card') {
-      doc = staff.staffDocuments.find(
-        doc => doc.name === 'Health National Security Card'
-      ).document;
-      docName = `${staff.firstName}-${staff.fatherFamilyName}-${
-        staff.motherFamilyName
-      }_Health-National-Security-Card`;
-    }
-
-    const documentBase64 = this.fileToBase64(doc);
-    const documentBlob = new Blob([documentBase64], {
-      type: this.handleFileDataType(docExtension)
-    });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(documentBlob);
-    link.download = docName;
-    link.click();
-  };
-
   handleBack = () => {
     const { showProfile, staff } = this.props;
     showProfile(false, staff);
-  };
-
-  handleDialogClose = () => {
-    this.setState({
-      isOpenDocument: false
-    });
-  };
-
-  onDocumentLoadSuccess = ({ numPages }) => {
-    this.setState({
-      numPages
-    });
-  };
-
-  fileToBase64 = file => {
-    const binaryString = window.atob(file);
-    const binaryLen = binaryString.length;
-    const bytes = new Uint8Array(binaryLen);
-    for (let i = 0; i < binaryLen; i++) {
-      const ascii = binaryString.charCodeAt(i);
-      bytes[i] = ascii;
-    }
-    return bytes;
-  };
-
-  handleFileDataType = ext => {
-    switch (ext) {
-      case 'pdf':
-        return 'application/pdf';
-      case 'jpg':
-        return 'image/jpeg';
-      case 'jpeg':
-        return 'image/jpeg';
-      case 'png':
-        return 'image/png';
-      case 'tiff':
-        return 'image/tiff';
-    }
-  };
-
-  renderFile = () => {
-    const { staff } = this.props;
-    const { documentType, docExtension } = this.state;
-    switch (documentType) {
-      case 'contract':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.contractDoc
-        }`;
-      case 'internalRules':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.internalRulesDoc
-        }`;
-      case 'preContract':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.preContractDoc
-        }`;
-      case 'ID Card':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffDocuments.find(doc => doc.name === 'ID Card').document
-        }`;
-      case 'Passport':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffDocuments.find(doc => doc.name === 'Passport').document
-        }`;
-      case 'Professional ID Card':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffDocuments.find(doc => doc.name === 'Professional ID Card')
-            .document
-        }`;
-      case 'Health National Security Card':
-        return `data:${this.handleFileDataType(docExtension)};base64,${
-          staff.staffDocuments.find(
-            doc => doc.name === 'Health National Security Card'
-          ).document
-        }`;
-      default:
-        return '';
-    }
   };
 
   handleClosePictureDialog = () => {
@@ -290,17 +192,30 @@ export class StaffProfile extends Component {
     });
   };
 
+  handleOpenLevelsDialog = () => {
+    this.setState({
+      isOpenLevelsDialog: true
+    });
+  };
+
+  handleCloseLevelsDialog = () => {
+    this.setState({
+      isOpenLevelsDialog: false
+    });
+  };
+
   render() {
     const { classes, staff, isEdit } = this.props;
     const {
       value,
-      isOpenDocument,
+      isOpenLevelsDialog,
       numPages,
       pageNumber,
       functionalStructureTree,
       docExtension,
       isChangeProfilePic,
-      photo
+      photo,
+      functionalLevelsTreesList
     } = this.state;
     return (
       <div>
@@ -308,32 +223,91 @@ export class StaffProfile extends Component {
           maxWidth="lg"
           fullWidth
           scroll="paper"
-          aria-labelledby="changeProfilePic"
-          open={isOpenDocument}
+          aria-labelledby="levelsDialog"
+          open={isOpenLevelsDialog}
           classes={{
             paper: classes.paper
           }}
         >
-          <DialogTitle id="SaveFormula">Document preview</DialogTitle>
+          <DialogTitle id="SaveFormula">Levels</DialogTitle>
           <DialogContent>
-            {docExtension === 'pdf' ? (
-              <Document
-                file={this.renderFile()}
-                onLoadSuccess={this.onDocumentLoadSuccess}
-                onLoadError={console.error}
-              >
-                <Page pageNumber={pageNumber} />
-              </Document>
-            ) : (
-              <img src={this.renderFile()} alt="Document" />
-            )}
+            <Table className={classes.table} aria-label="">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="right">Level 1</TableCell>
+                  <TableCell align="right">Level 2</TableCell>
+                  <TableCell align="right">Level 3</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {functionalLevelsTreesList.map((row, index) => (
+                  <TableRow key="row">
+                    <TableCell align="right">
+                      <Typography
+                        variant="subtitle1"
+                        style={{
+                          fontFamily: 'sans-serif , Arial',
+                          fontSize: '17px',
+                          marginTop: 10
+                        }}
+                        color={
+                          staff.functionalStructureLevels[index].type
+                          === 'Level 1'
+                            ? 'secondary'
+                            : '#000'
+                        }
+                      >
+                        {row.level1}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="subtitle1"
+                        style={{
+                          fontFamily: 'sans-serif , Arial',
+                          fontSize: '17px',
+                          marginTop: 10
+                        }}
+                        color={
+                          staff.functionalStructureLevels[index].type
+                          === 'Level 2'
+                            ? 'secondary'
+                            : '#000'
+                        }
+                      >
+                        {row.level2}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="subtitle1"
+                        style={{
+                          fontFamily: 'sans-serif , Arial',
+                          fontSize: '17px',
+                          marginTop: 10
+                        }}
+                        color={
+                          staff.functionalStructureLevels[index].type
+                          === 'Level 3'
+                            ? 'secondary'
+                            : '#000'
+                        }
+                      >
+                        {row.level3}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </DialogContent>
           <DialogActions>
-            <Button autoFocus onClick={this.handleDialogClose} color="primary">
+            <Button
+              autoFocus
+              onClick={this.handleCloseLevelsDialog}
+              color="primary"
+            >
               Close
-            </Button>
-            <Button onClick={this.handleDownload} color="primary">
-              Download
             </Button>
           </DialogActions>
         </Dialog>
@@ -625,65 +599,91 @@ export class StaffProfile extends Component {
                   }}
                   color="secondary"
                 >
-                  {staff.levelType
-                    ? `Current Level : ${staff.levelType}`
-                    : 'Level : none '}
+                  {`is Functional Leader ? : ${staff.isFunctionalLeader}`}
                 </Typography>
               </div>
-              <div className={classes.divContactInline}>
-                <Typography
-                  variant="subtitle1"
-                  style={{
-                    fontFamily: 'sans-serif , Arial',
-                    fontSize: '17px',
-                    marginTop: 4
-                  }}
-                  color="secondary"
-                >
-                  {`is Leader ? : ${staff.isLeader}`}
-                </Typography>
-              </div>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px',
-                  marginTop: 30
-                }}
-              >
-                {functionalStructureTree.level1
-                  ? `Level 1 : ${functionalStructureTree.level1}`
-                  : 'Level 1 : none '}
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px',
-                  marginTop: 20,
-                  marginLeft: 40
-                }}
-              >
-                {functionalStructureTree.level2
-                  ? `Level 2 : ${functionalStructureTree.level2}`
-                  : 'Level 2 : none '}
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '17px',
-                  marginTop: 20,
-                  marginLeft: 80
-                }}
-              >
-                {functionalStructureTree.level3
-                  ? `Level 3 : ${functionalStructureTree.level3}`
-                  : 'Level 3 : none '}
-              </Typography>
+              {staff.isFunctionalLeader === 'no' ? (
+                <div>
+                  <div className={classes.divContactInline}>
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        fontFamily: 'sans-serif , Arial',
+                        fontSize: '17px',
+                        marginTop: 10
+                      }}
+                      color="secondary"
+                    >
+                      {staff.functionalStructureLevels[0]
+                        ? `Current Level : ${
+                          staff.functionalStructureLevels[0].type
+                        }`
+                        : 'Level : none '}
+                    </Typography>
+                  </div>
+
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      marginTop: 30
+                    }}
+                  >
+                    {functionalStructureTree.level1
+                      ? `Level 1 : ${functionalStructureTree.level1}`
+                      : 'Level 1 : none '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      marginTop: 20,
+                      marginLeft: 40
+                    }}
+                  >
+                    {functionalStructureTree.level2
+                      ? `Level 2 : ${functionalStructureTree.level2}`
+                      : 'Level 2 : none '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      marginTop: 20,
+                      marginLeft: 80
+                    }}
+                  >
+                    {functionalStructureTree.level3
+                      ? `Level 3 : ${functionalStructureTree.level3}`
+                      : 'Level 3 : none '}
+                  </Typography>
+                </div>
+              ) : (
+                <div>
+                  <div className={classes.divContactInline}>
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        fontFamily: 'sans-serif , Arial',
+                        fontSize: '17px',
+                        marginTop: 10
+                      }}
+                      color="secondary"
+                    >
+                      {'Levels : '}
+                    </Typography>
+                    <IconButton onClick={this.handleOpenLevelsDialog}>
+                      <VisibilityIcon color="gray" />
+                    </IconButton>
+                  </div>
+                </div>
+              )}
             </Paper>
           </Grid>
           <Grid item xs={8}>

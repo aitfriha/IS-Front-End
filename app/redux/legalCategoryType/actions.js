@@ -16,9 +16,13 @@ export const updateLegalCategoryType = legalCategoryTypeWithId => ({
   legalCategoryTypeWithId
 });
 
-export const deleteLegalCategoryType = legalCategoryTypeId => ({
+export const deleteLegalCategoryType = (
+  oldLegalCategoryTypeId,
+  newLegalCategoryTypeId
+) => ({
   type: DELETE_LEGALCATEGORYTYPE,
-  legalCategoryTypeId
+  oldLegalCategoryTypeId,
+  newLegalCategoryTypeId
 });
 
 export const getAllLegalCategoryType = () => ({

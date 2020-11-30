@@ -13,13 +13,8 @@ export default function reducer(state = initialImmutableState, action = {}) {
   switch (action.type) {
     case ADDLEVELCONFIG:
       return state.withMutations(mutableState => {
-        console.log('redux');
-        console.log(action.levelConfig);
-        console.log(state);
         const levelsConfigArray = state.toJS().levelsConfig;
-        console.log(levelsConfigArray);
         levelsConfigArray.push(action.levelConfig);
-        console.log(levelsConfigArray);
         mutableState.set('levelsConfig', levelsConfigArray);
       });
     case SETLEVELCONFIG:

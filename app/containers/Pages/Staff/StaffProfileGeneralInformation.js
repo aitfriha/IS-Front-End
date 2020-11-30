@@ -53,6 +53,10 @@ import {
   getAllStaff,
   updateStaff
 } from '../../../redux/staff/actions';
+import {
+  addStaffDocument,
+  deleteStaffDocument
+} from '../../../redux/staffDocument/actions';
 import notification from '../../../components/Notification/Notification';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
@@ -80,7 +84,7 @@ class StaffProfileGeneralInformation extends Component {
     companyEmail: '',
     skype: '',
     birthday: new Date(),
-    birthCountry: '',
+    birthCountry: null,
     emergencyContactName: '',
     emergencyContactPhone: '',
     photo: '',
@@ -98,7 +102,9 @@ class StaffProfileGeneralInformation extends Component {
     docType: ''
   };
 
-  editingPromiseResolve = () => {};
+  editingPromiseResolve1 = () => {};
+
+  editingPromiseResolve2 = () => {};
 
   componentDidMount() {
     this.setInitialData();
@@ -109,7 +115,6 @@ class StaffProfileGeneralInformation extends Component {
 
   setInitialData = () => {
     const { staff } = this.props;
-    console.log(staff);
     this.setState({
       firstName: staff.firstName,
       fatherFamilyName: staff.fatherFamilyName,
@@ -259,19 +264,19 @@ class StaffProfileGeneralInformation extends Component {
       emergencyContactName,
       emergencyContactPhone,
       addressId: staff.addressId,
-      cityId: city.cityId,
+      cityId: city ? city.cityId : '',
       fullAddress,
       postCode,
       photo: staff.photo
     };
 
-    console.log(staff.photo);
     const promise = new Promise(resolve => {
       // get client information
       updateStaff(newStaff);
-      this.editingPromiseResolve = resolve;
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
+      console.log(result);
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
@@ -317,7 +322,7 @@ class StaffProfileGeneralInformation extends Component {
   };
 
   handleAddDocument = () => {
-    const { setStaff, staff } = this.props;
+    const { setStaff, staff, addStaffDocument } = this.props;
     const {
       docNumber,
       docExpeditionDate,
@@ -327,6 +332,7 @@ class StaffProfileGeneralInformation extends Component {
       docType
     } = this.state;
     const document = {
+      staffId: staff.staffId,
       name: docType,
       number: docNumber,
       expeditionDate: docExpeditionDate.toISOString().slice(0, 10),
@@ -335,17 +341,31 @@ class StaffProfileGeneralInformation extends Component {
     };
 
     const formData = new FormData();
-    formData.append('doc', doc);
-    formData.append(
-      'staffDocuments',
-      new Blob([JSON.stringify(document)], {
-        type: 'application/json'
-      })
-    );
+    if (doc.constructor !== Object) {
+      formData.append('doc', doc);
+    } else {
+      formData.append(
+        'doc',
+        new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+      );
+    }
+    Object.keys(document).forEach(e => formData.append(e, document[e]));
 
-    StaffDocumentsService.addStaffDocument(formData, staff.staffId).then(() => {
-      StaffService.getStaffById(staff.staffId).then(({ data }) => {
-        setStaff(data);
+    const promise = new Promise(resolve => {
+      // get client information
+      addStaffDocument(formData);
+      this.editingPromiseResolve2 = resolve;
+    });
+    promise.then(result => {
+      console.log(result);
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+        StaffService.getStaffById(staff.staffId).then(({ data }) => {
+          setStaff(data);
+        });
         this.setState({
           isAddDocumentation: false,
           docNumber: '',
@@ -355,7 +375,9 @@ class StaffProfileGeneralInformation extends Component {
           doc: {},
           docType: ''
         });
-      });
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
@@ -411,19 +433,30 @@ class StaffProfileGeneralInformation extends Component {
     const { docId, docExtension } = this.state;
     if (docId !== '') {
       return `data:${this.handleFileDataType(docExtension)};base64,${
-        staff.staffDocuments.find(doc => doc.staffDocumentsId === docId)
-          .document
+        staff.staffDocuments.find(doc => doc.staffDocumentId === docId).document
       }`;
     }
     return '';
   };
 
   handleDeleteDocument = documentId => {
-    const { setStaff, staff } = this.props;
-    StaffDocumentsService.deleteStaffDocument(documentId).then(() => {
-      StaffService.getStaffById(staff.staffId).then(({ data }) => {
-        setStaff(data);
-      });
+    const { setStaff, staff, deleteStaffDocument } = this.props;
+    const promise = new Promise(resolve => {
+      // get client information
+      deleteStaffDocument(documentId);
+      this.editingPromiseResolve2 = resolve;
+    });
+    promise.then(result => {
+      console.log(result);
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+        StaffService.getStaffById(staff.staffId).then(({ data }) => {
+          setStaff(data);
+        });
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
@@ -434,8 +467,13 @@ class StaffProfileGeneralInformation extends Component {
       isLoadingStaff,
       staffResponse,
       errorStaff,
+      isLoadingStaffDocument,
+      staffDocumentResponse,
+      errorStaffDocument,
       isEdit
     } = this.props;
+    console.log(staffDocumentResponse);
+    console.log(errorStaffDocument);
     const {
       isAddDocumentation,
       isOpenDocument,
@@ -460,7 +498,6 @@ class StaffProfileGeneralInformation extends Component {
       docExtension,
       docType
     } = this.state;
-    console.log(staff);
     const docTypes = [
       'ID Card',
       'Passport',
@@ -469,8 +506,16 @@ class StaffProfileGeneralInformation extends Component {
     ];
     !isLoadingStaff
       && staffResponse
-      && this.editingPromiseResolve(staffResponse);
-    !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
+      && this.editingPromiseResolve1(staffResponse);
+    !isLoadingStaff
+      && !staffResponse
+      && this.editingPromiseResolve1(errorStaff);
+    !isLoadingStaffDocument
+      && staffDocumentResponse
+      && this.editingPromiseResolve2(staffDocumentResponse);
+    !isLoadingStaffDocument
+      && !staffDocumentResponse
+      && this.editingPromiseResolve2(errorStaffDocument);
     return (
       <div>
         <Dialog
@@ -1038,6 +1083,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="firstName"
                   fullWidth
+                  required
                   value={firstName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1048,6 +1094,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="fatherFamilyName"
                   fullWidth
+                  required
                   value={fatherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1058,6 +1105,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="motherFamilyName"
                   fullWidth
+                  required
                   value={motherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1113,6 +1161,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="personalPhone"
                   fullWidth
+                  required
                   value={personalPhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1123,6 +1172,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="personalEmail"
                   fullWidth
+                  required
                   value={personalEmail}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1276,7 +1326,7 @@ class StaffProfileGeneralInformation extends Component {
               <TableBody>
                 {staff.staffDocuments ? (
                   staff.staffDocuments.map(row => (
-                    <TableRow key={row.staffDocumentsId}>
+                    <TableRow key={row.staffDocumentId}>
                       <TableCell component="th" scope="row">
                         {row.name}
                       </TableCell>
@@ -1286,7 +1336,7 @@ class StaffProfileGeneralInformation extends Component {
                       <TableCell align="right">
                         <IconButton
                           onClick={() => this.handleOpenDialog(
-                            row.staffDocumentsId,
+                            row.staffDocumentId,
                             row.docExtension
                           )
                           }
@@ -1294,7 +1344,7 @@ class StaffProfileGeneralInformation extends Component {
                           <VisibilityIcon color="gray" />
                         </IconButton>
                         <IconButton
-                          onClick={() => this.handleDeleteDocument(row.staffDocumentsId)
+                          onClick={() => this.handleDeleteDocument(row.staffDocumentId)
                           }
                         >
                           <DeleteForeverIcon color="red" />
@@ -1322,6 +1372,9 @@ const mapStateToProps = state => ({
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
   errorStaff: state.getIn(['staffs']).errors,
+  staffDocumentResponse: state.getIn(['staffDocuments']).staffDocumentResponse,
+  isLoadingStaffDocument: state.getIn(['staffDocuments']).isLoading,
+  errorStaffDocument: state.getIn(['staffDocuments']).errors,
   isEdit: state.getIn(['staffs']).isEditStaff
 });
 
@@ -1330,7 +1383,9 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     updateStaff,
     getAllStaff,
     setStaff,
-    setEdit
+    setEdit,
+    addStaffDocument,
+    deleteStaffDocument
   },
   dispatch
 );

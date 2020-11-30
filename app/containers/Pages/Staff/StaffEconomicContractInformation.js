@@ -1,13 +1,22 @@
 import React, { Component } from 'react';
-import { Grid, TextField, withStyles } from '@material-ui/core';
+import {
+  Grid,
+  TextField,
+  withStyles,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControl
+} from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import PropTypes from 'prop-types';
-
+import axios from 'axios';
 import styles from './staff-jss';
+import CurrencyService from '../../Services/CurrencyService';
 
 class StaffEconomicContractInformation extends Component {
   state = {
@@ -18,6 +27,13 @@ class StaffEconomicContractInformation extends Component {
     objectives: 0,
     companyObjectivesCost: 0,
     totalCompanyCost: 0,
+    contractSalaryInEuro: 0.0,
+    companyContractCostInEuro: 0.0,
+    expensesInEuro: 0.0,
+    companyExpensesCostInEuro: 0.0,
+    objectivesInEuro: 0.0,
+    companyObjectivesCostInEuro: 0.0,
+    totalCompanyCostInEuro: 0.0,
     contractSalaryDateGoing: new Date(),
     contractSalaryDateOut: new Date(),
     companyContractCostDateGoing: new Date(),
@@ -31,10 +47,19 @@ class StaffEconomicContractInformation extends Component {
     companyObjectivesCostDateGoing: new Date(),
     companyObjectivesCostDateOut: new Date(),
     totalCompanyCostDateGoing: new Date(),
-    totalCompanyCostDateOut: new Date()
+    totalCompanyCostDateOut: new Date(),
+    currencies: [],
+    localCurrency: ''
   };
 
+  componentDidMount() {
+    CurrencyService.getCurrency().then(({ data }) => {
+      this.setState({ currencies: data });
+    });
+  }
+
   calcTotal = newValues => {
+    const { localCurrency } = this.state;
     const {
       companyContractCost,
       companyExpensesCost,
@@ -43,15 +68,51 @@ class StaffEconomicContractInformation extends Component {
     const newTotal = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
+    this.setState(
+      {
+        totalCompanyCost: newTotal
+      },
+      () => {
+        this.convertHandler(localCurrency);
+      }
+    );
+  };
+
+  convertHandler = currencyId => {
+    const {
+      contractSalary,
+      companyContractCost,
+      expenses,
+      companyExpensesCost,
+      objectives,
+      companyObjectivesCost,
+      totalCompanyCost,
+      currencies
+    } = this.state;
+    const currency = currencies.filter(cur => cur.currencyId === currencyId)[0];
+    const factor = parseFloat(currency.changeFactor);
+    const contractSalaryInEuro = contractSalary * factor;
+    const companyContractCostInEuro = companyContractCost * factor;
+    const expensesInEuro = expenses * factor;
+    const companyExpensesCostInEuro = companyExpensesCost * factor;
+    const objectivesInEuro = objectives * factor;
+    const companyObjectivesCostInEuro = companyObjectivesCost * factor;
+    const totalCompanyCostInEuro = totalCompanyCost * factor;
     this.setState({
-      totalCompanyCost: newTotal
+      contractSalaryInEuro: contractSalaryInEuro.toFixed(5),
+      companyContractCostInEuro: companyContractCostInEuro.toFixed(5),
+      expensesInEuro: expensesInEuro.toFixed(5),
+      companyExpensesCostInEuro: companyExpensesCostInEuro.toFixed(5),
+      objectivesInEuro: objectivesInEuro.toFixed(5),
+      companyObjectivesCostInEuro: companyObjectivesCostInEuro.toFixed(5),
+      totalCompanyCostInEuro: totalCompanyCostInEuro.toFixed(5)
     });
   };
 
   handleChange = ev => {
     const { handleChangeValue } = this.props;
+    const { localCurrency } = this.state;
     const { name } = ev.target;
-    this.setState({ [name]: ev.target.value });
     if (
       name === 'companyContractCost'
       || name === 'companyExpensesCost'
@@ -63,6 +124,28 @@ class StaffEconomicContractInformation extends Component {
       };
       this.calcTotal(newValues);
     }
+    if (localCurrency !== '') {
+      this.setState(
+        ev.target.value !== '' ? { [name]: ev.target.value } : { [name]: 0 },
+        () => {
+          this.convertHandler(localCurrency);
+        }
+      );
+    } else {
+      this.setState(
+        ev.target.value !== '' ? { [name]: ev.target.value } : { [name]: 0 }
+      );
+    }
+
+    handleChangeValue(ev);
+  };
+
+  handleChangeCurrency = ev => {
+    const { handleChangeValue } = this.props;
+    const { name } = ev.target;
+    this.setState({ [name]: ev.target.value }, () => {
+      this.convertHandler(ev.target.value);
+    });
     handleChangeValue(ev);
   };
 
@@ -84,6 +167,13 @@ class StaffEconomicContractInformation extends Component {
       objectives,
       companyObjectivesCost,
       totalCompanyCost,
+      contractSalaryInEuro,
+      companyContractCostInEuro,
+      expensesInEuro,
+      companyExpensesCostInEuro,
+      objectivesInEuro,
+      companyObjectivesCostInEuro,
+      totalCompanyCostInEuro,
       contractSalaryDateGoing,
       contractSalaryDateOut,
       companyContractCostDateGoing,
@@ -97,7 +187,9 @@ class StaffEconomicContractInformation extends Component {
       companyObjectivesCostDateGoing,
       companyObjectivesCostDateOut,
       totalCompanyCostDateGoing,
-      totalCompanyCostDateOut
+      totalCompanyCostDateOut,
+      currencies,
+      localCurrency
     } = this.state;
     return (
       <Grid
@@ -107,7 +199,29 @@ class StaffEconomicContractInformation extends Component {
         justify="center"
         alignItems="center"
       >
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
+          <div className={classes.divCenter}>
+            <FormControl
+              className={classes.formControl}
+              style={{ width: '23%' }}
+              required
+            >
+              <InputLabel>Currency</InputLabel>
+              <Select
+                name="localCurrency"
+                value={localCurrency}
+                onChange={this.handleChangeCurrency}
+              >
+                {currencies.map(clt => (
+                  <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                    {clt.currencyName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+        </Grid>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -115,10 +229,21 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="contractSalary"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={contractSalary}
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Contract Salary In Euro"
+              variant="outlined"
+              name="contractSalaryInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={contractSalaryInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -135,7 +260,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -153,12 +278,12 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -166,10 +291,21 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="companyContractCost"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={companyContractCost}
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Company Contract Cost In Euro"
+              variant="outlined"
+              name="companyContractCostInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={companyContractCostInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -186,7 +322,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -204,12 +340,12 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -217,10 +353,21 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="expenses"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={expenses}
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Expenses In Euro"
+              variant="outlined"
+              name="expensesInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={expensesInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -237,7 +384,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -255,12 +402,12 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -268,10 +415,21 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="companyExpensesCost"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={companyExpensesCost}
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Company Expenses Cost In Euro"
+              variant="outlined"
+              name="companyExpensesCostInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={companyExpensesCostInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -288,7 +446,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -306,12 +464,12 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -319,10 +477,21 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="objectives"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={objectives}
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Objectives In Euro"
+              variant="outlined"
+              name="objectivesInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={objectivesInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -339,7 +508,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -357,12 +526,12 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -370,10 +539,21 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="companyObjectivesCost"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={companyObjectivesCost}
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Company Objectives Cost In Euro"
+              variant="outlined"
+              name="companyObjectivesCostInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={companyObjectivesCostInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -390,7 +570,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -408,12 +588,12 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={10}>
           <div className={classes.divSpace} style={{ width: '100%' }}>
             <TextField
               id="outlined-basic"
@@ -421,11 +601,22 @@ class StaffEconomicContractInformation extends Component {
               variant="outlined"
               name="totalCompanyCost"
               type="number"
-              style={{ width: '30%', marginTop: 33 }}
+              style={{ width: '23%', marginTop: 33 }}
               value={totalCompanyCost}
               disabled
               className={classes.textField}
               onChange={this.handleChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Total Company Cost In Euro"
+              variant="outlined"
+              name="totalCompanyCostInEuro"
+              type="number"
+              style={{ width: '23%', marginTop: 33 }}
+              value={totalCompanyCostInEuro}
+              className={classes.textField}
+              disabled
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -442,7 +633,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -460,7 +651,7 @@ class StaffEconomicContractInformation extends Component {
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
-                style={{ width: '30%' }}
+                style={{ width: '23%' }}
               />
             </MuiPickersUtilsProvider>
           </div>

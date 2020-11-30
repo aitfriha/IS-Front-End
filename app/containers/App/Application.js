@@ -19,7 +19,9 @@ import {
   Sectors,
   AddSector,
   FunctionalStructure,
-  AddLevel,
+  AddFunctionalLevel,
+  AdministrativeStructure,
+  AddAdministrativeLevel,
   Areas,
   AddArea,
   CountryConfig,
@@ -57,10 +59,14 @@ import {
   AddContractType,
   LegalCategoryType,
   AddLegalCategoryType,
+  ContractModel,
+  AddContractModel,
   AbsenceType,
   EconomicStaff,
   AddEconomicStaff,
-  AddAbsenceType, SectorsCompany, CivilityTitle
+  AddAbsenceType,
+  SectorsCompany,
+  CivilityTitle
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -139,7 +145,17 @@ function Application(props) {
         <Route
           exact
           path="/app/hh-rr/functionalStructure/create-level"
-          component={AddLevel}
+          component={AddFunctionalLevel}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/AdministrativeStructure"
+          component={AdministrativeStructure}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/AdministrativeStructure/create-level"
+          component={AddAdministrativeLevel}
         />
         <Route exact path="/app/hh-rr/contractType" component={ContractType} />
         <Route
@@ -156,6 +172,16 @@ function Application(props) {
           exact
           path="/app/hh-rr/legalCategoryType/create-legal-category-type"
           component={AddLegalCategoryType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/contractModel"
+          component={ContractModel}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/contractModel/create-contract-model"
+          component={AddContractModel}
         />
         <Route exact path="/app/hh-rr/absenceType" component={AbsenceType} />
         <Route
