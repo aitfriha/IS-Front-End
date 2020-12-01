@@ -26,6 +26,7 @@ class StaffBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      staffs: [],
       columnsType: 'generalInformation',
       generalInformationColumns: [
         {
@@ -88,9 +89,15 @@ class StaffBlock extends React.Component {
           options: this.columnOptions
         },
         {
-          name: 'levelName',
+          name: 'functionalStructureLevels',
           label: 'Functional level',
-          options: this.columnOptions
+          options: {
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps(),
+            customBodyRender: value => (
+              <React.Fragment>{value[0] ? value[0].name : ''}</React.Fragment>
+            )
+          }
         },
 
         {
@@ -182,11 +189,15 @@ class StaffBlock extends React.Component {
           options: this.columnOptions
         },
         {
-          name: 'legelCategoryTypeName',
-          label: 'Legel Category Type',
+          name: 'legalCategoryTypeName',
+          label: 'Legal Category Type',
           options: this.columnOptions
         },
-
+        {
+          name: 'contractModelName',
+          label: 'Contract Model',
+          options: this.columnOptions
+        },
         {
           name: 'Actions',
           options: {
@@ -224,8 +235,18 @@ class StaffBlock extends React.Component {
           }
         },
         {
+          name: 'currencyName',
+          label: 'Local Currency',
+          options: this.columnOptions
+        },
+        {
           name: 'contractSalary',
           label: 'Contract Salary',
+          options: this.columnOptions
+        },
+        {
+          name: 'contractSalaryInEuro',
+          label: 'Contract Salary (Euro)',
           options: this.columnOptions
         },
         {
@@ -244,6 +265,11 @@ class StaffBlock extends React.Component {
           options: this.columnOptions
         },
         {
+          name: 'companyContractCostInEuro',
+          label: 'Company Contract (Euro)',
+          options: this.columnOptions
+        },
+        {
           name: 'companyContractCostDateGoing',
           label: 'Company Contract Cost Date Going',
           options: this.columnOptions
@@ -256,6 +282,11 @@ class StaffBlock extends React.Component {
         {
           name: 'expenses',
           label: 'Expenses',
+          options: this.columnOptions
+        },
+        {
+          name: 'expensesInEuro',
+          label: 'Expenses (Euro)',
           options: this.columnOptions
         },
         {
@@ -274,6 +305,11 @@ class StaffBlock extends React.Component {
           options: this.columnOptions
         },
         {
+          label: 'Company Expenses Cost (Euro)',
+          name: 'companyExpensesCostInEuro',
+          options: this.columnOptions
+        },
+        {
           label: 'Company Expenses Cost Date Going',
           name: 'companyExpensesCostDateGoing',
           options: this.columnOptions
@@ -286,6 +322,11 @@ class StaffBlock extends React.Component {
         {
           name: 'objectives',
           label: 'Objectives',
+          options: this.columnOptions
+        },
+        {
+          name: 'objectivesInEuro',
+          label: 'Objectives (Euro)',
           options: this.columnOptions
         },
         {
@@ -304,6 +345,11 @@ class StaffBlock extends React.Component {
           options: this.columnOptions
         },
         {
+          name: 'companyObjectivesCostInEuro',
+          label: 'Company Objectives Cost (Euro)',
+          options: this.columnOptions
+        },
+        {
           name: 'companyObjectivesCostDateGoing',
           label: 'Company Objectives Cost Date Going',
           options: this.columnOptions
@@ -316,6 +362,11 @@ class StaffBlock extends React.Component {
         {
           name: 'totalCompanyCost',
           label: 'Total Company Cost',
+          options: this.columnOptions
+        },
+        {
+          name: 'totalCompanyCostInEuro',
+          label: 'Total Company Cost (Euro)',
           options: this.columnOptions
         },
         {
@@ -353,6 +404,8 @@ class StaffBlock extends React.Component {
     };
   }
 
+  editingPromiseResolve = () => {};
+
   columnOptions = {
     filter: true,
     setCellProps: () => this.setCellProps(),
@@ -367,7 +420,34 @@ class StaffBlock extends React.Component {
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
+      const staffs = [];
+      console.log('result');
       console.log(result);
+      console.log(this.props.allStaff);
+      this.props.allStaff.forEach(staff => {
+        const factor = staff.changeFactor;
+        const contractSalaryInEuro = staff.contractSalary * factor;
+        const companyContractCostInEuro = staff.companyContractCost * factor;
+        const expensesInEuro = staff.expenses * factor;
+        const companyExpensesCostInEuro = staff.companyExpensesCost * factor;
+        const objectivesInEuro = staff.objectives * factor;
+        const companyObjectivesCostInEuro = staff.companyObjectivesCost * factor;
+        const totalCompanyCostInEuro = staff.totalCompanyCost * factor;
+        const newStaff = {
+          ...staff,
+          contractSalaryInEuro: contractSalaryInEuro.toFixed(5),
+          companyContractCostInEuro: companyContractCostInEuro.toFixed(5),
+          expensesInEuro: expensesInEuro.toFixed(5),
+          companyExpensesCostInEuro: companyExpensesCostInEuro.toFixed(5),
+          objectivesInEuro: objectivesInEuro.toFixed(5),
+          companyObjectivesCostInEuro: companyObjectivesCostInEuro.toFixed(5),
+          totalCompanyCostInEuro: totalCompanyCostInEuro.toFixed(5)
+        };
+        staffs.push(newStaff);
+      });
+      this.setState({
+        staffs
+      });
     });
   }
 
@@ -430,8 +510,14 @@ class StaffBlock extends React.Component {
   };
 
   render() {
-    const { allStaff, classes } = this.props;
-    const { columnsType } = this.state;
+    const {
+      allStaff,
+      classes,
+      isLoadingStaff,
+      staffResponse,
+      errorStaff
+    } = this.props;
+    const { columnsType, staffs } = this.state;
     const options = {
       fixedHeader: true,
       fixedSelectColumn: false,
@@ -442,19 +528,23 @@ class StaffBlock extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={allStaff}
+          csvData={staffs}
           url="/app/hh-rr/staff/create-staff"
           tooltip="add new worker"
         />
       )
     };
 
-    console.log(allStaff);
     const menuItems = [
       { name: 'General Information', value: 'generalInformation' },
       { name: 'Contract Information', value: 'contractInformation' },
       { name: 'Economic Information', value: 'economicInformation' }
     ];
+
+    !isLoadingStaff
+      && staffResponse
+      && this.editingPromiseResolve(staffResponse);
+    !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
 
     return (
       <div>
@@ -497,7 +587,7 @@ class StaffBlock extends React.Component {
         </div>
         <MUIDataTable
           title=""
-          data={allStaff}
+          data={staffs}
           columns={this.renderColumns()}
           options={options}
         />
@@ -513,8 +603,12 @@ StaffBlock.propTypes = {
 
 const mapStateToProps = state => ({
   staff: state.getIn(['staffs']).selectedStaff,
-  allStaff: state.getIn(['staffs']).allStaff
+  allStaff: state.getIn(['staffs']).allStaff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorStaff: state.getIn(['staffs']).errors
 });
+
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getAllStaff,

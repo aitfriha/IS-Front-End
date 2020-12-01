@@ -64,7 +64,7 @@ class AddStaff extends React.Component {
       companyMobilePhone: '',
       companyEmail: '',
       birthday: '',
-      birthCountry: '',
+      birthCountry: null,
       emergencyContactName: '',
       emergencyContactPhone: '',
       photo: '',

@@ -8,8 +8,13 @@ import {
   TextField,
   Divider,
   Tooltip,
-  IconButton
+  IconButton,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControl
 } from '@material-ui/core';
+import axios from 'axios';
 import Visibility from '@material-ui/icons/Visibility';
 import SettingsBackupRestoreIcon from '@material-ui/icons/SettingsBackupRestore';
 import DateFnsUtils from '@date-io/date-fns';
@@ -23,15 +28,13 @@ import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styles from './staff-jss';
-import StaffEconomicContractInformationService from '../../Services/StaffEconomicContractInformationService';
-import StaffEconomicContractInformationHistoryService from '../../Services/StaffEconomicContractInformationHistoryService';
 import { ThemeContext } from '../../App/ThemeWrapper';
-import {
-  setStaff,
-  setEdit,
-  getAllStaff,
-  updateStaff
-} from '../../../redux/staff/actions';
+import { updateStaffEconomicContractInformation } from '../../../redux/staffEconomicContractInformation/actions';
+import { setStaff, getAllStaff } from '../../../redux/staff/actions';
+import { getAllStaffEconomicContractInformationHistoryByContract } from '../../../redux/staffEconomicContractInformationHistory/actions';
+import notification from '../../../components/Notification/Notification';
+import StaffService from '../../Services/StaffService';
+import CurrencyService from '../../Services/CurrencyService';
 
 const useStyles = makeStyles(styles);
 
@@ -44,6 +47,13 @@ class StaffProfileEconomicContractInformation extends Component {
     objectives: 0,
     companyObjectivesCost: 0,
     totalCompanyCost: 0,
+    contractSalaryInEuro: 0,
+    companyContractCostInEuro: 0,
+    expensesInEuro: 0,
+    companyExpensesCostInEuro: 0,
+    objectivesInEuro: 0,
+    companyObjectivesCostInEuro: 0,
+    totalCompanyCostInEuro: 0,
     contractSalaryDateGoing: new Date(),
     contractSalaryDateOut: new Date(),
     companyContractCostDateGoing: new Date(),
@@ -60,8 +70,12 @@ class StaffProfileEconomicContractInformation extends Component {
     totalCompanyCostDateOut: new Date(),
     isEditData: false,
     isViewHistory: false,
-    history: []
+    currencies: [],
+    localCurrency: '',
+    currencyCode: ''
   };
+
+  editingPromiseResolve = () => {};
 
   columns = [
     {
@@ -71,6 +85,13 @@ class StaffProfileEconomicContractInformation extends Component {
         customBodyRender: (value, tableMeta) => (
           <React.Fragment>{tableMeta.rowIndex}</React.Fragment>
         )
+      }
+    },
+    {
+      name: 'updatedAt',
+      label: 'Created at',
+      options: {
+        filter: true
       }
     },
     {
@@ -107,93 +128,66 @@ class StaffProfileEconomicContractInformation extends Component {
     } */
 
   componentDidMount() {
-    const { staff } = this.props;
-    this.setInitialData();
-    StaffEconomicContractInformationHistoryService.getStaffEconomicContractInformationHistoryByStaff(
+    const {
+      staff,
+      getAllStaffEconomicContractInformationHistoryByContract
+    } = this.props;
+    getAllStaffEconomicContractInformationHistoryByContract(
       staff.staffEconomicContractInformationId
-    ).then(({ data }) => {
-      console.log(data);
-      this.setState({
-        history: data
+    );
+    CurrencyService.getCurrency().then(({ data }) => {
+      this.setState({ currencies: data }, () => {
+        this.setInitialData();
       });
     });
   }
 
   setInitialData = () => {
     const { staff } = this.props;
-    this.setState({
-      contractSalary: staff.contractSalary,
-      companyContractCost: staff.companyContractCost,
-      expenses: staff.expenses,
-      companyExpensesCost: staff.companyExpensesCost,
-      objectives: staff.objectives,
-      companyObjectivesCost: staff.companyObjectivesCost,
-      totalCompanyCost: staff.totalCompanyCost,
-      contractSalaryDateGoing: new Date(staff.contractSalaryDateGoing),
-      contractSalaryDateOut: new Date(staff.contractSalaryDateOut),
-      companyContractCostDateGoing: new Date(
-        staff.companyContractCostDateGoing
-      ),
-      companyContractCostDateOut: new Date(staff.companyContractCostDateOut),
-      expensesDateGoing: new Date(staff.expensesDateGoing),
-      expensesDateOut: new Date(staff.expensesDateOut),
-      companyExpensesCostDateGoing: new Date(
-        staff.companyExpensesCostDateGoing
-      ),
-      companyExpensesCostDateOut: new Date(staff.companyExpensesCostDateOut),
-      objectivesDateGoing: new Date(staff.objectivesDateGoing),
-      objectivesDateOut: new Date(staff.objectivesDateOut),
-      companyObjectivesCostDateGoing: new Date(
-        staff.companyObjectivesCostDateGoing
-      ),
-      companyObjectivesCostDateOut: new Date(
-        staff.companyObjectivesCostDateOut
-      ),
-      totalCompanyCostDateGoing: new Date(staff.totalCompanyCostDateGoing),
-      totalCompanyCostDateOut: new Date(staff.totalCompanyCostDateOut),
-      isEditData: false,
-      isViewHistory: false
-    });
-  };
-
-  restoreData = () => {
-    const { staff } = this.props;
-    this.setState({
-      contractSalary: staff.contractSalary,
-      companyContractCost: staff.companyContractCost,
-      expenses: staff.expenses,
-      companyExpensesCost: staff.companyExpensesCost,
-      objectives: staff.objectives,
-      companyObjectivesCost: staff.companyObjectivesCost,
-      totalCompanyCost: staff.totalCompanyCost,
-      contractSalaryDateGoing: new Date(staff.contractSalaryDateGoing),
-      contractSalaryDateOut: new Date(staff.contractSalaryDateOut),
-      companyContractCostDateGoing: new Date(
-        staff.companyContractCostDateGoing
-      ),
-      companyContractCostDateOut: new Date(staff.companyContractCostDateOut),
-      expensesDateGoing: new Date(staff.expensesDateGoing),
-      expensesDateOut: new Date(staff.expensesDateOut),
-      companyExpensesCostDateGoing: new Date(
-        staff.companyExpensesCostDateGoing
-      ),
-      companyExpensesCostDateOut: new Date(staff.companyExpensesCostDateOut),
-      objectivesDateGoing: new Date(staff.objectivesDateGoing),
-      objectivesDateOut: new Date(staff.objectivesDateOut),
-      companyObjectivesCostDateGoing: new Date(
-        staff.companyObjectivesCostDateGoing
-      ),
-      companyObjectivesCostDateOut: new Date(
-        staff.companyObjectivesCostDateOut
-      ),
-      totalCompanyCostDateGoing: new Date(staff.totalCompanyCostDateGoing),
-      totalCompanyCostDateOut: new Date(staff.totalCompanyCostDateOut),
-      isEditData: false,
-      isViewHistory: false
-    });
+    this.setState(
+      {
+        contractSalary: staff.contractSalary,
+        companyContractCost: staff.companyContractCost,
+        expenses: staff.expenses,
+        companyExpensesCost: staff.companyExpensesCost,
+        objectives: staff.objectives,
+        companyObjectivesCost: staff.companyObjectivesCost,
+        totalCompanyCost: staff.totalCompanyCost,
+        contractSalaryDateGoing: new Date(staff.contractSalaryDateGoing),
+        contractSalaryDateOut: new Date(staff.contractSalaryDateOut),
+        companyContractCostDateGoing: new Date(
+          staff.companyContractCostDateGoing
+        ),
+        companyContractCostDateOut: new Date(staff.companyContractCostDateOut),
+        expensesDateGoing: new Date(staff.expensesDateGoing),
+        expensesDateOut: new Date(staff.expensesDateOut),
+        companyExpensesCostDateGoing: new Date(
+          staff.companyExpensesCostDateGoing
+        ),
+        companyExpensesCostDateOut: new Date(staff.companyExpensesCostDateOut),
+        objectivesDateGoing: new Date(staff.objectivesDateGoing),
+        objectivesDateOut: new Date(staff.objectivesDateOut),
+        companyObjectivesCostDateGoing: new Date(
+          staff.companyObjectivesCostDateGoing
+        ),
+        companyObjectivesCostDateOut: new Date(
+          staff.companyObjectivesCostDateOut
+        ),
+        totalCompanyCostDateGoing: new Date(staff.totalCompanyCostDateGoing),
+        totalCompanyCostDateOut: new Date(staff.totalCompanyCostDateOut),
+        localCurrency: staff.currencyId,
+        currencyCode: staff.currencyCode,
+        isEditData: false,
+        isViewHistory: false
+      },
+      () => {
+        this.convertHandler(staff.currencyId);
+      }
+    );
   };
 
   calcTotal = newValues => {
+    const { localCurrency } = this.state;
     const {
       companyContractCost,
       companyExpensesCost,
@@ -202,14 +196,19 @@ class StaffProfileEconomicContractInformation extends Component {
     const newTotal = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
-    this.setState({
-      totalCompanyCost: newTotal
-    });
+    this.setState(
+      {
+        totalCompanyCost: newTotal
+      },
+      () => {
+        this.convertHandler(localCurrency);
+      }
+    );
   };
 
   handleChange = ev => {
+    const { localCurrency } = this.state;
     const { name } = ev.target;
-    this.setState({ [name]: ev.target.value });
     if (
       name === 'companyContractCost'
       || name === 'companyExpensesCost'
@@ -221,6 +220,25 @@ class StaffProfileEconomicContractInformation extends Component {
       };
       this.calcTotal(newValues);
     }
+    if (localCurrency !== '') {
+      this.setState(
+        ev.target.value !== '' ? { [name]: ev.target.value } : { [name]: 0 },
+        () => {
+          this.convertHandler(localCurrency);
+        }
+      );
+    } else {
+      this.setState(
+        ev.target.value !== '' ? { [name]: ev.target.value } : { [name]: 0 }
+      );
+    }
+  };
+
+  handleChangeCurrency = ev => {
+    const { name } = ev.target;
+    this.setState({ [name]: ev.target.value }, () => {
+      this.convertHandler(ev.target.value);
+    });
   };
 
   handleDateValue = (value, name) => {
@@ -230,11 +248,47 @@ class StaffProfileEconomicContractInformation extends Component {
   };
 
   handleCancel = () => {
-    this.restoreData();
+    this.setInitialData();
+  };
+
+  convertHandler = currencyId => {
+    const {
+      contractSalary,
+      companyContractCost,
+      expenses,
+      companyExpensesCost,
+      objectives,
+      companyObjectivesCost,
+      totalCompanyCost,
+      currencies
+    } = this.state;
+    const currency = currencies.filter(cur => cur.currencyId === currencyId)[0];
+    const factor = currency.changeFactor;
+    const contractSalaryInEuro = contractSalary * factor;
+    const companyContractCostInEuro = companyContractCost * factor;
+    const expensesInEuro = expenses * factor;
+    const companyExpensesCostInEuro = companyExpensesCost * factor;
+    const objectivesInEuro = objectives * factor;
+    const companyObjectivesCostInEuro = companyObjectivesCost * factor;
+    const totalCompanyCostInEuro = totalCompanyCost * factor;
+    this.setState({
+      contractSalaryInEuro: contractSalaryInEuro.toFixed(5),
+      companyContractCostInEuro: companyContractCostInEuro.toFixed(5),
+      expensesInEuro: expensesInEuro.toFixed(5),
+      companyExpensesCostInEuro: companyExpensesCostInEuro.toFixed(5),
+      objectivesInEuro: objectivesInEuro.toFixed(5),
+      companyObjectivesCostInEuro: companyObjectivesCostInEuro.toFixed(5),
+      totalCompanyCostInEuro: totalCompanyCostInEuro.toFixed(5)
+    });
   };
 
   handleUpdate = () => {
-    const { staff } = this.props;
+    const {
+      staff,
+      updateStaffEconomicContractInformation,
+      setStaff,
+      getAllStaffEconomicContractInformationHistoryByContract
+    } = this.props;
     const {
       contractSalary,
       companyContractCost,
@@ -257,11 +311,12 @@ class StaffProfileEconomicContractInformation extends Component {
       companyObjectivesCostDateOut,
       totalCompanyCostDateGoing,
       totalCompanyCostDateOut,
-      history
+      localCurrency
     } = this.state;
 
-    const id = staff.staffEconomicContractInformationId;
     const economicContractInformation = {
+      staffEconomicContractInformationId:
+        staff.staffEconomicContractInformationId,
       contractSalary,
       companyContractCost,
       expenses,
@@ -300,67 +355,95 @@ class StaffProfileEconomicContractInformation extends Component {
         .slice(0, 10),
       totalCompanyCostDateOut: totalCompanyCostDateOut
         .toISOString()
-        .slice(0, 10)
+        .slice(0, 10),
+      currencyId: localCurrency,
+      updatedAt: new Date().toISOString().slice(0, 10)
     };
 
-    StaffEconomicContractInformationService.updateStaffEconomicContractInformation(
-      id,
-      economicContractInformation
-    ).then(({ data }) => {
-      const object = {
-        ...economicContractInformation,
-        createdAt: new Date()
-      };
-      history.push({ staffEconomicContractInformationHistory: object });
-      console.log('pushed');
-      this.setState({
-        isEditData: false,
-        history
-      });
+    const promise = new Promise(resolve => {
+      // get client information
+      updateStaffEconomicContractInformation(economicContractInformation);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllStaff();
+        getAllStaffEconomicContractInformationHistoryByContract(
+          staff.staffEconomicContractInformationId
+        );
+        StaffService.getStaffById(staff.staffId).then(({ data }) => {
+          setStaff(data);
+          this.setInitialData();
+        });
+      } else {
+        notification('danger', result);
+      }
     });
   };
 
   handleOpenEdit = () => {
+    const { localCurrency } = this.state;
+    this.convertHandler(localCurrency);
     this.setState({
       isEditData: true
     });
   };
 
   viewHistoryInformation = (value, tableMeta) => {
-    const { history } = this.state;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
-    const data = history[index].staffEconomicContractInformationHistory;
-    this.setState({
-      contractSalary: data.contractSalary,
-      companyContractCost: data.companyContractCost,
-      expenses: data.expenses,
-      companyExpensesCost: data.companyExpensesCost,
-      objectives: data.objectives,
-      companyObjectivesCost: data.companyObjectivesCost,
-      totalCompanyCost: data.totalCompanyCost,
-      contractSalaryDateGoing: new Date(data.contractSalaryDateGoing),
-      contractSalaryDateOut: new Date(data.contractSalaryDateOut),
-      companyContractCostDateGoing: new Date(data.companyContractCostDateGoing),
-      companyContractCostDateOut: new Date(data.companyContractCostDateOut),
-      expensesDateGoing: new Date(data.expensesDateGoing),
-      expensesDateOut: new Date(data.expensesDateOut),
-      companyExpensesCostDateGoing: new Date(data.companyExpensesCostDateGoing),
-      companyExpensesCostDateOut: new Date(data.companyExpensesCostDateOut),
-      objectivesDateGoing: new Date(data.objectivesDateGoing),
-      objectivesDateOut: new Date(data.objectivesDateOut),
-      companyObjectivesCostDateGoing: new Date(
-        data.companyObjectivesCostDateGoing
-      ),
-      companyObjectivesCostDateOut: new Date(data.companyObjectivesCostDateOut),
-      totalCompanyCostDateGoing: new Date(data.totalCompanyCostDateGoing),
-      totalCompanyCostDateOut: new Date(data.totalCompanyCostDateOut),
-      isViewHistory: true
-    });
+    const { allStaffEconomicContractInformationHistoryByContract } = this.props;
+    const index = tableMeta.rowIndex;
+    const data = allStaffEconomicContractInformationHistoryByContract[index];
+    console.log(data);
+    this.setState(
+      {
+        contractSalary: data.contractSalary,
+        companyContractCost: data.companyContractCost,
+        expenses: data.expenses,
+        companyExpensesCost: data.companyExpensesCost,
+        objectives: data.objectives,
+        companyObjectivesCost: data.companyObjectivesCost,
+        totalCompanyCost: data.totalCompanyCost,
+        contractSalaryDateGoing: new Date(data.contractSalaryDateGoing),
+        contractSalaryDateOut: new Date(data.contractSalaryDateOut),
+        companyContractCostDateGoing: new Date(
+          data.companyContractCostDateGoing
+        ),
+        companyContractCostDateOut: new Date(data.companyContractCostDateOut),
+        expensesDateGoing: new Date(data.expensesDateGoing),
+        expensesDateOut: new Date(data.expensesDateOut),
+        companyExpensesCostDateGoing: new Date(
+          data.companyExpensesCostDateGoing
+        ),
+        companyExpensesCostDateOut: new Date(data.companyExpensesCostDateOut),
+        objectivesDateGoing: new Date(data.objectivesDateGoing),
+        objectivesDateOut: new Date(data.objectivesDateOut),
+        companyObjectivesCostDateGoing: new Date(
+          data.companyObjectivesCostDateGoing
+        ),
+        companyObjectivesCostDateOut: new Date(
+          data.companyObjectivesCostDateOut
+        ),
+        totalCompanyCostDateGoing: new Date(data.totalCompanyCostDateGoing),
+        totalCompanyCostDateOut: new Date(data.totalCompanyCostDateOut),
+        isViewHistory: true,
+        localCurrency: data.currencyId,
+        currencyCode: data.currencyCode
+      },
+      () => {
+        this.convertHandler(data.currencyId);
+      }
+    );
   };
 
   render() {
-    const { classes } = this.props;
+    const {
+      classes,
+      isLoadingStaffEconomicContractInformation,
+      staffEconomicContractInformationResponse,
+      errorStaffEconomicContractInformation,
+      allStaffEconomicContractInformationHistoryByContract
+    } = this.props;
     const {
       contractSalary,
       companyContractCost,
@@ -369,6 +452,13 @@ class StaffProfileEconomicContractInformation extends Component {
       objectives,
       companyObjectivesCost,
       totalCompanyCost,
+      contractSalaryInEuro,
+      companyContractCostInEuro,
+      expensesInEuro,
+      companyExpensesCostInEuro,
+      objectivesInEuro,
+      companyObjectivesCostInEuro,
+      totalCompanyCostInEuro,
       contractSalaryDateGoing,
       contractSalaryDateOut,
       companyContractCostDateGoing,
@@ -384,10 +474,13 @@ class StaffProfileEconomicContractInformation extends Component {
       totalCompanyCostDateGoing,
       totalCompanyCostDateOut,
       isEditData,
-      history,
-      isViewHistory
+      isViewHistory,
+      currencies,
+      localCurrency,
+      currencyCode
     } = this.state;
-    console.log(contractSalaryDateGoing.toISOString());
+
+    const history = allStaffEconomicContractInformationHistoryByContract;
 
     const options = {
       filter: true,
@@ -397,6 +490,13 @@ class StaffProfileEconomicContractInformation extends Component {
       rowsPerPage: 3,
       rowsPerPageOptions: [3]
     };
+
+    !isLoadingStaffEconomicContractInformation
+      && staffEconomicContractInformationResponse
+      && this.editingPromiseResolve(staffEconomicContractInformationResponse);
+    !isLoadingStaffEconomicContractInformation
+      && !staffEconomicContractInformationResponse
+      && this.editingPromiseResolve(errorStaffEconomicContractInformation);
 
     return (
       <div
@@ -426,7 +526,7 @@ class StaffProfileEconomicContractInformation extends Component {
                   style={{ backgroundColor: 'transparent' }}
                   disableRipple
                   endIcon={<SettingsBackupRestoreIcon />}
-                  onClick={this.restoreData}
+                  onClick={this.setInitialData}
                   disabled={!isViewHistory}
                 />
               </Tooltip>
@@ -458,7 +558,19 @@ class StaffProfileEconomicContractInformation extends Component {
                   }}
                   color="secondary"
                 >
-                  {'Value'}
+                  {`Value (${currencyCode})`}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px'
+                  }}
+                  color="secondary"
+                >
+                  {'Value (EUR)'}
                 </Typography>
               </div>
               <div style={{ width: '20%' }}>
@@ -516,6 +628,18 @@ class StaffProfileEconomicContractInformation extends Component {
                       : classes.normalTypography
                   }
                 >
+                  {contractSalaryInEuro}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
                   {contractSalaryDateGoing.toISOString().slice(0, 10)}
                 </Typography>
               </div>
@@ -551,6 +675,18 @@ class StaffProfileEconomicContractInformation extends Component {
                   }
                 >
                   {companyContractCost}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
+                  {companyContractCostInEuro}
                 </Typography>
               </div>
               <div style={{ width: '20%' }}>
@@ -608,6 +744,18 @@ class StaffProfileEconomicContractInformation extends Component {
                       : classes.normalTypography
                   }
                 >
+                  {expensesInEuro}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
                   {expensesDateGoing.toISOString().slice(0, 10)}
                 </Typography>
               </div>
@@ -643,6 +791,18 @@ class StaffProfileEconomicContractInformation extends Component {
                   }
                 >
                   {companyExpensesCost}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
+                  {companyExpensesCostInEuro}
                 </Typography>
               </div>
               <div style={{ width: '20%' }}>
@@ -700,6 +860,18 @@ class StaffProfileEconomicContractInformation extends Component {
                       : classes.normalTypography
                   }
                 >
+                  {objectivesInEuro}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
                   {objectivesDateGoing.toISOString().slice(0, 10)}
                 </Typography>
               </div>
@@ -735,6 +907,18 @@ class StaffProfileEconomicContractInformation extends Component {
                   }
                 >
                   {companyObjectivesCost}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
+                  {companyObjectivesCostInEuro}
                 </Typography>
               </div>
               <div style={{ width: '20%' }}>
@@ -796,6 +980,18 @@ class StaffProfileEconomicContractInformation extends Component {
                       : classes.normalTypography
                   }
                 >
+                  {totalCompanyCostInEuro}
+                </Typography>
+              </div>
+              <div style={{ width: '20%' }}>
+                <Typography
+                  variant="subtitle1"
+                  className={
+                    isViewHistory
+                      ? classes.historyTypography
+                      : classes.normalTypography
+                  }
+                >
                   {totalCompanyCostDateGoing.toISOString().slice(0, 10)}
                 </Typography>
               </div>
@@ -827,7 +1023,28 @@ class StaffProfileEconomicContractInformation extends Component {
             justify="center"
             alignItems="center"
           >
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
+              <div className={classes.divCenter}>
+                <FormControl
+                  className={classes.formControl}
+                  style={{ width: '23%' }}
+                >
+                  <InputLabel>Currency</InputLabel>
+                  <Select
+                    name="localCurrency"
+                    value={localCurrency}
+                    onChange={this.handleChangeCurrency}
+                  >
+                    {currencies.map(clt => (
+                      <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                        {clt.currencyName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </Grid>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -835,10 +1052,21 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="contractSalary"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={contractSalary}
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Contract Salary In Euro"
+                  variant="outlined"
+                  name="contractSalaryInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={contractSalaryInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -855,7 +1083,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -873,12 +1101,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -886,10 +1114,21 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="companyContractCost"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={companyContractCost}
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Company Contract Cost In Euro"
+                  variant="outlined"
+                  name="companyContractCostInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={companyContractCostInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -909,7 +1148,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -927,12 +1166,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -940,10 +1179,21 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="expenses"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={expenses}
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Expenses In Euro"
+                  variant="outlined"
+                  name="expensesInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={expensesInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -960,7 +1210,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -978,12 +1228,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -991,10 +1241,21 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="companyExpensesCost"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={companyExpensesCost}
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Company Expenses Cost In Euro"
+                  variant="outlined"
+                  name="companyExpensesCostInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={companyExpensesCostInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -1014,7 +1275,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -1032,12 +1293,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -1045,10 +1306,21 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="objectives"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={objectives}
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Objectives In Euro"
+                  variant="outlined"
+                  name="objectivesInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={objectivesInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -1065,7 +1337,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -1083,12 +1355,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -1096,10 +1368,21 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="companyObjectivesCost"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={companyObjectivesCost}
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Company Objectives Cost In Euro"
+                  variant="outlined"
+                  name="companyObjectivesCostInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={companyObjectivesCostInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -1119,7 +1402,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -1140,12 +1423,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ width: '100%' }}>
                 <TextField
                   id="outlined-basic"
@@ -1153,11 +1436,22 @@ class StaffProfileEconomicContractInformation extends Component {
                   variant="outlined"
                   name="totalCompanyCost"
                   type="number"
-                  style={{ width: '30%', marginTop: 33 }}
+                  style={{ width: '23%', marginTop: 33 }}
                   value={totalCompanyCost}
                   disabled
                   className={classes.textField}
                   onChange={this.handleChange}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Total Company Cost In Euro"
+                  variant="outlined"
+                  name="totalCompanyCostInEuro"
+                  type="number"
+                  style={{ width: '23%', marginTop: 33 }}
+                  value={totalCompanyCostInEuro}
+                  className={classes.textField}
+                  disabled
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -1174,7 +1468,7 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -1192,12 +1486,12 @@ class StaffProfileEconomicContractInformation extends Component {
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
-                    style={{ width: '30%' }}
+                    style={{ width: '23%' }}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={10}>
               <div className={classes.divSpace} style={{ marginTop: 20 }}>
                 <Button
                   className={classes.textField}
@@ -1228,18 +1522,26 @@ class StaffProfileEconomicContractInformation extends Component {
 
 const mapStateToProps = state => ({
   staff: state.getIn(['staffs']).selectedStaff,
-  allStaff: state.getIn(['staffs']).allStaff,
-  staffResponse: state.getIn(['staffs']).staffResponse,
-  isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorStaff: state.getIn(['staffs']).errors
+  allStaffEconomicContractInformationHistoryByContract: state.getIn([
+    'staffEconomicContractInformationHistories'
+  ]).allStaffEconomicContractInformationHistoryByContract,
+  staffEconomicContractInformationResponse: state.getIn([
+    'staffEconomicContractInformations'
+  ]).staffEconomicContractInformationResponse,
+  isLoadingStaffEconomicContractInformation: state.getIn([
+    'staffEconomicContractInformations'
+  ]).isLoading,
+  errorStaffEconomicContractInformation: state.getIn([
+    'staffEconomicContractInformations'
+  ]).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    updateStaff,
     getAllStaff,
     setStaff,
-    setEdit
+    getAllStaffEconomicContractInformationHistoryByContract,
+    updateStaffEconomicContractInformation
   },
   dispatch
 );

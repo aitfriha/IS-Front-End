@@ -27,10 +27,18 @@ import commercialOperationReducer from './commercialOperation/reducer';
 import staffReducer from './staff/reducer';
 import contractTypeReducer from './contractType/reducer';
 import absenceTypeReducer from './absenceType/reducer';
+import contractModelReducer from './contractModel/reducer';
 import legalCategoryTypeReducer from './legalCategoryType/reducer';
 import functionalStructureReducer from './functionalStructure/reducer';
+import functionalStructureAssignationHistoryReducer from './functionalStructureAssignationHistory/reducer';
+import administrativeStructureReducer from './administrativeStructure/reducer';
+import administrativeStructureAssignationHistoryReducer from './administrativeStructureAssignationHistory/reducer';
 import assignmentReducer from './assignment/reducer';
 import staffContractReducer from './staffContract/reducer';
+import staffContractHistoryReducer from './staffContractHistory/reducer';
+import staffDocumentReducer from './staffDocument/reducer';
+import staffEconomicContractInformationReducer from './staffEconomicContractInformation/reducer';
+import staffEconomicContractInformationHistoryReducer from './staffEconomicContractInformationHistory/reducer';
 import contactReducer from './contact/reducer';
 import contactByOperationReducer from './contactByOperation/reducer';
 import civilityTitleReducer from './civilityTitle/reducer';
@@ -60,10 +68,18 @@ export default function createReducer(injectedReducers = {}) {
     sectorCompany: sectorComapnyReducer,
     staffs: staffReducer,
     staffContracts: staffContractReducer,
+    staffContractHistories: staffContractHistoryReducer,
+    staffDocuments: staffDocumentReducer,
+    staffEconomicContractInformations: staffEconomicContractInformationReducer,
+    staffEconomicContractInformationHistories: staffEconomicContractInformationHistoryReducer,
     contractTypes: contractTypeReducer,
     absenceTypes: absenceTypeReducer,
     legalCategoryTypes: legalCategoryTypeReducer,
+    contractModels: contractModelReducer,
     functionalStructureLevels: functionalStructureReducer,
+    administrativeStructureLevels: administrativeStructureReducer,
+    functionalStructureAssignationHistories: functionalStructureAssignationHistoryReducer,
+    administrativeStructureAssignationHistories: administrativeStructureAssignationHistoryReducer,
     assignments: assignmentReducer,
     contacts: contactReducer,
     contactByOperations: contactByOperationReducer,

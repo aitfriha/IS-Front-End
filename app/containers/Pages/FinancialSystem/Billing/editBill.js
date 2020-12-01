@@ -1,5 +1,4 @@
 import React from 'react';
-import { PapperBlock } from 'dan-components';
 import {
   FormControl,
   Grid,
@@ -13,7 +12,6 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -35,7 +33,7 @@ class EditBill extends React.Component {
     this.state = {
       billId: '',
       code: '',
-      billingDate: '',
+      invoiceDate: '',
       contractor: '',
       clientId: '',
       clients: [],
@@ -63,8 +61,11 @@ class EditBill extends React.Component {
       items: [],
       desc: [],
       descTotalUSD: [],
-      paymentDay: '',
+      paymentDate: '',
       reelPaymentDay: '',
+      reelPaymentDays: '',
+      registerDate: '',
+      delayDate: '',
       paymentDone: false
     };
   }
@@ -101,7 +102,7 @@ class EditBill extends React.Component {
       this.setState({
         billId: bill._id,
         code: bill.code,
-        billingDate: bill.billingDate ? bill.billingDate.slice(0, 10) : '',
+        invoiceDate: bill.invoiceDate ? bill.invoiceDate.slice(0, 10) : '',
         clientId: bill.client._id,
         commercialOperationId: bill.commercialOperation._id,
         contractor: bill.financialCompany._id,
@@ -121,10 +122,10 @@ class EditBill extends React.Component {
         desc: bill.desc,
         descTotalUSD: bill.descTotalUSD,
         paymentsBDDay: bill.paymentsBDDay,
-        reelPaymentDays: bill.reelPaymentDays,
-        paymentDay: bill.paymentDay.toString().slice(0, 10),
-        reelPaymentDay: bill.reelPaymentDay.toString().slice(0, 10),
+        reelPaymentDays: bill.reelPaymentDays ? bill.reelPaymentDays : '',
+        reelPaymentDay: bill.reelPaymentDay ? bill.reelPaymentDay.toString().slice(0, 10) : '',
         paymentDone: bill.paymentDone,
+        registerDate: bill.registerDate.toString().slice(0, 10),
         openDoc: true
       });
     }
@@ -147,6 +148,10 @@ class EditBill extends React.Component {
     };
 
     handleChange = (ev) => {
+      if (ev.target.name === 'reelPaymentDay') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        this.setState({ paymentDone: true });
+      }
       if (ev.target.name === 'ivaState') {
         const id = ev.target.value;
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -212,8 +217,8 @@ class EditBill extends React.Component {
 
     handleCreate = () => {
       const {
-        code, billingDate, contractor, financialContractId, contracts, reelPaymentDay, billId, nbrConcepts,
-        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, paymentDay, paymentDone,
+        code, invoiceDate, contractor, financialContractId, reelPaymentDay, nbrConcepts, contracts, billId,
+        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, paymentDone,
         totalEuro, totalLocal, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
       const id = clientId;
@@ -224,17 +229,20 @@ class EditBill extends React.Component {
       const iva = { _id: ivaState };
       const financialContract = { _id: financialContractId };
       const clientSigned = { _id: clientContractSigned };
+      const delaiDay = 20;
       let paymentsBDDay = 0;
       // eslint-disable-next-line array-callback-return
       contracts.map(contract => {
         if (contract.financialContractId === financialContractId) paymentsBDDay = contract.paymentsBDDays;
       });
-      const paymentDate = new Date(paymentDay);
+      const paymentDate = new Date(invoiceDate);
       paymentDate.setDate(paymentDate.getDate() + paymentsBDDay);
       const reelPaymentDate = new Date(reelPaymentDay);
-      const paymentDate2 = new Date(paymentDay);
-      const difference = reelPaymentDate.getTime() - paymentDate2.getTime();
+      const difference = reelPaymentDate.getTime() - paymentDate.getTime();
       const reelPaymentDays = Math.ceil(difference / (1000 * 3600 * 24));
+      const delayDate = new Date(paymentDate);
+      delayDate.setDate(delayDate.getDate() + delaiDay);
+      const registerDate = new Date();
       const Bill = {
         billId,
         client,
@@ -245,14 +253,15 @@ class EditBill extends React.Component {
         iva,
         financialContract,
         code,
-        billingDate,
+        invoiceDate,
         purchaseOrderNumber,
-        paymentDay,
         paymentsBDDay,
         paymentDate,
         reelPaymentDay,
         reelPaymentDays,
+        registerDate,
         paymentDone,
+        delayDate,
         totalEuro,
         totalLocal,
         valueIVALocal,
@@ -274,12 +283,6 @@ class EditBill extends React.Component {
     handleGoBack = () => {
       // eslint-disable-next-line react/prop-types,react/destructuring-assignment
       this.props.callbackFromParent(false);
-    }
-
-    handleCheck = () => {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const ok = !this.state.paymentDone;
-      this.setState({ paymentDone: ok });
     }
 
     handleOpenConcept = () => {
@@ -315,473 +318,453 @@ class EditBill extends React.Component {
           label: '2',
         }];
       const {
-        code, billingDate, contractor, clients, companies, operations, currencies, ivas, ivaStates, contracts,
-        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDay, paymentDone, reelPaymentDay,
+        code, invoiceDate, contractor, clients, companies, operations, currencies, ivas, ivaStates, contracts,
+        clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDone, reelPaymentDay,
         totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
       return (
         <div>
-          <PapperBlock title="Billing" desc="Create new bill" icon="ios-add-circle-outline">
-            <Typography variant="subtitle2" component="h2" color="primary">
+          <Typography variant="subtitle2" component="h2" color="primary">
                         Bill Informations
-            </Typography>
-            <br />
-            <div>
-              <div align="center">
-                <Grid item xs={12} sm={8} md={8} alignItems="flex-start" align="center" />
-              </div>
-              <Grid
-                container
-                spacing={2}
-                alignItems="flex-start"
-                direction="row"
-                justify="space-around"
-              >
-                <Grid item xs={12} md={3} sm={3}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Select Code</InputLabel>
-                    <Select
-                      name="code"
-                      value={code}
-                      onChange={this.handleChange}
-                    >
-                      {
-                        codeBill.map((clt) => (
-                          <MenuItem key={clt.value} value={clt.value}>
-                            {clt.label}
-                          </MenuItem>
-                        ))
-                      }
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} md={3} sm={3}>
-                  <TextField
-                    id="billingDate"
-                    label="Invoice Date"
-                    name="billingDate"
-                    value={billingDate}
-                    type="date"
-                    onChange={this.handleChange}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    fullWidth
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} md={3} sm={3}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Select Contractor</InputLabel>
-                    <Select
-                      name="contractor"
-                      value={contractor}
-                      onChange={this.handleChange}
-                    >
-                      {
-                        companies.map((clt) => (
-                          <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
-                            {clt.name}
-                          </MenuItem>
-                        ))
-                      }
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </div>
-            <br />
-            <Typography variant="subtitle2" component="h2" color="primary">
-                        Client Informations
-            </Typography>
-            <br />
-            <Grid
-              container
-              spacing={2}
-              alignItems="flex-start"
-              direction="row"
-              justify="space-around"
-            >
-              <Grid item xs={12} md={5} sm={5}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select Client </InputLabel>
-                  <Select
-                    name="clientId"
-                    value={clientId}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      clients.map((type) => (
-                        <MenuItem key={type.clientId} value={type.clientId}>
-                          {type.name}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={5} sm={5}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select Commercial Operation</InputLabel>
-                  <Select
-                    name="commercialOperationId"
-                    value={commercialOperationId}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      operations.map((type) => (
-                        <MenuItem key={type.commercialOperationId} value={type.commercialOperationId}>
-                          {type.name}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={5} sm={5}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select Contract Signed Client</InputLabel>
-                  <Select
-                    name="clientContractSigned"
-                    value={clientContractSigned}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      clients.map((type) => (
-                        <MenuItem key={type.clientId} value={type.clientId}>
-                          {type.name}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={5} sm={5}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select Purchase Order Number</InputLabel>
-                  <Select
-                    name="purchaseOrderNumber"
-                    value={purchaseOrderNumber}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      contracts.map((type) => (
-                        type.purchaseOrderNumber.filter(rowi => rowi !== '0').map((row) => (
-                          <MenuItem key={type.financialContractId} value={row}>
-                            {row}
-                          </MenuItem>
-                        ))
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-            <br />
-            <Typography variant="subtitle2" component="h2" color="primary">
-                        Concepts Of The Invoice
-            </Typography>
-            <br />
-            {nbrConcepts.map((row) => (
-              <Grid
-                container
-                spacing={4}
-                alignItems="flex-start"
-                direction="row"
-              >
-                <Grid item xs={0} />
-                <Grid item xs={1} align="center">
-                  <Typography variant="subtitle2" component="h3" color="grey">
-                    <br />
-                                    Item
-                    {' '}
-                    { row }
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    id="desc"
-                    label="Description"
-                    name="desc"
-                    value={desc[row]}
-                    multiline
-                    rows={1}
-                    onChange={event => this.handleConcept(event, row)}
-                    fullWidth
-                    required
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    id="descTotalUSD"
-                    label="Amount in Currency"
-                    name="descTotalUSD"
-                    value={descTotalUSD[row]}
-                    type="number"
-                    onChange={event => this.handleConcept(event, row)}
-                    fullWidth
-                    required
-                  />
-                </Grid>
-                <Grid xs={1}>
-                  <br />
-                  <IconButton size="medium" color="primary" onClick={() => this.handleOpenConcept()}>
-                    <AddIcon />
-                  </IconButton>
-                  <IconButton size="small" color="primary" onClick={() => this.handleDeleteConcept(row)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            ))}
-            <br />
-            <Typography variant="subtitle2" component="h2" color="primary">
-                        Economic Value Of The Bill
-            </Typography>
-            <Grid
-              container
-              spacing={2}
-              alignItems="flex-start"
-              direction="row"
-              justify="space-around"
-            >
-              <Grid item md={0} />
-              <Grid item xs={12} md={6}>
-                <br />
-                <Typography variant="subtitle2" component="h2" color="primary">
-                                Total Amount Net
-                </Typography>
-              </Grid>
-              <Grid item md={3} />
-              <Grid item xs={12} md={4} sm={4}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select Local Currency </InputLabel>
-                  <Select
-                    name="localCurrency"
-                    value={localCurrency}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      currencies.map((clt) => (
-                        <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                          {clt.currencyName}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4} sm={4}>
-                <TextField
-                  id="totalLocal"
-                  label="Total in Local Currency"
-                  name="totalLocal"
-                  value={totalLocal}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={4} sm={4}>
-                <TextField
-                  id="totalEuro"
-                  label="Total in EURO"
-                  name="totalEuro"
-                  value={totalEuro}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item md={0} />
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" component="h2" color="primary">
-                                I.V.A Taxes
-                </Typography>
-              </Grid>
-              <Grid item md={3} />
-              <Grid item xs={12} md={3} sm={3}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select I.V.A Country</InputLabel>
-                  <Select
-                    name="ivaCountry"
-                    value={ivaCountry}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      ivas.map((clt) => (
-                        <MenuItem key={clt.stateCountry.country.countryName} value={clt.stateCountry.country.countryName}>
-                          {clt.stateCountry.country.countryName}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <FormControl fullWidth required>
-                  <InputLabel>Select State</InputLabel>
-                  <Select
-                    name="ivaState"
-                    value={ivaState}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      ivaStates.map((clt) => (
-                        <MenuItem key={clt.ivaId} value={clt.ivaId}>
-                          {clt.stateCountry.stateName}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="totalIVALocal"
-                  label="I.V.A Value in Local Currency"
-                  name="totalIVALocal"
-                  value={valueIVALocal}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="totalIVAEuro"
-                  label="I.V.A Value in EURO"
-                  name="totalIVAEuro"
-                  value={valueIVAEuro}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item md={0} />
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" component="h2" color="primary">
-                                Total Amount
-                </Typography>
-              </Grid>
-              <Grid item md={3} />
-              <Grid item xs={12} md={5} sm={5}>
-                <TextField
-                  id="totalAmountLocal"
-                  label="Total Amount in Local Currency"
-                  name="totalAmountLocal"
-                  value={totalAmountLocal}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={5} sm={5}>
-                <TextField
-                  id="totalAmountEuro"
-                  label="Total Amount in EURO"
-                  name="totalAmountEuro"
-                  value={totalAmountEuro}
-                  type="number"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <br />
-            <br />
-            <Typography variant="subtitle2" component="h2" color="primary">
-                        Payment Management
-            </Typography>
-            <Grid
-              container
-              spacing={3}
-              alignItems="flex-start"
-              direction="row"
-              justify="space-around"
-            >
-              <Grid item xs={4}>
-                <TextField
-                  id="paymentDay"
-                  label="Payment Date  "
-                  name="paymentDay"
-                  value={paymentDay}
-                  type="date"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="reelPaymentDay"
-                  label="Reel Payment Date"
-                  name="reelPaymentDay"
-                  value={reelPaymentDay}
-                  type="date"
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <br />
-              <Grid item xs={3}>
-                <FormControlLabel
-                  id="paymentDone"
-                  name="paymentDone"
-                  value={paymentDone}
-                  control={<Checkbox color="primary" checked={paymentDone} onChange={this.handleCheck} />}
-                  label="payment Done"
-                  labelPlacement="end"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <br />
-            <Typography variant="subtitle2" component="h2" color="primary">
-                        Possible Retentions
-            </Typography>
-            <br />
-            <br />
+          </Typography>
+          <br />
+          <div>
             <div align="center">
-              <Button size="small" color="inherit" onClick={this.handleGoBack}>Cancel</Button>
-              <Button variant="contained" color="primary" type="button" onClick={this.handleCreate}>
-                            Save
-              </Button>
+              <Grid item xs={12} sm={8} md={8} alignItems="flex-start" align="center" />
             </div>
-          </PapperBlock>
+            <Grid
+              container
+              spacing={2}
+              alignItems="flex-start"
+              direction="row"
+              justify="space-around"
+            >
+              <Grid item xs={12} md={3} sm={3}>
+                <FormControl fullWidth required>
+                  <InputLabel>Select Code</InputLabel>
+                  <Select
+                    name="code"
+                    value={code}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      codeBill.map((clt) => (
+                        <MenuItem key={clt.value} value={clt.value}>
+                          {clt.label}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3} sm={3}>
+                <TextField
+                  id="invoiceDate"
+                  label="Invoice Date"
+                  name="invoiceDate"
+                  value={invoiceDate}
+                  type="date"
+                  onChange={this.handleChange}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} md={3} sm={3}>
+                <FormControl fullWidth required>
+                  <InputLabel>Select Contractor</InputLabel>
+                  <Select
+                    name="contractor"
+                    value={contractor}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      companies.map((clt) => (
+                        <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                          {clt.name}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </div>
+          <br />
+          <Typography variant="subtitle2" component="h2" color="primary">
+                        Client Informations
+          </Typography>
+          <br />
+          <Grid
+            container
+            spacing={2}
+            alignItems="flex-start"
+            direction="row"
+            justify="space-around"
+          >
+            <Grid item xs={12} md={5} sm={5}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Client </InputLabel>
+                <Select
+                  name="clientId"
+                  value={clientId}
+                  onChange={this.handleChange}
+                >
+                  {
+                    clients.map((type) => (
+                      <MenuItem key={type.clientId} value={type.clientId}>
+                        {type.name}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={5} sm={5}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Commercial Operation</InputLabel>
+                <Select
+                  name="commercialOperationId"
+                  value={commercialOperationId}
+                  onChange={this.handleChange}
+                >
+                  {
+                    operations.map((type) => (
+                      <MenuItem key={type.commercialOperationId} value={type.commercialOperationId}>
+                        {type.name}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={5} sm={5}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Contract Signed Client</InputLabel>
+                <Select
+                  name="clientContractSigned"
+                  value={clientContractSigned}
+                  onChange={this.handleChange}
+                >
+                  {
+                    clients.map((type) => (
+                      <MenuItem key={type.clientId} value={type.clientId}>
+                        {type.name}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={5} sm={5}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Purchase Order Number</InputLabel>
+                <Select
+                  name="purchaseOrderNumber"
+                  value={purchaseOrderNumber}
+                  onChange={this.handleChange}
+                >
+                  {
+                    contracts.map((type) => (
+                      type.purchaseOrderNumber.filter(rowi => rowi !== '0').map((row) => (
+                        <MenuItem key={type.financialContractId} value={row}>
+                          {row}
+                        </MenuItem>
+                      ))
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+          <br />
+          <Typography variant="subtitle2" component="h2" color="primary">
+                        Concepts Of The Invoice
+          </Typography>
+          <br />
+          {nbrConcepts.map((row) => (
+            <Grid
+              container
+              spacing={4}
+              alignItems="flex-start"
+              direction="row"
+            >
+              <Grid item xs={0} />
+              <Grid item xs={1} align="center">
+                <Typography variant="subtitle2" component="h3" color="grey">
+                  <br />
+                                    Item
+                  {' '}
+                  { row }
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  id="desc"
+                  label="Description"
+                  name="desc"
+                  value={desc[row]}
+                  multiline
+                  rows={1}
+                  onChange={event => this.handleConcept(event, row)}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  id="descTotalUSD"
+                  label="Amount in Currency"
+                  name="descTotalUSD"
+                  value={descTotalUSD[row]}
+                  type="number"
+                  onChange={event => this.handleConcept(event, row)}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid xs={1}>
+                <br />
+                <IconButton size="medium" color="primary" onClick={() => this.handleOpenConcept()}>
+                  <AddIcon />
+                </IconButton>
+                <IconButton size="small" color="primary" onClick={() => this.handleDeleteConcept(row)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+          ))}
+          <br />
+          <Typography variant="subtitle2" component="h2" color="primary">
+                        Economic Value Of The Bill
+          </Typography>
+          <Grid
+            container
+            spacing={2}
+            alignItems="flex-start"
+            direction="row"
+            justify="space-around"
+          >
+            <Grid item md={0} />
+            <Grid item xs={12} md={6}>
+              <br />
+              <Typography variant="subtitle2" component="h2" color="primary">
+                                Total Amount Net
+              </Typography>
+            </Grid>
+            <Grid item md={3} />
+            <Grid item xs={12} md={4} sm={4}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Local Currency </InputLabel>
+                <Select
+                  name="localCurrency"
+                  value={localCurrency}
+                  onChange={this.handleChange}
+                >
+                  {
+                    currencies.map((clt) => (
+                      <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                        {clt.currencyName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4} sm={4}>
+              <TextField
+                id="totalLocal"
+                label="Total in Local Currency"
+                name="totalLocal"
+                value={totalLocal}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4} sm={4}>
+              <TextField
+                id="totalEuro"
+                label="Total in EURO"
+                name="totalEuro"
+                value={totalEuro}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item md={0} />
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle2" component="h2" color="primary">
+                                I.V.A Taxes
+              </Typography>
+            </Grid>
+            <Grid item md={3} />
+            <Grid item xs={12} md={3} sm={3}>
+              <FormControl fullWidth required>
+                <InputLabel>Select I.V.A Country</InputLabel>
+                <Select
+                  name="ivaCountry"
+                  value={ivaCountry}
+                  onChange={this.handleChange}
+                >
+                  {
+                    ivas.map((clt) => (
+                      <MenuItem key={clt.stateCountry.country.countryName} value={clt.stateCountry.country.countryName}>
+                        {clt.stateCountry.country.countryName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={3} sm={3}>
+              <FormControl fullWidth required>
+                <InputLabel>Select State</InputLabel>
+                <Select
+                  name="ivaState"
+                  value={ivaState}
+                  onChange={this.handleChange}
+                >
+                  {
+                    ivaStates.map((clt) => (
+                      <MenuItem key={clt.ivaId} value={clt.ivaId}>
+                        {clt.stateCountry.stateName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={3} sm={3}>
+              <TextField
+                id="totalIVALocal"
+                label="I.V.A Value in Local Currency"
+                name="totalIVALocal"
+                value={valueIVALocal}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3} sm={3}>
+              <TextField
+                id="totalIVAEuro"
+                label="I.V.A Value in EURO"
+                name="totalIVAEuro"
+                value={valueIVAEuro}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item md={0} />
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle2" component="h2" color="primary">
+                                Total Amount
+              </Typography>
+            </Grid>
+            <Grid item md={3} />
+            <Grid item xs={12} md={5} sm={5}>
+              <TextField
+                id="totalAmountLocal"
+                label="Total Amount in Local Currency"
+                name="totalAmountLocal"
+                value={totalAmountLocal}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={5} sm={5}>
+              <TextField
+                id="totalAmountEuro"
+                label="Total Amount in EURO"
+                name="totalAmountEuro"
+                value={totalAmountEuro}
+                type="number"
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <br />
+          <Typography variant="subtitle2" component="h2" color="primary">
+                        Payment Management
+          </Typography>
+          <Grid
+            container
+            spacing={3}
+            alignItems="flex-start"
+            direction="row"
+            justify="space-around"
+          >
+            <Grid item xs={4}>
+              <TextField
+                id="reelPaymentDay"
+                label="Reel Payment Date"
+                name="reelPaymentDay"
+                value={reelPaymentDay}
+                type="date"
+                onChange={this.handleChange}
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Grid>
+            <br />
+            <Grid item xs={3}>
+              <FormControlLabel
+                id="paymentDone"
+                name="paymentDone"
+                value={paymentDone}
+                control={<Checkbox color="primary" checked={paymentDone} />}
+                label="payment Done"
+                labelPlacement="end"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <Typography variant="subtitle2" component="h2" color="primary">
+                        Possible Retentions
+          </Typography>
+          <br />
+          <br />
+          <div align="center">
+            <Button size="small" color="inherit" onClick={this.handleGoBack}>Cancel</Button>
+            <Button variant="contained" color="primary" type="button" onClick={this.handleCreate}>
+                            Save
+            </Button>
+          </div>
         </div>
       );
     }
 }
-
-EditBill.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 const mapStateToProps = state => ({
   allCountrys: state.getIn(['countries']).allCountrys,
   countryResponse: state.getIn(['countries']).countryResponse,

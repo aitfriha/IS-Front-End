@@ -18,7 +18,7 @@ import history from '../../../utils/history';
 import styles from './levels-jss';
 import '../Configurations/map/app.css';
 import AutoComplete from '../../../components/AutoComplete';
-import FunctionalStructureService from '../../Services/FunctionalStructureService';
+import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import StaffService from '../../Services/StaffService';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import MUIDataTable from 'mui-datatables';
@@ -26,9 +26,9 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
-  getAllFunctionalStructureLevel,
-  saveFunctionalStructureLevel
-} from '../../../redux/functionalStructure/actions';
+  getAllAdministrativeStructureLevel,
+  saveAdministrativeStructureLevel
+} from '../../../redux/administrativeStructure/actions';
 import notification from '../../../components/Notification/Notification';
 
 const columns = [
@@ -52,20 +52,6 @@ const columns = [
     options: {
       filter: true
     }
-  },
-  {
-    label: 'Is production level?',
-    name: 'isProductionLevel',
-    options: {
-      filter: true
-    }
-  },
-  {
-    label: 'Is commercial level?',
-    name: 'isCommercialLevel',
-    options: {
-      filter: true
-    }
   }
 ];
 
@@ -82,12 +68,6 @@ class AddLevel extends React.Component {
       level1: '',
       level2: '',
       level3: '',
-      isProductionLevel1: 'no',
-      isProductionLevel2: 'no',
-      isProductionLevel3: 'no',
-      isCommercialLevel1: 'no',
-      isCommercialLevel2: 'no',
-      isCommercialLevel3: 'no',
       levels1: [],
       levels2: [],
       levels3: [],
@@ -101,99 +81,64 @@ class AddLevel extends React.Component {
       leader3: null,
       level1exist: false,
       level2exist: false,
-      level3exist: false
+      level3exist: false,
+      companies: [],
+      company: null
     };
   }
 
   componentDidMount() {
     const {
       changeTheme,
-      allFunctionalStructureLevel,
-      getAllFunctionalStructureLevel
+      allAdministrativeStructureLevel,
+      getAllAdministrativeStructureLevel
     } = this.props;
     changeTheme('blueCyanTheme');
-    getAllFunctionalStructureLevel();
-    const levels1 = allFunctionalStructureLevel.filter(
+    getAllAdministrativeStructureLevel();
+    let notAssignedStaffs = [];
+    const levels1 = allAdministrativeStructureLevel.filter(
       lvl => lvl.type === 'Level 1'
     );
-    const levels2 = allFunctionalStructureLevel.filter(
+    const levels2 = allAdministrativeStructureLevel.filter(
       lvl => lvl.type === 'Level 2'
     );
-    const levels3 = allFunctionalStructureLevel.filter(
+    const levels3 = allAdministrativeStructureLevel.filter(
       lvl => lvl.type === 'Level 3'
     );
-    this.setState({
-      levels3,
-      levels2,
-      levels1
-    });
-    StaffService.getNotAssignedStaffs().then(({ data }) => {
-      console.log(data);
-      data.sort((a, b) => {
-        const textA = a.firstName.toUpperCase();
-        const textB = b.firstName.toUpperCase();
-        return textA < textB ? -1 : textA > textB ? 1 : 0;
-      });
-      console.log(data);
-      if (data.length > 0) {
-        this.setState({
-          staffs: data,
-          staffsOptions1: data,
-          staffsOptions2: data,
-          staffsOptions3: data
+    StaffService.getAdministrativeNotAssignedStaffs().then(({ data }) => {
+      notAssignedStaffs = data;
+      StaffService.getStaffsByIsAdministrativeLeader('yes').then(({ data }) => {
+        notAssignedStaffs = notAssignedStaffs.concat(data);
+        notAssignedStaffs.sort((a, b) => {
+          const textA = a.firstName.toUpperCase();
+          const textB = b.firstName.toUpperCase();
+          return textA < textB ? -1 : textA > textB ? 1 : 0;
         });
-      }
+        this.setState({
+          levels3,
+          levels2,
+          levels1,
+          staffs: notAssignedStaffs,
+          staffsOptions1: notAssignedStaffs,
+          staffsOptions2: notAssignedStaffs,
+          staffsOptions3: notAssignedStaffs
+        });
+      });
+    });
+    FinancialCompanyService.getCompany().then(({ data }) => {
+      console.log(data);
+      this.setState({ companies: data });
     });
   }
 
   handleChange = ev => {
     this.setState({ [ev.target.name]: ev.target.value });
-    if (ev.target.name === 'isProductionLevel1' && ev.target.value === 'yes') {
-      this.setState({
-        isCommercialLevel1: 'no'
-      });
-    } else if (
-      ev.target.name === 'isProductionLevel2'
-      && ev.target.value === 'yes'
-    ) {
-      this.setState({
-        isCommercialLevel2: 'no'
-      });
-    } else if (
-      ev.target.name === 'isProductionLevel3'
-      && ev.target.value === 'yes'
-    ) {
-      this.setState({
-        isCommercialLevel3: 'no'
-      });
-    } else if (
-      ev.target.name === 'isCommercialLevel1'
-      && ev.target.value === 'yes'
-    ) {
-      this.setState({
-        isProductionLevel1: 'no'
-      });
-    } else if (
-      ev.target.name === 'isCommercialLevel2'
-      && ev.target.value === 'yes'
-    ) {
-      this.setState({
-        isProductionLevel2: 'no'
-      });
-    } else if (
-      ev.target.name === 'isCommercialLevel3'
-      && ev.target.value === 'yes'
-    ) {
-      this.setState({
-        isProductionLevel3: 'no'
-      });
-    }
   };
 
   handleSubmitLevel = () => {
     const {
-      saveFunctionalStructureLevel,
-      getAllFunctionalStructureLevel
+      saveAdministrativeStructureLevel,
+      getAllAdministrativeStructureLevel
     } = this.props;
     const {
       level1,
@@ -202,15 +147,10 @@ class AddLevel extends React.Component {
       description1,
       description2,
       description3,
-      isProductionLevel1,
-      isProductionLevel2,
-      isProductionLevel3,
-      isCommercialLevel1,
-      isCommercialLevel2,
-      isCommercialLevel3,
       leader1,
       leader2,
-      leader3
+      leader3,
+      company
     } = this.state;
     const objects = [];
     const leaders = [leader1, leader2, leader3];
@@ -220,8 +160,7 @@ class AddLevel extends React.Component {
         name: level1,
         description: description1,
         type: 'Level 1',
-        isProductionLevel: isProductionLevel1,
-        isCommercialLevel: isCommercialLevel1
+        companyId: company.financialCompanyId
       };
       objects.push(lvl1);
     }
@@ -230,8 +169,7 @@ class AddLevel extends React.Component {
         name: level2,
         description: description2,
         type: 'Level 2',
-        isProductionLevel: isProductionLevel2,
-        isCommercialLevel: isCommercialLevel2
+        companyId: company.financialCompanyId
       };
       objects.push(lvl2);
     }
@@ -240,24 +178,26 @@ class AddLevel extends React.Component {
         name: level3,
         description: description3,
         type: 'Level 3',
-        isProductionLevel: isProductionLevel3,
-        isCommercialLevel: isCommercialLevel3
+        companyId: company.financialCompanyId
       };
       objects.push(lvl3);
     }
 
+    console.log('save');
+
     const promise = new Promise(resolve => {
-      saveFunctionalStructureLevel(objects);
+      console.log('promise 1');
+      saveAdministrativeStructureLevel(objects);
+      console.log('promise 2');
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
+      console.log(result);
       if (isString(result)) {
         notification('success', result);
-        getAllFunctionalStructureLevel();
-        console.log(result);
-        history.push('/app/hh-rr/functionalStructure');
+        getAllAdministrativeStructureLevel();
+        history.push('/app/hh-rr/administrativeStructure');
       } else {
-        console.log(result);
         notification('danger', result);
       }
     });
@@ -281,20 +221,21 @@ class AddLevel extends React.Component {
   };
 
   handleChangeLeader1 = (ev, value) => {
-    this.setState({ leader1: value }, () => {
-      this.updateStaffComboLists();
-    });
+    console.log(value);
+    this.setState({ leader1: value }, () => {});
   };
 
   handleChangeLeader2 = (ev, value) => {
-    this.setState({ leader2: value }, () => {
-      this.updateStaffComboLists();
-    });
+    this.setState({ leader2: value }, () => {});
   };
 
   handleChangeLeader3 = (ev, value) => {
-    this.setState({ leader3: value }, () => {
-      this.updateStaffComboLists();
+    this.setState({ leader3: value }, () => {});
+  };
+
+  handleChangeCompany = (ev, value) => {
+    this.setState({
+      company: value
     });
   };
 
@@ -370,10 +311,10 @@ class AddLevel extends React.Component {
   render() {
     const {
       classes,
-      allFunctionalStructureLevel,
-      isLoadingfunctionalStructureLevel,
-      functionalStructureLevelResponse,
-      errorfunctionalStructureLevel
+      allAdministrativeStructureLevel,
+      isLoadingadministrativeStructureLevel,
+      administrativeStructureLevelResponse,
+      erroradministrativeStructureLevel
     } = this.props;
     const {
       description1,
@@ -382,12 +323,6 @@ class AddLevel extends React.Component {
       levels3,
       description2,
       description3,
-      isProductionLevel1,
-      isProductionLevel2,
-      isProductionLevel3,
-      isCommercialLevel1,
-      isCommercialLevel2,
-      isCommercialLevel3,
       leader1,
       leader2,
       leader3,
@@ -396,7 +331,9 @@ class AddLevel extends React.Component {
       staffsOptions3,
       level1exist,
       level2exist,
-      level3exist
+      level3exist,
+      company,
+      companies
     } = this.state;
     const options = {
       filter: true,
@@ -406,22 +343,22 @@ class AddLevel extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={allFunctionalStructureLevel}
-          url="/app/hh-rr/functionalStructure/create-level"
+          csvData={allAdministrativeStructureLevel}
+          url="/app/hh-rr/administrativeStructure/create-level"
           tooltip="add new Level"
         />
       )
     };
-    !isLoadingfunctionalStructureLevel
-      && functionalStructureLevelResponse
-      && this.editingPromiseResolve(functionalStructureLevelResponse);
-    !isLoadingfunctionalStructureLevel
-      && !functionalStructureLevelResponse
-      && this.editingPromiseResolve(errorfunctionalStructureLevel);
+    !isLoadingadministrativeStructureLevel
+      && administrativeStructureLevelResponse
+      && this.editingPromiseResolve(administrativeStructureLevelResponse);
+    !isLoadingadministrativeStructureLevel
+      && !administrativeStructureLevelResponse
+      && this.editingPromiseResolve(erroradministrativeStructureLevel);
     return (
       <div>
         <PapperBlock
-          title="Functional Structure Levels"
+          title="Administrative Structure Levels"
           icon="ios-person"
           noMargin
           whiteBg
@@ -433,6 +370,33 @@ class AddLevel extends React.Component {
             justify="center"
             alignItems="center"
           >
+            <Grid
+              item
+              xs={12}
+              md={11}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
+              justify="center"
+              alignContent="center"
+              alignItems="center"
+            >
+              <Autocomplete
+                id="company-combo-box"
+                value={company}
+                options={companies}
+                getOptionLabel={option => option.name}
+                onChange={this.handleChangeCompany}
+                style={{ width: '30%', marginTop: 7 }}
+                clearOnEscape
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Company"
+                    variant="outlined"
+                  />
+                )}
+              />
+            </Grid>
             <Grid
               item
               xs={12}
@@ -494,54 +458,19 @@ class AddLevel extends React.Component {
                   />
                 )}
               />
-              <div style={{ width: '15%' }}>
-                <FormControl component="fieldset" disabled={level1exist}>
-                  <FormLabel component="legend">
-                    Is it production level?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-label="isProductionLevel1"
-                    name="isProductionLevel1"
-                    value={isProductionLevel1}
-                    onChange={this.handleChange}
-                  >
-                    <FormControlLabel
-                      value="yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="no"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
-              <div style={{ width: '15%' }}>
-                <FormControl component="fieldset" disabled={level1exist}>
-                  <FormLabel component="legend">
-                    Is it Commercial level?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-label="isCommercialLevel1"
-                    name="isCommercialLevel1"
-                    value={isCommercialLevel1}
-                    onChange={this.handleChange}
-                  >
-                    <FormControlLabel
-                      value="yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="no"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
+              {leader1 !== null ? (
+                <div style={{ width: '17%' }}>
+                  <Typography variant="subtitle2" color="secondary">
+                    Leader company :
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    {leader1.companyName}
+                  </Typography>
+                  {' '}
+                </div>
+              ) : (
+                <div />
+              )}
             </Grid>
             <Grid
               item
@@ -604,54 +533,19 @@ class AddLevel extends React.Component {
                   />
                 )}
               />
-              <div style={{ width: '15%' }}>
-                <FormControl component="fieldset" disabled={level2exist}>
-                  <FormLabel component="legend">
-                    Is it production level?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-label="gender"
-                    name="isProductionLevel2"
-                    value={isProductionLevel2}
-                    onChange={this.handleChange}
-                  >
-                    <FormControlLabel
-                      value="yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="no"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
-              <div style={{ width: '15%' }}>
-                <FormControl component="fieldset" disabled={level2exist}>
-                  <FormLabel component="legend">
-                    Is it Commercial level?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-label="isCommercialLevel2"
-                    name="isCommercialLevel2"
-                    value={isCommercialLevel2}
-                    onChange={this.handleChange}
-                  >
-                    <FormControlLabel
-                      value="yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="no"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
+              {leader2 !== null ? (
+                <div style={{ width: '17%' }}>
+                  {' '}
+                  <Typography variant="subtitle2" color="secondary">
+                    Leader company :
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    {leader2.companyName}
+                  </Typography>
+                </div>
+              ) : (
+                <div />
+              )}
             </Grid>
             <Grid
               item
@@ -714,54 +608,19 @@ class AddLevel extends React.Component {
                   />
                 )}
               />
-              <div style={{ width: '15%' }}>
-                <FormControl component="fieldset" disabled={level3exist}>
-                  <FormLabel component="legend">
-                    Is it production level?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-label="gender"
-                    name="isProductionLevel3"
-                    value={isProductionLevel3}
-                    onChange={this.handleChange}
-                  >
-                    <FormControlLabel
-                      value="yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="no"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
-              <div style={{ width: '15%' }}>
-                <FormControl component="fieldset" disabled={level3exist}>
-                  <FormLabel component="legend">
-                    Is it Commercial level?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-label="isCommercialLevel3"
-                    name="isCommercialLevel3"
-                    value={isCommercialLevel3}
-                    onChange={this.handleChange}
-                  >
-                    <FormControlLabel
-                      value="yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="no"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
+              {leader3 !== null ? (
+                <div style={{ width: '17%' }}>
+                  <Typography variant="subtitle2" color="primary">
+                    Leader company :
+                  </Typography>
+                  <Typography variant="subtitle2" color="primary">
+                    {leader3.companyName}
+                  </Typography>
+                  {' '}
+                </div>
+              ) : (
+                <div />
+              )}
             </Grid>
             <Grid
               item
@@ -780,15 +639,15 @@ class AddLevel extends React.Component {
                 onClick={this.handleSubmitLevel}
                 disabled={this.check()}
               >
-                Save Level
+                Save
               </Button>
             </Grid>
           </Grid>
         </PapperBlock>
         <div style={{ marginTop: 20 }}>
           <MUIDataTable
-            title="The Functional Structures List"
-            data={allFunctionalStructureLevel}
+            title="The Administrative Structures List"
+            data={allAdministrativeStructureLevel}
             columns={columns}
             options={options}
           />
@@ -799,19 +658,23 @@ class AddLevel extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  allFunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
-    .allFunctionalStructureLevel,
-  functionalStructureLevelResponse: state.getIn(['functionalStructureLevels'])
-    .functionalStructureLevelResponse,
-  isLoadingfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
-    .isLoading,
-  errorfunctionalStructureLevel: state.getIn(['functionalStructureLevels'])
-    .errors
+  allAdministrativeStructureLevel: state.getIn([
+    'administrativeStructureLevels'
+  ]).allAdministrativeStructureLevel,
+  administrativeStructureLevelResponse: state.getIn([
+    'administrativeStructureLevels'
+  ]).administrativeStructureLevelResponse,
+  isLoadingadministrativeStructureLevel: state.getIn([
+    'administrativeStructureLevels'
+  ]).isLoading,
+  erroradministrativeStructureLevel: state.getIn([
+    'administrativeStructureLevels'
+  ]).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    saveFunctionalStructureLevel,
-    getAllFunctionalStructureLevel
+    saveAdministrativeStructureLevel,
+    getAllAdministrativeStructureLevel
   },
   dispatch
 );

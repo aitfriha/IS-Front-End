@@ -92,9 +92,6 @@ function* getAllFunctionalStructureLevel() {
       method: 'get',
       url: ENDPOINTS.FUNCTIONALSTRUCTURE + '/all'
     });
-    console.log('get all');
-    console.log(request);
-    console.log(ENDPOINTS.FUNCTIONALSTRUCTURE + '/all');
     yield put({
       type: GET_ALL_FUNCTIONALSTRUCTURELEVELS_SUCCESS,
       payload: request.data.payload

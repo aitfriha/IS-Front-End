@@ -22,6 +22,20 @@ const styles = theme => ({
       }
     }
   },
+  divInline: {
+    display: 'flex',
+    justifyContent: 'left',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10
+  },
+  divInlineLeft: {
+    display: 'flex',
+    justifyContent: 'left',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10
+  },
   divRight: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -83,10 +97,11 @@ const styles = theme => ({
   buttonLink: {
     background: 'none',
     padding: 0,
+    margin: 8,
     textTransform: 'none',
     transition: 'color ease 0.3s',
     fontWeight: theme.typography.fontWeightRegular,
-    fontSize: '0.875rem',
+    fontSize: '1rem',
     '&:hover': {
       background: 'none',
       color: theme.palette.secondary.main
@@ -221,9 +236,9 @@ const styles = theme => ({
   avatar: {
     alignItems: 'center',
     textAlign: 'center',
-    margin: '0 auto',
-    width: theme.spacing(10),
-    height: theme.spacing(10)
+    width: theme.spacing(9),
+    height: theme.spacing(9),
+    boxShadow: theme.glow.light
   }
 });
 

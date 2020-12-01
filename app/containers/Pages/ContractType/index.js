@@ -11,7 +11,12 @@ import {
   DialogActions,
   TextField,
   makeStyles,
-  Button
+  Button,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
@@ -26,6 +31,7 @@ import {
   updateContractType,
   deleteContractType
 } from '../../../redux/contractType/actions';
+import { getAllStaffContractByContractType } from '../../../redux/staffContract/actions';
 import notification from '../../../components/Notification/Notification';
 
 const useStyles = makeStyles(styles);
@@ -36,10 +42,17 @@ class ContractType extends React.Component {
     name: '',
     description: '',
     isDialogOpen: false,
-    contractTypeIndex: 0
+    isDeleteDialogOpen: false,
+    isRelated: false,
+    contractTypeIndex: 0,
+    replaceContractTypeList: [],
+    oldId: '',
+    newId: ''
   };
 
-  editingPromiseResolve = () => {};
+  editingPromiseResolve1 = () => {};
+
+  editingPromiseResolve2 = () => {};
 
   columns = [
     {
@@ -86,7 +99,7 @@ class ContractType extends React.Component {
             <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
               <EditIcon color="secondary" />
             </IconButton>
-            <IconButton onClick={() => this.handleDeleteType(tableMeta)}>
+            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
               <DeleteIcon color="primary" />
             </IconButton>
           </React.Fragment>
@@ -123,7 +136,7 @@ class ContractType extends React.Component {
     };
     const promise = new Promise(resolve => {
       updateContractType(contractType);
-      this.editingPromiseResolve = resolve;
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
@@ -153,28 +166,56 @@ class ContractType extends React.Component {
     });
   };
 
-  handleClose = () => {
-    this.setState({
-      isDialogOpen: false
-    });
-  };
-
-  handleDeleteType = tableMeta => {
-    const {
-      allContractType,
-      getAllContractType,
-      deleteContractType
-    } = this.props;
+  handleOpenDeleteDialog = tableMeta => {
+    const { allContractType, getAllStaffContractByContractType } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
       + tableMeta.rowIndex;
     const promise = new Promise(resolve => {
-      deleteContractType(allContractType[index].contractTypeId);
-      this.editingPromiseResolve = resolve;
+      // get client information
+      getAllStaffContractByContractType(allContractType[index].contractTypeId);
+      this.editingPromiseResolve2 = resolve;
+    });
+    promise.then(result => {
+      if (this.props.allStaffContractByContractType.length === 0) {
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: false,
+          oldId: allContractType[index].contractTypeId
+        });
+      } else {
+        const replaceContractTypeList = allContractType.filter(
+          type => type.contractTypeId !== allContractType[index].contractTypeId
+        );
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: true,
+          oldId: allContractType[index].contractTypeId,
+          replaceContractTypeList
+        });
+      }
+    });
+  };
+
+  handleClose = () => {
+    this.setState({
+      isDialogOpen: false,
+      isDeleteDialogOpen: false,
+      newId: ''
+    });
+  };
+
+  handleDeleteType = () => {
+    const { getAllContractType, deleteContractType } = this.props;
+    const { oldId, newId } = this.state;
+    const promise = new Promise(resolve => {
+      deleteContractType(oldId, newId);
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
         getAllContractType();
+        this.handleClose();
       } else {
         notification('danger', result);
       }
@@ -187,10 +228,21 @@ class ContractType extends React.Component {
       allContractType,
       isLoadingContractType,
       contractTypeResponse,
-      errorContractType
+      errorContractType,
+      isLoadingStaffContract,
+      staffContractResponse,
+      errorStaffContract
     } = this.props;
+
     const {
-      code, name, description, isDialogOpen
+      code,
+      name,
+      description,
+      isDialogOpen,
+      isDeleteDialogOpen,
+      isRelated,
+      replaceContractTypeList,
+      newId
     } = this.state;
     const title = brand.name + ' - Types of staff contract';
     const { desc } = brand;
@@ -210,10 +262,17 @@ class ContractType extends React.Component {
     };
     !isLoadingContractType
       && contractTypeResponse
-      && this.editingPromiseResolve(contractTypeResponse);
+      && this.editingPromiseResolve1(contractTypeResponse);
     !isLoadingContractType
       && !contractTypeResponse
-      && this.editingPromiseResolve(errorContractType);
+      && this.editingPromiseResolve1(errorContractType);
+
+    !isLoadingStaffContract
+      && staffContractResponse
+      && this.editingPromiseResolve2(staffContractResponse);
+    !isLoadingStaffContract
+      && !staffContractResponse
+      && this.editingPromiseResolve2(errorStaffContract);
     return (
       <div>
         <Helmet>
@@ -224,6 +283,94 @@ class ContractType extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          open={isDeleteDialogOpen}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete Contract Type
+          </DialogTitle>
+          <DialogContent>
+            {isRelated ? (
+              <div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px'
+                  }}
+                >
+                  this type is related to some contracts, choose an other
+                  contract type to replace it:
+                </Typography>
+                <div>
+                  <FormControl
+                    className={classes.formControl}
+                    required
+                    style={{ width: '30%' }}
+                  >
+                    <InputLabel>Contract type</InputLabel>
+                    <Select
+                      name="newId"
+                      value={newId}
+                      onChange={this.handleChange}
+                    >
+                      {replaceContractTypeList.map(type => (
+                        <MenuItem key={type.code} value={type.contractTypeId}>
+                          {type.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    color: '#dc3545',
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '14px'
+                  }}
+                >
+                  Notice that all the staff contract history related to this
+                  contract type will be deleted permanently
+                </Typography>
+              </div>
+            ) : (
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px'
+                }}
+              >
+                this type is not related to any contract, are you sure you want
+                to delete this type?
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            {isRelated ? (
+              <Button
+                color="primary"
+                disabled={newId === ''}
+                onClick={this.handleDeleteType}
+              >
+                Replace and delete
+              </Button>
+            ) : (
+              <Button color="primary" onClick={this.handleDeleteType}>
+                Delete
+              </Button>
+            )}
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={isDialogOpen}
           disableBackdropClick
@@ -305,13 +452,19 @@ const mapStateToProps = state => ({
   allContractType: state.getIn(['contractTypes']).allContractType,
   contractTypeResponse: state.getIn(['contractTypes']).contractTypeResponse,
   isLoadingContractType: state.getIn(['contractTypes']).isLoading,
-  errorContractType: state.getIn(['contractTypes']).errors
+  errorContractType: state.getIn(['contractTypes']).errors,
+  staffContractResponse: state.getIn(['staffContracts']).staffContractResponse,
+  isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
+  errorStaffContract: state.getIn(['staffContracts']).errors,
+  allStaffContractByContractType: state.getIn(['staffContracts'])
+    .allStaffContractByContractType
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     updateContractType,
     getAllContractType,
-    deleteContractType
+    deleteContractType,
+    getAllStaffContractByContractType
   },
   dispatch
 );

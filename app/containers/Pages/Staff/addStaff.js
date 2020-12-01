@@ -53,6 +53,7 @@ import StaffEconomicContractInformation from './StaffEconomicContractInformation
 import { getAllStaff, saveStaff } from '../../../redux/staff/actions';
 import { getAllContractTypeByState } from '../../../redux/contractType/actions';
 import { getAllLegalCategoryTypeByCompany } from '../../../redux/legalCategoryType/actions';
+import { getAllContractModel } from '../../../redux/contractModel/actions';
 import notification from '../../../components/Notification/Notification';
 
 const SmallAvatar = withStyles(theme => ({
@@ -97,21 +98,22 @@ class AddStaff extends React.Component {
       companyEmail: 'haroun.darjaj@techniu.org',
       skype: 'haroun.darjaj',
       birthday: new Date('03/10/1997'),
-      birthCountry: '',
+      birthCountry: null,
       emergencyContactName: 'John Doe',
       emergencyContactPhone: '12345678',
       photo: '',
       fullAddress: '',
-      company: {},
+      company: null,
       adCountry: {},
       postCode: '',
       state: {},
       city: {},
       contractType: '',
       legalCategoryType: '',
-      associateOffice: '',
-      hiringCountry: '',
-      hiringState: '',
+      contractModel: '',
+      associateOffice: 'Tangier',
+      hiringCountry: null,
+      hiringState: null,
       townContract: 'Tangier',
       personalNumber: '1700',
       highDate: new Date(),
@@ -164,15 +166,17 @@ class AddStaff extends React.Component {
       companyObjectivesCostDateGoing: new Date(),
       companyObjectivesCostDateOut: new Date(),
       totalCompanyCostDateGoing: new Date(),
-      totalCompanyCostDateOut: new Date()
+      totalCompanyCostDateOut: new Date(),
+      localCurrency: ''
     };
   }
 
   profilePictureRef = React.createRef();
 
   componentDidMount() {
-    // const { changeTheme } = this.props;
+    const { changeTheme, getAllContractModel } = this.props;
     // changeTheme('blueCyanTheme');
+    getAllContractModel();
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
@@ -235,6 +239,7 @@ class AddStaff extends React.Component {
       personalNumber,
       contractType,
       legalCategoryType,
+      contractModel,
       highDate,
       lowDate,
       registrationDate,
@@ -282,7 +287,8 @@ class AddStaff extends React.Component {
       companyObjectivesCostDateGoing,
       companyObjectivesCostDateOut,
       totalCompanyCostDateGoing,
-      totalCompanyCostDateOut
+      totalCompanyCostDateOut,
+      localCurrency
     } = this.state;
 
     console.log(city);
@@ -309,8 +315,9 @@ class AddStaff extends React.Component {
       emergencyContactName,
       emergencyContactPhone,
       photo,
-      isLeader: 'no',
-      cityId: city.cityId,
+      isFunctionalLeader: 'no',
+      isAdministrativeLeader: 'no',
+      cityId: city ? city.cityId : '',
       fullAddress,
       postCode,
 
@@ -326,6 +333,7 @@ class AddStaff extends React.Component {
       preContractDate: preContractDate.toISOString().slice(0, 10),
       contractTypeId: contractType,
       legalCategoryTypeId: legalCategoryType,
+      contractModelId: contractModel,
 
       contractSalary,
       companyContractCost,
@@ -366,6 +374,7 @@ class AddStaff extends React.Component {
       totalCompanyCostDateOut: totalCompanyCostDateOut
         .toISOString()
         .slice(0, 10),
+      currencyId: localCurrency,
 
       idCardNumber,
       idCardExpeditionDate: idCardExpeditionDate.toISOString().slice(0, 10),
@@ -721,7 +730,8 @@ class AddStaff extends React.Component {
       staffResponse,
       errorStaff,
       allContractTypeByState,
-      allLegalCategoryTypeByCompany
+      allLegalCategoryTypeByCompany,
+      allContractModel
     } = this.props;
     const {
       firstName,
@@ -758,6 +768,7 @@ class AddStaff extends React.Component {
       preContractDate,
       contractType,
       legalCategoryType,
+      contractModel,
       contractDoc,
       preContractDoc,
       internalRulesDoc,
@@ -959,11 +970,10 @@ class AddStaff extends React.Component {
                     />
                   </MuiPickersUtilsProvider>
                   <Autocomplete
-                    id="combo-box-demo"
+                    id="birthCountry-combo-box"
                     value={birthCountry}
                     options={countries}
-                    getOptionLabel={option => (option ? option.countryName : '')
-                    }
+                    getOptionLabel={option => option.countryName}
                     onChange={this.handleChangeBirthCountry}
                     style={{ marginTop: 25 }}
                     clearOnEscape
@@ -993,6 +1003,7 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="personalPhone"
                     fullWidth
+                    required
                     value={personalPhone}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1034,7 +1045,6 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="companyEmail"
                     fullWidth
-                    required
                     value={companyEmail}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1045,7 +1055,6 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="skype"
                     fullWidth
-                    required
                     value={skype}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1314,7 +1323,6 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="idCardNumber"
                     fullWidth
-                    required
                     value={idCardNumber}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1372,7 +1380,6 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="passportNumber"
                     fullWidth
-                    required
                     value={passportNumber}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1430,7 +1437,6 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="professionalIdCardNumber"
                     fullWidth
-                    required
                     value={professionalIdCardNumber}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1494,7 +1500,6 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="hnsCardNumber"
                     fullWidth
-                    required
                     value={hnsCardNumber}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1718,30 +1723,36 @@ class AddStaff extends React.Component {
                 >
                   <Grid item xs={12}>
                     <div className={classes.divSpace} style={{ width: '100%' }}>
-                      <Autocomplete
-                        id="combo-box-demo"
-                        value={company}
-                        options={companies}
-                        getOptionLabel={option => (option ? option.name : '')}
-                        onChange={this.handleChangeCompany}
-                        style={{ width: '45%', marginTop: 7 }}
-                        clearOnEscape
-                        renderInput={params => (
-                          <TextField
-                            fullWidth
-                            {...params}
-                            label="Company"
-                            variant="outlined"
-                          />
-                        )}
+                      <TextField
+                        id="outlined-basic"
+                        label="Employee Number"
+                        variant="outlined"
+                        name="personalNumber"
+                        style={{ width: '30%' }}
+                        value={personalNumber}
+                        required
+                        className={classes.textField}
+                        onChange={this.handleChange}
+                      />
+                      <TextField
+                        id="outlined-basic"
+                        label="Town contract"
+                        variant="outlined"
+                        name="townContract"
+                        style={{ width: '30%' }}
+                        value={townContract}
+                        required
+                        className={classes.textField}
+                        onChange={this.handleChange}
                       />
                       <TextField
                         id="outlined-basic"
                         label="Associate office"
                         variant="outlined"
                         name="associateOffice"
-                        style={{ width: '45%' }}
+                        style={{ width: '30%' }}
                         value={associateOffice}
+                        required
                         className={classes.textField}
                         onChange={this.handleChange}
                       />
@@ -1750,11 +1761,10 @@ class AddStaff extends React.Component {
                   <Grid item xs={12}>
                     <div className={classes.divSpace} style={{ width: '100%' }}>
                       <Autocomplete
-                        id="combo-box-demo"
+                        id="hiringCountry-combo-box"
                         value={hiringCountry}
                         options={countries}
-                        getOptionLabel={option => (option ? option.countryName : '')
-                        }
+                        getOptionLabel={option => option.countryName}
                         onChange={this.handleChangeHiringCountry}
                         style={{ width: '30%', marginTop: 7 }}
                         clearOnEscape
@@ -1768,11 +1778,10 @@ class AddStaff extends React.Component {
                         )}
                       />
                       <Autocomplete
-                        id="combo-box-demo"
+                        id="hiringState-combo-box"
                         value={hiringState}
                         options={states}
-                        getOptionLabel={option => (option ? option.stateName : '')
-                        }
+                        getOptionLabel={option => option.stateName}
                         onChange={this.handleChangeHiringState}
                         style={{ width: '30%', marginTop: 7 }}
                         clearOnEscape
@@ -1785,32 +1794,30 @@ class AddStaff extends React.Component {
                           />
                         )}
                       />
-                      <TextField
-                        id="outlined-basic"
-                        label="Town contract"
-                        variant="outlined"
-                        name="townContract"
-                        style={{ width: '30%' }}
-                        value={townContract}
-                        className={classes.textField}
-                        onChange={this.handleChange}
+                      <Autocomplete
+                        id="company-combo-box"
+                        value={company}
+                        options={companies}
+                        getOptionLabel={option => option.name}
+                        onChange={this.handleChangeCompany}
+                        style={{ width: '30%', marginTop: 7 }}
+                        clearOnEscape
+                        renderInput={params => (
+                          <TextField
+                            fullWidth
+                            {...params}
+                            label="Company"
+                            variant="outlined"
+                          />
+                        )}
                       />
                     </div>
                   </Grid>
                   <Grid item xs={12}>
                     <div className={classes.divSpace} style={{ width: '100%' }}>
-                      <TextField
-                        id="outlined-basic"
-                        label="Employee Number"
-                        variant="outlined"
-                        name="personalNumber"
-                        style={{ width: '30%' }}
-                        value={personalNumber}
-                        className={classes.textField}
-                        onChange={this.handleChange}
-                      />
                       <FormControl
                         className={classes.formControl}
+                        required
                         style={{ width: '30%' }}
                       >
                         <InputLabel>Contract type</InputLabel>
@@ -1832,6 +1839,7 @@ class AddStaff extends React.Component {
 
                       <FormControl
                         className={classes.formControl}
+                        required
                         style={{ width: '30%' }}
                       >
                         <InputLabel>Contract legal category</InputLabel>
@@ -1846,6 +1854,27 @@ class AddStaff extends React.Component {
                               value={type.legalCategoryTypeId}
                             >
                               {type.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <FormControl
+                        className={classes.formControl}
+                        required
+                        style={{ width: '30%' }}
+                      >
+                        <InputLabel>Contract Model</InputLabel>
+                        <Select
+                          name="contractModel"
+                          value={contractModel}
+                          onChange={this.handleChange}
+                        >
+                          {allContractModel.map(model => (
+                            <MenuItem
+                              key={model.code}
+                              value={model.contractModelId}
+                            >
+                              {model.name}
                             </MenuItem>
                           ))}
                         </Select>
@@ -1989,6 +2018,7 @@ const mapStateToProps = state => ({
   allContractTypeByState: state.getIn(['contractTypes']).allContractTypeByState,
   allLegalCategoryTypeByCompany: state.getIn(['legalCategoryTypes'])
     .allLegalCategoryTypeByCompany,
+  allContractModel: state.getIn(['contractModels']).allContractModel,
   allStaff: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
@@ -1999,7 +2029,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     saveStaff,
     getAllStaff,
     getAllContractTypeByState,
-    getAllLegalCategoryTypeByCompany
+    getAllLegalCategoryTypeByCompany,
+    getAllContractModel
   },
   dispatch
 );

@@ -40,12 +40,15 @@ import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import CountryService from '../../Services/CountryService';
 import StateCountryService from '../../Services/StateCountryService';
 import StaffContractService from '../../Services/StaffContractService';
-import StaffContractHistoryService from '../../Services/StaffContractHistoryService';
+import StaffService from '../../Services/StaffService';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import { setStaff, getAllStaff } from '../../../redux/staff/actions';
 import { getAllContractTypeByState } from '../../../redux/contractType/actions';
+import { getAllContractModel } from '../../../redux/contractModel/actions';
 import { getAllLegalCategoryTypeByCompany } from '../../../redux/legalCategoryType/actions';
+import { getAllStaffContractHistoryByContract } from '../../../redux/staffContractHistory/actions';
 import { updateStaffContract } from '../../../redux/staffContract/actions';
+import notification from '../../../components/Notification/Notification';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   pdfjs.version
@@ -67,9 +70,12 @@ class StaffProfileContractInformation extends Component {
     isViewHistory: false,
     contractType: '',
     legalCategoryType: '',
+    contractModel: '',
     associateOffice: '',
-    hiringCountry: '',
-    hiringState: '',
+    hiringCountry: null,
+    hiringCountryName: '',
+    hiringState: null,
+    hiringStateName: '',
     townContract: '',
     personalNumber: '',
     highDate: new Date(),
@@ -84,9 +90,8 @@ class StaffProfileContractInformation extends Component {
     newPreContractDoc: {},
     countries: [],
     states: [],
-    company: {},
-    companies: [],
-    history: []
+    company: null,
+    companies: []
   };
 
   editingPromiseResolve = () => {};
@@ -133,31 +138,29 @@ class StaffProfileContractInformation extends Component {
     const {
       staff,
       getAllContractTypeByState,
-      getAllLegalCategoryTypeByCompany
+      getAllLegalCategoryTypeByCompany,
+      getAllStaffContractHistoryByContract,
+      getAllContractModel
     } = this.props;
     this.setInitialData();
     getAllContractTypeByState(staff.contractTypeStateId);
     getAllLegalCategoryTypeByCompany(staff.companyId);
+    getAllStaffContractHistoryByContract(staff.staffContractId);
+    getAllContractModel();
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
-    StateCountryService.getStatesByCountry(staff.contractTypeCountryId).then(
+    StateCountryService.getStatesByCountry(staff.hiringCountry).then(
       response => {
         this.setState({
-          hiringCountry: staff.hiringCountry,
+          hiringCountryName: staff.hiringCountry,
+          hiringStateName: staff.contractTypeState,
+
           states: response.data.payload
         });
       }
     );
-    StaffContractHistoryService.getStaffContractHistoryByStaff(
-      staff.staffContractId
-    ).then(({ data }) => {
-      this.setState({
-        history: data
-      });
-    });
     FinancialCompanyService.getCompany().then(({ data }) => {
-      console.log(data);
       this.setState({ companies: data });
     });
   }
@@ -167,9 +170,10 @@ class StaffProfileContractInformation extends Component {
     const staffContract = {
       contractType: staff.contractTypeId,
       legalCategoryType: staff.legalCategoryTypeId,
+      contractModel: staff.contractModelId,
       associateOffice: staff.associateOffice,
-      hiringCountry: staff.hiringCountry,
-      hiringState: staff.hiringState,
+      hiringCountryName: staff.hiringCountry,
+      hiringStateName: staff.contractTypeState,
       townContract: staff.townContract,
       personalNumber: staff.personalNumber,
       highDate: new Date(staff.highDate),
@@ -178,7 +182,10 @@ class StaffProfileContractInformation extends Component {
       preContractDate: new Date(staff.preContractDate),
       internalRulesDoc: staff.internalRulesDoc,
       contractDoc: staff.contractDoc,
-      preContractDoc: staff.preContractDoc
+      preContractDoc: staff.preContractDoc,
+      newInternalRulesDoc: {},
+      newContractDoc: {},
+      newPreContractDoc: {}
     };
     this.setState({
       ...staffContract,
@@ -279,8 +286,10 @@ class StaffProfileContractInformation extends Component {
       contractType: staff.contractTypeId,
       legalCategoryType: staff.legalCategoryTypeId,
       associateOffice: staff.associateOffice,
-      hiringCountry: staff.hiringCountry,
+      contractModel: staff.contractModelId,
+      hiringCountryName: staff.hiringCountry,
       hiringState: staff.contractTypeState,
+      hiringStateName: staff.contractTypeState,
       townContract: staff.townContract,
       personalNumber: staff.personalNumber,
       highDate: new Date(staff.highDate),
@@ -392,14 +401,18 @@ class StaffProfileContractInformation extends Component {
   };
 
   viewHistoryInformation = (value, tableMeta) => {
-    const { history } = this.state;
+    const { allStaffContractHistoryByContract } = this.props;
     const index = tableMeta.rowIndex;
-    const data = history[index].staffContractHistory;
+    const data = allStaffContractHistoryByContract[index];
+
     this.setState({
-      contractType: data.contractType.name,
-      legalCategoryType: data.legalCategoryType.name,
+      contractType: data.contractTypeId,
+      legalCategoryType: data.legalCategoryTypeId,
+      contractModel: data.contractModelId,
       associateOffice: data.associateOffice,
-      hiringState: data.contractType.state.stateName,
+      hiringCountryName: data.hiringCountry,
+      hiringState: data.contractTypeState,
+      hiringStateName: data.contractTypeState,
       townContract: data.townContract,
       personalNumber: data.personalNumber,
       highDate: new Date(data.highDate),
@@ -414,16 +427,20 @@ class StaffProfileContractInformation extends Component {
   };
 
   handleUpdate = () => {
-    const { staff, updateStaffContract } = this.props;
     const {
-      staffContractId,
+      staff,
+      updateStaffContract,
+      setStaff,
+      getAllStaffContractHistoryByContract
+    } = this.props;
+    const {
       associateOffice,
       hiringCountry,
-      hiringState,
       townContract,
       personalNumber,
       contractType,
       legalCategoryType,
+      contractModel,
       highDate,
       lowDate,
       registrationDate,
@@ -435,7 +452,7 @@ class StaffProfileContractInformation extends Component {
     } = this.state;
     const contract = {
       staffContractId: staff.staffContractId,
-      companyId: company.companyId,
+      companyId: company.financialCompanyId,
       associateOffice,
       hiringCountry: hiringCountry.countryName,
       townContract,
@@ -444,8 +461,9 @@ class StaffProfileContractInformation extends Component {
       lowDate: lowDate.toISOString().slice(0, 10),
       registrationDate: registrationDate.toISOString().slice(0, 10),
       preContractDate: preContractDate.toISOString().slice(0, 10),
-      contractTypeId: contractType.contractTypeId,
-      legalCategoryTypeId: legalCategoryType.legalCategoryTypeId,
+      contractTypeId: contractType,
+      legalCategoryTypeId: legalCategoryType,
+      contractModelId: contractModel,
       updatedAt: new Date().toISOString().slice(0, 10)
     };
 
@@ -491,11 +509,10 @@ class StaffProfileContractInformation extends Component {
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
-        this.setState({
-          isEditData: false,
-          newContractDoc: {},
-          newInternalRulesDoc: {},
-          newPreContractDoc: {}
+        getAllStaffContractHistoryByContract(staff.staffContractId);
+        StaffService.getStaffById(staff.staffId).then(({ data }) => {
+          setStaff(data);
+          this.setInitialData();
         });
       } else {
         notification('danger', result);
@@ -542,7 +559,9 @@ class StaffProfileContractInformation extends Component {
       staff,
       classes,
       allContractTypeByState,
-      allLegalCategoryTypes,
+      allLegalCategoryTypeByCompany,
+      allStaffContractHistoryByContract,
+      allContractModel,
       isLoadingStaffContract,
       staffContractResponse,
       errorStaffContract
@@ -556,7 +575,9 @@ class StaffProfileContractInformation extends Component {
       states,
       associateOffice,
       hiringCountry,
+      hiringCountryName,
       hiringState,
+      hiringStateName,
       townContract,
       personalNumber,
       highDate,
@@ -565,12 +586,15 @@ class StaffProfileContractInformation extends Component {
       preContractDate,
       contractType,
       legalCategoryType,
+      contractModel,
       contractDoc,
       preContractDoc,
       internalRulesDoc,
+      newContractDoc,
+      newPreContractDoc,
+      newInternalRulesDoc,
       company,
-      companies,
-      history
+      companies
     } = this.state;
 
     const options = {
@@ -695,42 +719,6 @@ class StaffProfileContractInformation extends Component {
               </div>
               <div className={classes.divInline}>
                 <Avatar>
-                  <Ionicon icon="md-map" />
-                </Avatar>
-                <div style={{ marginLeft: 20 }}>
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      fontFamily: 'sans-serif , Arial',
-                      fontSize: '17px'
-                    }}
-                    color="secondary"
-                  >
-                    {'Hiring Country :  '}
-                  </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    className={
-                      isViewHistory
-                        ? classes.historyTypography
-                        : classes.normalTypography
-                    }
-                  >
-                    {hiringCountry}
-                  </Typography>
-                </div>
-              </div>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'Left',
-                width: '100%',
-                marginTop: 20
-              }}
-            >
-              <div className={classes.divInline}>
-                <Avatar>
                   <Ionicon icon="md-locate" />
                 </Avatar>
                 <div style={{ marginLeft: 20 }}>
@@ -756,6 +744,78 @@ class StaffProfileContractInformation extends Component {
                   </Typography>
                 </div>
               </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'Left',
+                width: '100%',
+                marginTop: 20
+              }}
+            >
+              <div className={classes.divInline}>
+                <Avatar>
+                  <Ionicon icon="md-map" />
+                </Avatar>
+                <div style={{ marginLeft: 20 }}>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px'
+                    }}
+                    color="secondary"
+                  >
+                    {'Hiring Country :  '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    className={
+                      isViewHistory
+                        ? classes.historyTypography
+                        : classes.normalTypography
+                    }
+                  >
+                    {hiringCountryName}
+                  </Typography>
+                </div>
+              </div>
+              <div className={classes.divInline}>
+                <Avatar>
+                  <Ionicon icon="md-map" />
+                </Avatar>
+                <div style={{ marginLeft: 20 }}>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px'
+                    }}
+                    color="secondary"
+                  >
+                    {'Hiring State :  '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    className={
+                      isViewHistory
+                        ? classes.historyTypography
+                        : classes.normalTypography
+                    }
+                  >
+                    {hiringStateName}
+                  </Typography>
+                </div>
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'Left',
+                width: '100%',
+                marginTop: 20
+              }}
+            >
               <div className={classes.divInline}>
                 <Avatar>
                   <Ionicon icon="md-person" />
@@ -780,6 +840,33 @@ class StaffProfileContractInformation extends Component {
                     }
                   >
                     {personalNumber}
+                  </Typography>
+                </div>
+              </div>
+              <div className={classes.divInline}>
+                <Avatar>
+                  <Ionicon icon="md-contract" />
+                </Avatar>
+                <div style={{ marginLeft: 20 }}>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px'
+                    }}
+                    color="secondary"
+                  >
+                    {'Contract Model :  '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    className={
+                      isViewHistory
+                        ? classes.historyTypography
+                        : classes.normalTypography
+                    }
+                  >
+                    {staff.contractModelName}
                   </Typography>
                 </div>
               </div>
@@ -1109,7 +1196,7 @@ class StaffProfileContractInformation extends Component {
             </div>
             <MUIDataTable
               title=""
-              data={history}
+              data={allStaffContractHistoryByContract}
               columns={this.columns}
               options={options}
             />
@@ -1136,9 +1223,9 @@ class StaffProfileContractInformation extends Component {
                 >
                   <IconButton
                     className={
-                      !contractDoc
+                      !newContractDoc
                         ? classes.uploadAvatarEmpty
-                        : contractDoc.constructor === Object
+                        : newContractDoc.constructor === Object
                           ? classes.uploadAvatarEmpty
                           : classes.uploadAvatarDone
                     }
@@ -1175,9 +1262,9 @@ class StaffProfileContractInformation extends Component {
                   </IconButton>
                   <IconButton
                     className={
-                      !internalRulesDoc
+                      !newInternalRulesDoc
                         ? classes.uploadAvatarEmpty
-                        : internalRulesDoc.constructor === Object
+                        : newInternalRulesDoc.constructor === Object
                           ? classes.uploadAvatarEmpty
                           : classes.uploadAvatarDone
                     }
@@ -1215,9 +1302,9 @@ class StaffProfileContractInformation extends Component {
                   </IconButton>
                   <IconButton
                     className={
-                      !preContractDoc
+                      !newPreContractDoc
                         ? classes.uploadAvatarEmpty
-                        : preContractDoc.constructor === Object
+                        : newPreContractDoc.constructor === Object
                           ? classes.uploadAvatarEmpty
                           : classes.uploadAvatarDone
                     }
@@ -1269,30 +1356,36 @@ class StaffProfileContractInformation extends Component {
               >
                 <Grid item xs={12}>
                   <div className={classes.divSpace} style={{ width: '100%' }}>
-                    <Autocomplete
-                      id="combo-box-demo"
-                      value={company}
-                      options={companies}
-                      getOptionLabel={option => (option ? option.name : '')}
-                      onChange={this.handleChangeCompany}
-                      style={{ width: '45%', marginTop: 7 }}
-                      clearOnEscape
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          label="Company"
-                          variant="outlined"
-                        />
-                      )}
+                    <TextField
+                      id="outlined-basic"
+                      label="Employee Number"
+                      variant="outlined"
+                      name="personalNumber"
+                      style={{ width: '30%' }}
+                      value={personalNumber}
+                      required
+                      className={classes.textField}
+                      onChange={this.handleChange}
+                    />
+                    <TextField
+                      id="outlined-basic"
+                      label="Town contract"
+                      variant="outlined"
+                      name="townContract"
+                      style={{ width: '30%' }}
+                      value={townContract}
+                      required
+                      className={classes.textField}
+                      onChange={this.handleChange}
                     />
                     <TextField
                       id="outlined-basic"
                       label="Associate office"
                       variant="outlined"
                       name="associateOffice"
-                      style={{ width: '45%' }}
+                      style={{ width: '30%' }}
                       value={associateOffice}
+                      required
                       className={classes.textField}
                       onChange={this.handleChange}
                     />
@@ -1334,33 +1427,31 @@ class StaffProfileContractInformation extends Component {
                         />
                       )}
                     />
-                    <TextField
-                      id="outlined-basic"
-                      label="Town contract"
-                      variant="outlined"
-                      name="townContract"
-                      style={{ width: '30%' }}
-                      value={townContract}
-                      className={classes.textField}
-                      onChange={this.handleChange}
+                    <Autocomplete
+                      id="combo-box-demo"
+                      value={company}
+                      options={companies}
+                      getOptionLabel={option => (option ? option.name : '')}
+                      onChange={this.handleChangeCompany}
+                      style={{ width: '30%', marginTop: 7 }}
+                      clearOnEscape
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Company"
+                          variant="outlined"
+                        />
+                      )}
                     />
                   </div>
                 </Grid>
                 <Grid item xs={12}>
                   <div className={classes.divSpace} style={{ width: '100%' }}>
-                    <TextField
-                      id="outlined-basic"
-                      label="Employee Number"
-                      variant="outlined"
-                      name="personalNumber"
-                      style={{ width: '30%' }}
-                      value={personalNumber}
-                      className={classes.textField}
-                      onChange={this.handleChange}
-                    />
                     <FormControl
                       className={classes.formControl}
                       style={{ width: '30%' }}
+                      required
                     >
                       <InputLabel>Contract type</InputLabel>
                       <Select
@@ -1378,6 +1469,7 @@ class StaffProfileContractInformation extends Component {
                     <FormControl
                       className={classes.formControl}
                       style={{ width: '30%' }}
+                      required
                     >
                       <InputLabel>Contract legal category</InputLabel>
                       <Select
@@ -1385,12 +1477,33 @@ class StaffProfileContractInformation extends Component {
                         value={legalCategoryType}
                         onChange={this.handleChange}
                       >
-                        {allLegalCategoryTypes.map(type => (
+                        {allLegalCategoryTypeByCompany.map(type => (
                           <MenuItem
                             key={type.code}
                             value={type.legalCategoryTypeId}
                           >
                             {type.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl
+                      className={classes.formControl}
+                      style={{ width: '30%' }}
+                      required
+                    >
+                      <InputLabel>Contract model</InputLabel>
+                      <Select
+                        name="contractModel"
+                        value={contractModel}
+                        onChange={this.handleChange}
+                      >
+                        {allContractModel.map(model => (
+                          <MenuItem
+                            key={model.code}
+                            value={model.contractModelId}
+                          >
+                            {model.name}
                           </MenuItem>
                         ))}
                       </Select>
@@ -1507,10 +1620,13 @@ class StaffProfileContractInformation extends Component {
 
 const mapStateToProps = state => ({
   allContractTypeByState: state.getIn(['contractTypes']).allContractTypeByState,
-  allLegalCategoryTypes: state.getIn(['legalCategoryTypes'])
-    .allLegalCategoryTypes,
+  allLegalCategoryTypeByCompany: state.getIn(['legalCategoryTypes'])
+    .allLegalCategoryTypeByCompany,
+  allStaffContractHistoryByContract: state.getIn(['staffContractHistories'])
+    .allStaffContractHistoryByContract,
+  allContractModel: state.getIn(['contractModels']).allContractModel,
   staff: state.getIn(['staffs']).selectedStaff,
-  staffContractResponse: state.getIn(['staffContracts']).staffResponse,
+  staffContractResponse: state.getIn(['staffContracts']).staffContractResponse,
   isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
   errorStaffContract: state.getIn(['staffContracts']).errors
 });
@@ -1521,6 +1637,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     setStaff,
     getAllContractTypeByState,
     getAllLegalCategoryTypeByCompany,
+    getAllStaffContractHistoryByContract,
+    getAllContractModel,
     updateStaffContract
   },
   dispatch
