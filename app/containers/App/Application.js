@@ -121,7 +121,7 @@ function Application(props) {
         />
         <Route
             exact
-            path="/app/gestion-commercial/civilityTitle"
+            path="/app/gestion-commercial/title-type"
             component={CivilityTitle}
         />
         <Route
