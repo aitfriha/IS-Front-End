@@ -10,9 +10,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import { bindActionCreators } from 'redux';
 import history from '../../../../utils/history';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
+import { setStaff, getAllStaff } from '../../../../redux/staff/actions';
 
 const useStyles = makeStyles();
 
@@ -20,6 +22,7 @@ class AddEconomicStaff extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      staffs: [],
       company: '',
       employeeNumber: '',
       name: '',
@@ -35,12 +38,34 @@ class AddEconomicStaff extends React.Component {
     };
   }
 
+  // eslint-disable-next-line react/sort-comp
+  editingPromiseResolve = () => {};
+
   componentDidMount() {
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
     } = this.props;
     changeTheme('greyTheme');
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStaff } = this.props;
+    const promise = new Promise(resolve => {
+      // get client information
+      getAllStaff();
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      const staffs = [];
+      console.log('result');
+      console.log(result);
+      // eslint-disable-next-line react/destructuring-assignment,react/prop-types
+      console.log(this.props.allStaff);
+      // eslint-disable-next-line react/destructuring-assignment,react/prop-types
+      this.props.allStaff.forEach(staff => {
+        staffs.push(staff);
+      });
+      this.setState({ staffs });
+    });
   }
 
     handleSubmit = () => {
@@ -76,7 +101,13 @@ class AddEconomicStaff extends React.Component {
       const {
         name
       } = this.state;
-      const { classes } = this.props;
+      const {
+        allStaff,
+        classes,
+        isLoadingStaff,
+        staffResponse,
+        errorStaff
+      } = this.props;
       return (
         <div>
           <Helmet>
@@ -134,10 +165,31 @@ class AddEconomicStaff extends React.Component {
     }
 }
 AddEconomicStaff.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  showProfile: PropTypes.func.isRequired,
+  setStaff: PropTypes.func.isRequired
 };
 
-const AddEconomicStaffMapped = connect()(AddEconomicStaff);
+const mapStateToProps = state => ({
+  staff: state.getIn(['staffs']).selectedStaff,
+  allStaff: state.getIn(['staffs']).allStaff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+  isLoadingStaff: state.getIn(['staffs']).isLoading,
+  errorStaff: state.getIn(['staffs']).errors
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    getAllStaff,
+    setStaff
+  },
+  dispatch
+);
+
+const AddEconomicStaffMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AddEconomicStaff);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
