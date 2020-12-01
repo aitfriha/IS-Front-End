@@ -70,7 +70,7 @@ class StatusOfCommercialOperation extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Status Of Commercial Operation" desc="" noMargin>
+        <PapperBlock title="Title type Management" desc="" noMargin>
           {/* <StatusOfCommercialOperationBlock onSelected={this.handleChangeSelectedStatus} status={status} /> */}
           <MaterialTable
             title=""
