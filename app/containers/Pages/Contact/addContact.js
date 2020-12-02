@@ -417,7 +417,7 @@ class AddContact extends React.Component {
                         <TextField
                             fullWidth
                             {...params}
-                            label="Civility Title*"
+                            label="Title type*"
                             variant="outlined"
                         />
                     )}
