@@ -92,7 +92,7 @@ module.exports = [
           },
           {
             key: 'civilityTitle',
-            name: 'Civility Title',
+            name: 'Title type',
             link: '/app/gestion-commercial/title-Type',
             icon: 'ios-people-outline'
           },
