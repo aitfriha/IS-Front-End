@@ -239,7 +239,6 @@ class sector extends React.Component {
     const {
       description1, description2, description3, thirdSectorName, isDisabled, columns, openPopUp, message
     } = this.state;
-    console.log('display message : ', message);
     const {
       // eslint-disable-next-line no-shadow
       errors, isLoading, sectorComapnyResponse, allSectorComapnys, allSectorPimaryComapnys, deleteSectorCompany

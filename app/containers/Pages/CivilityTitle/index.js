@@ -14,6 +14,7 @@ import {
   addCivilityTitleStatus, deleteCivilityTitleStatus,
   getAllCivilityTitleStatus, updateCivilityTitleStatus
 } from '../../../redux/civilityTitle/actions';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
 
 const styles = {};
 
@@ -23,6 +24,9 @@ class StatusOfCommercialOperation extends React.Component {
     this.editingPromiseResolve = () => {
     };
     this.state = {
+      openPopUp: false,
+      rowDataCivilityTitleId: '',
+      message: '',
       columns: [
         {
           // eslint-disable-next-line no-useless-concat
@@ -47,12 +51,46 @@ class StatusOfCommercialOperation extends React.Component {
     const { getAllCivilityTitleStatus } = this.props;
     getAllCivilityTitleStatus();
   }
+delete = (event, rowData) => {
+this.setState({rowDataCivilityTitleId:rowData.civilityTitleId})
+if(rowData.related==true){
+  this.setState({message:'this title type is related to contact !'});
+}
+else {
+  this.setState({message:'Are you sure you want to delete ?'});
+}
+  this.setState({openPopUp:true});
+}
+
+handleClose = (event, rowData) => {
+    this.setState({openPopUp:false});
+  }
+
+deleteConfirme= () => {
+    const {rowDataCivilityTitleId} = this.state;
+  console.log(rowDataCivilityTitleId);
+  const { deleteCivilityTitleStatus,getAllCivilityTitleStatus } = this.props;
+  new Promise((resolve) => {
+    // delete CommercialOperationStatus action
+    deleteCivilityTitleStatus(rowDataCivilityTitleId);
+    this.editingPromiseResolve = resolve;
+  }).then((result) => {
+    if (isString(result)) {
+      // Fetch data
+      getAllCivilityTitleStatus();
+      notification('success', result);
+    } else {
+      notification('danger', result);
+    }
+  })
+  this.setState({openPopUp:false});
+};
 
   render() {
     const title = brand.name + ' - Status Of Commercial Operation';
     const description = brand.desc;
     const {
-      columns
+      columns,openPopUp,message
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
@@ -77,7 +115,7 @@ class StatusOfCommercialOperation extends React.Component {
             columns={columns}
             data={allCivilityTitles && allCivilityTitles}
             options={{
-              exportFileName: 'Coivility Title List',
+              exportFileName: 'title type List',
               // filtering: true,
               // draggable: true,
               exportButton: true,
@@ -90,6 +128,7 @@ class StatusOfCommercialOperation extends React.Component {
               },
               actionsColumnIndex: -1
             }}
+
             editable={{
               onRowAdd: newData => new Promise((resolve) => {
                 // add measurement unit action
@@ -130,9 +169,48 @@ class StatusOfCommercialOperation extends React.Component {
                   notification('danger', result);
                 }
               }),
+
             }}
+            actions={[
+              {
+                icon: 'delete',
+                tooltip: 'Delete User',
+                onClick: (event, rowData) => this.delete(event, rowData)
+              }
+            ]}
           />
         </PapperBlock>
+        <Dialog
+            open={openPopUp}
+            keepMounted
+            scroll="body"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth=""
+            maxWidth=""
+        >
+          <DialogTitle id="alert-dialog-slide-title"> Delete title type </DialogTitle>
+          <DialogContent dividers>
+            {message !== 'Are you sure you want to delete ?' ? (
+                <p style={{ color: 'red' }}>{message}</p>
+            ) : (
+                <p>{message}</p>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={this.deleteConfirme}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }

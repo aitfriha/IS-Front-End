@@ -18,8 +18,10 @@ import Slide from '@material-ui/core/Slide';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import MaterialTable from 'material-table';
+import MaterialTable, { MTableToolbar } from 'material-table';
 import { isString } from 'lodash';
+import { CSVReader } from 'react-papaparse';
+import CloudUploadIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import { addClient } from '../../../../redux/actions/clientActions';
 import CommercialService from '../../../Services/CommercialService';
 import AssignmentService from '../../../Services/AssignmentService';
@@ -38,13 +40,15 @@ import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
 import { addAssignment } from '../../../../redux/assignment/actions';
 
-
+const buttonRef = React.createRef();
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {
     };
     this.state = {
+      display: 'flex',
+      openPopUpImport: false,
       staff: '',
       listClientToUpdate: [],
       typeResponsible: '',
@@ -194,6 +198,54 @@ class Commercial extends React.Component {
     });
   };
 
+  /* ************************************ */
+  handleOpenDialog = (e) => {
+    // Note that the ref is set async, so it might be null at some point
+    if (buttonRef.current) {
+      buttonRef.current.open(e);
+    }
+  }
+
+  handleOnFileLoad = (data) => {
+    const {
+      // eslint-disable-next-line no-shadow
+      getAllCitys, importCity
+    } = this.props;
+    // country
+    const newData = [];
+console.log(data);
+    data.forEach(
+      (val) => {
+        if (val.data[0] !== '') {
+          newData.push(Object.assign({ countryName: val.data[0] }, { phonePrefix: val.data[1] }, { countryCode: val.data[2] }, { stateName: val.data[3] }, { cityName: val.data[4] }));
+        }
+      }
+    );
+    const promise = new Promise((resolve) => {
+      importCity(newData.slice(1));
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      notification('success', result);
+      getAllCitys();
+    });
+  }
+
+  handleOnError = (err, file, inputElem, reason) => {
+    console.log(err);
+  }
+
+  handleOnRemoveFile = (data) => {
+  }
+
+  handleRemoveFile = (e) => {
+    // Note that the ref is set async, so it might be null at some point
+    if (buttonRef.current) {
+      buttonRef.current.removeFile(e);
+    }
+  }
+
+  /** ************************************** */
   handleCountry = (ev, value) => {
     this.setState({ country: value });
   };
@@ -211,12 +263,22 @@ class Commercial extends React.Component {
       this.setState({ type: 'assignment' });
     });
   };
+  selectedRowsInTable= (rows) => {
+    console.log(rows.length);
+if(rows.length>0){
+  this.setState({ display: 'none' });
+}
+else{
+  this.setState({ display: 'flex' });
+}
 
+  };
   selectedRows = (rows) => {
-    console.log(rows);
+    console.log('ffffffffffffffffffffffffffffff');
     const listClientToUpdate = rows.map((row) => row.clientId);
     this.setState({ listClientToUpdate });
     this.setState({ openPopUp: true });
+    this.setState({ display: 'none' });
   };
 
   handleClose = () => {
@@ -268,7 +330,7 @@ class Commercial extends React.Component {
       commercials,
       type, countries, country,
       notifMessage, client, clients,
-      columns, openPopUp, typeResponsible, staff
+      columns, openPopUp, typeResponsible, staff, openPopUpImport,display
     } = this.state;
     (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
     (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
@@ -374,10 +436,15 @@ class Commercial extends React.Component {
                     },
                     actionsColumnIndex: -1
                   }}
-                  /* onSelectionChange={(rows) => this.selectedRows(rows)} */
+                  onSelectionChange={(rows) => this.selectedRowsInTable(rows)}
                   actions={[
                     {
-                      tooltip: 'Assigne',
+                      tooltip: 'Import',
+                      icon: 'import_contacts',
+                      onClick: (evt, data) => this.handleOnFileLoad(data)
+                    },
+                    {
+                      tooltip: 'import',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
                     }
@@ -423,7 +490,124 @@ class Commercial extends React.Component {
                       }
                     }),
                   }}
+                  components={{
+                    Toolbar: props => (
+                      <div>
+                        <MTableToolbar {...props} />
+                        <div style={{
+                          padding: '-50px 50px', marginTop: '-42px', marginLeft: '20px', marginBottom: '20px', width: '50%'
+                        }}
+                        >
+                          <CSVReader
+                            ref={buttonRef}
+                            onFileLoad={this.handleOnFileLoad}
+                            noClick
+                            noDrag
+                            onRemoveFile={this.handleOnRemoveFile}
+                          >
+                            {({ file }) => (
+                              <aside
+                                style={{
+                                  display:  `${display}`,
+                                  flexDirection: 'row',
+                                  marginBottom: 10,
+                                }}
+                              >
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  component="span"
+                                  className={classes.heightImport}
+                                  startIcon={<CloudUploadIcon />}
+                                  onClick={this.handleOpenDialog}
+                                  style={{
+                                    marginRight: 10
+                                  }}
+                                >
+
+                                      Import
+
+                                </Button>
+                                <div
+                                  style={{
+                                    borderWidth: 1,
+                                    borderStyle: 'solid',
+                                    borderColor: '#ccc',
+                                    height: 36,
+                                    lineHeight: 1.5,
+                                    marginTop: 1,
+                                    marginBottom: 5,
+                                    paddingLeft: 13,
+                                    paddingTop: 3,
+                                    width: '60%'
+                                  }}
+                                >
+                                  {file && file.name}
+                                </div>
+                                <Button
+                                  style={{
+                                    borderRadius: 0,
+                                    marginLeft: 0,
+                                    marginRight: 0,
+                                    paddingLeft: 20,
+                                    paddingRight: 20
+                                  }}
+                                  type="button"
+                                  className={classes.heightImport}
+                                  onClick={this.handleRemoveFile}
+                                >
+                                      remove
+                                </Button>
+{/*                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    component="span"
+                                    className={classes.heightImport}
+                                    startIcon={<CloudUploadIcon />}
+                                    onClick={this.handlesave}
+                                    style={{
+                                      marginRight: 10
+                                    }}
+                                >
+
+                                  save
+
+                                </Button>*/}
+                              </aside>
+                            )}
+                          </CSVReader>
+                        </div>
+                      </div>
+                    ),
+                  }}
                 />
+                <Dialog
+                  open={openPopUpImport}
+                  keepMounted
+                  scroll="body"
+                  onClose={this.handleClose}
+                  aria-labelledby="alert-dialog-slide-title"
+                  aria-describedby="alert-dialog-slide-description"
+                  fullWidth=""
+                  maxWidth=""
+                >
+                  <DialogTitle id="alert-dialog-slide-title"> Import  </DialogTitle>
+                  <DialogContent dividers>
+ hhh
+                  </DialogContent>
+                  <DialogActions>
+                    <Button color="secondary" onClick={this.handleClose}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.deleteConfirme}
+                    >
+                      Delete
+                    </Button>
+                  </DialogActions>
+                </Dialog>
                 <Dialog
                   open={openPopUp}
                   keepMounted
