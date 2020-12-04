@@ -33,7 +33,7 @@ import CommercialAssignmentsMapped from './assignmentBlock';
 import ClientBlockMapped from '../../Clients/ClientBlock';
 import history from '../../../../utils/history';
 import {
-  addClientCommercial, deleteClient, getAllClient, getAllClientByCountry, updateClient
+    addClientCommercial, deleteClient, getAllClient, getAllClientByCountry, importClientCommercial, updateClient
 } from '../../../../redux/client/actions';
 // eslint-disable-next-line import/named
 import notification from '../../../../components/Notification/Notification';
@@ -209,20 +209,41 @@ class Commercial extends React.Component {
   handleOnFileLoad = (data) => {
     const {
       // eslint-disable-next-line no-shadow
-      getAllCitys, importCity
+      getAllCitys, importClientCommercial
     } = this.props;
     // country
     const newData = [];
-console.log(data);
     data.forEach(
       (val) => {
+          console.log(val.data[0]);
         if (val.data[0] !== '') {
-          newData.push(Object.assign({ countryName: val.data[0] }, { phonePrefix: val.data[1] }, { countryCode: val.data[2] }, { stateName: val.data[3] }, { cityName: val.data[4] }));
+          newData.push(Object.assign(
+              { name: val.data[0] },
+              { phone: val.data[1] },
+              { postCode: val.data[2] },
+              { addressName: val.data[3] },
+              { city: val.data[4] },
+              { isActive: val.data[5] },
+              { multinational: val.data[6] },
+              { type: val.data[7] },
+              { email: val.data[8] },
+              { webSite: val.data[9] },
+              { sector1: val.data[10] },
+              { sector2: val.data[11] },
+              { sector3: val.data[12] },
+              { assistantCommercial: val.data[13] },
+              { startDateResponsibleCommercial: new Date(val.data[14]) },
+              { endDateResponsibleCommercial: new Date(val.data[15])},
+              { responsibleCommercial: val.data[16] },
+              { startDateAssistantCommercial: new Date(val.data[17]) },
+              { endDateAssistantCommercial: new Date(val.data[18]) },
+              ));
         }
       }
     );
+      console.log(newData);
     const promise = new Promise((resolve) => {
-      importCity(newData.slice(1));
+      importClientCommercial(newData.slice(1));
       this.editingPromiseResolve = resolve;
     });
     promise.then((result) => {
@@ -730,7 +751,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient,
   getAllClientByCountry,
   getAllStaff,
-  addAssignment
+  addAssignment,
+  importClientCommercial
 }, dispatch);
 
 export default withStyles(styles)(connect(
