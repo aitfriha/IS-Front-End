@@ -28,17 +28,335 @@ class EconomicStaffBlock extends React.Component {
       datas: [],
       columns: [
         {
-          name: 'name',
-          label: 'Name',
+          name: 'staff',
+          label: 'First Name',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (staff) => (
+              <React.Fragment>
+                {
+                  staff.firstName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'description',
-          label: 'Description',
+          name: 'fatherName',
+          label: 'Father Name',
           options: {
-            filter: true
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'motherName',
+          label: 'Mother Name',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'highDate',
+          label: 'High Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'lowDate',
+          label: 'Low Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'grosSalary',
+          label: 'Gross Salary',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'grosSalaryEuro',
+          label: 'Gross Salary (€)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'netSalary',
+          label: 'Net Salary',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'netSalaryEuro',
+          label: 'Net Salary (€)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'contributionSalary',
+          label: 'Contribution Salary',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'contributionSalaryEuro',
+          label: 'Contribution Salary (€)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'companyCost',
+          label: 'Company Cost',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'companyCostEuro',
+          label: 'Company Cost (€)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
           }
         },
         {
@@ -46,6 +364,24 @@ class EconomicStaffBlock extends React.Component {
           label: ' Actions',
           options: {
             filter: false,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 250
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 251
+              }
+            }),
             sort: false,
             empty: true,
             customBodyRender: (value, tableMeta) => (
@@ -69,7 +405,7 @@ class EconomicStaffBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].retentionId;
+      const id = this.state.datas[index].economicStaffId;
       EconomicStaffService.getEconomicStaffById(id).then(result => {
         console.log(result.data);
         this.setState({
@@ -87,7 +423,7 @@ class EconomicStaffBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].retentionId;
+      const id = this.state.datas[index].economicStaffId;
       EconomicStaffService.deleteEconomicStaff(id).then(result => {
         console.log(result.data);
         this.setState({ datas: result.data });
