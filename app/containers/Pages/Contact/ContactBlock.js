@@ -36,6 +36,31 @@ class ContactBlock extends React.Component {
           }
         },
         {
+          name: 'civilityName',
+          label: 'civilitity title',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
           name: 'firstName',
           label: 'first Name',
           options: {
