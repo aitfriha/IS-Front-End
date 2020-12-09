@@ -189,7 +189,7 @@ class AddContact extends React.Component {
   };
 
   handleSubmitStaff = () => {
-    const { addContact, getAllContact } = this.props;
+    const { addContact, getAllContact, suppliersArea, supplierType } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -228,7 +228,9 @@ class AddContact extends React.Component {
       cityId:city.cityId,
       civilityId,
       fullAddress,
-      postCode
+      postCode,
+      suppliersArea,
+      supplierType
     };
     const promise = new Promise(resolve => {
       // get client information

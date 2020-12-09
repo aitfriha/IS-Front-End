@@ -39,6 +39,8 @@ import {
 import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
 import { addAssignment } from '../../../../redux/assignment/actions';
+import * as XLSX from "xlsx";
+import * as FileSaver from "file-saver";
 
 const buttonRef = React.createRef();
 class Commercial extends React.Component {
@@ -446,7 +448,7 @@ else{
                     exportFileName: 'Commercial Operation List',
                     // filtering: true,
                     // draggable: true,
-                    exportButton: true,
+                    exportButton: false,
                     selection: true,
                     pageSize: 10,
                     // grouping: true,
@@ -468,6 +470,23 @@ else{
                       tooltip: 'import',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
+                    },
+                    {
+                      icon: 'save_alt',
+                      tooltip: 'Export excel',
+                      isFreeAction: true,
+                      onClick: () => {
+                        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                        const fileExtension = '.xlsx';
+                        console.log(allClients);
+                        const ws = XLSX.utils.json_to_sheet(allClients);
+                        ws["F1"]="";
+                        console.log(ws);
+                        const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+                        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                        const data1 = new Blob([excelBuffer], { type: fileType });
+                        FileSaver.saveAs(data1, 'Client Assignement' + fileExtension);
+                      }
                     }
                   ]}
                   editable={{
