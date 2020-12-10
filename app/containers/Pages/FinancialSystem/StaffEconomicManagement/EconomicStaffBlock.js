@@ -1,43 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
-import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
-import EditIcon from '@material-ui/icons/Edit';
+import DetailsIcon from '@material-ui/icons/Details';
 import {
   Button, Dialog, DialogActions, DialogContent, DialogTitle
 } from '@material-ui/core';
-import styles from './Contact-jss';
-import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
-import { getAllClient } from '../../../redux/client/actions';
-import { getAllContact } from '../../../redux/contact/actions';
-import CountryService from '../../Services/CountryService';
-import EditContact from './editContact';
-import EditClient from "../Clients/EditClient";
-import { getAllStateByCountry } from "../../../redux/stateCountry/actions";
-import { getAllCityByState } from "../../../redux/city/actions";
+import DeleteIcon from '@material-ui/icons/Delete';
+import { makeStyles } from '@material-ui/core/styles';
+import EconomicStaffService from '../../../Services/EconomicStaffService';
+import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 
-class ContactBlock extends React.Component {
+const useStyles = makeStyles();
+
+class EconomicStaffBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      retentionId: '',
+      name: '',
+      description: '',
       openPopUp: false,
-      data: [],
-      selectedContact: {},
+      currentCity: '',
+      addressId: '',
+      address: [],
+      datas: [],
       columns: [
         {
-          name: 'contactId',
-          label: 'contactId',
-          options: {
-            display: 'excluded'
-          }
-        },
-        {
-          name: 'civilityName',
-          label: 'civilitity title',
+          name: 'staff',
+          label: 'First Name',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -57,12 +49,19 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
+            customBodyRender: (staff) => (
+              <React.Fragment>
+                {
+                  staff.firstName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          name: 'firstName',
-          label: 'first Name',
+          name: 'fatherName',
+          label: 'Father Name',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -82,12 +81,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'father Family Name',
-          name: 'fatherFamilyName',
+          name: 'motherName',
+          label: 'Mother Name',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -107,12 +106,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'mother Family Name',
-          name: 'motherFamilyName',
+          name: 'highDate',
+          label: 'High Date',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -132,12 +131,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'department',
-          name: 'department',
+          name: 'lowDate',
+          label: 'Low Date',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -157,12 +156,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'position',
-          name: 'position',
+          name: 'grosSalary',
+          label: 'Gross Salary',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -182,12 +181,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'company Fix Phone',
-          name: 'companyFixPhone',
+          name: 'grosSalaryEuro',
+          label: 'Gross Salary (€)',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -207,12 +206,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'company Mobile Phone',
-          name: 'companyMobilePhone',
+          name: 'netSalary',
+          label: 'Net Salary',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -232,12 +231,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'company Email',
-          name: 'companyEmail',
+          name: 'netSalaryEuro',
+          label: 'Net Salary (€)',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -257,12 +256,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'personal Mobile Phone',
-          name: 'personalMobilePhone',
+          name: 'contributionSalary',
+          label: 'Contribution Salary',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -282,12 +281,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'personal Email',
-          name: 'personalEmail',
+          name: 'contributionSalaryEuro',
+          label: 'Contribution Salary (€)',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -307,12 +306,12 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
           }
         },
         {
-          label: 'Skype',
-          name: 'skype',
+          name: 'companyCost',
+          label: 'Company Cost',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -332,7 +331,32 @@ class ContactBlock extends React.Component {
                 background: 'white',
                 zIndex: 101
               }
-            })
+            }),
+          }
+        },
+        {
+          name: 'companyCostEuro',
+          label: 'Company Cost (€)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
           }
         },
         {
@@ -340,15 +364,13 @@ class ContactBlock extends React.Component {
           label: ' Actions',
           options: {
             filter: false,
-            sort: false,
-            empty: true,
             setCellProps: () => ({
               style: {
                 whiteSpace: 'nowrap',
                 position: 'sticky',
                 left: '0',
                 background: 'white',
-                zIndex: 100
+                zIndex: 250
               }
             }),
             setCellHeaderProps: () => ({
@@ -357,19 +379,20 @@ class ContactBlock extends React.Component {
                 position: 'sticky',
                 left: 0,
                 background: 'white',
-                zIndex: 101
+                zIndex: 251
               }
             }),
-            customBodyRender: (value, data) => (
-              <div>
-                <Grid container spacing={1}>
-                  <Grid item xs={4}>
-                    <IconButton onClick={() => this.handleDetails(data.rowData)}>
-                      <EditIcon color="secondary" />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </div>
+            sort: false,
+            empty: true,
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                  <DetailsIcon color="secondary" />
+                </IconButton>
+                <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                  <DeleteIcon color="primary" />
+                </IconButton>
+              </React.Fragment>
             )
           }
         }
@@ -377,121 +400,133 @@ class ContactBlock extends React.Component {
     };
   }
 
-  handleClose = () => {
-    this.setState({ openPopUp: false });
-  };
-
-  handleDetails = (data) => {
-    /* const { getAllStateByCountry, getAllCityByState } = this.props;
-    this.setState({ selectedClient: data });
-    getAllStateByCountry(data[21]);
-    this.setState({ openPopUp: true });
-    getAllCityByState(data[22]); */
-
-    const { allContacts,getAllStateByCountry,getAllCityByState } = this.props;
-    for (const key in allContacts) {
-      if (allContacts[key].contactId === data[0]) {
-        this.setState({ selectedContact: allContacts[key] });
-        getAllStateByCountry(allContacts[key].countryId);
-        getAllCityByState(allContacts[key].countryStateId);
-        break;
-      }
+    // eslint-disable-next-line react/sort-comp
+    handleDetails = (tableMeta) => {
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+            + tableMeta.rowIndex;
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const id = this.state.datas[index].economicStaffId;
+      EconomicStaffService.getEconomicStaffById(id).then(result => {
+        console.log(result.data);
+        this.setState({
+          retentionId: result.data._id,
+          name: result.data.name,
+          description: result.data.description,
+          address: result.data.address,
+          addressId: result.data.address.addressId,
+          openPopUp: true
+        });
+      });
     }
-    this.setState({ openPopUp: true });
-  }
 
-  componentDidMount() {
-    const { getAllContact } = this.props;
-    getAllContact();
-  }
-
-  render() {
-    const { allContacts, allStateCountrys, allCitys } = this.props;
-    const { columns, openPopUp, selectedContact } = this.state;
-    const options = {
-      fixedHeader: true,
-      fixedSelectColumn: false,
-      filter: true,
-      selectableRows: false,
-      filterType: 'dropdown',
-      responsive: 'stacked',
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar url="/app/gestion-commercial/contact/addContact" tooltip="Add contact" />
-      )
+    handleDelete = (tableMeta) => {
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+            + tableMeta.rowIndex;
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const id = this.state.datas[index].economicStaffId;
+      EconomicStaffService.deleteEconomicStaff(id).then(result => {
+        console.log(result.data);
+        this.setState({ datas: result.data });
+      });
     };
 
-    return (
-      <div>
-        <MUIDataTable
-          title="Contacts"
-          data={allContacts && allContacts}
-          columns={columns}
-          options={options}
-        />
-        <Dialog
-          open={openPopUp}
-          keepMounted
-          scroll="body"
-          onClose={this.handleClose}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
-          fullWidth=""
-          maxWidth=""
-        >
-          <DialogTitle id="alert-dialog-slide-title"> Update contact</DialogTitle>
-          <DialogContent dividers>
-            <EditContact selectedContact={ selectedContact} allStateCountrys={allStateCountrys} allCitys={allCitys} handleClose={this.handleClose} />
-          </DialogContent>
-          <DialogActions>
-            <Button color="secondary" onClick={this.handleClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleClose}
-            >
-              Update
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
-  }
-}
-ContactBlock.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-const mapStateToProps = state => ({
-  // contacts
-  allContacts: state.getIn(['contacts']).allContacts,
-  contactResponse: state.getIn(['contacts']).contactResponse,
-  isLoading: state.getIn(['contacts']).isLoading,
-  errors: state.getIn(['contacts']).errors,
-  // state
-  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
-  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
-  isLoadingState: state.getIn(['stateCountries']).isLoading,
-  errorsState: state.getIn(['stateCountries']).errors,
+    handleSave = () => {
+      const {
+        retentionId, name, descrption, currentCity, addressId
+      } = this.state;
+      const city = { _id: currentCity };
+      const address = {
+        addressId, city
+      };
+      const EconomicStaff = {
+        retentionId, name, descrption, address
+      };
 
-  // city
-  allCitys: state.getIn(['cities']).allCitys,
-  cityResponse: state.getIn(['cities']).cityResponse,
-  isLoadingCity: state.getIn(['cities']).isLoading,
-  errorsCity: state.getIn(['cities']).errors,
-});
-const mapDispatchToProps = dispatch => bindActionCreators(
-  {
-    getAllContact,
-    getAllStateByCountry,
-    getAllCityByState
-  },
-  dispatch
-);
-export default withStyles(styles)(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(ContactBlock)
-);
+      EconomicStaffService.updateEconomicStaff(EconomicStaff).then(result => {
+        this.setState({ datas: result.data, openPopUp: false });
+      });
+    };
+
+    handleClose = () => {
+      this.setState({ openPopUp: false });
+    };
+
+    componentDidMount() {
+      EconomicStaffService.getEconomicStaff().then(result => {
+        console.log(result);
+        this.setState({ datas: result.data });
+      });
+      const {
+        // eslint-disable-next-line react/prop-types
+        changeTheme
+      } = this.props;
+      changeTheme('greyTheme');
+    }
+
+    handleChange = (ev) => {
+      this.setState({ [ev.target.name]: ev.target.value });
+    };
+
+    render() {
+      console.log(this.state);
+      const {
+        datas, columns, openPopUp
+      } = this.state;
+      const options = {
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        rowsPerPage: 10,
+        customToolbar: () => (
+          <CustomToolbar
+            csvData={datas}
+            url="/app/gestion-financial/Add Economic Staff"
+            tooltip="Add New Economic Staff"
+          />
+        )
+      };
+
+      return (
+        <div>
+          <MUIDataTable
+            title=" Economic Staff List"
+            data={datas}
+            columns={columns}
+            options={options}
+          />
+          <Dialog
+            open={openPopUp}
+            keepMounted
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth="md"
+            maxWidth="md"
+          >
+            <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
+            <DialogContent dividers />
+            <DialogActions>
+              <Button color="secondary" onClick={this.handleClose}>
+                            Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleSave}
+              >
+                            save
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      );
+    }
+}
+const RetentionBlockMapped = connect()(EconomicStaffBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <RetentionBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

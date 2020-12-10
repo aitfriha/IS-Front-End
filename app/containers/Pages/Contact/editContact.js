@@ -31,6 +31,7 @@ import { addContact, getAllContact, updateContact } from '../../../redux/contact
 import { getAllCountry } from '../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
+import { getAllCivilityTitleStatus } from '../../../redux/civilityTitle/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -69,13 +70,14 @@ class EditContact extends React.Component {
       keyState: {},
       keyCity: {},
       keyClient: {},
+      keycivility: {},
       contactId:'',
     };
   }
 
   componentDidMount() {
     const {
-      getAllCountry, selectedContact, getAllStateByCountry, getAllClient
+      getAllCountry, selectedContact, getAllStateByCountry, getAllClient,getAllCivilityTitleStatus
     } = this.props;
     console.log(selectedContact);
     getAllCountry();
@@ -86,6 +88,7 @@ class EditContact extends React.Component {
       this.setState({ countries: data });
     }); */
     getAllClient();
+    getAllCivilityTitleStatus();
   }
 
   handleChange = ev => {
@@ -128,6 +131,18 @@ class EditContact extends React.Component {
         }
       }
     }
+    if (newProps.selectedContact !== this.props.selectedContact) {
+      // console.log(newProps.selectedClient);
+      for (const key in newProps.allCivilityTitles) {
+        console.log(newProps.allCivilityTitles[key].name);
+        console.log(newProps.selectedContact.civilityName);
+        if (newProps.allCivilityTitles[key].name === newProps.selectedContact.civilityName) {
+          console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+          this.setState({ keycivility: newProps.allCivilityTitles[key] });
+          break;
+        }
+      }
+    }
     if (newProps.allStateCountrys === this.props.allStateCountrys) {
       for (const key in newProps.allStateCountrys) {
         console.log(newProps.allStateCountrys);
@@ -156,6 +171,11 @@ class EditContact extends React.Component {
     const { getAllStateByCountry } = this.props;
     getAllStateByCountry(value.countryId);
     this.setState({ keyCountry: value });
+  };
+
+  handleChangeCivility = (ev, value) => {
+    this.setState({ civilityId: value.civilityTitleId });
+    this.setState({ keycivility: value });
   };
 
   handleChangeState = (ev, value) => {
@@ -262,8 +282,9 @@ class EditContact extends React.Component {
   };
 
   render() {
+
     const {
-      classes, isLoadingContact, contactResponse, errorsContact, allClients,
+      classes, isLoadingContact, contactResponse, errorsContact, allClients,allCivilityTitles,
       allCountrys, allCitys, allStateCountrys, selectedContact
     } = this.props;
     const {
@@ -284,11 +305,14 @@ class EditContact extends React.Component {
       keyState,
       keyCity,
       keyClient,
+      keycivility,
       fullAddress,
       postCode,
     } = this.state;
     (!isLoadingContact && contactResponse) && this.editingPromiseResolve(contactResponse);
     (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
+    console.log(allCivilityTitles);
+    console.log(keycivility);
     return (
       <div>
         <Dialog
@@ -377,6 +401,21 @@ class EditContact extends React.Component {
                 <Divider
                   variant="fullWidth"
                   style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <Autocomplete
+                    id="combo-box-demo"
+                    options={allCivilityTitles && allCivilityTitles}
+                    getOptionLabel={option => (option ? option.name : '')}
+                    value={allCivilityTitles.find(v => v.name === keycivility.name) || ''}
+                    onChange={this.handleChangeCivility}
+                    renderInput={params => (
+                        <TextField
+                            fullWidth
+                            {...params}
+                            label="Title type*"
+                            variant="outlined"
+                        />
+                    )}
                 />
                 <TextField
                   id="outlined-basic"
@@ -650,6 +689,11 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  // Civility
+  allCivilityTitles: state.getIn(['civilityTitle']).allCivilityTitles,
+  civilityTitleResponse: state.getIn(['civilityTitle']).civilityTitleResponse,
+  isLoadingCivilityTitles: state.getIn(['civilityTitle']).isLoading,
+  errorsCivilityTitles: state.getIn(['civilityTitle']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
@@ -659,7 +703,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     getAllStateByCountry,
     getAllCityByState,
     updateContact,
-    getAllContact
+    getAllContact,
+    getAllCivilityTitleStatus,
   },
   dispatch
 );

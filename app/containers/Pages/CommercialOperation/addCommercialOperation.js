@@ -62,6 +62,7 @@ class AddCommercialOperation extends React.Component {
     };
     this.state = {
       client: '',
+      disabled: true,
       statusOperation: '',
       country: '',
       serviceType: '',
@@ -87,8 +88,7 @@ class AddCommercialOperation extends React.Component {
       commercialResponsible: '',
       commercialResponsibleAssistant: '',
       progress: 0,
-      open: false,
-      contactType: '',
+      suppliersArea: '',
       decisionMakers: [],
       technicalLeaders: [],
       administrativeContactTechnicalLeader: '',
@@ -196,6 +196,11 @@ class AddCommercialOperation extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
+  handleChangeStatus = (ev) => {
+    this.setState({ [ev.target.name]: ev.target.value });
+    this.setState({ disabled: false });
+  };
+
   handleChangeOtheter= (ev) => {
     qpcListAdd.push(ev.target.value);
     this.setState({ qpcListAddOtherOperation: qpcListAdd });
@@ -204,6 +209,7 @@ class AddCommercialOperation extends React.Component {
 
 
   handleChangeMaker = (ev) => {
+    this.setState({ positionDecisionMaker: 'decision - maker' });
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
@@ -223,7 +229,7 @@ class AddCommercialOperation extends React.Component {
     /** ************************* */
     const decisionMakersVar = [];
     for (const key in allContacts) {
-      if (allContacts[key].position === 'maker') {
+      if (allContacts[key].supplierType === 'decision - maker') {
         decisionMakersVar.push(allContacts[key]);
         this.setState({ decisionMakers: decisionMakersVar });
       }
@@ -231,7 +237,7 @@ class AddCommercialOperation extends React.Component {
     /** ************************* */
     const technicalLeadersList = [];
     for (const key in allContacts) {
-      if (allContacts[key].position === 'technical leader') {
+      if (allContacts[key].supplierType === 'technical leader') {
         technicalLeadersList.push(allContacts[key]);
         this.setState({ technicalLeaders: technicalLeadersList });
       }
@@ -239,7 +245,7 @@ class AddCommercialOperation extends React.Component {
     /** ************************* */
     const closeDecisionMakersList = [];
     for (const key in allContacts) {
-      if (allContacts[key].position === 'close decision maker') {
+      if (allContacts[key].supplierType === 'close to the decision - maker') {
         closeDecisionMakersList.push(allContacts[key]);
         this.setState({ closeDecisionMakers: closeDecisionMakersList });
       }
@@ -247,7 +253,7 @@ class AddCommercialOperation extends React.Component {
     /** ************************* */
     const spcOtherContactList = [];
     for (const key in allContacts) {
-      if (allContacts[key].position === 'qpcOther') {
+      if (allContacts[key].supplierType === 'Other contact' && allContacts[key].suppliersArea === 'Suppliers Area') {
         spcOtherContactList.push(allContacts[key]);
         this.setState({ qpcOthercontact: spcOtherContactList });
       }
@@ -255,12 +261,19 @@ class AddCommercialOperation extends React.Component {
     /** ************************* */
     const pdcOtherContactList = [];
     for (const key in allContacts) {
-      if (allContacts[key].position === 'pdcOther') {
+      if (allContacts[key].suppliersArea === 'Procurement Department Contacts') {
         pdcOtherContactList.push(allContacts[key]);
         this.setState({ pdcOthercontact: pdcOtherContactList });
       }
     }
     /** ************************* */
+    const lacOtherContactList = [];
+    for (const key in allContacts) {
+      if (allContacts[key].suppliersArea === 'Legal Area Contact') {
+        lacOtherContactList.push(allContacts[key]);
+        this.setState({ lacOthercontact: lacOtherContactList });
+      }
+    }
   };
 
     handleDocumentationDateChange = documentationDate => {
@@ -340,8 +353,9 @@ class AddCommercialOperation extends React.Component {
     history.push('/app/gestion-commercial/Commercial-Operations');
   }
 
-  handleOpen = (type) => {
-    this.setState({ contactType: type, open: true });
+  handleOpen = (suppliersArea, supplierType) => {
+    this.setState({ suppliersArea });
+    this.setState({ supplierType });
     this.setState({ openPopUp: true });
   }
 
@@ -414,7 +428,8 @@ class AddCommercialOperation extends React.Component {
       contractDate, estimatedTradeVolume, contractVolume,
       managementContact, administrativeContact, legalAreaMainContact,
       commercialResponsible, commercialResponsibleAssistant,
-      open, decisionMakers, technicalLeaders, administrativeContactTechnicalLeader, closeDecisionMakers, closeDecisionMaker, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
+      suppliersArea, supplierType, disabled,
+      decisionMakers, technicalLeaders, administrativeContactTechnicalLeader, closeDecisionMakers, closeDecisionMaker, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
       lacOthercontacts, lacOthercontact, openPopUp
     } = this.state;
     const title = brand.name + ' - Blank Page';
@@ -504,7 +519,7 @@ class AddCommercialOperation extends React.Component {
                   <Select
                     name="statusOperation"
                     value={statusOperation}
-                    onChange={this.handleChange}
+                    onChange={this.handleChangeStatus}
                   >
                     {
                       allCommercialOperationStatuss.map((clt) => (
@@ -722,10 +737,11 @@ class AddCommercialOperation extends React.Component {
                   Qualification Process Contacts
               </Typography>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth required>
+                <FormControl fullWidth required disabled={disabled}>
                   <InputLabel>contact of the the decision - maker</InputLabel>
                   <Select
                     name="administrativeContact"
+                    id="contact of the decision - maker"
                     value={administrativeContact}
                     onChange={this.handleChangeMaker}
                   >
@@ -740,12 +756,12 @@ class AddCommercialOperation extends React.Component {
                     }
                   </Select>
                 </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
+                <IconButton color="primary" onClick={() => this.handleOpen('Suppliers Area', 'decision - maker')}>
                   <AddIcon />
                 </IconButton>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth required>
+                <FormControl fullWidth required disabled={disabled}>
                   <InputLabel>contact the technical leader</InputLabel>
                   <Select
                     name="administrativeContactTechnicalLeader"
@@ -763,12 +779,12 @@ class AddCommercialOperation extends React.Component {
                     }
                   </Select>
                 </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
+                <IconButton color="primary" onClick={() => this.handleOpen('Suppliers Area', 'technical leader')}>
                   <AddIcon />
                 </IconButton>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth required>
+                <FormControl fullWidth required disabled={disabled}>
                   <InputLabel>contact of the person close to the decision - maker</InputLabel>
                   <Select
                     name="closeDecisionMaker"
@@ -786,13 +802,13 @@ class AddCommercialOperation extends React.Component {
                     }
                   </Select>
                 </FormControl>
-                <IconButton color="primary" onClick={() => this.handleOpen('Administrative Contact')}>
+                <IconButton color="primary" onClick={() => this.handleOpen('Suppliers Area', 'close to the decision - maker')}>
                   <AddIcon />
                 </IconButton>
               </div>
               {qpcOthercontacts.map((row) => (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth disabled={disabled}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
                       name="administrativeContact"
@@ -818,6 +834,12 @@ class AddCommercialOperation extends React.Component {
                   </IconButton>
                 </div>
               ))}
+              <br />
+              <div align="center">
+                <Button variant="contained" color="secondary" type="button" disabled={disabled} onClick={() => this.handleOpen('Suppliers Area', 'Other contact')}>
+                  Add Other Contact
+                </Button>
+              </div>
             </Grid>
             <Grid
               item
@@ -828,13 +850,7 @@ class AddCommercialOperation extends React.Component {
               <Typography variant="subtitle2" component="h2" color="primary">
                   Procurement Department Contacts
               </Typography>
-              <div align="center">
-                <Button variant="contained" color="primary" type="button" onClick={this.handleOpen}>
-                  {/* <CustomToolbar  url="/app/gestion-commercial/Add-Operation" tooltip="add new Operation" /> */}
-                  {' '}
-Add Contact
-                </Button>
-              </div>
+
               <Dialog
                 open={openPopUp}
                 keepMounted
@@ -847,7 +863,7 @@ Add Contact
               >
                 <DialogTitle id="alert-dialog-slide-title"> Add contact</DialogTitle>
                 <DialogContent dividers>
-                  <AddContact handleClose={this.handleClose} />
+                  <AddContact handleClose={this.handleClose} suppliersArea={suppliersArea} supplierType={supplierType} />
                 </DialogContent>
                 <DialogActions>
                   <Button color="secondary" onClick={this.handleCloseContact}>
@@ -864,7 +880,7 @@ Add Contact
               </Dialog>
               {pdcOthercontacts.map((row) => (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth disabled={disabled}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
                       name="administrativeContact"
@@ -890,6 +906,12 @@ Add Contact
                   </IconButton>
                 </div>
               ))}
+              <br />
+              <div align="center">
+                <Button variant="contained" color="secondary" type="button" disabled={disabled} onClick={() => this.handleOpen('Procurement Department Contacts', 'Other contact')}>
+                  Add Other Contact
+                </Button>
+              </div>
             </Grid>
             <Grid
               item
@@ -902,7 +924,7 @@ Add Contact
               </Typography>
               {lacOthercontacts.map((row) => (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth disabled={disabled}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
                       name="administrativeContact"
@@ -928,6 +950,12 @@ Add Contact
                   </IconButton>
                 </div>
               ))}
+              <br />
+              <div align="center">
+                <Button variant="contained" color="secondary" type="button" disabled={disabled} onClick={() => this.handleOpen('Legal Area Contact', 'Other contact')}>
+                  Add Other Contact
+                </Button>
+              </div>
             </Grid>
           </Grid>
           <br />
@@ -938,31 +966,6 @@ Add Contact
             </Button>
           </div>
         </PapperBlock>
-        {/* <React.Fragment>
-          <Dialog
-            open={open}
-            TransitionComponent={Transition}
-            keepMounted
-            onClose={this.handleCloseContact}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth="md"
-            maxWidth="md"
-          >
-            <DialogTitle id="alert-dialog-slide-title">New Contact</DialogTitle>
-            <DialogContent>
-              <Contact />
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleCloseContact}>
-                  Cancel
-              </Button>
-              <Button color="primary" onClick={this.handleSubmit}>
-                  save
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </React.Fragment> */}
       </div>
     );
   }

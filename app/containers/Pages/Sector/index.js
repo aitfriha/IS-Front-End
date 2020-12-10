@@ -66,6 +66,7 @@ class SectorBlock extends React.Component {
 
   handleCheck = (ev, selctedrow) => {
     const { sectorsConfig } = this.props;
+    console.log('check');
     console.log(selctedrow);
     if (selctedrow.thirdSectorId !== '') {
       sectorsConfig(selctedrow);

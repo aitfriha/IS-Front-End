@@ -3,11 +3,16 @@ import {
   DELETE_CLIENT,
   GET_ALL_CLIENTS,
   GET_ALL_CLIENTS_BYCOUNTRY,
-  UPDATE_CLIENT
+  UPDATE_CLIENT,
+  IMPORT_CLIENT_COMMERCIAL
 } from './constants';
 
 export const addClientCommercial = (client) => ({
   type: ADD_CLIENT_COMMERCIAL,
+  client
+});
+export const importClientCommercial = (client) => ({
+  type: IMPORT_CLIENT_COMMERCIAL,
   client
 });
 

@@ -33,6 +33,7 @@ class CompaniesBlock extends React.Component {
     this.state = {
       financialCompanyId: '',
       name: '',
+      code: '',
       email: '',
       phone1: '',
       phone2: '',
@@ -63,6 +64,13 @@ class CompaniesBlock extends React.Component {
         {
           name: 'name',
           label: 'Name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          name: 'code',
+          label: 'Code',
           options: {
             filter: true
           }
@@ -193,6 +201,7 @@ class CompaniesBlock extends React.Component {
       this.setState({
         financialCompanyId: result.data._id,
         name: result.data.name,
+        code: result.data.code,
         email: result.data.email,
         phone1: result.data.phone1,
         phone2: result.data.phone2,
@@ -219,14 +228,14 @@ class CompaniesBlock extends React.Component {
 
   handleSave = () => {
     const {
-      financialCompanyId, name, email, phone1, phone2, logo, currentCity, postCode, fullAddress, addressId
+      financialCompanyId, name, code, email, phone1, phone2, logo, currentCity, postCode, fullAddress, addressId
     } = this.state;
     const city = { _id: currentCity };
     const address = {
       addressId, postCode, city, fullAddress
     };
     const FinancialCompany = {
-      financialCompanyId, name, email, phone1, phone2, logo, address
+      financialCompanyId, name, code, email, phone1, phone2, logo, address
     };
 
     FinancialCompanyService.updateCompany(FinancialCompany).then(result => {
@@ -282,7 +291,7 @@ class CompaniesBlock extends React.Component {
     } = this.props;
     const {
       datas, columns, openPopUp,
-      name, email, phone1, phone2, logo,
+      name, code, email, phone1, phone2, logo,
       postCode, fullAddress
     } = this.state;
     const options = {
@@ -337,6 +346,18 @@ class CompaniesBlock extends React.Component {
                       variant="outlined"
                       name="name"
                       value={name}
+                      required
+                      fullWidth
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Code"
+                      variant="outlined"
+                      name="code"
+                      value={code}
                       required
                       fullWidth
                       onChange={this.handleChange}

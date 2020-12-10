@@ -92,8 +92,8 @@ module.exports = [
           },
           {
             key: 'civilityTitle',
-            name: 'Civility Title',
-            link: '/app/gestion-commercial/civilityTitle',
+            name: 'Title type',
+            link: '/app/gestion-commercial/title-Type',
             icon: 'ios-people-outline'
           }
 
@@ -131,8 +131,8 @@ module.exports = [
           },
           {
             key: 'staffPayment',
-            name: 'Staff Payment',
-            link: '/app/gestion-financial/Staff-Payment',
+            name: 'Staff Economic Management',
+            link: '/app/gestion-financial/Staff Economic Management',
             icon: 'ios-cash-outline'
           },
           {

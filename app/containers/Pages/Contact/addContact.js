@@ -49,6 +49,7 @@ import AddressBlock from '../Address';
 import { getAllClient } from '../../../redux/client/actions';
 import { addContact, getAllContact } from '../../../redux/contact/actions';
 import history from '../../../utils/history';
+import { getAllCivilityTitleStatus } from '../../../redux/civilityTitle/actions';
 
 const SmallAvatar = withStyles(theme => ({
   root: {
@@ -167,12 +168,13 @@ class AddContact extends React.Component {
   profilePictureRef = React.createRef();
 
   componentDidMount() {
-    const { getAllClient } = this.props;
+    const { getAllClient, getAllCivilityTitleStatus } = this.props;
     // changeTheme('blueCyanTheme');
     CountryService.getCountries().then(({ data }) => {
       this.setState({ countries: data });
     });
     getAllClient();
+    getAllCivilityTitleStatus();
   }
 
   handleChange = ev => {
@@ -187,7 +189,7 @@ class AddContact extends React.Component {
   };
 
   handleSubmitStaff = () => {
-    const { addContact, getAllContact } = this.props;
+    const { addContact, getAllContact, suppliersArea, supplierType } = this.props;
     const {
       firstName,
       fatherFamilyName,
@@ -203,6 +205,7 @@ class AddContact extends React.Component {
       skype,
       photo,
       city,
+      civilityId,
       fullAddress,
       postCode
     } = this.state;
@@ -223,8 +226,11 @@ class AddContact extends React.Component {
       skype,
       photo,
       cityId:city.cityId,
+      civilityId,
       fullAddress,
-      postCode
+      postCode,
+      suppliersArea,
+      supplierType
     };
     const promise = new Promise(resolve => {
       // get client information
@@ -271,6 +277,10 @@ class AddContact extends React.Component {
     this.setState({ companyId: value.clientId });
   };
 
+  handleChangeCivility = (ev, value) => {
+    this.setState({ civilityId: value.civilityTitleId });
+  };
+
   onChangeInput = () => {
 
   }
@@ -279,7 +289,7 @@ class AddContact extends React.Component {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, isLoadingContact, contactResponse, errorsContact, allClients
+      classes, isLoadingContact, contactResponse, errorsContact, allClients,allCivilityTitles
     } = this.props;
     const {
       firstName,
@@ -399,6 +409,20 @@ class AddContact extends React.Component {
                 <Divider
                   variant="fullWidth"
                   style={{ marginBottom: '10px', marginTop: '10px' }}
+                />
+                <Autocomplete
+                    id="combo-box-demo"
+                    options={allCivilityTitles && allCivilityTitles}
+                    getOptionLabel={option => (option ? option.name : '')}
+                    onChange={this.handleChangeCivility}
+                    renderInput={params => (
+                        <TextField
+                            fullWidth
+                            {...params}
+                            label="Title type*"
+                            variant="outlined"
+                        />
+                    )}
                 />
                 <TextField
                   id="outlined-basic"
@@ -600,9 +624,15 @@ const mapStateToProps = state => ({
   clientResponse: state.getIn(['clients']).clientResponse,
   isLoading: state.getIn(['clients']).isLoading,
   errors: state.getIn(['clients']).errors,
+  // Civility
+  allCivilityTitles: state.getIn(['civilityTitle']).allCivilityTitles,
+  civilityTitleResponse: state.getIn(['civilityTitle']).civilityTitleResponse,
+  isLoadingCivilityTitles: state.getIn(['civilityTitle']).isLoading,
+  errorsCivilityTitles: state.getIn(['civilityTitle']).errors
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
+    getAllCivilityTitleStatus,
     getAllClient,
     addContact,
     getAllContact

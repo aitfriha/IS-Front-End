@@ -124,6 +124,7 @@ class ContactByOperationStatus extends React.Component {
   }
 
   componentDidMount() {
+    console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     // eslint-disable-next-line no-shadow
     const { getAllCommercialOperationStatus, getAllContactByOperation } = this.props;
     getAllCommercialOperationStatus();

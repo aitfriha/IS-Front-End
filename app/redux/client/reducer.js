@@ -15,6 +15,10 @@ import {
   GET_ALL_CLIENTS_BYCOUNTRY,
   GET_ALL_CLIENTS_BYCOUNTRY_FAILURE,
   GET_ALL_CLIENTS_BYCOUNTRY_SUCCESS,
+
+  IMPORT_CLIENT_COMMERCIAL,
+  IMPORT_CLIENT_FAILURE,
+  IMPORT_CLIENT_SUCCESS,
 } from './constants';
 
 const initialState = {
@@ -30,6 +34,7 @@ export default function clientReducer(state = initialState, action) {
     case GET_ALL_CLIENTS:
     case GET_ALL_CLIENTS_BYCOUNTRY:
     case ADD_CLIENT_COMMERCIAL:
+    case IMPORT_CLIENT_COMMERCIAL:
     case UPDATE_CLIENT:
     case DELETE_CLIENT:
       return {
@@ -40,6 +45,7 @@ export default function clientReducer(state = initialState, action) {
 
       // SUCCESS ACTIONS
     case ADD_CLIENT_SUCCESS:
+    case IMPORT_CLIENT_SUCCESS:
     case UPDATE_CLIENT_SUCCESS:
     case DELETE_CLIENT_SUCCESS:
       return {
@@ -61,6 +67,7 @@ export default function clientReducer(state = initialState, action) {
       // FAILURE ACTIONS
     case GET_ALL_CLIENTS_FAILURE:
     case GET_ALL_CLIENTS_BYCOUNTRY_FAILURE:
+    case IMPORT_CLIENT_FAILURE:
     case ADD_CLIENT_FAILURE:
     case UPDATE_CLIENT_FAILURE:
     case DELETE_CLIENT_FAILURE:
