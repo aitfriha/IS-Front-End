@@ -149,6 +149,14 @@ export const AddAbsenceType = Loadable({
   loader: () => import('./Pages/AbsenceType/addAbsenceType'),
   loading: Loading
 });
+export const AbsenceRequest = Loadable({
+  loader: () => import('./Pages/AbsenceRequest'),
+  loading: Loading
+});
+export const AddAbsenceRequest = Loadable({
+  loader: () => import('./Pages/AbsenceRequest/addAbsenceRequest'),
+  loading: Loading
+});
 export const CountryConfig = Loadable({
   loader: () => import('./Pages/Configurations/Country'),
   loading: Loading

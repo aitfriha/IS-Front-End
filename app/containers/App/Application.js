@@ -63,6 +63,8 @@ import {
   AddContractModel,
   AbsenceType,
   AddAbsenceType,
+  AbsenceRequest,
+  AddAbsenceRequest,
   SectorsCompany,
   CivilityTitle
 } from '../pageListAsync';
@@ -186,6 +188,16 @@ function Application(props) {
           exact
           path="/app/hh-rr/absenceType/create-absence-type"
           component={AddAbsenceType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceRequest"
+          component={AbsenceRequest}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceRequest/create-absence-request"
+          component={AddAbsenceRequest}
         />
         <Route exact path="/app/gestion-commercial/areas" component={Areas} />
         <Route

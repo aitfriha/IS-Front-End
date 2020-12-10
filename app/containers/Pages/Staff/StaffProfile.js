@@ -32,6 +32,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styles from './staff-jss';
 import FunctionalStructureService from '../../Services/FunctionalStructureService';
+import AdministrativeStructureService from '../../Services/AdministrativeStructureService';
 import avatarApi from '../../../api/images/avatars';
 import StaffProfileEconomicContractInformation from './StaffProfileEconomicContractInformation';
 import StaffProfileContractInformation from './StaffProfileContractInformation';
@@ -59,9 +60,11 @@ export class StaffProfile extends Component {
     numPages: null,
     pageNumber: 1,
     functionalStructureTree: {},
+    administrativeStructureTree: {},
     isChangeProfilePic: false,
     photo: '',
-    isOpenLevelsDialog: false,
+    isOpenFunctionalLevelsDialog: false,
+    isOpenAdministrativeLevelsDialog: false,
     functionalLevelsTreesList: [],
     administrativeLevelsTreesList: []
   };
@@ -70,9 +73,12 @@ export class StaffProfile extends Component {
 
   componentDidMount() {
     const { staff } = this.props;
-    let tree = {};
-    if (staff.functionalStructureLevels.length === 1) {
+    if (
+      staff.isFunctionalLeader === 'no'
+      && staff.functionalStructureLevels.length > 0
+    ) {
       const { type } = staff.functionalStructureLevels[0];
+      let tree = {};
       FunctionalStructureService.getLevelTree(
         staff.functionalStructureLevels[0]._id
       ).then(({ data }) => {
@@ -96,7 +102,7 @@ export class StaffProfile extends Component {
           functionalStructureTree: tree
         });
       });
-    } else if (staff.functionalStructureLevels.length > 1) {
+    } else if (staff.isFunctionalLeader === 'yes') {
       const functionalLevelsTreesList = [];
       let tree = {};
       staff.functionalStructureLevels.forEach(level => {
@@ -104,15 +110,12 @@ export class StaffProfile extends Component {
         FunctionalStructureService.getLevelTree(level._id).then(({ data }) => {
           if (type === 'Level 1') {
             tree = {
-              level1: data[0].name,
-              level2: 'none',
-              level3: 'none'
+              level1: data[0].name
             };
           } else if (type === 'Level 2') {
             tree = {
               level1: data[0].name,
-              level2: data[1].name,
-              level3: 'none'
+              level2: data[1].name
             };
           } else if (type === 'Level 3') {
             tree = {
@@ -126,6 +129,66 @@ export class StaffProfile extends Component {
       });
       this.setState({
         functionalLevelsTreesList
+      });
+    }
+    if (
+      staff.isAdministrativeLeader === 'no'
+      && staff.administrativeStructureLevels.length > 0
+    ) {
+      const { type } = staff.administrativeStructureLevels[0];
+      let tree = {};
+      AdministrativeStructureService.getLevelTree(
+        staff.administrativeStructureLevels[0]._id
+      ).then(({ data }) => {
+        if (type === 'Level 1') {
+          tree = {
+            level1: data[0].name
+          };
+        } else if (type === 'Level 2') {
+          tree = {
+            level1: data[0].name,
+            level2: data[1].name
+          };
+        } else if (type === 'Level 3') {
+          tree = {
+            level1: data[0].name,
+            level2: data[1].name,
+            level3: data[2].name
+          };
+        }
+        this.setState({
+          administrativeStructureTree: tree
+        });
+      });
+    } else if (staff.isAdministrativeLeader === 'yes') {
+      const administrativeLevelsTreesList = [];
+      let tree = {};
+      staff.administrativeStructureLevels.forEach(level => {
+        const { type } = level;
+        AdministrativeStructureService.getLevelTree(level._id).then(
+          ({ data }) => {
+            if (type === 'Level 1') {
+              tree = {
+                level1: data[0].name
+              };
+            } else if (type === 'Level 2') {
+              tree = {
+                level1: data[0].name,
+                level2: data[1].name
+              };
+            } else if (type === 'Level 3') {
+              tree = {
+                level1: data[0].name,
+                level2: data[1].name,
+                level3: data[2].name
+              };
+            }
+            administrativeLevelsTreesList.push(tree);
+          }
+        );
+      });
+      this.setState({
+        administrativeLevelsTreesList
       });
     }
     this.setState({
@@ -192,15 +255,27 @@ export class StaffProfile extends Component {
     });
   };
 
-  handleOpenLevelsDialog = () => {
+  handleOpenFunctionalLevelsDialog = () => {
     this.setState({
-      isOpenLevelsDialog: true
+      isOpenFunctionalLevelsDialog: true
     });
   };
 
-  handleCloseLevelsDialog = () => {
+  handleCloseFunctionalLevelsDialog = () => {
     this.setState({
-      isOpenLevelsDialog: false
+      isOpenFunctionalLevelsDialog: false
+    });
+  };
+
+  handleOpenAdministrativeLevelsDialog = () => {
+    this.setState({
+      isOpenAdministrativeLevelsDialog: true
+    });
+  };
+
+  handleCloseAdministrativeLevelsDialog = () => {
+    this.setState({
+      isOpenAdministrativeLevelsDialog: false
     });
   };
 
@@ -208,14 +283,14 @@ export class StaffProfile extends Component {
     const { classes, staff, isEdit } = this.props;
     const {
       value,
-      isOpenLevelsDialog,
-      numPages,
-      pageNumber,
+      isOpenFunctionalLevelsDialog,
+      isOpenAdministrativeLevelsDialog,
       functionalStructureTree,
-      docExtension,
+      functionalLevelsTreesList,
+      administrativeStructureTree,
+      administrativeLevelsTreesList,
       isChangeProfilePic,
-      photo,
-      functionalLevelsTreesList
+      photo
     } = this.state;
     return (
       <div>
@@ -224,7 +299,7 @@ export class StaffProfile extends Component {
           fullWidth
           scroll="paper"
           aria-labelledby="levelsDialog"
-          open={isOpenLevelsDialog}
+          open={isOpenFunctionalLevelsDialog}
           classes={{
             paper: classes.paper
           }}
@@ -251,10 +326,7 @@ export class StaffProfile extends Component {
                           marginTop: 10
                         }}
                         color={
-                          staff.functionalStructureLevels[index].type
-                          === 'Level 1'
-                            ? 'secondary'
-                            : '#000'
+                          Object.keys(row).length === 1 ? 'secondary' : '#000'
                         }
                       >
                         {row.level1}
@@ -269,10 +341,7 @@ export class StaffProfile extends Component {
                           marginTop: 10
                         }}
                         color={
-                          staff.functionalStructureLevels[index].type
-                          === 'Level 2'
-                            ? 'secondary'
-                            : '#000'
+                          Object.keys(row).length === 2 ? 'secondary' : '#000'
                         }
                       >
                         {row.level2}
@@ -287,10 +356,7 @@ export class StaffProfile extends Component {
                           marginTop: 10
                         }}
                         color={
-                          staff.functionalStructureLevels[index].type
-                          === 'Level 3'
-                            ? 'secondary'
-                            : '#000'
+                          Object.keys(row).length === 3 ? 'secondary' : '#000'
                         }
                       >
                         {row.level3}
@@ -304,7 +370,90 @@ export class StaffProfile extends Component {
           <DialogActions>
             <Button
               autoFocus
-              onClick={this.handleCloseLevelsDialog}
+              onClick={this.handleCloseFunctionalLevelsDialog}
+              color="primary"
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          maxWidth="lg"
+          fullWidth
+          scroll="paper"
+          aria-labelledby="levelsDialog"
+          open={isOpenAdministrativeLevelsDialog}
+          classes={{
+            paper: classes.paper
+          }}
+        >
+          <DialogTitle id="SaveFormula">Levels</DialogTitle>
+          <DialogContent>
+            <Table className={classes.table} aria-label="">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="right">Level 1</TableCell>
+                  <TableCell align="right">Level 2</TableCell>
+                  <TableCell align="right">Level 3</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {administrativeLevelsTreesList.map((row, index) => (
+                  <TableRow key="row">
+                    <TableCell align="right">
+                      <Typography
+                        variant="subtitle1"
+                        style={{
+                          fontFamily: 'sans-serif , Arial',
+                          fontSize: '17px',
+                          marginTop: 10
+                        }}
+                        color={
+                          Object.keys(row).length === 1 ? 'secondary' : '#000'
+                        }
+                      >
+                        {row.level1}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="subtitle1"
+                        style={{
+                          fontFamily: 'sans-serif , Arial',
+                          fontSize: '17px',
+                          marginTop: 10
+                        }}
+                        color={
+                          Object.keys(row).length === 2 ? 'secondary' : '#000'
+                        }
+                      >
+                        {row.level2}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography
+                        variant="subtitle1"
+                        style={{
+                          fontFamily: 'sans-serif , Arial',
+                          fontSize: '17px',
+                          marginTop: 10
+                        }}
+                        color={
+                          Object.keys(row).length === 3 ? 'secondary' : '#000'
+                        }
+                      >
+                        {row.level3}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              autoFocus
+              onClick={this.handleCloseAdministrativeLevelsDialog}
               color="primary"
             >
               Close
@@ -574,7 +723,125 @@ export class StaffProfile extends Component {
               style={{
                 padding: 20,
                 width: '100%',
-                height: '330px',
+                marginTop: 15
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '20px',
+                  fontWeight: 'bold'
+                }}
+                color="primary"
+              >
+                Administrative Structure :
+              </Typography>
+              <div className={classes.divContactInline}>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px',
+                    marginTop: 10
+                  }}
+                  color="secondary"
+                >
+                  {`is Administrative Leader ? : ${
+                    staff.isAdministrativeLeader
+                  }`}
+                </Typography>
+              </div>
+              {staff.isAdministrativeLeader === 'no' ? (
+                <div>
+                  <div className={classes.divContactInline}>
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        fontFamily: 'sans-serif , Arial',
+                        fontSize: '17px',
+                        marginTop: 10
+                      }}
+                      color="secondary"
+                    >
+                      {staff.administrativeStructureLevels[0]
+                        ? `Current Level : ${
+                          staff.administrativeStructureLevels[0].type
+                        }`
+                        : 'Level : none '}
+                    </Typography>
+                  </div>
+
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      marginTop: 30
+                    }}
+                  >
+                    {administrativeStructureTree.level1
+                      ? `Level 1 : ${administrativeStructureTree.level1}`
+                      : 'Level 1 : none '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      marginTop: 20,
+                      marginLeft: 40
+                    }}
+                  >
+                    {administrativeStructureTree.level2
+                      ? `Level 2 : ${administrativeStructureTree.level2}`
+                      : 'Level 2 : none '}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '17px',
+                      marginTop: 20,
+                      marginLeft: 80
+                    }}
+                  >
+                    {administrativeStructureTree.level3
+                      ? `Level 3 : ${administrativeStructureTree.level3}`
+                      : 'Level 3 : none '}
+                  </Typography>
+                </div>
+              ) : (
+                <div>
+                  <div className={classes.divContactInline}>
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        fontFamily: 'sans-serif , Arial',
+                        fontSize: '17px',
+                        marginTop: 10
+                      }}
+                      color="secondary"
+                    >
+                      {'Levels : '}
+                    </Typography>
+                    <IconButton
+                      onClick={this.handleOpenAdministrativeLevelsDialog}
+                    >
+                      <VisibilityIcon color="gray" />
+                    </IconButton>
+                  </div>
+                </div>
+              )}
+            </Paper>
+            <Paper
+              elevation={2}
+              style={{
+                padding: 20,
+                width: '100%',
                 marginTop: 15
               }}
             >
@@ -678,7 +945,7 @@ export class StaffProfile extends Component {
                     >
                       {'Levels : '}
                     </Typography>
-                    <IconButton onClick={this.handleOpenLevelsDialog}>
+                    <IconButton onClick={this.handleOpenFunctionalLevelsDialog}>
                       <VisibilityIcon color="gray" />
                     </IconButton>
                   </div>

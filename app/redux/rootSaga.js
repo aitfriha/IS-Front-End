@@ -11,6 +11,7 @@ import commercialOperationSaga from './commercialOperation/saga';
 import staffSaga from './staff/saga';
 import contractTypeSaga from './contractType/saga';
 import absenceTypeSaga from './absenceType/saga';
+import absenceRequestSaga from './absenceRequest/saga';
 import legalCategoryTypeSaga from './legalCategoryType/saga';
 import contractModelSaga from './contractModel/saga';
 import functionalStructureSaga from './functionalStructure/saga';
@@ -41,6 +42,7 @@ export default function* rootSaga() {
     staffSaga(),
     contractTypeSaga(),
     absenceTypeSaga(),
+    absenceRequestSaga(),
     legalCategoryTypeSaga(),
     contractModelSaga(),
     functionalStructureSaga(),

@@ -27,6 +27,7 @@ import commercialOperationReducer from './commercialOperation/reducer';
 import staffReducer from './staff/reducer';
 import contractTypeReducer from './contractType/reducer';
 import absenceTypeReducer from './absenceType/reducer';
+import absenceRequestReducer from './absenceRequest/reducer';
 import contractModelReducer from './contractModel/reducer';
 import legalCategoryTypeReducer from './legalCategoryType/reducer';
 import functionalStructureReducer from './functionalStructure/reducer';
@@ -74,6 +75,7 @@ export default function createReducer(injectedReducers = {}) {
     staffEconomicContractInformationHistories: staffEconomicContractInformationHistoryReducer,
     contractTypes: contractTypeReducer,
     absenceTypes: absenceTypeReducer,
+    absenceRequests: absenceRequestReducer,
     legalCategoryTypes: legalCategoryTypeReducer,
     contractModels: contractModelReducer,
     functionalStructureLevels: functionalStructureReducer,

@@ -107,14 +107,20 @@ class StaffProfileGeneralInformation extends Component {
   editingPromiseResolve2 = () => {};
 
   componentDidMount() {
-    this.setInitialData();
     CountryService.getCountries().then(({ data }) => {
-      this.setState({ countries: data });
+      this.setState({ countries: data }, () => {
+        this.setInitialData();
+      });
     });
   }
 
   setInitialData = () => {
     const { staff } = this.props;
+    const { countries } = this.state;
+    const birthCountry = countries.filter(
+      country => country.countryName === staff.birthCountry
+    )[0];
+    console.log(birthCountry)
     this.setState({
       firstName: staff.firstName,
       fatherFamilyName: staff.fatherFamilyName,
@@ -127,7 +133,7 @@ class StaffProfileGeneralInformation extends Component {
       companyEmail: staff.companyEmail,
       skype: staff.skype,
       birthday: new Date(staff.birthday),
-      birthCountry: staff.birthCountry,
+      birthCountry,
       emergencyContactName: staff.emergencyContactName,
       emergencyContactPhone: staff.emergencyContactPhone,
       fullAddress: staff.fullAddress,
@@ -472,8 +478,6 @@ class StaffProfileGeneralInformation extends Component {
       errorStaffDocument,
       isEdit
     } = this.props;
-    console.log(staffDocumentResponse);
-    console.log(errorStaffDocument);
     const {
       isAddDocumentation,
       isOpenDocument,

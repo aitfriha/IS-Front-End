@@ -210,14 +210,6 @@ const styles = theme => ({
       color: theme.palette.primary.main
     }
   },
-  avatar: {
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '0 auto',
-    width: theme.spacing(9),
-    height: theme.spacing(9),
-    boxShadow: theme.glow.light
-  },
   large: {
     alignItems: 'center',
     textAlign: 'center',
@@ -226,35 +218,13 @@ const styles = theme => ({
     height: theme.spacing(20),
     boxShadow: theme.glow.light
   },
-  uploadAvatarEmpty: {
+  avatar: {
     alignItems: 'center',
     textAlign: 'center',
     margin: '0 auto',
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    boxShadow: '1px 1px 20px #DF1010'
-  },
-  uploadAvatarDone: {
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '0 auto',
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    boxShadow: '1px 1px 20px #0BA21B'
-  },
-  uploadText: {
-    color: '#000',
-    fontFamily: 'sans-serif , Arial',
-    fontSize: 12,
-    fontWeight: 'bold',
-    opacity: 0.6
-  },
-  uploadIcon: {
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '0 auto',
-    width: theme.spacing(5),
-    height: theme.spacing(5)
+    width: theme.spacing(9),
+    height: theme.spacing(9),
+    boxShadow: theme.glow.light
   }
 });
 

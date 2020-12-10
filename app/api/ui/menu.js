@@ -95,7 +95,7 @@ module.exports = [
             name: 'Civility Title',
             link: '/app/gestion-commercial/civilityTitle',
             icon: 'ios-people-outline'
-          },
+          }
 
           /* {
             name: 'Countries',
@@ -195,9 +195,16 @@ module.exports = [
         keyParent: 'hhrrSystem',
         child: [
           {
-            key: 'staff',
-            name: 'Staff',
-            link: '/app/hh-rr/staff'
+            key: 'absenceRequest',
+            name: 'Absence Request',
+            link: '/app/hh-rr/absenceRequest',
+            icon: 'ios-people-outline'
+          },
+          {
+            key: 'administrativeStructure',
+            name: 'Administrative Structure',
+            link: '/app/hh-rr/administrativeStructure',
+            icon: 'ios-people-outline'
           },
           {
             key: 'functionalStructure',
@@ -206,10 +213,9 @@ module.exports = [
             icon: 'ios-people-outline'
           },
           {
-            key: 'administrativeStructure',
-            name: 'Administrative Structure',
-            link: '/app/hh-rr/administrativeStructure',
-            icon: 'ios-people-outline'
+            key: 'staff',
+            name: 'Staff',
+            link: '/app/hh-rr/staff'
           }
         ]
       },
