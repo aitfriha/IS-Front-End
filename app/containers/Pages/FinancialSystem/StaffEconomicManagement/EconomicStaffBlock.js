@@ -4,13 +4,14 @@ import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle
+  Dialog, DialogContent, DialogTitle, Grid
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import { ThemeContext } from '../../../App/ThemeWrapper';
+import EditEconomicStaff from './editEconomicStaff';
 
 const useStyles = makeStyles();
 
@@ -18,13 +19,26 @@ class EconomicStaffBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      retentionId: '',
+      economicStaff: {},
+      staffId: '',
+      companyId: '',
+      changeFactor: '',
+      company: '',
+      employeeNumber: '',
       name: '',
-      description: '',
+      fatherName: '',
+      motherName: '',
+      highDate: '',
+      lowDate: '',
+      grosSalary: '',
+      netSalary: '',
+      contributionSalary: '',
+      companyCost: '',
+      grosSalaryEuro: '',
+      netSalaryEuro: '',
+      contributionSalaryEuro: '',
+      companyCostEuro: '',
       openPopUp: false,
-      currentCity: '',
-      addressId: '',
-      address: [],
       datas: [],
       columns: [
         {
@@ -407,15 +421,9 @@ class EconomicStaffBlock extends React.Component {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].economicStaffId;
       EconomicStaffService.getEconomicStaffById(id).then(result => {
-        console.log(result.data);
-        this.setState({
-          retentionId: result.data._id,
-          name: result.data.name,
-          description: result.data.description,
-          address: result.data.address,
-          addressId: result.data.address.addressId,
-          openPopUp: true
-        });
+        const economicStaff = result.data;
+        console.log(economicStaff);
+        this.setState({ openPopUp: true, economicStaff });
       });
     }
 
@@ -425,25 +433,7 @@ class EconomicStaffBlock extends React.Component {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].economicStaffId;
       EconomicStaffService.deleteEconomicStaff(id).then(result => {
-        console.log(result.data);
         this.setState({ datas: result.data });
-      });
-    };
-
-    handleSave = () => {
-      const {
-        retentionId, name, descrption, currentCity, addressId
-      } = this.state;
-      const city = { _id: currentCity };
-      const address = {
-        addressId, city
-      };
-      const EconomicStaff = {
-        retentionId, name, descrption, address
-      };
-
-      EconomicStaffService.updateEconomicStaff(EconomicStaff).then(result => {
-        this.setState({ datas: result.data, openPopUp: false });
       });
     };
 
@@ -453,7 +443,6 @@ class EconomicStaffBlock extends React.Component {
 
     componentDidMount() {
       EconomicStaffService.getEconomicStaff().then(result => {
-        console.log(result);
         this.setState({ datas: result.data });
       });
       const {
@@ -467,10 +456,16 @@ class EconomicStaffBlock extends React.Component {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
+    myCallback = (dataFromChild) => {
+      EconomicStaffService.getEconomicStaff().then(result => {
+        this.setState({ datas: result.data, openPopUp: dataFromChild });
+      });
+    };
+
     render() {
       console.log(this.state);
       const {
-        datas, columns, openPopUp
+        datas, columns, openPopUp, economicStaff
       } = this.state;
       const options = {
         filter: true,
@@ -498,26 +493,28 @@ class EconomicStaffBlock extends React.Component {
           <Dialog
             open={openPopUp}
             keepMounted
+            scroll="body"
             onClose={this.handleClose}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
-            fullWidth="md"
-            maxWidth="md"
+            fullWidth=""
+            maxWidth=""
           >
             <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
-            <DialogContent dividers />
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleClose}>
-                            Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleSave}
+            <DialogContent dividers>
+              <Grid
+                container
+                spacing={3}
+                alignItems="flex-start"
+                direction="row"
               >
-                            save
-              </Button>
-            </DialogActions>
+                <Grid item xs={0} />
+                <Grid item xs={11}>
+                  <EditEconomicStaff Infos={economicStaff} callsbackFromParent={this.myCallback} />
+                </Grid>
+                <Grid item xs={0} />
+              </Grid>
+            </DialogContent>
           </Dialog>
         </div>
       );
