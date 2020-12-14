@@ -6,7 +6,7 @@ import EconomicStaffBlock from './EconomicStaffBlock';
 
 class StaffEconomicManagement extends React.Component {
   render() {
-    const title = brand.name + ' - Retentions';
+    const title = brand.name + ' - Economic Staff';
     const description = brand.desc;
     return (
       <div>
