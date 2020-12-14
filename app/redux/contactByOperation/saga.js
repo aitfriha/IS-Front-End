@@ -13,7 +13,10 @@ import {
   GET_ALL_CONTACTBYOPERATIONS_SUCCESS,
   UPDATE_CONTACTBYOPERATION,
   UPDATE_CONTACTBYOPERATION_FAILURE,
-  UPDATE_CONTACTBYOPERATION_SUCCESS
+  UPDATE_CONTACTBYOPERATION_SUCCESS,
+  GET_ONE_CONTACTBYOPERATIONS,
+  GET_ONE_CONTACTBYOPERATIONS_SUCCESS,
+  GET_ONE_CONTACTBYOPERATIONS_FAILURE
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -108,11 +111,33 @@ function* getAllContactByOperation() {
   }
 }
 
+function* getContactByOperationById(action) {
+  try {
+    const {
+      contactByOperationWithId,
+    } = action;
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.CONTACTBYOPERATION + '/' + contactByOperationWithId
+    });
+    yield put({
+      type: GET_ONE_CONTACTBYOPERATIONS_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ONE_CONTACTBYOPERATIONS_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* contactByOperationSaga() {
   yield all([
     takeLatest(ADD_CONTACTBYOPERATION, addContactByOperation),
     takeLatest(UPDATE_CONTACTBYOPERATION, updateContactByOperation),
     takeLatest(DELETE_CONTACTBYOPERATION, deleteContactByOperation),
     takeLatest(GET_ALL_CONTACTBYOPERATIONS, getAllContactByOperation),
+    takeLatest(GET_ONE_CONTACTBYOPERATIONS, getContactByOperationById),
   ]);
 }

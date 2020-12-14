@@ -289,7 +289,20 @@ class AddContact extends React.Component {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, isLoadingContact, contactResponse, errorsContact, allClients,allCivilityTitles
+      classes, isLoadingContact, contactResponse, errorsContact, allClients,allCivilityTitles,
+      first_name,
+      father_family_name,
+      mother_family_name,
+      _department,
+      _position,
+      company_fix_phone,
+      company_mobile_phone,
+      company_email,
+      personal_mobile_phone,
+      personal_email,
+      _skype,
+      full_address,
+      post_code,
     } = this.props;
     const {
       firstName,
@@ -430,7 +443,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="firstName"
                   fullWidth
-                  required
+                  required={first_name}
                   value={firstName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -441,6 +454,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="fatherFamilyName"
                   fullWidth
+                  required={father_family_name}
                   value={fatherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -451,6 +465,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="motherFamilyName"
                   fullWidth
+                  required={mother_family_name}
                   value={motherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -499,6 +514,7 @@ class AddContact extends React.Component {
                   label="Department"
                   variant="outlined"
                   name="department"
+                  required={_department}
                   fullWidth
                   value={department}
                   className={classes.textField}
@@ -510,7 +526,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="position"
                   fullWidth
-                  required
+                  required={_position}
                   value={position}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -521,7 +537,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="companyFixPhone"
                   fullWidth
-                  required
+                  required={company_fix_phone}
                   value={companyFixPhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -532,7 +548,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="companyMobilePhone"
                   fullWidth
-                  required
+                  required={company_mobile_phone}
                   value={companyMobilePhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -543,7 +559,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="companyEmail"
                   fullWidth
-                  required
+                  required={company_email}
                   value={companyEmail}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -554,6 +570,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="personalMobilePhone"
                   fullWidth
+                  required={personal_mobile_phone}
                   value={personalMobilePhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -563,6 +580,7 @@ class AddContact extends React.Component {
                   label="personal email"
                   variant="outlined"
                   name="personalEmail"
+                  required={personal_email}
                   fullWidth
                   value={personalEmail}
                   className={classes.textField}
@@ -573,6 +591,7 @@ class AddContact extends React.Component {
                   label="Skype"
                   variant="outlined"
                   name="skype"
+                  required={_skype}
                   fullWidth
                   value={skype}
                   className={classes.textField}
