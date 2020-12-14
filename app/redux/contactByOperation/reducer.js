@@ -10,7 +10,10 @@ import {
   GET_ALL_CONTACTBYOPERATIONS_SUCCESS,
   UPDATE_CONTACTBYOPERATION,
   UPDATE_CONTACTBYOPERATION_FAILURE,
-  UPDATE_CONTACTBYOPERATION_SUCCESS
+  UPDATE_CONTACTBYOPERATION_SUCCESS,
+  GET_ONE_CONTACTBYOPERATIONS,
+  GET_ONE_CONTACTBYOPERATIONS_SUCCESS,
+  GET_ONE_CONTACTBYOPERATIONS_FAILURE
 } from './constants';
 
 const initialState = {
@@ -24,6 +27,7 @@ export default function contactByOperationReducer(state = initialState, action) 
   switch (action.type) {
     // TRIGGERING ACTIONS
     case GET_ALL_CONTACTBYOPERATIONS:
+    case GET_ONE_CONTACTBYOPERATIONS:
     case ADD_CONTACTBYOPERATION:
     case UPDATE_CONTACTBYOPERATION:
     case DELETE_CONTACTBYOPERATION:
@@ -49,11 +53,20 @@ export default function contactByOperationReducer(state = initialState, action) 
         ...state,
         isLoading: false,
         allContactByOperations: action.payload,
-        contactByOperationResponse: ''
+        contactByOperationResponse: '',
+      };
+    case GET_ONE_CONTACTBYOPERATIONS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        contactByOperationResponse: action.payload,
+        allContactByOperations: action.payload,
+        errors: {}
       };
 
       // FAILURE ACTIONS
     case GET_ALL_CONTACTBYOPERATIONS_FAILURE:
+    case GET_ONE_CONTACTBYOPERATIONS_FAILURE:
     case ADD_CONTACTBYOPERATION_FAILURE:
     case UPDATE_CONTACTBYOPERATION_FAILURE:
     case DELETE_CONTACTBYOPERATION_FAILURE:

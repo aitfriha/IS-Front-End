@@ -259,16 +259,16 @@ class ContactByOperationStatusBlock extends React.Component {
   };
 
   deleteMondatoryAttributes= (data, aaa) => {
-    this.setState({ openPopUpDelete: true,
+    this.setState({
+      openPopUpDelete: true,
       statusIdToDelete: aaa.rowData[3],
       contactTypeNameToDelete: aaa.rowData[2]
     });
-
   };
 
   deleteConfirmeMondatoryAttributes= () => {
-   const {statusIdToDelete,contactTypeNameToDelete} = this.state;
-    const { deleteContactByOperation,refresh,getAllContactByOperation } = this.props;
+    const { statusIdToDelete, contactTypeNameToDelete } = this.state;
+    const { deleteContactByOperation, refresh, getAllContactByOperation } = this.props;
     const promise = new Promise((resolve) => {
       deleteContactByOperation(statusIdToDelete, contactTypeNameToDelete);
       this.editingPromiseResolveDelete = resolve;
@@ -370,7 +370,6 @@ class ContactByOperationStatusBlock extends React.Component {
   };
 
 
-
   updateContactByOperation = () => {
     const { contactTypeName, statusId } = this.state;
     const { getAllContactByOperation, updateContactByOperation } = this.props;
@@ -384,6 +383,7 @@ class ContactByOperationStatusBlock extends React.Component {
       this.editingPromiseResolve = resolve;
     });
     promise.then((result) => {
+      console.log('result : ', result);
       if (isString(result)) {
         notification('success', result);
         // getAllContactByOperation();
@@ -407,12 +407,11 @@ class ContactByOperationStatusBlock extends React.Component {
   };
 
   componentDidUpdate(prevProps) {
-    const {allContactByOperations} = this.props;
-    if(allContactByOperations!=prevProps.allContactByOperations)
-    {
-     // console.log()
+    const { allContactByOperations } = this.props;
+    if (allContactByOperations != prevProps.allContactByOperations) {
+      // console.log()
     }
-/*    console.log('componentDidUpdate');
+    /*    console.log('componentDidUpdate');
     const {
       errorsContactByOperation, isLoadingContactByOperation, contactByOperationResponse,
     } = this.props;
@@ -427,8 +426,7 @@ class ContactByOperationStatusBlock extends React.Component {
       console.log('eeeeeeeeeeee');
     (!isLoadingContactByOperation && contactByOperationResponse) && notification('success', contactByOperationResponse);
       (isLoadingContactByOperation && !contactByOperationResponse) && notification('danger', errorsContactByOperation);
-    }*/
-
+    } */
   }
 
   render() {
@@ -441,23 +439,19 @@ class ContactByOperationStatusBlock extends React.Component {
     };
     const {
       columns,
-      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes,openPopUpDelete,
+      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes, openPopUpDelete,
       firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
     } = this.state;
     const {
       contacts, classes,
       isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation,
     } = this.props;
-    console.log('debut');
-    console.log('errorsContactByOperation ',isLoadingContactByOperation);
-    console.log('contactByOperationResponse ',contactByOperationResponse);
-    console.log('isLoadingContactByOperation ', isLoadingContactByOperation);
-    console.log('fin');
-    (!isLoadingContactByOperation && contactByOperationResponse) && this.editingPromiseResolve(contactByOperationResponse);
-    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
 
-    (!isLoadingContactByOperation && contactByOperationResponse=='deleted') && this.editingPromiseResolveDelete(contactByOperationResponse);
-/*    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolveDelete(errorsContactByOperation);*/
+    (!isLoadingContactByOperation && contactByOperationResponse === 'updated') && this.editingPromiseResolve(contactByOperationResponse);
+    // (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
+
+    (!isLoadingContactByOperation && contactByOperationResponse == 'deleted') && this.editingPromiseResolveDelete(contactByOperationResponse);
+    /*    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolveDelete(errorsContactByOperation); */
     return (
       <div>
         <MUIDataTable
@@ -877,14 +871,14 @@ class ContactByOperationStatusBlock extends React.Component {
           </DialogActions>
         </Dialog>
         <Dialog
-            open={openPopUpDelete}
-            keepMounted
-            scroll="body"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth=""
-            maxWidth=""
+          open={openPopUpDelete}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth=""
+          maxWidth=""
         >
           <DialogTitle id="alert-dialog-slide-title"> Delete contact type by operation </DialogTitle>
           <DialogContent dividers>
@@ -895,9 +889,9 @@ class ContactByOperationStatusBlock extends React.Component {
               Cancel
             </Button>
             <Button
-                variant="contained"
-                color="primary"
-                onClick={this.deleteConfirmeMondatoryAttributes}
+              variant="contained"
+              color="primary"
+              onClick={this.deleteConfirmeMondatoryAttributes}
             >
               Delete
             </Button>

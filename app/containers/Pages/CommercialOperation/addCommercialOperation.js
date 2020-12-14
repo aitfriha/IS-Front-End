@@ -52,6 +52,7 @@ import { getAllContact } from '../../../redux/contact/actions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import EditContact from '../Contact/editContact';
 import AddContact from '../Contact/addContact';
+import { getContactByOperationById } from '../../../redux/contactByOperation/actions';
 const qpcListAdd = [];
 const pdcListAdd = [];
 const lacListAdd = [];
@@ -59,6 +60,8 @@ class AddCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {
+    };
+    this.editingPromiseResolveGetStatus = () => {
     };
     this.state = {
       client: '',
@@ -107,6 +110,71 @@ class AddCommercialOperation extends React.Component {
       lacOthercontact: [],
 
       openPopUp: false,
+      /** **** mandatory contact type ******* */
+      qualification_process_contacts_decision_maker: false,
+      qualification_process_contacts_technical_leader: false,
+      qualification_process_contacts_close_decision_maker: false,
+      qualification_process_other_contact: false,
+
+      procurement_department_other_contact: false,
+
+      legal_area_other_contact: false,
+      /** **** mandatory attributes ******* */
+      qualification_process_contacts_decision_maker_first_name: false,
+      qualification_process_contacts_decision_maker_father_family_name: false,
+      qualification_process_contacts_decision_maker_mother_family_name: false,
+      qualification_process_contacts_decision_maker_department: false,
+      qualification_process_contacts_decision_maker_position: false,
+      qualification_process_contacts_decision_maker_company_fix_phone: false,
+      qualification_process_contacts_decision_maker_company_mobile_phone: false,
+      qualification_process_contacts_decision_maker_company_email: false,
+      qualification_process_contacts_decision_maker_personal_mobile_phone: false,
+      qualification_process_contacts_decision_maker_personal_email: false,
+      qualification_process_contacts_decision_maker_skype: false,
+      qualification_process_contacts_decision_maker_full_address: false,
+      qualification_process_contacts_decision_maker_post_code: false,
+      /** **** mandatory attributes ******* */
+      qualification_process_contacts_close_decision_maker_first_name: false,
+      qualification_process_contacts_close_decision_maker_father_family_name: false,
+      qualification_process_contacts_close_decision_maker_mother_family_name: false,
+      qualification_process_contacts_close_decision_maker_department: false,
+      qualification_process_contacts_close_decision_maker_position: false,
+      qualification_process_contacts_close_decision_maker_company_fix_phone: false,
+      qualification_process_contacts_close_decision_maker_company_mobile_phone: false,
+      qualification_process_contacts_close_decision_maker_company_email: false,
+      qualification_process_contacts_close_decision_maker_personal_mobile_phone: false,
+      qualification_process_contacts_close_decision_maker_personal_email: false,
+      qualification_process_contacts_close_decision_maker_skype: false,
+      qualification_process_contacts_close_decision_maker_full_address: false,
+      qualification_process_contacts_close_decision_maker_post_code: false,
+      /** **** mandatory attributes ******* */
+      qualification_process_contacts_technical_leader_first_name: false,
+      qualification_process_contacts_technical_leader_father_family_name: false,
+      qualification_process_contacts_technical_leader_mother_family_name: false,
+      qualification_process_contacts_technical_leader_department: false,
+      qualification_process_contacts_technical_leader_position: false,
+      qualification_process_contacts_technical_leader_company_fix_phone: false,
+      qualification_process_contacts_technical_leader_company_mobile_phone: false,
+      qualification_process_contacts_technical_leader_company_email: false,
+      qualification_process_contacts_technical_leader_personal_mobile_phone: false,
+      qualification_process_contacts_technical_leader_personal_email: false,
+      qualification_process_contacts_technical_leader_skype: false,
+      qualification_process_contacts_technical_leader_full_address: false,
+      qualification_process_contacts_technical_leader_post_code: false,
+      /** **** mandatory attributes ******* */
+      qualification_process_contacts_other_first_name: false,
+      qualification_process_contacts_other_father_family_name: false,
+      qualification_process_contacts_other_mother_family_name: false,
+      qualification_process_contacts_other_department: false,
+      qualification_process_contacts_other_position: false,
+      qualification_process_contacts_other_company_fix_phone: false,
+      qualification_process_contacts_other_company_mobile_phone: false,
+      qualification_process_contacts_other_company_email: false,
+      qualification_process_contacts_other_personal_mobile_phone: false,
+      qualification_process_contacts_other_leader_personal_email: false,
+      qualification_process_contacts_other_leader_skype: false,
+      qualification_process_contacts_other_leader_full_address: false,
+      qualification_process_contacts_other_leader_post_code: false
     };
   }
 
@@ -197,8 +265,270 @@ class AddCommercialOperation extends React.Component {
   };
 
   handleChangeStatus = (ev) => {
+    const { getContactByOperationById } = this.props;
     this.setState({ [ev.target.name]: ev.target.value });
+    console.log(ev.target.value);
     this.setState({ disabled: false });
+    // console.log(ev.target.value);
+    const promise = new Promise((resolve1) => {
+      getContactByOperationById(ev.target.value);
+      this.editingPromiseResolveGetStatus = resolve1;
+    });
+    promise.then((result) => {
+      console.log('result ', result.length);
+      if (result.length > 0) {
+        // notification('danger', result);
+        const { allContactByOperations } = this.props;
+        console.log(allContactByOperations);
+        // qualification_process_contacts_decision_maker
+        this.setState({ qualification_process_contacts_decision_maker: false });
+        this.setState({ qualification_process_contacts_technical_leader: false });
+        this.setState({ qualification_process_contacts_close_decision_maker: false });
+        this.setState({ qualification_process_other_contact: false });
+        this.setState({ qualification_process_contacts_decision_maker_first_name: false });
+        this.setState({ qualification_process_contacts_decision_maker_father_family_name: false });
+        this.setState({ qualification_process_contacts_decision_maker_mother_family_name: false });
+        this.setState({ qualification_process_contacts_decision_maker_department: false });
+        this.setState({ qualification_process_contacts_decision_maker_position: false });
+        this.setState({ qualification_process_contacts_decision_maker_company_fix_phone: false });
+        this.setState({ qualification_process_contacts_decision_maker_company_mobile_phone: false });
+        this.setState({ qualification_process_contacts_decision_maker_company_email: false });
+        this.setState({ qualification_process_contacts_decision_maker_personal_mobile_phone: false });
+        this.setState({ qualification_process_contacts_decision_maker_personal_email: false });
+        this.setState({ qualification_process_contacts_decision_maker_skype: false });
+        this.setState({ qualification_process_contacts_decision_maker_full_address: false });
+        this.setState({ qualification_process_contacts_decision_maker_post_code: false });
+        // qualification_process_contacts_close_decision_maker
+        this.setState({ qualification_process_contacts_close_decision_maker_first_name: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_father_family_name: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_mother_family_name: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_department: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_position: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_company_fix_phone: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_company_mobile_phone: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_company_email: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_personal_mobile_phone: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_personal_email: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_skype: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_full_address: false });
+        this.setState({ qualification_process_contacts_close_decision_maker_post_code: false });
+        // qualification_process_contacts_technical_leader
+        this.setState({ qualification_process_contacts_technical_leader_first_name: false });
+        this.setState({ qualification_process_contacts_technical_leader_father_family_name: false });
+        this.setState({ qualification_process_contacts_technical_leader_mother_family_name: false });
+        this.setState({ qualification_process_contacts_technical_leader_department: false });
+        this.setState({ qualification_process_contacts_technical_leader_position: false });
+        this.setState({ qualification_process_contacts_technical_leader_company_fix_phone: false });
+        this.setState({ qualification_process_contacts_technical_leader_company_mobile_phone: false });
+        this.setState({ qualification_process_contacts_technical_leader_company_email: false });
+        this.setState({ qualification_process_contacts_technical_leader_personal_mobile_phone: false });
+        this.setState({ qualification_process_contacts_technical_leader_personal_email: false });
+        this.setState({ qualification_process_contacts_technical_leader_skype: false });
+        this.setState({ qualification_process_contacts_technical_leader_full_address: false });
+        this.setState({ qualification_process_contacts_technical_leader_post_code: false });
+        // qualification_process_contacts_other
+        this.setState({ qualification_process_contacts_other_first_name: false });
+        this.setState({ qualification_process_contacts_other_father_family_name: false });
+        this.setState({ qualification_process_contacts_other_mother_family_name: false });
+        this.setState({ qualification_process_contacts_other_department: false });
+        this.setState({ qualification_process_contacts_other_position: false });
+        this.setState({ qualification_process_contacts_other_company_fix_phone: false });
+        this.setState({ qualification_process_contacts_other_company_mobile_phone: false });
+        this.setState({ qualification_process_contacts_other_company_email: false });
+        this.setState({ qualification_process_contacts_other_personal_mobile_phone: false });
+        this.setState({ qualification_process_contacts_other_personal_email: false });
+        this.setState({ qualification_process_contacts_other_skype: false });
+        this.setState({ qualification_process_contacts_other_full_address: false });
+        this.setState({ qualification_process_contacts_other_post_code: false });
+        for (const key in allContactByOperations) {
+          if (allContactByOperations[key].contactsType === 'contact of the decision-maker' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+            this.setState({ qualification_process_contacts_decision_maker: true });
+            for (const cle in allContactByOperations[key].mandatoryAttributes) {
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
+                this.setState({ qualification_process_contacts_decision_maker_first_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'father family name') {
+                this.setState({ qualification_process_contacts_decision_maker_father_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'mother family name') {
+                this.setState({ qualification_process_contacts_decision_maker_mother_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'department') {
+                this.setState({ qualification_process_contacts_decision_maker_department: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'position') {
+                this.setState({ qualification_process_contacts_decision_maker_position: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyFixPhone') {
+                this.setState({ qualification_process_contacts_decision_maker_company_fix_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyMobilePhone') {
+                this.setState({ qualification_process_contacts_decision_maker_company_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyEmail') {
+                this.setState({ qualification_process_contacts_decision_maker_company_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalMobilePhone') {
+                this.setState({ qualification_process_contacts_decision_maker_personal_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalEmail') {
+                this.setState({ qualification_process_contacts_decision_maker_personal_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'skype') {
+                this.setState({ qualification_process_contacts_decision_maker_skype: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'fullAddress') {
+                this.setState({ qualification_process_contacts_decision_maker_full_address: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'postCode') {
+                this.setState({ qualification_process_contacts_decision_maker_post_code: true });
+              }
+            }
+          }
+          if (allContactByOperations[key].contactsType === 'contact of the technical leader' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+            this.setState({ qualification_process_contacts_technical_leader: true });
+            for (const cle in allContactByOperations[key].mandatoryAttributes) {
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
+                this.setState({ qualification_process_contacts_technical_leader_first_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'father family name') {
+                this.setState({ qualification_process_contacts_technical_leader_father_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'mother family name') {
+                this.setState({ qualification_process_contacts_technical_leader_mother_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'department') {
+                this.setState({ qualification_process_contacts_technical_leader_department: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'position') {
+                this.setState({ qualification_process_contacts_technical_leader_position: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyFixPhone') {
+                this.setState({ qualification_process_contacts_technical_leader_company_fix_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyMobilePhone') {
+                this.setState({ qualification_process_contacts_technical_leader_company_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyEmail') {
+                this.setState({ qualification_process_contacts_technical_leader_company_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalMobilePhone') {
+                this.setState({ qualification_process_contacts_technical_leader_personal_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalEmail') {
+                this.setState({ qualification_process_contacts_technical_leader_personal_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'skype') {
+                this.setState({ qualification_process_contacts_technical_leader_skype: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'fullAddress') {
+                this.setState({ qualification_process_contacts_technical_leader_full_address: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'postCode') {
+                this.setState({ qualification_process_contacts_technical_leader_post_code: true });
+              }
+            }
+          }
+          if (allContactByOperations[key].contactsType === 'contact of the person close to the decision-maker' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+            this.setState({ qualification_process_contacts_close_decision_maker: true });
+            for (const cle in allContactByOperations[key].mandatoryAttributes) {
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
+                this.setState({ qualification_process_contacts_close_decision_maker_first_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'father family name') {
+                this.setState({ qualification_process_contacts_close_decision_maker_father_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'mother family name') {
+                this.setState({ qualification_process_contacts_close_decision_maker_mother_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'department') {
+                this.setState({ qualification_process_contacts_close_decision_maker_department: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'position') {
+                this.setState({ qualification_process_contacts_close_decision_maker_position: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyFixPhone') {
+                this.setState({ qualification_process_contacts_close_decision_maker_company_fix_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyMobilePhone') {
+                this.setState({ qualification_process_contacts_close_decision_maker_company_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyEmail') {
+                this.setState({ qualification_process_contacts_close_decision_maker_company_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalMobilePhone') {
+                this.setState({ qualification_process_contacts_close_decision_maker_personal_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalEmail') {
+                this.setState({ qualification_process_contacts_close_decision_maker_personal_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'skype') {
+                this.setState({ qualification_process_contacts_close_decision_maker_skype: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'fullAddress') {
+                this.setState({ qualification_process_contacts_close_decision_maker_full_address: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'postCode') {
+                this.setState({ qualification_process_contacts_close_decision_maker_post_code: true });
+              }
+            }
+          }
+          if (allContactByOperations[key].contactsType === 'Other contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+            this.setState({ qualification_process_other_contact: true });
+            for (const cle in allContactByOperations[key].mandatoryAttributes) {
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
+                this.setState({ qualification_process_contacts_other_first_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'father family name') {
+                this.setState({ qualification_process_contacts_other_father_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'mother family name') {
+                this.setState({ qualification_process_contacts_other_mother_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'department') {
+                this.setState({ qualification_process_contacts_other_department: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'position') {
+                this.setState({ qualification_process_contacts_other_position: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyFixPhone') {
+                this.setState({ qualification_process_contacts_other_company_fix_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyMobilePhone') {
+                this.setState({ qualification_process_contacts_other_company_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyEmail') {
+                this.setState({ qualification_process_contacts_other_company_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalMobilePhone') {
+                this.setState({ qualification_process_contacts_other_personal_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalEmail') {
+                this.setState({ qualification_process_contacts_other_personal_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'skype') {
+                this.setState({ qualification_process_contacts_other_skype: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'fullAddress') {
+                this.setState({ qualification_process_contacts_other_full_address: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'postCode') {
+                this.setState({ qualification_process_contacts_other_post_code: true });
+              }
+            }
+          }
+          if (allContactByOperations[key].contactsType === 'pd contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+            this.setState({ qualification_process_other_contact: true });
+          }
+
+          if (allContactByOperations[key].contactsType === 'la contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+            this.setState({ legal_area_other_contact: true });
+          }
+        }
+      } else {
+
+      }
+    });
   };
 
   handleChangeOtheter= (ev) => {
@@ -357,6 +687,139 @@ class AddCommercialOperation extends React.Component {
     this.setState({ suppliersArea });
     this.setState({ supplierType });
     this.setState({ openPopUp: true });
+    // mandatory attributes
+    const {
+      qualification_process_contacts_decision_maker_first_name,
+      qualification_process_contacts_decision_maker_father_family_name,
+      qualification_process_contacts_decision_maker_mother_family_name,
+      qualification_process_contacts_decision_maker_department,
+      qualification_process_contacts_decision_maker_position,
+      qualification_process_contacts_decision_maker_company_fix_phone,
+      qualification_process_contacts_decision_maker_company_mobile_phone,
+      qualification_process_contacts_decision_maker_company_email,
+      qualification_process_contacts_decision_maker_personal_mobile_phone,
+      qualification_process_contacts_decision_maker_personal_email,
+      qualification_process_contacts_decision_maker_skype,
+      qualification_process_contacts_decision_maker_full_address,
+      qualification_process_contacts_decision_maker_post_code
+    } = this.state;
+    console.log(suppliersArea);
+    console.log(supplierType);
+    if (suppliersArea === 'Suppliers Area' && supplierType === 'decision - maker') {
+      this.setState({
+        first_name: qualification_process_contacts_decision_maker_first_name,
+        father_family_name: qualification_process_contacts_decision_maker_father_family_name,
+        mother_family_name: qualification_process_contacts_decision_maker_mother_family_name,
+        _department: qualification_process_contacts_decision_maker_department,
+        _position: qualification_process_contacts_decision_maker_position,
+        company_fix_phone: qualification_process_contacts_decision_maker_company_fix_phone,
+        company_mobile_phone: qualification_process_contacts_decision_maker_company_mobile_phone,
+        company_email: qualification_process_contacts_decision_maker_company_email,
+        personal_mobile_phone: qualification_process_contacts_decision_maker_personal_mobile_phone,
+        personal_email: qualification_process_contacts_decision_maker_personal_email,
+        _skype: qualification_process_contacts_decision_maker_skype,
+        full_address: qualification_process_contacts_decision_maker_full_address,
+        post_code: qualification_process_contacts_decision_maker_post_code
+      });
+    }
+    if (suppliersArea === 'Suppliers Area' && supplierType === 'technical leader') {
+      const {
+        qualification_process_contacts_technical_leader_first_name,
+        qualification_process_contacts_technical_leader_father_family_name,
+        qualification_process_contacts_technical_leader_mother_family_name,
+        qualification_process_contacts_technical_leader_department,
+        qualification_process_contacts_technical_leader_position,
+        qualification_process_contacts_technical_leader_company_fix_phone,
+        qualification_process_contacts_technical_leader_company_mobile_phone,
+        qualification_process_contacts_technical_leader_company_email,
+        qualification_process_contacts_technical_leader_personal_mobile_phone,
+        qualification_process_contacts_technical_leader_personal_email,
+        qualification_process_contacts_technical_leader_skype,
+        qualification_process_contacts_technical_leader_full_address,
+        qualification_process_contacts_technical_leader_post_code,
+      } = this.state;
+      this.setState({
+        first_name: qualification_process_contacts_technical_leader_first_name,
+        father_family_name: qualification_process_contacts_technical_leader_father_family_name,
+        mother_family_name: qualification_process_contacts_technical_leader_mother_family_name,
+        _department: qualification_process_contacts_technical_leader_department,
+        _position: qualification_process_contacts_technical_leader_position,
+        company_fix_phone: qualification_process_contacts_technical_leader_company_fix_phone,
+        company_mobile_phone: qualification_process_contacts_technical_leader_company_mobile_phone,
+        company_email: qualification_process_contacts_technical_leader_company_email,
+        personal_mobile_phone: qualification_process_contacts_technical_leader_personal_mobile_phone,
+        personal_email: qualification_process_contacts_technical_leader_personal_email,
+        _skype: qualification_process_contacts_technical_leader_skype,
+        full_address: qualification_process_contacts_technical_leader_full_address,
+        post_code: qualification_process_contacts_technical_leader_post_code
+      });
+    }
+
+    if (suppliersArea === 'Suppliers Area' && supplierType === 'close to the decision - maker') {
+      const {
+        qualification_process_contacts_close_decision_maker_first_name,
+        qualification_process_contacts_close_decision_maker_father_family_name,
+        qualification_process_contacts_close_decision_maker_mother_family_name,
+        qualification_process_contacts_close_decision_maker_department,
+        qualification_process_contacts_close_decision_maker_position,
+        qualification_process_contacts_close_decision_maker_company_fix_phone,
+        qualification_process_contacts_close_decision_maker_company_mobile_phone,
+        qualification_process_contacts_close_decision_maker_company_email,
+        qualification_process_contacts_close_decision_maker_personal_mobile_phone,
+        qualification_process_contacts_close_decision_maker_personal_email,
+        qualification_process_contacts_close_decision_maker_skype,
+        qualification_process_contacts_close_decision_maker_full_address,
+        qualification_process_contacts_close_decision_maker_post_code,
+      } = this.state;
+      this.setState({
+        first_name: qualification_process_contacts_close_decision_maker_first_name,
+        father_family_name: qualification_process_contacts_close_decision_maker_father_family_name,
+        mother_family_name: qualification_process_contacts_close_decision_maker_mother_family_name,
+        _department: qualification_process_contacts_close_decision_maker_department,
+        _position: qualification_process_contacts_close_decision_maker_position,
+        company_fix_phone: qualification_process_contacts_close_decision_maker_company_fix_phone,
+        company_mobile_phone: qualification_process_contacts_close_decision_maker_company_mobile_phone,
+        company_email: qualification_process_contacts_close_decision_maker_company_email,
+        personal_mobile_phone: qualification_process_contacts_close_decision_maker_personal_mobile_phone,
+        personal_email: qualification_process_contacts_close_decision_maker_personal_email,
+        _skype: qualification_process_contacts_close_decision_maker_skype,
+        full_address: qualification_process_contacts_close_decision_maker_full_address,
+        post_code: qualification_process_contacts_close_decision_maker_post_code
+      });
+    }
+    console.log('supplierType :', supplierType);
+    if (suppliersArea === 'Suppliers Area' && supplierType === 'Other contact') {
+      const {
+        qualification_process_contacts_other_first_name,
+        qualification_process_contacts_other_father_family_name,
+        qualification_process_contacts_other_mother_family_name,
+        qualification_process_contacts_other_department,
+        qualification_process_contacts_other_position,
+        qualification_process_contacts_other_company_fix_phone,
+        qualification_process_contacts_other_company_mobile_phone,
+        qualification_process_contacts_other_company_email,
+        qualification_process_contacts_other_personal_mobile_phone,
+        qualification_process_contacts_other_personal_email,
+        qualification_process_contacts_other_skype,
+        qualification_process_contacts_other_full_address,
+        qualification_process_contacts_other_post_code
+      } = this.state;
+      this.setState({
+        first_name: qualification_process_contacts_other_first_name,
+        father_family_name: qualification_process_contacts_other_father_family_name,
+        mother_family_name: qualification_process_contacts_other_mother_family_name,
+        _department: qualification_process_contacts_other_department,
+        _position: qualification_process_contacts_other_position,
+        company_fix_phone: qualification_process_contacts_other_company_fix_phone,
+        company_mobile_phone: qualification_process_contacts_other_company_mobile_phone,
+        company_email: qualification_process_contacts_other_company_email,
+        personal_mobile_phone: qualification_process_contacts_other_personal_mobile_phone,
+        personal_email: qualification_process_contacts_other_personal_email,
+        _skype: qualification_process_contacts_other_skype,
+        full_address: qualification_process_contacts_other_full_address,
+        post_code: qualification_process_contacts_other_post_code
+      });
+    }
   }
 
   handleCloseContact = () => {
@@ -407,19 +870,7 @@ class AddCommercialOperation extends React.Component {
         label: 'Q4-2021',
       },
     ];
-    const contacts = [
-      {
-        value: '1',
-        label: ' Mr. Antonio Chaves',
-      },
-      {
-        value: '2',
-        label: 'M. Flora Ricio',
-      },
-      {
-        value: '3',
-        label: 'Mr. Aymen Souiat',
-      }];
+
 
     const {
       client, statusOperation, countryName, serviceType,
@@ -429,17 +880,46 @@ class AddCommercialOperation extends React.Component {
       managementContact, administrativeContact, legalAreaMainContact,
       commercialResponsible, commercialResponsibleAssistant,
       suppliersArea, supplierType, disabled,
+      qualification_process_contacts_decision_maker,
+      qualification_process_contacts_technical_leader,
+      qualification_process_contacts_close_decision_maker,
+      qualification_process_other_contact,
+      procurement_department_other_contact,
+      legal_area_other_contact,
       decisionMakers, technicalLeaders, administrativeContactTechnicalLeader, closeDecisionMakers, closeDecisionMaker, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
-      lacOthercontacts, lacOthercontact, openPopUp
+      lacOthercontacts, lacOthercontact, openPopUp,
+
+      first_name,
+      father_family_name,
+      mother_family_name,
+      _department,
+      _position,
+      company_fix_phone,
+      company_mobile_phone,
+      company_email,
+      personal_mobile_phone,
+      personal_email,
+      _skype,
+      full_address,
+      post_code
     } = this.state;
+
     const title = brand.name + ' - Blank Page';
     const description = brand.desc;
     const {
       // eslint-disable-next-line no-shadow
-      classes, allClients, allCommercialOperationStatuss, errorsCommercialOperation, isLoadingCommercialOperation, commercialOperationResponse, allCommercialServiceType
+      classes, allClients, allCommercialOperationStatuss, errorsCommercialOperation, isLoadingCommercialOperation, commercialOperationResponse, allCommercialServiceType,
+      isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation, allContactByOperations
+
     } = this.props;
     (!isLoadingCommercialOperation && commercialOperationResponse) && this.editingPromiseResolve(commercialOperationResponse);
     (!isLoadingCommercialOperation && !commercialOperationResponse) && this.editingPromiseResolve(errorsCommercialOperation);
+    // ContactByOperations
+    if (contactByOperationResponse != '' && !isLoadingContactByOperation) {
+      this.editingPromiseResolveGetStatus(contactByOperationResponse);
+    }
+    /* (!isLoadingContactByOperation && contactByOperationResponse) && this.editingPromiseResolveGetStatus(contactByOperationResponse);
+    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolveGetStatus(errorsContactByOperation); */
     return (
       <div>
         <Helmet>
@@ -471,7 +951,7 @@ class AddCommercialOperation extends React.Component {
               direction="row"
               justify="space-around"
             >
-              <Grid item xs={12} md={4} sm={4} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+              <Grid item xs={12} md={4} sm={4} style={{ display: 'flex' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '10%' }} component="h2" color="primary">
                     Client
                 </Typography>
@@ -492,7 +972,7 @@ class AddCommercialOperation extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={5} sm={5} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+              <Grid item xs={12} md={5} sm={5} style={{ display: 'flex' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
                     Operation
                 </Typography>
@@ -510,7 +990,7 @@ class AddCommercialOperation extends React.Component {
                   required
                 />
               </Grid>
-              <Grid item xs={12} md={3} sm={3} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+              <Grid item xs={12} md={3} sm={3} style={{ display: 'flex' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
                     Status
                 </Typography>
@@ -531,7 +1011,7 @@ class AddCommercialOperation extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={12} sm={12} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+              <Grid item xs={12} md={12} sm={12} style={{ display: 'flex' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
                     Commercial Activity Type
                 </Typography>
@@ -549,7 +1029,7 @@ class AddCommercialOperation extends React.Component {
                   />
                 </div>
               </Grid>
-              <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+              <Grid item xs={12} md={6} sm={6} style={{ display: 'flex' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
                     Country
                 </Typography>
@@ -566,7 +1046,7 @@ class AddCommercialOperation extends React.Component {
                   required
                 />
               </Grid>
-              <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+              <Grid item xs={12} md={6} sm={6} style={{ display: 'flex' }} alignContent="center" alignItems="center">
                 <Typography variant="subtitle2" style={{ width: '15%' }} component="h2" color="primary">
                     Description
                 </Typography>
@@ -597,7 +1077,7 @@ class AddCommercialOperation extends React.Component {
             direction="row"
             justify="space-around"
           >
-            <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+            <Grid item xs={12} md={6} sm={6} style={{ display: 'flex' }} alignContent="center" alignItems="center">
               <Typography variant="subtitle2" style={{ width: '20%' }} component="h2" color="primary">
                   Q Planned Date
               </Typography>
@@ -618,7 +1098,7 @@ class AddCommercialOperation extends React.Component {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} sm={6} style={{ display: 'flex', justifyContent: 'space-between' }} alignContent="center" alignItems="center">
+            <Grid item xs={12} md={6} sm={6} style={{ display: 'flex' }} alignContent="center" alignItems="center">
               <Typography variant="subtitle2" style={{ width: '20%' }} component="h2" color="primary">
                   Q Commercial Flow
               </Typography>
@@ -736,13 +1216,13 @@ class AddCommercialOperation extends React.Component {
               <Typography variant="subtitle2" component="h2" color="primary">
                   Qualification Process Contacts
               </Typography>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth required disabled={disabled}>
+              <div style={{ display: 'flex' }}>
+                <FormControl fullWidth required={qualification_process_contacts_decision_maker} disabled={disabled}>
                   <InputLabel>contact of the the decision - maker</InputLabel>
                   <Select
                     name="administrativeContact"
                     id="contact of the decision - maker"
-                    value={administrativeContact}
+                    value={administrativeContact && administrativeContact}
                     onChange={this.handleChangeMaker}
                   >
                     {
@@ -760,12 +1240,12 @@ class AddCommercialOperation extends React.Component {
                   <AddIcon />
                 </IconButton>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth required disabled={disabled}>
+              <div style={{ display: 'flex' }}>
+                <FormControl fullWidth required={qualification_process_contacts_technical_leader} disabled={disabled}>
                   <InputLabel>contact the technical leader</InputLabel>
                   <Select
                     name="administrativeContactTechnicalLeader"
-                    value={administrativeContactTechnicalLeader}
+                    value={administrativeContactTechnicalLeader && administrativeContactTechnicalLeader}
                     onChange={this.handleChange}
                   >
                     {
@@ -783,12 +1263,12 @@ class AddCommercialOperation extends React.Component {
                   <AddIcon />
                 </IconButton>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <FormControl fullWidth required disabled={disabled}>
+              <div style={{ display: 'flex' }}>
+                <FormControl fullWidth required={qualification_process_contacts_close_decision_maker} disabled={disabled}>
                   <InputLabel>contact of the person close to the decision - maker</InputLabel>
                   <Select
                     name="closeDecisionMaker"
-                    value={closeDecisionMaker}
+                    value={closeDecisionMaker && closeDecisionMaker}
                     onChange={this.handleChange}
                   >
                     {
@@ -807,8 +1287,8 @@ class AddCommercialOperation extends React.Component {
                 </IconButton>
               </div>
               {qpcOthercontacts.map((row) => (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <FormControl fullWidth disabled={disabled}>
+                <div style={{ display: 'flex' }}>
+                  <FormControl fullWidth disabled={disabled} required={qualification_process_other_contact}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
                       name="administrativeContact"
@@ -863,24 +1343,34 @@ class AddCommercialOperation extends React.Component {
               >
                 <DialogTitle id="alert-dialog-slide-title"> Add contact</DialogTitle>
                 <DialogContent dividers>
-                  <AddContact handleClose={this.handleClose} suppliersArea={suppliersArea} supplierType={supplierType} />
+                  <AddContact
+                    handleClose={this.handleClose}
+                    suppliersArea={suppliersArea}
+                    supplierType={supplierType}
+                    first_name={first_name}
+                    father_family_name={father_family_name}
+                    mother_family_name={mother_family_name}
+                    _department={_department}
+                    _position={_position}
+                    company_fix_phone={company_fix_phone}
+                    company_mobile_phone={company_mobile_phone}
+                    company_email={company_email}
+                    personal_mobile_phone={personal_mobile_phone}
+                    personal_email={personal_email}
+                    _skype={_skype}
+                    full_address={full_address}
+                    post_code={post_code}
+                  />
                 </DialogContent>
                 <DialogActions>
                   <Button color="secondary" onClick={this.handleCloseContact}>
                     Cancel
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={this.handleClose}
-                  >
-                    Add Contact
-                  </Button>
                 </DialogActions>
               </Dialog>
               {pdcOthercontacts.map((row) => (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <FormControl fullWidth disabled={disabled}>
+                <div style={{ display: 'flex' }}>
+                  <FormControl fullWidth disabled={disabled} required={procurement_department_other_contact}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
                       name="administrativeContact"
@@ -923,8 +1413,8 @@ class AddCommercialOperation extends React.Component {
                   Legal Area Contact
               </Typography>
               {lacOthercontacts.map((row) => (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <FormControl fullWidth disabled={disabled}>
+                <div style={{ display: 'flex' }}>
+                  <FormControl fullWidth disabled={disabled} required={legal_area_other_contact}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
                       name="administrativeContact"
@@ -1016,6 +1506,12 @@ const mapStateToProps = state => ({
   contactResponse: state.getIn(['contacts']).contactResponse,
   isLoadingContact: state.getIn(['contacts']).isLoading,
   errorsContact: state.getIn(['contacts']).errors,
+
+  // ContactByOperations
+  allContactByOperations: state.getIn(['contactByOperations']).allContactByOperations,
+  contactByOperationResponse: state.getIn(['contactByOperations']).contactByOperationResponse,
+  isLoadingContactByOperation: state.getIn(['contactByOperations']).isLoading,
+  errorsContactByOperation: state.getIn(['contactByOperations']).errors,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,
@@ -1028,6 +1524,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   addCommercialOperation,
   getAllCommercialServiceType,
   getAllContact,
+  getContactByOperationById
 }, dispatch);
 
 export default withStyles(styles)(connect(
