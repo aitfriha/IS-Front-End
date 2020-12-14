@@ -33,6 +33,7 @@ class AddFinancialCompany extends React.Component {
     super(props);
     this.state = {
       name: '',
+      code: '',
       email: '',
       phone1: '',
       phone2: '',
@@ -88,19 +89,21 @@ class AddFinancialCompany extends React.Component {
 
     handleSubmit = () => {
       const {
-        name, email, phone1, phone2, logo, postCode, currentCity, fullAddress
+        name, code, email, phone1, phone2, logo, postCode, currentCity, fullAddress
       } = this.state;
       const city = { _id: currentCity };
       const address = {
         postCode, city, fullAddress
       };
       const FinancialCompany = {
-        name, email, phone1, phone2, logo, address
+        name, code, email, phone1, phone2, logo, address
       };
-      FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
-        console.log(result);
-      });
-      history.push('/app/gestion-financial/Company');
+      if (code.toString().length === 3) {
+        FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
+          console.log(result);
+          history.push('/app/gestion-financial/Company');
+        });
+      }
     }
 
     handleChange = (ev) => {
@@ -122,6 +125,7 @@ class AddFinancialCompany extends React.Component {
       // eslint-disable-next-line react/prop-types
       const {
         name,
+        code,
         email,
         phone1,
         phone2,
@@ -169,6 +173,17 @@ class AddFinancialCompany extends React.Component {
                   variant="outlined"
                   name="name"
                   value={name}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Code"
+                  variant="outlined"
+                  name="code"
+                  value={code}
                   required
                   fullWidth
                   onChange={this.handleChange}
