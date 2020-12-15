@@ -147,8 +147,6 @@ class AddressBlock extends React.Component {
       cities,
       phone
     } = this.state;
-    console.log('**************************');
-    console.log(this.state);
     return (
       <div>
         <Autocomplete

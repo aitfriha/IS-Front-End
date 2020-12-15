@@ -66,7 +66,7 @@ class AddCommercialOperation extends React.Component {
     this.state = {
       client: '',
       disabled: true,
-      statusOperation: '',
+      statusOperation: {},
       country: '',
       serviceType: '',
       nameOperation: '',
@@ -171,10 +171,24 @@ class AddCommercialOperation extends React.Component {
       qualification_process_contacts_other_company_mobile_phone: false,
       qualification_process_contacts_other_company_email: false,
       qualification_process_contacts_other_personal_mobile_phone: false,
-      qualification_process_contacts_other_leader_personal_email: false,
-      qualification_process_contacts_other_leader_skype: false,
-      qualification_process_contacts_other_leader_full_address: false,
-      qualification_process_contacts_other_leader_post_code: false
+      qualification_process_contacts_other_personal_email: false,
+      qualification_process_contacts_other_skype: false,
+      qualification_process_contacts_other_full_address: false,
+      qualification_process_contacts_other_post_code: false,
+      /** **** mandatory attributes ******* */
+      procurement_department_other_contact_first_name: false,
+      procurement_department_other_contact_father_family_name: false,
+      procurement_department_other_contact_mother_family_name: false,
+      procurement_department_other_contact_department: false,
+      procurement_department_other_contact_position: false,
+      procurement_department_other_contact_company_fix_phone: false,
+      procurement_department_other_contact_company_mobile_phone: false,
+      procurement_department_other_contact_company_email: false,
+      procurement_department_other_contact_personal_mobile_phone: false,
+      procurement_department_other_contact_personal_email: false,
+      procurement_department_other_contact_skype: false,
+      procurement_department_other_contact_full_address: false,
+      procurement_department_other_contact_post_code: false,
     };
   }
 
@@ -219,7 +233,7 @@ class AddCommercialOperation extends React.Component {
     if (index !== -1) {
       qpcListAddOtherOperation.splice(index, 1);
     }
-    console.log(qpcListAddOtherOperation);
+
     this.setState({ qpcListAddOtherOperation: qpcListAdd });
     if (qpcOthercontacts.length > 1) {
       const newDocs = qpcOthercontacts.filter(rows => rows !== row);
@@ -266,20 +280,17 @@ class AddCommercialOperation extends React.Component {
 
   handleChangeStatus = (ev) => {
     const { getContactByOperationById } = this.props;
-    this.setState({ [ev.target.name]: ev.target.value });
-    console.log(ev.target.value);
+    this.setState({ [ev.target.name]: (ev.target.value).commercialOperationStatusId });
     this.setState({ disabled: false });
     // console.log(ev.target.value);
     const promise = new Promise((resolve1) => {
-      getContactByOperationById(ev.target.value);
+      getContactByOperationById(ev.target.value.commercialOperationStatusId);
       this.editingPromiseResolveGetStatus = resolve1;
     });
     promise.then((result) => {
-      console.log('result ', result.length);
       if (result.length > 0) {
         // notification('danger', result);
         const { allContactByOperations } = this.props;
-        console.log(allContactByOperations);
         // qualification_process_contacts_decision_maker
         this.setState({ qualification_process_contacts_decision_maker: false });
         this.setState({ qualification_process_contacts_technical_leader: false });
@@ -340,8 +351,27 @@ class AddCommercialOperation extends React.Component {
         this.setState({ qualification_process_contacts_other_skype: false });
         this.setState({ qualification_process_contacts_other_full_address: false });
         this.setState({ qualification_process_contacts_other_post_code: false });
+        // procurement_department_other_contact
+        this.setState({ procurement_department_other_contact_first_name: false });
+        this.setState({ procurement_department_other_contact_father_family_name: false });
+        this.setState({ procurement_department_other_contact_mother_family_name: false });
+        this.setState({ procurement_department_other_contact_department: false });
+        this.setState({ procurement_department_other_contact_position: false });
+        this.setState({ procurement_department_other_contact_company_fix_phone: false });
+        this.setState({ procurement_department_other_contact_company_mobile_phone: false });
+        this.setState({ procurement_department_other_contact_company_email: false });
+        this.setState({ procurement_department_other_contact_personal_mobile_phone: false });
+        this.setState({ procurement_department_other_contact_personal_email: false });
+        this.setState({ procurement_department_other_contact_skype: false });
+        this.setState({ procurement_department_other_contact_full_address: false });
+        this.setState({ procurement_department_other_contact_post_code: false });
+        this.setState({ procurement_department_other_contact: false });
+
+        this.setState({ legal_area_other_contact: false });
+
+
         for (const key in allContactByOperations) {
-          if (allContactByOperations[key].contactsType === 'contact of the decision-maker' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+          if (allContactByOperations[key].contactsType === 'contact of the decision-maker' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ qualification_process_contacts_decision_maker: true });
             for (const cle in allContactByOperations[key].mandatoryAttributes) {
               if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
@@ -385,7 +415,7 @@ class AddCommercialOperation extends React.Component {
               }
             }
           }
-          if (allContactByOperations[key].contactsType === 'contact of the technical leader' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+          if (allContactByOperations[key].contactsType === 'contact of the technical leader' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ qualification_process_contacts_technical_leader: true });
             for (const cle in allContactByOperations[key].mandatoryAttributes) {
               if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
@@ -429,7 +459,7 @@ class AddCommercialOperation extends React.Component {
               }
             }
           }
-          if (allContactByOperations[key].contactsType === 'contact of the person close to the decision-maker' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+          if (allContactByOperations[key].contactsType === 'contact of the person close to the decision-maker' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ qualification_process_contacts_close_decision_maker: true });
             for (const cle in allContactByOperations[key].mandatoryAttributes) {
               if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
@@ -473,7 +503,7 @@ class AddCommercialOperation extends React.Component {
               }
             }
           }
-          if (allContactByOperations[key].contactsType === 'Other contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+          if (allContactByOperations[key].contactsType === 'Other contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ qualification_process_other_contact: true });
             for (const cle in allContactByOperations[key].mandatoryAttributes) {
               if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
@@ -517,11 +547,51 @@ class AddCommercialOperation extends React.Component {
               }
             }
           }
-          if (allContactByOperations[key].contactsType === 'pd contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0) {
-            this.setState({ qualification_process_other_contact: true });
+          if (allContactByOperations[key].contactsType === 'pd contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
+            this.setState({ procurement_department_other_contact: true });
+            for (const cle in allContactByOperations[key].mandatoryAttributes) {
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
+                this.setState({ procurement_department_other_contact_first_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'father family name') {
+                this.setState({ procurement_department_other_contact_father_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'mother family name') {
+                this.setState({ procurement_department_other_contact_mother_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'department') {
+                this.setState({ procurement_department_other_contact_department: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'position') {
+                this.setState({ procurement_department_other_contact_position: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyFixPhone') {
+                this.setState({ procurement_department_other_contact_company_fix_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyMobilePhone') {
+                this.setState({ procurement_department_other_contact_company_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyEmail') {
+                this.setState({ procurement_department_other_contact_company_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalMobilePhone') {
+                this.setState({ procurement_department_other_contact_personal_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalEmail') {
+                this.setState({ procurement_department_other_contact_personal_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'skype') {
+                this.setState({ procurement_department_other_contact_skype: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'fullAddress') {
+                this.setState({ procurement_department_other_contact_full_address: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'postCode') {
+                this.setState({ procurement_department_other_contact_post_code: true });
+              }
+            }
           }
-
-          if (allContactByOperations[key].contactsType === 'la contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0) {
+          if (allContactByOperations[key].contactsType === 'la contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ legal_area_other_contact: true });
           }
         }
@@ -623,7 +693,7 @@ class AddCommercialOperation extends React.Component {
     for (const key in value) {
       serviceType.push(value[key].serviceTypeId);
     }
-    console.log(serviceType);
+
     this.setState({ serviceTypeId: serviceType });
   };
 
@@ -649,7 +719,7 @@ class AddCommercialOperation extends React.Component {
       const operation = {
         clientId: client,
         name: nameOperation,
-        stateId: statusOperation,
+        stateId: statusOperation.commercialOperationStatusId,
         description: descriptionOperation,
         serviceTypeId,
         plannedDateQ,
@@ -662,7 +732,7 @@ class AddCommercialOperation extends React.Component {
         devise,
         estimatedTradeVolumeInEuro
       };
-      console.log(operation);
+
       /** */
       const promise = new Promise((resolve) => {
         addCommercialOperation(operation);
@@ -703,8 +773,7 @@ class AddCommercialOperation extends React.Component {
       qualification_process_contacts_decision_maker_full_address,
       qualification_process_contacts_decision_maker_post_code
     } = this.state;
-    console.log(suppliersArea);
-    console.log(supplierType);
+
     if (suppliersArea === 'Suppliers Area' && supplierType === 'decision - maker') {
       this.setState({
         first_name: qualification_process_contacts_decision_maker_first_name,
@@ -787,7 +856,7 @@ class AddCommercialOperation extends React.Component {
         post_code: qualification_process_contacts_close_decision_maker_post_code
       });
     }
-    console.log('supplierType :', supplierType);
+
     if (suppliersArea === 'Suppliers Area' && supplierType === 'Other contact') {
       const {
         qualification_process_contacts_other_first_name,
@@ -804,6 +873,7 @@ class AddCommercialOperation extends React.Component {
         qualification_process_contacts_other_full_address,
         qualification_process_contacts_other_post_code
       } = this.state;
+
       this.setState({
         first_name: qualification_process_contacts_other_first_name,
         father_family_name: qualification_process_contacts_other_father_family_name,
@@ -818,6 +888,39 @@ class AddCommercialOperation extends React.Component {
         _skype: qualification_process_contacts_other_skype,
         full_address: qualification_process_contacts_other_full_address,
         post_code: qualification_process_contacts_other_post_code
+      });
+    }
+
+    if (suppliersArea === 'Procurement Department Contacts' && supplierType === 'Other contact') {
+      const {
+        procurement_department_other_contact_first_name,
+        procurement_department_other_contact_father_family_name,
+        procurement_department_other_contact_mother_family_name,
+        procurement_department_other_contact_department,
+        procurement_department_other_contact_position,
+        procurement_department_other_contact_company_fix_phone,
+        procurement_department_other_contact_company_mobile_phone,
+        procurement_department_other_contact_company_email,
+        procurement_department_other_contact_personal_mobile_phone,
+        procurement_department_other_contact_personal_email,
+        procurement_department_other_contact_skype,
+        procurement_department_other_contact_full_address,
+        procurement_department_other_contact_post_code
+      } = this.state;
+      this.setState({
+        first_name: procurement_department_other_contact_first_name,
+        father_family_name: procurement_department_other_contact_father_family_name,
+        mother_family_name: procurement_department_other_contact_mother_family_name,
+        _department: procurement_department_other_contact_department,
+        _position: procurement_department_other_contact_position,
+        company_fix_phone: procurement_department_other_contact_company_fix_phone,
+        company_mobile_phone: procurement_department_other_contact_company_mobile_phone,
+        company_email: procurement_department_other_contact_company_email,
+        personal_mobile_phone: procurement_department_other_contact_personal_mobile_phone,
+        personal_email: procurement_department_other_contact_personal_email,
+        _skype: procurement_department_other_contact_skype,
+        full_address: procurement_department_other_contact_full_address,
+        post_code: procurement_department_other_contact_post_code
       });
     }
   }
@@ -998,12 +1101,13 @@ class AddCommercialOperation extends React.Component {
                   <InputLabel>Select the client</InputLabel>
                   <Select
                     name="statusOperation"
-                    value={statusOperation}
+                    /* value={statusOperation.commercialOperationStatusId} */
                     onChange={this.handleChangeStatus}
+                    defaultValue=""
                   >
                     {
-                      allCommercialOperationStatuss.map((clt) => (
-                        <MenuItem key={clt.commercialOperationStatusId} value={clt.commercialOperationStatusId}>
+                      allCommercialOperationStatuss && allCommercialOperationStatuss.map((clt) => (
+                        <MenuItem key={clt.commercialOperationStatusId} value={clt} defaultValue="">
                           {clt.name}
                         </MenuItem>
                       ))
@@ -1270,6 +1374,7 @@ class AddCommercialOperation extends React.Component {
                     name="closeDecisionMaker"
                     value={closeDecisionMaker && closeDecisionMaker}
                     onChange={this.handleChange}
+                    defaultValue=""
                   >
                     {
                       closeDecisionMakers && closeDecisionMakers.map((type) => (
@@ -1294,6 +1399,7 @@ class AddCommercialOperation extends React.Component {
                       name="administrativeContact"
                       value={administrativeContact[row]}
                       onChange={this.handleChangeOtheter}
+                      defaultValue=""
                     >
                       {
                         qpcOthercontact && qpcOthercontact.map((type) => (
@@ -1376,6 +1482,7 @@ class AddCommercialOperation extends React.Component {
                       name="administrativeContact"
                       value={administrativeContact[row]}
                       onChange={this.handleChangeOtheter}
+                      defaultValue=""
                     >
                       {
                         pdcOthercontact && pdcOthercontact.map((type) => (
@@ -1420,6 +1527,7 @@ class AddCommercialOperation extends React.Component {
                       name="administrativeContact"
                       value={administrativeContact[row]}
                       onChange={this.handleChangeOtheter}
+                      defaultValue=""
                     >
                       {
                         lacOthercontact && lacOthercontact.map((type) => (
