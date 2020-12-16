@@ -53,7 +53,7 @@ import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import EditContact from '../Contact/editContact';
 import AddContact from '../Contact/addContact';
 import { getContactByOperationById } from '../../../redux/contactByOperation/actions';
-const qpcListAdd = [];
+var qpcListAdd = [];
 const pdcListAdd = [];
 const lacListAdd = [];
 class AddCommercialOperation extends React.Component {
@@ -189,6 +189,8 @@ class AddCommercialOperation extends React.Component {
       procurement_department_other_contact_skype: false,
       procurement_department_other_contact_full_address: false,
       procurement_department_other_contact_post_code: false,
+
+      contactsId_DecisionMaker: ''
     };
   }
 
@@ -366,7 +368,20 @@ class AddCommercialOperation extends React.Component {
         this.setState({ procurement_department_other_contact_full_address: false });
         this.setState({ procurement_department_other_contact_post_code: false });
         this.setState({ procurement_department_other_contact: false });
-
+        // legal_area_other_contact
+        this.setState({ legal_area_other_contact_first_name: false });
+        this.setState({ legal_area_other_contact_father_family_name: false });
+        this.setState({ legal_area_other_contact_mother_family_name: false });
+        this.setState({ legal_area_other_contact_department: false });
+        this.setState({ legal_area_other_contact_position: false });
+        this.setState({ legal_area_other_contact_company_fix_phone: false });
+        this.setState({ legal_area_other_contact_company_mobile_phone: false });
+        this.setState({ legal_area_other_contact_company_email: false });
+        this.setState({ legal_area_other_contact_personal_mobile_phone: false });
+        this.setState({ legal_area_other_contact_personal_email: false });
+        this.setState({ legal_area_other_contact_skype: false });
+        this.setState({ legal_area_other_contact_full_address: false });
+        this.setState({ legal_area_other_contact_post_code: false });
         this.setState({ legal_area_other_contact: false });
 
 
@@ -593,6 +608,47 @@ class AddCommercialOperation extends React.Component {
           }
           if (allContactByOperations[key].contactsType === 'la contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ legal_area_other_contact: true });
+            for (const cle in allContactByOperations[key].mandatoryAttributes) {
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
+                this.setState({ legal_area_other_contact_first_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'father family name') {
+                this.setState({ legal_area_other_contact_father_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'mother family name') {
+                this.setState({ legal_area_other_contact_mother_family_name: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'department') {
+                this.setState({ legal_area_other_contact_department: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'position') {
+                this.setState({ legal_area_other_contact_position: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyFixPhone') {
+                this.setState({ legal_area_other_contact_company_fix_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyMobilePhone') {
+                this.setState({ legal_area_other_contact_company_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'companyEmail') {
+                this.setState({ legal_area_other_contact_company_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalMobilePhone') {
+                this.setState({ legal_area_other_contact_personal_mobile_phone: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'personalEmail') {
+                this.setState({ legal_area_other_contact_personal_email: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'skype') {
+                this.setState({ legal_area_other_contact_skype: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'fullAddress') {
+                this.setState({ legal_area_other_contact_full_address: true });
+              }
+              if (allContactByOperations[key].mandatoryAttributes[cle] === 'postCode') {
+                this.setState({ legal_area_other_contact_post_code: true });
+              }
+            }
           }
         }
       } else {
@@ -602,9 +658,11 @@ class AddCommercialOperation extends React.Component {
   };
 
   handleChangeOtheter= (ev) => {
+    //console.log(ev.target.value);
     qpcListAdd.push(ev.target.value);
+    qpcListAdd = Object.keys(qpcListAdd.reduce((p,c) => (p[c] = true,p),{}));
     this.setState({ qpcListAddOtherOperation: qpcListAdd });
-    console.log(qpcListAdd);
+    //console.log(qpcListAdd);
   };
 
 
@@ -698,6 +756,11 @@ class AddCommercialOperation extends React.Component {
   };
 
     handleCreate = () => {
+      const { contactsId_DecisionMaker,contactsId_TechnicalLeader,contactsId_CloseDecisionMaker,qpcListAddOtherOperation } = this.state;
+      qpcListAddOtherOperation.push(contactsId_DecisionMaker);
+      qpcListAddOtherOperation.push(contactsId_TechnicalLeader);
+      qpcListAddOtherOperation.push(contactsId_CloseDecisionMaker);
+
       const { addCommercialOperation } = this.props;
       const {
         client,
@@ -716,10 +779,11 @@ class AddCommercialOperation extends React.Component {
         estimatedTradeVolumeInEuro
 
       } = this.state;
+      console.log(statusOperation);
       const operation = {
         clientId: client,
         name: nameOperation,
-        stateId: statusOperation.commercialOperationStatusId,
+        stateId: statusOperation,
         description: descriptionOperation,
         serviceTypeId,
         plannedDateQ,
@@ -730,7 +794,8 @@ class AddCommercialOperation extends React.Component {
         amount,
         estimatedTradeVolume,
         devise,
-        estimatedTradeVolumeInEuro
+        estimatedTradeVolumeInEuro,
+        contactsIds: qpcListAddOtherOperation
       };
 
       /** */
@@ -923,6 +988,39 @@ class AddCommercialOperation extends React.Component {
         post_code: procurement_department_other_contact_post_code
       });
     }
+
+    if (suppliersArea === 'Legal Area Contact' && supplierType === 'Other contact') {
+      const {
+        legal_area_other_contact_first_name,
+        legal_area_other_contact_father_family_name,
+        legal_area_other_contact_mother_family_name,
+        legal_area_other_contact_department,
+        legal_area_other_contact_position,
+        legal_area_other_contact_company_fix_phone,
+        legal_area_other_contact_company_mobile_phone,
+        legal_area_other_contact_company_email,
+        legal_area_other_contact_personal_mobile_phone,
+        legal_area_other_contact_personal_email,
+        legal_area_other_contact_skype,
+        legal_area_other_contact_full_address,
+        legal_area_other_contact_post_code
+      } = this.state;
+      this.setState({
+        first_name: legal_area_other_contact_first_name,
+        father_family_name: legal_area_other_contact_father_family_name,
+        mother_family_name: legal_area_other_contact_mother_family_name,
+        _department: legal_area_other_contact_department,
+        _position: legal_area_other_contact_position,
+        company_fix_phone: legal_area_other_contact_company_fix_phone,
+        company_mobile_phone: legal_area_other_contact_company_mobile_phone,
+        company_email: legal_area_other_contact_company_email,
+        personal_mobile_phone: legal_area_other_contact_personal_mobile_phone,
+        personal_email: legal_area_other_contact_personal_email,
+        _skype: legal_area_other_contact_skype,
+        full_address: legal_area_other_contact_full_address,
+        post_code: legal_area_other_contact_post_code
+      });
+    }
   }
 
   handleCloseContact = () => {
@@ -980,7 +1078,7 @@ class AddCommercialOperation extends React.Component {
       nameOperation, descriptionOperation, plannedDateQ,
       commercialFlowQ, documentationDate, paymentDate,
       contractDate, estimatedTradeVolume, contractVolume,
-      managementContact, administrativeContact, legalAreaMainContact,
+      managementContact, administrativeContact, legalAreaMainContact,contactsId_DecisionMaker,contactsId_TechnicalLeader,contactsId_CloseDecisionMaker,
       commercialResponsible, commercialResponsibleAssistant,
       suppliersArea, supplierType, disabled,
       qualification_process_contacts_decision_maker,
@@ -989,7 +1087,7 @@ class AddCommercialOperation extends React.Component {
       qualification_process_other_contact,
       procurement_department_other_contact,
       legal_area_other_contact,
-      decisionMakers, technicalLeaders, administrativeContactTechnicalLeader, closeDecisionMakers, closeDecisionMaker, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
+      decisionMakers, technicalLeaders, closeDecisionMakers, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
       lacOthercontacts, lacOthercontact, openPopUp,
 
       first_name,
@@ -1098,7 +1196,7 @@ class AddCommercialOperation extends React.Component {
                     Status
                 </Typography>
                 <FormControl fullWidth required style={{ width: '90%' }}>
-                  <InputLabel>Select the client</InputLabel>
+                  <InputLabel>Select the status</InputLabel>
                   <Select
                     name="statusOperation"
                     /* value={statusOperation.commercialOperationStatusId} */
@@ -1324,9 +1422,9 @@ class AddCommercialOperation extends React.Component {
                 <FormControl fullWidth required={qualification_process_contacts_decision_maker} disabled={disabled}>
                   <InputLabel>contact of the the decision - maker</InputLabel>
                   <Select
-                    name="administrativeContact"
+                    name="contactsId_DecisionMaker"
                     id="contact of the decision - maker"
-                    value={administrativeContact && administrativeContact}
+                    value={contactsId_DecisionMaker && contactsId_DecisionMaker}
                     onChange={this.handleChangeMaker}
                   >
                     {
@@ -1348,8 +1446,8 @@ class AddCommercialOperation extends React.Component {
                 <FormControl fullWidth required={qualification_process_contacts_technical_leader} disabled={disabled}>
                   <InputLabel>contact the technical leader</InputLabel>
                   <Select
-                    name="administrativeContactTechnicalLeader"
-                    value={administrativeContactTechnicalLeader && administrativeContactTechnicalLeader}
+                    name="contactsId_TechnicalLeader"
+                    value={contactsId_TechnicalLeader && contactsId_TechnicalLeader}
                     onChange={this.handleChange}
                   >
                     {
@@ -1371,8 +1469,8 @@ class AddCommercialOperation extends React.Component {
                 <FormControl fullWidth required={qualification_process_contacts_close_decision_maker} disabled={disabled}>
                   <InputLabel>contact of the person close to the decision - maker</InputLabel>
                   <Select
-                    name="closeDecisionMaker"
-                    value={closeDecisionMaker && closeDecisionMaker}
+                    name="contactsId_CloseDecisionMaker"
+                    value={contactsId_CloseDecisionMaker && contactsId_CloseDecisionMaker}
                     onChange={this.handleChange}
                     defaultValue=""
                   >
