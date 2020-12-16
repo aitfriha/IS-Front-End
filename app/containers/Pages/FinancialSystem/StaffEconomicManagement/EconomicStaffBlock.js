@@ -17,6 +17,7 @@ import EconomicStaffService from '../../../Services/EconomicStaffService';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import EditEconomicStaff from './editEconomicStaff';
+import ConsultStaff from './consultStaff';
 
 const useStyles = makeStyles();
 
@@ -625,14 +626,19 @@ class EconomicStaffBlock extends React.Component {
       });
     };
 
+    myCallback2 = (dataFromChild) => {
+      EconomicStaffService.getEconomicStaff().then(result => {
+        this.setState({ datas: result.data, openStaff: dataFromChild });
+      });
+    };
+
     render() {
       console.log(this.state);
-      const maxOffset = 10;
       const thisYear = (new Date()).getFullYear();
       const allYears = [];
       const allMonths = [];
       // eslint-disable-next-line no-plusplus
-      for (let x = 0; x <= maxOffset; x++) {
+      for (let x = 0; x <= 10; x++) {
         allYears.push(thisYear - x);
       }
       // eslint-disable-next-line no-plusplus
@@ -1118,6 +1124,9 @@ class EconomicStaffBlock extends React.Component {
                       required
                       fullWidth
                       onChange={this.handleChange}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   </Grid>
                 </Grid>
@@ -1193,6 +1202,32 @@ class EconomicStaffBlock extends React.Component {
                 save
               </Button>
             </DialogActions>
+          </Dialog>
+          <Dialog
+            open={openStaff}
+            keepMounted
+            scroll="body"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth="md"
+            maxWidth="md"
+          >
+            <DialogTitle id="alert-dialog-slide-title"> Staff Payment Consult </DialogTitle>
+            <DialogContent dividers>
+              <Grid
+                container
+                spacing={3}
+                alignItems="flex-start"
+                direction="row"
+              >
+                <Grid item xs={0} />
+                <Grid item xs={11}>
+                  <ConsultStaff Infos2={economicStaff} callsbackFromParent2={this.myCallback2} />
+                </Grid>
+                <Grid item xs={0} />
+              </Grid>
+            </DialogContent>
           </Dialog>
         </div>
       );
