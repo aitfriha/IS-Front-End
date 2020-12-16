@@ -59,7 +59,6 @@ class AddStatus extends React.Component {
     };
 
     render() {
-      console.log(this.state);
       const title = brand.name + ' - Add Status';
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
