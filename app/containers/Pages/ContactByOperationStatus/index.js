@@ -710,25 +710,6 @@ class ContactByOperationStatus extends React.Component {
               md={5}
               style={{ display: 'flex' }}
             >
-              <Typography variant="subtitle2" color="primary" style={{ width: '15%' }}>Description</Typography>
-              <div style={{ width: '80%' }}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  variant="outlined"
-                  required
-                  value={description}
-                  name="description"
-                  onChange={this.handleChange}
-                />
-              </div>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={5}
-              style={{ display: 'flex' }}
-            >
               <Typography variant="subtitle2" color="primary" style={{ width: '20%' }}>Contact type</Typography>
               <div style={{ width: '60%' }}>
                 <Button
@@ -1075,7 +1056,7 @@ class ContactByOperationStatus extends React.Component {
                       />
                       <FormControlLabel
                         control={<Checkbox checked={personalMobilePhone} onChange={this.handleChangeCheckAddAttributes} name="personalMobilePhone" value="personalMobilePhone" />}
-                        label="personal email"
+                        label="personal mobile phone"
                       />
                       <FormControlLabel
                         control={<Checkbox checked={personalEmail} onChange={this.handleChangeCheckAddAttributes} name="personalEmail" value="personalEmail" />}

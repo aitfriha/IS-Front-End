@@ -7,12 +7,28 @@ import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import Grid from '@material-ui/core/Grid';
 import {
-  Dialog, DialogTitle, DialogContent, Button, DialogActions, withStyles
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Button,
+  DialogActions,
+  withStyles,
+  Chip,
+  Avatar,
+  Divider,
+  Typography,
+  InputLabel,
+  Select, MenuItem
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
+import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox/Checkbox';
+import LibraryBooks from '@material-ui/core/SvgIcon/SvgIcon';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import PapperBlock from '../../../components/PapperBlock/PapperBlock';
 import StepperIndex from '../../../components/Stepper/StepperIndex';
@@ -23,7 +39,8 @@ import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
 import styles from '../Clients/clients-jss';
 import { getAllCommercialOperation } from '../../../redux/commercialOperation/actions';
-/*createMuiTheme({
+import AddContact from '../Contact/addContact';
+/* createMuiTheme({
   overrides: {
     MUIDataTable: {
       responsiveScroll: {
@@ -31,13 +48,18 @@ import { getAllCommercialOperation } from '../../../redux/commercialOperation/ac
       },
     },
   },
-});*/
+}); */
+var legalAreaContacts = [];
+var procurementDepartmentContacts = [];
+var qualificationProcessContacts = [];
 class commercialOperationList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       open: false,
       data: [],
+      oprationName: '',
+      openPopUp: false,
       columns: [
         {
           label: 'Operation Code',
@@ -47,19 +69,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -73,19 +95,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -99,19 +121,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -125,19 +147,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -151,19 +173,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -177,19 +199,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -203,19 +225,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -229,19 +251,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -264,19 +286,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -290,19 +312,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -316,19 +338,19 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             })
@@ -350,6 +372,32 @@ class commercialOperationList extends React.Component {
             sort: true,
             setCellProps: () => ({
               style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        /*      {
+          name: 'contactDtos',
+          label: 'contacts',
+          options: {
+            filter: true,
+            sort: true,
+            setCellProps: () => ({
+              style: {
                 whiteSpace: "nowrap",
                 position: "sticky",
                 left: "0",
@@ -367,6 +415,20 @@ class commercialOperationList extends React.Component {
               }
             })
           }
+        }, */
+
+        {
+          name: 'contactDtos',
+          label: 'contacts',
+          options: {
+            customBodyRender: (value, data) => (
+              <React.Fragment>
+                <IconButton onClick={() => this.showContacts(value, data)}>
+                  <VisibilityIcon color="secondary" />
+                </IconButton>
+              </React.Fragment>
+            )
+          }
         },
 
         {
@@ -377,19 +439,19 @@ class commercialOperationList extends React.Component {
             empty: true,
             setCellProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
-                left: "0",
-                background: "white",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
                 zIndex: 100
               }
             }),
             setCellHeaderProps: () => ({
               style: {
-                whiteSpace: "nowrap",
-                position: "sticky",
+                whiteSpace: 'nowrap',
+                position: 'sticky',
                 left: 0,
-                background: "white",
+                background: 'white',
                 zIndex: 101
               }
             }),
@@ -413,7 +475,13 @@ class commercialOperationList extends React.Component {
         },
       ],
       viewDetails: false,
-      viewProgress: false
+      viewProgress: false,
+      contactOtherContactList: [],
+      contactCloseToDecisionMaker: '',
+      contactTechnicalLeader: '',
+      legalAreaContactsList: [],
+      procurementDepartmentContactList: [],
+      contactDecisionMaker: ''
     };
   }
 
@@ -423,6 +491,44 @@ class commercialOperationList extends React.Component {
     getAllClient(); getAllCommercialOperation();
   }
 
+  showContacts= (data, aaa) => {
+    this.setState({ openPopUp: true });
+    this.setState({ oprationName: aaa.rowData[1] });
+    this.setState({ contactOtherContactList: [] });
+    this.setState({ procurementDepartmentContactList: [] });
+    this.setState({ legalAreaContactsList: [] });
+    this.setState({ contactDecisionMaker: '' });
+    this.setState({ contactCloseToDecisionMaker: '' });
+    this.setState({ contactTechnicalLeader: '' });
+    procurementDepartmentContacts=[];
+    legalAreaContacts=[];
+    qualificationProcessContacts=[];
+    for (const cle in data) {
+      console.log(data[cle]);
+      if (data[cle].supplierType === 'decision - maker' && data[cle].suppliersArea === 'Suppliers Area') {
+        this.setState({ contactDecisionMaker: data[cle].firstName + ' ' + data[cle].fatherFamilyName });
+      }
+      if (data[cle].supplierType === 'Other contact' && data[cle].suppliersArea === 'Suppliers Area') {
+        qualificationProcessContacts.push(data[cle].firstName + ' ' + data[cle].fatherFamilyName );
+        this.setState({ contactOtherContactList: qualificationProcessContacts });
+
+      }
+      if (data[cle].supplierType === 'close to the decision - maker') {
+        this.setState({ contactCloseToDecisionMaker: data[cle].firstName + ' ' + data[cle].fatherFamilyName });
+      }
+      if (data[cle].supplierType === 'technical leader') {
+        this.setState({ contactTechnicalLeader: data[cle].firstName + ' ' + data[cle].fatherFamilyName });
+      }
+      if (data[cle].suppliersArea === 'Procurement Department Contacts' && data[cle].supplierType === 'Other contact') {
+        procurementDepartmentContacts.push(data[cle].firstName + ' ' + data[cle].fatherFamilyName);
+        this.setState({ procurementDepartmentContactList: procurementDepartmentContacts });
+      }
+      if (data[cle].suppliersArea === 'Legal Area Contact' && data[cle].supplierType === 'Other contact') {
+        legalAreaContacts.push(data[cle].firstName + ' ' + data[cle].fatherFamilyName);
+        this.setState({ legalAreaContactsList: legalAreaContacts });
+      }
+    }
+  }
 
   handleDetails = () => {
     this.setState({ viewDetails: true });
@@ -440,9 +546,13 @@ class commercialOperationList extends React.Component {
     this.setState({ viewProgress: false });
   }
 
+  handleClose= () => {
+    this.setState({ openPopUp: false });
+  }
+
   render() {
     const {
-      viewProgress,
+      viewProgress, openPopUp, oprationName, contactOtherContactList, contactCloseToDecisionMaker, contactTechnicalLeader, legalAreaContactsList, procurementDepartmentContactList, contactDecisionMaker
     } = this.state;
     const {
       allClients, allCommercialOperations
@@ -504,6 +614,114 @@ class commercialOperationList extends React.Component {
             </Dialog>
           </div>
         </PapperBlock>
+        <Dialog
+          open={openPopUp}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="xl"
+        >
+          <DialogTitle id="alert-dialog-slide-title">
+            {' '}
+           Contact assigned to operation
+            <span style={{ color: 'blue' }}>
+              {' '}
+              {oprationName}
+            </span>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Grid
+              container
+              spacing={4}
+              direction="row"
+            >
+              <Grid
+                item
+                xs={12}
+                md={4}
+                sm={4}
+              >
+                <Typography variant="subtitle2" component="h2" color="primary">
+                    Qualification Process Contacts
+                </Typography>
+                {contactDecisionMaker != '' ? (
+                  <div style={{ display: 'flex' }}>
+                  decision macker  &nbsp;
+                    <span style={{ color: 'blue' }}>{contactDecisionMaker}</span>
+                  </div>
+                ) : ''
+                }
+                {contactTechnicalLeader != '' ? (
+                  <div style={{ display: 'flex' }}>
+                    technical leader  &nbsp;
+                    <span style={{ color: 'blue' }}>{contactTechnicalLeader}</span>
+                  </div>
+                ) : ''
+                }
+                {contactCloseToDecisionMaker != '' ? (
+                  <div style={{ display: 'flex' }}>
+                    close to the decision macker &nbsp;
+                    <span style={{ color: 'blue' }}>
+                      {' '}
+                      {contactCloseToDecisionMaker}
+                    </span>
+                  </div>
+                ) : ''
+                }
+                {contactOtherContactList.map(contact => (
+                    <div style={{ display: 'flex' }}>
+                      contact 1 &nbsp;
+                      <span style={{ color: 'blue' }}>{contact}</span>
+                    </div>
+                ))}
+                <br />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={4}
+                sm={4}
+              >
+                <Typography variant="subtitle2" component="h2" color="primary">
+                    Procurement Department Contacts
+                </Typography>
+                {procurementDepartmentContactList.map(contact => (
+                  <div style={{ display: 'flex' }}>
+                      contact 1 &nbsp;
+                    <span style={{ color: 'blue' }}>{contact}</span>
+                  </div>
+                ))}
+                <br />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={4}
+                sm={4}
+              >
+                <Typography variant="subtitle2" component="h2" color="primary">
+                    Legal Area Contact
+                </Typography>
+                {legalAreaContactsList.map(contact => (
+                  <div style={{ display: 'flex' }}>
+                    contact 1 &nbsp;
+                    <span style={{ color: 'blue' }}>{contact}</span>
+                  </div>
+                ))}
+                <br />
+              </Grid>
+
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleClose}>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
