@@ -774,12 +774,12 @@ class ContactByOperationStatusBlock extends React.Component {
                     {buttonUpdateAttributes == true ? (
                       <FormControlLabel
                         control={<Checkbox checked={personalMobilePhone} onChange={this.handleChangeCheckAddAttributes} name="personalMobilePhone" value="personalMobilePhone" />}
-                        label="personal email"
+                        label="personal mobile phone"
                       />
                     ) : (
                       <FormControlLabel
                         control={<Checkbox checked={personalMobilePhone} name="personalMobilePhone" value="personalMobilePhone" />}
-                        label="personal email"
+                        label="personal mobile phone"
                       />
                     )
                     }
