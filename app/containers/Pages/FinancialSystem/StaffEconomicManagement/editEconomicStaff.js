@@ -5,15 +5,13 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
-import { getAllStaff } from '../../../../redux/staff/actions';
+import CurrencyService from '../../../Services/CurrencyService';
 
 class EditEconomicStaff extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       economicStaffId: '',
-      // eslint-disable-next-line react/destructuring-assignment,react/prop-types
-      staffs: this.props.allStaff,
       staffId: '',
       companyId: '',
       changeFactor: '',
@@ -32,7 +30,10 @@ class EditEconomicStaff extends React.Component {
       netSalaryEuro: '',
       contributionSalaryEuro: '',
       companyCostEuro: '',
-      open: false
+      open: false,
+      currencies: [],
+      currencyId: '',
+      currencyCode: ''
     };
   }
 
@@ -40,21 +41,8 @@ class EditEconomicStaff extends React.Component {
     editingPromiseResolve = () => {};
 
     componentDidMount() {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllStaff } = this.props;
-      const promise = new Promise(resolve => {
-        // get client information
-        getAllStaff();
-        this.editingPromiseResolve = resolve;
-      });
-      promise.then(result => {
-        const staffs = [];
-        console.log(result);
-        // eslint-disable-next-line react/destructuring-assignment,react/prop-types
-        this.props.allStaff.forEach(staff => {
-          staffs.push(staff);
-        });
-        this.setState({ staffs });
+      CurrencyService.getCurrency().then(result => {
+        this.setState({ currencies: result.data });
       });
     }
 
@@ -70,7 +58,7 @@ class EditEconomicStaff extends React.Component {
           changeFactor: economicStaff.changeFactor,
           company: economicStaff.financialCompany.name,
           employeeNumber: economicStaff.employeeNumber,
-          name: economicStaff.staff.staffId,
+          name: economicStaff.staff.firstName,
           fatherName: economicStaff.fatherName,
           motherName: economicStaff.motherName,
           highDate: economicStaff.highDate,
@@ -82,21 +70,25 @@ class EditEconomicStaff extends React.Component {
           grosSalaryEuro: economicStaff.grosSalaryEuro,
           netSalaryEuro: economicStaff.netSalaryEuro,
           contributionSalaryEuro: economicStaff.contributionSalaryEuro,
-          companyCostEuro: economicStaff.companyCostEuro
+          companyCostEuro: economicStaff.companyCostEuro,
+          currencyId: economicStaff.currency._id,
+          currencyCode: economicStaff.currency.currencyCode
         });
       }
     }
 
     handleSubmit = () => {
       const {
-        economicStaffId, staffId, highDate, lowDate, changeFactor, employeeNumber, name, fatherName, motherName, companyId,
+        economicStaffId, staffId, highDate, lowDate, changeFactor, employeeNumber, name, fatherName, motherName, companyId, currencyId,
         grosSalary, netSalary, contributionSalary, companyCost, grosSalaryEuro, netSalaryEuro, contributionSalaryEuro, companyCostEuro,
       } = this.state;
       const staff = { staffId };
       const financialCompany = { _id: companyId };
+      const currency = { _id: currencyId };
       const EconomicStaff = {
         economicStaffId,
         staff,
+        currency,
         financialCompany,
         changeFactor,
         employeeNumber,
@@ -124,38 +116,27 @@ class EditEconomicStaff extends React.Component {
 
     handleChange = (ev) => {
       // eslint-disable-next-line react/destructuring-assignment
-      const changefactor = this.state.changeFactor;
-      if (ev.target.name === 'name') {
-        const id = ev.target.value;
-        // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-        this.state.staffs.map(staff => {
-          if (staff.staffId === id) {
-            this.setState({
-              name: staff.firstName,
-              staffId: staff.staffId,
-              changeFactor: staff.changeFactor,
-              fatherName: staff.fatherFamilyName,
-              motherName: staff.motherFamilyName,
-              highDate: staff.highDate,
-              lowDate: staff.lowDate,
-              companyId: staff.companyId,
-              company: staff.companyName,
-              employeeNumber: staff.personalNumber
-            });
+      let { changeFactor } = this.state;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const { netSalary, contributionSalary } = this.state;
+        let currencyCode;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
           }
         });
-      }
-      if (ev.target.name === 'grosSalary') {
-        this.setState({ grosSalaryEuro: ev.target.value * changefactor });
+        this.setState({
+          netSalaryEuro: netSalary * changeFactor, contributionSalaryEuro: contributionSalary * changeFactor, changeFactor, currencyCode
+        });
       }
       if (ev.target.name === 'netSalary') {
-        this.setState({ netSalaryEuro: ev.target.value * changefactor });
+        this.setState({ netSalaryEuro: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'contributionSalary') {
-        this.setState({ contributionSalaryEuro: ev.target.value * changefactor });
-      }
-      if (ev.target.name === 'companyCost') {
-        this.setState({ companyCostEuro: ev.target.value * changefactor });
+        this.setState({ contributionSalaryEuro: ev.target.value * changeFactor });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
@@ -169,18 +150,10 @@ class EditEconomicStaff extends React.Component {
       console.log(this.state);
       const {
         name, fatherName, motherName, highDate, lowDate, company, employeeNumber,
-        grosSalary, netSalary, contributionSalary, companyCost, staffs,
-        grosSalaryEuro, netSalaryEuro, contributionSalaryEuro, companyCostEuro
+        grosSalary, netSalary, contributionSalary, companyCost,
+        grosSalaryEuro, netSalaryEuro, contributionSalaryEuro, companyCostEuro,
+        currencies, currencyId, currencyCode
       } = this.state;
-      const {
-        // eslint-disable-next-line react/prop-types
-        isLoadingStaff, staffResponse, errorStaff
-      } = this.props;
-
-      !isLoadingStaff
-        && staffResponse
-        && this.editingPromiseResolve(staffResponse);
-      !isLoadingStaff && !staffResponse && this.editingPromiseResolve(errorStaff);
 
       return (
         <div>
@@ -195,22 +168,17 @@ class EditEconomicStaff extends React.Component {
             direction="row"
           >
             <Grid item xs={12} md={3}>
-              <FormControl fullWidth required>
-                <InputLabel>Select Employee </InputLabel>
-                <Select
-                  name="name"
-                  value={name}
-                  onChange={this.handleChange}
-                >
-                  {
-                    staffs.map((clt) => (
-                      <MenuItem key={clt.staffId} value={clt.staffId}>
-                        {clt.fatherFamilyName}
-                      </MenuItem>
-                    ))
-                  }
-                </Select>
-              </FormControl>
+              <TextField
+                id="name"
+                label="Employee  "
+                name="name"
+                value={name}
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
             </Grid>
             <Grid item xs={12} md={3}>
               <TextField
@@ -303,6 +271,39 @@ class EditEconomicStaff extends React.Component {
             alignItems="flex-start"
             direction="row"
           >
+            <Grid item xs={12} md={3} />
+            <Grid item xs={6} md={4}>
+              <FormControl fullWidth required>
+                <InputLabel>Select Currency</InputLabel>
+                <Select
+                  name="currencyId"
+                  value={currencyId}
+                  onChange={this.handleChange}
+                >
+                  {
+                    currencies.map((clt) => (
+                      <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                        {clt.currencyName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField
+                id="currencyCode"
+                label="Currency Code"
+                name="currencyCode"
+                value={currencyCode}
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3} />
             <Grid item xs={12} md={1} />
             <Grid item xs={12} md={5}>
               <TextField
@@ -313,6 +314,7 @@ class EditEconomicStaff extends React.Component {
                 type="number"
                 onChange={this.handleChange}
                 fullWidth
+                disabled="true"
               />
             </Grid>
             <Grid item xs={10} md={5}>
@@ -324,9 +326,7 @@ class EditEconomicStaff extends React.Component {
                 type="number"
                 onChange={this.handleChange}
                 fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
+                disabled="true"
               />
             </Grid>
             <Grid item xs={12} md={1} />
@@ -394,6 +394,7 @@ class EditEconomicStaff extends React.Component {
                 type="number"
                 onChange={this.handleChange}
                 fullWidth
+                disabled="true"
               />
             </Grid>
             <Grid item xs={10} md={5}>
@@ -405,9 +406,7 @@ class EditEconomicStaff extends React.Component {
                 type="number"
                 onChange={this.handleChange}
                 fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
+                disabled="true"
               />
             </Grid>
           </Grid>
@@ -434,7 +433,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    getAllStaff
   },
   dispatch
 );
