@@ -303,6 +303,9 @@ class ConsultStaff extends React.Component {
                 type="date"
                 fullWidth
                 onChange={this.handleChange}
+                InputLabelProps={{
+                  shrink: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} md={3}>
@@ -314,6 +317,9 @@ class ConsultStaff extends React.Component {
                 type="date"
                 fullWidth
                 onChange={this.handleChange}
+                InputLabelProps={{
+                  shrink: true,
+                }}
               />
             </Grid>
           </Grid>

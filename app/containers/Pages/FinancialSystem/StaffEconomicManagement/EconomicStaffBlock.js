@@ -14,11 +14,14 @@ import red from '@material-ui/core/colors/red';
 import yellow from '@material-ui/core/colors/yellow';
 import blue from '@material-ui/core/colors/blue';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
+import EconomicStaffYearService from '../../../Services/EconomicStaffYearService';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import EditEconomicStaff from './editEconomicStaff';
 import ConsultStaff from './consultStaff';
 import CurrencyService from '../../../Services/CurrencyService';
+import EconomicStaffMonthService from '../../../Services/EconomicStaffMonthService';
+import EconomicStaffExtraService from '../../../Services/EconomicStaffExtraService';
 
 const useStyles = makeStyles();
 
@@ -524,7 +527,8 @@ class EconomicStaffBlock extends React.Component {
           contributionSalaryEuroYear: economicStaff.contributionSalaryEuro,
           currencyId: economicStaff.currency._id,
           currencyCode: economicStaff.currency.currencyCode,
-          changeFactor: economicStaff.changeFactor
+          changeFactor: economicStaff.changeFactor,
+          economicStaff
         });
       });
     }
@@ -547,7 +551,8 @@ class EconomicStaffBlock extends React.Component {
           contributionSalaryEuroMonth: economicStaff.contributionSalaryEuro,
           currencyId: economicStaff.currency._id,
           currencyCode: economicStaff.currency.currencyCode,
-          changeFactor: economicStaff.changeFactor
+          changeFactor: economicStaff.changeFactor,
+          economicStaff
         });
       });
     }
@@ -560,7 +565,7 @@ class EconomicStaffBlock extends React.Component {
       EconomicStaffService.getEconomicStaffById(id).then(result => {
         const economicStaff = result.data;
         console.log(economicStaff);
-        this.setState({ openStaff: true });
+        this.setState({ openStaff: true, economicStaff });
       });
     }
 
@@ -573,7 +578,7 @@ class EconomicStaffBlock extends React.Component {
         const economicStaff = result.data;
         console.log(economicStaff);
         this.setState({
-          openExtra: true, currencyId: economicStaff.currency._id, currencyCode: economicStaff.currency.currencyCode, changeFactor: economicStaff.changeFactor
+          openExtra: true, currencyId: economicStaff.currency._id, currencyCode: economicStaff.currency.currencyCode, changeFactor: economicStaff.changeFactor, economicStaff
         });
       });
     }
@@ -609,6 +614,30 @@ class EconomicStaffBlock extends React.Component {
     };
 
     handleSaveYear = () => {
+      const {
+        yearPayment, economicStaff, currencyId, changeFactor,
+        grosSalaryYear, netSalaryYear, contributionSalaryYear, companyCostYear, grosSalaryEuroYear, netSalaryEuroYear, contributionSalaryEuroYear, companyCostEuroYear
+      } = this.state;
+      const currency = { _id: currencyId };
+      const EconomicStaffYear = {
+        yearPayment,
+        economicStaff,
+        currency,
+        changeFactor,
+        grosSalaryYear,
+        netSalaryYear,
+        contributionSalaryYear,
+        companyCostYear,
+        grosSalaryEuroYear,
+        netSalaryEuroYear,
+        contributionSalaryEuroYear,
+        companyCostEuroYear
+      };
+      console.log(EconomicStaffYear);
+      EconomicStaffYearService.saveEconomicStaffYear(EconomicStaffYear).then(result => {
+        console.log(result);
+        this.setState({ openYear: false, openCompanyCost: false });
+      });
     };
 
     handleCalculCompanyCost = () => {
@@ -623,6 +652,30 @@ class EconomicStaffBlock extends React.Component {
     };
 
     handleSaveMonth = () => {
+      const {
+        monthPayment, economicStaff, currencyId, changeFactor,
+        grosSalaryMonth, netSalaryMonth, contributionSalaryMonth, companyCostMonth, grosSalaryEuroMonth, netSalaryEuroMonth, contributionSalaryEuroMonth, companyCostEuroMonth
+      } = this.state;
+      const currency = { _id: currencyId };
+      const EconomicStaffMonth = {
+        monthPayment,
+        economicStaff,
+        currency,
+        changeFactor,
+        grosSalaryMonth,
+        netSalaryMonth,
+        contributionSalaryMonth,
+        companyCostMonth,
+        grosSalaryEuroMonth,
+        netSalaryEuroMonth,
+        contributionSalaryEuroMonth,
+        companyCostEuroMonth
+      };
+      console.log(EconomicStaffMonth);
+      EconomicStaffMonthService.saveEconomicStaffMonth(EconomicStaffMonth).then(result => {
+        console.log(result);
+        this.setState({ openExtra: false });
+      });
     };
 
     handleCalculCompanyCostMonth = () => {
@@ -637,6 +690,26 @@ class EconomicStaffBlock extends React.Component {
     };
 
     handleSaveExtra = () => {
+      const {
+        extraordinaryDate, economicStaff, currencyId, changeFactor,
+        extraordinaryExpenses, extraordinaryExpensesEuro, extraordinaryObjectives, extraordinaryObjectivesEuro
+      } = this.state;
+      const currency = { _id: currencyId };
+      const EconomicStaffExtra = {
+        extraordinaryDate,
+        economicStaff,
+        currency,
+        changeFactor,
+        extraordinaryExpenses,
+        extraordinaryExpensesEuro,
+        extraordinaryObjectives,
+        extraordinaryObjectivesEuro,
+      };
+      console.log(EconomicStaffExtra);
+      EconomicStaffExtraService.saveEconomicStaffExtra(EconomicStaffExtra).then(result => {
+        console.log(result);
+        this.setState({ openMonth: false, openCompanyCostMonth: false });
+      });
     };
 
     componentDidMount() {
