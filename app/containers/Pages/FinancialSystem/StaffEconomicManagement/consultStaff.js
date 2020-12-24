@@ -1,10 +1,11 @@
 import React from 'react';
 import {
-  Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography
+  Button, Grid, TextField, Typography
 } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
+import CurrencyService from '../../../Services/CurrencyService';
 
 class ConsultStaff extends React.Component {
   constructor(props) {
@@ -41,7 +42,9 @@ class ConsultStaff extends React.Component {
       travelExpensesEuro: 0,
       salaryCompanyCost: 0,
       salaryCompanyCostEuro: 0,
-      open: false
+      open: false,
+      firstDate: '',
+      secondDate: ''
     };
   }
 
@@ -49,6 +52,9 @@ class ConsultStaff extends React.Component {
     editingPromiseResolve = () => {};
 
     componentDidMount() {
+      CurrencyService.getCurrency().then(result => {
+        this.setState({ currencies: result.data });
+      });
     }
 
     componentWillReceiveProps(props) {
@@ -110,18 +116,33 @@ class ConsultStaff extends React.Component {
 
     handleChange = (ev) => {
       // eslint-disable-next-line react/destructuring-assignment
-      const changefactor = this.state.changeFactor;
+      let { changeFactor } = this.state;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const { netSalary, contributionSalary } = this.state;
+        let currencyCode;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+          }
+        });
+        this.setState({
+          netSalaryEuro: netSalary * changeFactor, contributionSalaryEuro: contributionSalary * changeFactor, changeFactor, currencyCode
+        });
+      }
       if (ev.target.name === 'grosSalary') {
-        this.setState({ grosSalaryEuro: ev.target.value * changefactor });
+        this.setState({ grosSalaryEuro: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'netSalary') {
-        this.setState({ netSalaryEuro: ev.target.value * changefactor });
+        this.setState({ netSalaryEuro: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'contributionSalary') {
-        this.setState({ contributionSalaryEuro: ev.target.value * changefactor });
+        this.setState({ contributionSalaryEuro: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'companyCost') {
-        this.setState({ companyCostEuro: ev.target.value * changefactor });
+        this.setState({ companyCostEuro: ev.target.value * changeFactor });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
@@ -133,22 +154,11 @@ class ConsultStaff extends React.Component {
 
     render() {
       console.log(this.state);
-      const thisYear = (new Date()).getFullYear();
-      const allYears = [];
-      const allMonths = [];
-      // eslint-disable-next-line no-plusplus
-      for (let x = 0; x <= 10; x++) {
-        allYears.push(thisYear - x);
-      }
-      // eslint-disable-next-line no-plusplus
-      for (let x = 1; x <= 12; x++) {
-        allMonths.push(x);
-      }
       const {
         name, fatherName, motherName, highDate, lowDate, company, employeeNumber,
-        grosSalary, netSalary, contributionSalary, companyCost, contractModel, paymentDate,
+        grosSalary, netSalary, contributionSalary, companyCost, contractModel,
         grosSalaryEuro, netSalaryEuro, contributionSalaryEuro, companyCostEuro,
-        yearPayment, monthPayment, travelExpenses, travelExpensesEuro, salaryCompanyCost, salaryCompanyCostEuro,
+        firstDate, secondDate, travelExpenses, travelExpensesEuro, salaryCompanyCost, salaryCompanyCostEuro,
         extraordinaryExpenses, extraordinaryExpensesEuro, extraordinaryObjectives, extraordinaryObjectivesEuro
       } = this.state;
 
@@ -217,7 +227,7 @@ class ConsultStaff extends React.Component {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 id="company"
                 label="Company"
@@ -230,7 +240,7 @@ class ConsultStaff extends React.Component {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 id="highDate"
                 label="High Date"
@@ -243,7 +253,7 @@ class ConsultStaff extends React.Component {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 id="lowDate"
                 label="Low Date"
@@ -256,26 +266,12 @@ class ConsultStaff extends React.Component {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={1} />
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={3}>
               <TextField
                 id="contractModel"
                 label="Contract Model"
                 name="contractModel"
                 value={contractModel}
-                onChange={this.handleChange}
-                fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <TextField
-                id="paymentDate"
-                label="Payment Date"
-                name="paymentDate"
-                value={paymentDate}
                 onChange={this.handleChange}
                 fullWidth
                 InputProps={{
@@ -298,41 +294,33 @@ class ConsultStaff extends React.Component {
             fullWidth=""
             maxWidth=""
           >
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth required>
-                <InputLabel>Select Year </InputLabel>
-                <Select
-                  name="yearPayment"
-                  value={yearPayment}
-                  onChange={this.handleChange}
-                >
-                  {
-                    allYears.map((clt) => (
-                      <MenuItem key={clt} value={clt}>
-                        {clt}
-                      </MenuItem>
-                    ))
-                  }
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={3}>
+              <TextField
+                id="firstDate"
+                label="First Date"
+                name="firstDate"
+                value={firstDate}
+                type="date"
+                fullWidth
+                onChange={this.handleChange}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
             </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth required>
-                <InputLabel>Select Month </InputLabel>
-                <Select
-                  name="monthPayment"
-                  value={monthPayment}
-                  onChange={this.handleChange}
-                >
-                  {
-                    allMonths.map((clt) => (
-                      <MenuItem key={clt} value={clt}>
-                        {clt}
-                      </MenuItem>
-                    ))
-                  }
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={3}>
+              <TextField
+                id="secondDate"
+                label="Second Date"
+                name="secondDate"
+                value={secondDate}
+                type="date"
+                fullWidth
+                onChange={this.handleChange}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
             </Grid>
           </Grid>
           <Grid

@@ -14,10 +14,14 @@ import red from '@material-ui/core/colors/red';
 import yellow from '@material-ui/core/colors/yellow';
 import blue from '@material-ui/core/colors/blue';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
+import EconomicStaffYearService from '../../../Services/EconomicStaffYearService';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import EditEconomicStaff from './editEconomicStaff';
 import ConsultStaff from './consultStaff';
+import CurrencyService from '../../../Services/CurrencyService';
+import EconomicStaffMonthService from '../../../Services/EconomicStaffMonthService';
+import EconomicStaffExtraService from '../../../Services/EconomicStaffExtraService';
 
 const useStyles = makeStyles();
 
@@ -51,7 +55,8 @@ class EconomicStaffBlock extends React.Component {
       openExtra: false,
       openCompanyCost: false,
       openCompanyCostMonth: false,
-      yearPayment: 2020,
+      yearPayment: '',
+      monthPayment: '',
       grosSalaryYear: 0,
       netSalaryYear: 0,
       contributionSalaryYear: 0,
@@ -60,7 +65,6 @@ class EconomicStaffBlock extends React.Component {
       netSalaryEuroYear: 0,
       contributionSalaryEuroYear: 0,
       companyCostEuroYear: 0,
-      monthPayment: 0,
       grosSalaryMonth: 0,
       netSalaryMonth: 0,
       contributionSalaryMonth: 0,
@@ -75,6 +79,9 @@ class EconomicStaffBlock extends React.Component {
       extraordinaryObjectives: 0,
       extraordinaryObjectivesEuro: 0,
       datas: [],
+      currencies: [],
+      currencyId: '',
+      currencyCode: '',
       columns: [
         {
           name: 'staff',
@@ -206,6 +213,38 @@ class EconomicStaffBlock extends React.Component {
                 zIndex: 101
               }
             }),
+          }
+        },
+        {
+          name: 'currency',
+          label: 'Currency',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.currencyCode
+                }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -478,7 +517,19 @@ class EconomicStaffBlock extends React.Component {
       EconomicStaffService.getEconomicStaffById(id).then(result => {
         const economicStaff = result.data;
         console.log(economicStaff);
-        this.setState({ openYear: true, economicStaff });
+        this.setState({
+          openYear: true,
+          grosSalaryYear: economicStaff.grosSalary,
+          netSalaryYear: economicStaff.netSalary,
+          contributionSalaryYear: economicStaff.contributionSalary,
+          grosSalaryEuroYear: economicStaff.grosSalaryEuro,
+          netSalaryEuroYear: economicStaff.netSalaryEuro,
+          contributionSalaryEuroYear: economicStaff.contributionSalaryEuro,
+          currencyId: economicStaff.currency._id,
+          currencyCode: economicStaff.currency.currencyCode,
+          changeFactor: economicStaff.changeFactor,
+          economicStaff
+        });
       });
     }
 
@@ -490,7 +541,19 @@ class EconomicStaffBlock extends React.Component {
       EconomicStaffService.getEconomicStaffById(id).then(result => {
         const economicStaff = result.data;
         console.log(economicStaff);
-        this.setState({ openMonth: true, economicStaff });
+        this.setState({
+          openMonth: true,
+          grosSalaryMonth: economicStaff.grosSalary,
+          netSalaryMonth: economicStaff.netSalary,
+          contributionSalaryMonth: economicStaff.contributionSalary,
+          grosSalaryEuroMonth: economicStaff.grosSalaryEuro,
+          netSalaryEuroMonth: economicStaff.netSalaryEuro,
+          contributionSalaryEuroMonth: economicStaff.contributionSalaryEuro,
+          currencyId: economicStaff.currency._id,
+          currencyCode: economicStaff.currency.currencyCode,
+          changeFactor: economicStaff.changeFactor,
+          economicStaff
+        });
       });
     }
 
@@ -514,7 +577,9 @@ class EconomicStaffBlock extends React.Component {
       EconomicStaffService.getEconomicStaffById(id).then(result => {
         const economicStaff = result.data;
         console.log(economicStaff);
-        this.setState({ openExtra: true, economicStaff });
+        this.setState({
+          openExtra: true, currencyId: economicStaff.currency._id, currencyCode: economicStaff.currency.currencyCode, changeFactor: economicStaff.changeFactor, economicStaff
+        });
       });
     }
 
@@ -549,11 +614,35 @@ class EconomicStaffBlock extends React.Component {
     };
 
     handleSaveYear = () => {
+      const {
+        yearPayment, economicStaff, currencyId, changeFactor,
+        grosSalaryYear, netSalaryYear, contributionSalaryYear, companyCostYear, grosSalaryEuroYear, netSalaryEuroYear, contributionSalaryEuroYear, companyCostEuroYear
+      } = this.state;
+      const currency = { _id: currencyId };
+      const EconomicStaffYear = {
+        yearPayment,
+        economicStaff,
+        currency,
+        changeFactor,
+        grosSalaryYear,
+        netSalaryYear,
+        contributionSalaryYear,
+        companyCostYear,
+        grosSalaryEuroYear,
+        netSalaryEuroYear,
+        contributionSalaryEuroYear,
+        companyCostEuroYear
+      };
+      console.log(EconomicStaffYear);
+      EconomicStaffYearService.saveEconomicStaffYear(EconomicStaffYear).then(result => {
+        console.log(result);
+        this.setState({ openYear: false, openCompanyCost: false });
+      });
     };
 
     handleCalculCompanyCost = () => {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const gros = this.state.grosSalaryYear; const net = this.state.netSalaryYear; const contribution = this.state.contributionSalaryYear; const changefactor = this.state.economicStaff.changeFactor;
+      const gros = this.state.grosSalaryYear; const net = this.state.netSalaryYear; const contribution = this.state.contributionSalaryYear; const changefactor = this.state.changeFactor;
       const companycostyear = Number(gros) + Number(net) + Number(contribution);
       this.setState({ companyCostYear: companycostyear, companyCostEuroYear: companycostyear * changefactor, openCompanyCost: true });
     };
@@ -563,11 +652,35 @@ class EconomicStaffBlock extends React.Component {
     };
 
     handleSaveMonth = () => {
+      const {
+        monthPayment, economicStaff, currencyId, changeFactor,
+        grosSalaryMonth, netSalaryMonth, contributionSalaryMonth, companyCostMonth, grosSalaryEuroMonth, netSalaryEuroMonth, contributionSalaryEuroMonth, companyCostEuroMonth
+      } = this.state;
+      const currency = { _id: currencyId };
+      const EconomicStaffMonth = {
+        monthPayment,
+        economicStaff,
+        currency,
+        changeFactor,
+        grosSalaryMonth,
+        netSalaryMonth,
+        contributionSalaryMonth,
+        companyCostMonth,
+        grosSalaryEuroMonth,
+        netSalaryEuroMonth,
+        contributionSalaryEuroMonth,
+        companyCostEuroMonth
+      };
+      console.log(EconomicStaffMonth);
+      EconomicStaffMonthService.saveEconomicStaffMonth(EconomicStaffMonth).then(result => {
+        console.log(result);
+        this.setState({ openExtra: false });
+      });
     };
 
     handleCalculCompanyCostMonth = () => {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const gros = this.state.grosSalaryMonth; const net = this.state.netSalaryMonth; const contribution = this.state.contributionSalaryMonth; const changefactor = this.state.economicStaff.changeFactor;
+      const gros = this.state.grosSalaryMonth; const net = this.state.netSalaryMonth; const contribution = this.state.contributionSalaryMonth; const changefactor = this.state.changeFactor;
       const companycostMonth = Number(gros) + Number(net) + Number(contribution);
       this.setState({ companyCostMonth: companycostMonth, companyCostEuroMonth: companycostMonth * changefactor, openCompanyCostMonth: true });
     };
@@ -577,9 +690,32 @@ class EconomicStaffBlock extends React.Component {
     };
 
     handleSaveExtra = () => {
+      const {
+        extraordinaryDate, economicStaff, currencyId, changeFactor,
+        extraordinaryExpenses, extraordinaryExpensesEuro, extraordinaryObjectives, extraordinaryObjectivesEuro
+      } = this.state;
+      const currency = { _id: currencyId };
+      const EconomicStaffExtra = {
+        extraordinaryDate,
+        economicStaff,
+        currency,
+        changeFactor,
+        extraordinaryExpenses,
+        extraordinaryExpensesEuro,
+        extraordinaryObjectives,
+        extraordinaryObjectivesEuro,
+      };
+      console.log(EconomicStaffExtra);
+      EconomicStaffExtraService.saveEconomicStaffExtra(EconomicStaffExtra).then(result => {
+        console.log(result);
+        this.setState({ openMonth: false, openCompanyCostMonth: false });
+      });
     };
 
     componentDidMount() {
+      CurrencyService.getCurrency().then(result => {
+        this.setState({ currencies: result.data });
+      });
       EconomicStaffService.getEconomicStaff().then(result => {
         this.setState({ datas: result.data });
       });
@@ -591,31 +727,61 @@ class EconomicStaffBlock extends React.Component {
     }
 
     handleChange = (ev) => {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const changefactor = this.state.economicStaff.changeFactor;
+      // eslint-disable-next-line react/destructuring-assignment
+      let { changeFactor } = this.state;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const {
+          grosSalaryYear, netSalaryYear, contributionSalaryYear, companyCostYear,
+          grosSalaryMonth, netSalaryMonth, contributionSalaryMonth, companyCostMonth,
+          extraordinaryExpenses, extraordinaryObjectives
+        } = this.state;
+        let currencyCode;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+          }
+        });
+        this.setState({
+          grosSalaryEuroYear: grosSalaryYear * changeFactor,
+          netSalaryEuroYear: netSalaryYear * changeFactor,
+          contributionSalaryEuroYear: contributionSalaryYear * changeFactor,
+          companyCostEuroYear: companyCostYear * changeFactor,
+          grosSalaryEuroMonth: grosSalaryMonth * changeFactor,
+          netSalaryEuroMonth: netSalaryMonth * changeFactor,
+          contributionSalaryEuroMonth: contributionSalaryMonth * changeFactor,
+          companyCostEuroMonth: companyCostMonth * changeFactor,
+          extraordinaryExpensesEuro: extraordinaryExpenses * changeFactor,
+          extraordinaryObjectivesEuro: extraordinaryObjectives * changeFactor,
+          changeFactor,
+          currencyCode
+        });
+      }
       if (ev.target.name === 'grosSalaryYear') {
-        this.setState({ grosSalaryEuroYear: ev.target.value * changefactor });
+        this.setState({ grosSalaryEuroYear: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'netSalaryYear') {
-        this.setState({ netSalaryEuroYear: ev.target.value * changefactor });
+        this.setState({ netSalaryEuroYear: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'contributionSalaryYear') {
-        this.setState({ contributionSalaryEuroYear: ev.target.value * changefactor });
+        this.setState({ contributionSalaryEuroYear: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'grosSalaryMonth') {
-        this.setState({ grosSalaryEuroMonth: ev.target.value * changefactor });
+        this.setState({ grosSalaryEuroMonth: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'netSalaryMonth') {
-        this.setState({ netSalaryEuroMonth: ev.target.value * changefactor });
+        this.setState({ netSalaryEuroMonth: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'contributionSalaryMonth') {
-        this.setState({ contributionSalaryEuroMonth: ev.target.value * changefactor });
+        this.setState({ contributionSalaryEuroMonth: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'extraordinaryExpenses') {
-        this.setState({ extraordinaryExpensesEuro: ev.target.value * changefactor });
+        this.setState({ extraordinaryExpensesEuro: ev.target.value * changeFactor });
       }
       if (ev.target.name === 'extraordinaryObjectives') {
-        this.setState({ extraordinaryObjectivesEuro: ev.target.value * changefactor });
+        this.setState({ extraordinaryObjectivesEuro: ev.target.value * changeFactor });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
@@ -634,24 +800,14 @@ class EconomicStaffBlock extends React.Component {
 
     render() {
       console.log(this.state);
-      const thisYear = (new Date()).getFullYear();
-      const allYears = [];
-      const allMonths = [];
-      // eslint-disable-next-line no-plusplus
-      for (let x = 0; x <= 10; x++) {
-        allYears.push(thisYear - x);
-      }
-      // eslint-disable-next-line no-plusplus
-      for (let x = 1; x <= 12; x++) {
-        allMonths.push(x);
-      }
       const {
         datas, columns, openPopUp, economicStaff, openStaff, openExtra, openMonth, openYear, openCompanyCost, openCompanyCostMonth,
         yearPayment, grosSalaryYear, netSalaryYear, contributionSalaryYear, companyCostYear,
         grosSalaryEuroYear, netSalaryEuroYear, contributionSalaryEuroYear, companyCostEuroYear,
         monthPayment, grosSalaryMonth, netSalaryMonth, contributionSalaryMonth, companyCostMonth,
         grosSalaryEuroMonth, netSalaryEuroMonth, contributionSalaryEuroMonth, companyCostEuroMonth,
-        extraordinaryDate, extraordinaryExpenses, extraordinaryObjectives, extraordinaryExpensesEuro, extraordinaryObjectivesEuro
+        extraordinaryDate, extraordinaryExpenses, extraordinaryObjectives, extraordinaryExpensesEuro, extraordinaryObjectivesEuro,
+        currencies, currencyId, currencyCode
       } = this.state;
       const options = {
         filter: true,
@@ -683,6 +839,8 @@ class EconomicStaffBlock extends React.Component {
             onClose={this.handleClose}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
+            fullWidth="md"
+            maxWidth="md"
           >
             <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
             <DialogContent dividers>
@@ -722,23 +880,50 @@ class EconomicStaffBlock extends React.Component {
                   fullWidth=""
                   maxWidth=""
                 >
-                  <Grid item xs={12} md={8}>
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="yearPayment"
+                      label="Year Payment Date"
+                      name="yearPayment"
+                      value={yearPayment}
+                      type="date"
+                      onChange={this.handleChange}
+                      fullWidth
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
                     <FormControl fullWidth required>
-                      <InputLabel>Select Year </InputLabel>
+                      <InputLabel>Select Currency</InputLabel>
                       <Select
-                        name="yearPayment"
-                        value={yearPayment}
+                        name="currencyId"
+                        value={currencyId}
                         onChange={this.handleChange}
                       >
                         {
-                          allYears.map((clt) => (
-                            <MenuItem key={clt} value={clt}>
-                              {clt}
+                          currencies.map((clt) => (
+                            <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                              {clt.currencyName}
                             </MenuItem>
                           ))
                         }
                       </Select>
                     </FormControl>
+                  </Grid>
+                  <Grid item xs={12} md={2}>
+                    <TextField
+                      id="currencyCode"
+                      label="Currency Code"
+                      name="currencyCode"
+                      value={currencyCode}
+                      onChange={this.handleChange}
+                      fullWidth
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
                   </Grid>
                 </Grid>
                 <Grid
@@ -908,41 +1093,50 @@ class EconomicStaffBlock extends React.Component {
                   fullWidth=""
                   maxWidth=""
                 >
-                  <Grid item xs={12} md={4}>
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="monthPayment"
+                      label="Month Payment Date"
+                      name="monthPayment"
+                      value={monthPayment}
+                      type="date"
+                      onChange={this.handleChange}
+                      fullWidth
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
                     <FormControl fullWidth required>
-                      <InputLabel>Select Year </InputLabel>
+                      <InputLabel>Select Currency</InputLabel>
                       <Select
-                        name="yearPayment"
-                        value={yearPayment}
+                        name="currencyId"
+                        value={currencyId}
                         onChange={this.handleChange}
                       >
                         {
-                          allYears.map((clt) => (
-                            <MenuItem key={clt} value={clt}>
-                              {clt}
+                          currencies.map((clt) => (
+                            <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                              {clt.currencyName}
                             </MenuItem>
                           ))
                         }
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} md={4}>
-                    <FormControl fullWidth required>
-                      <InputLabel>Select Month </InputLabel>
-                      <Select
-                        name="monthPayment"
-                        value={monthPayment}
-                        onChange={this.handleChange}
-                      >
-                        {
-                          allMonths.map((clt) => (
-                            <MenuItem key={clt} value={clt}>
-                              {clt}
-                            </MenuItem>
-                          ))
-                        }
-                      </Select>
-                    </FormControl>
+                  <Grid item xs={12} md={2}>
+                    <TextField
+                      id="currencyCode"
+                      label="Currency Code"
+                      name="currencyCode"
+                      value={currencyCode}
+                      onChange={this.handleChange}
+                      fullWidth
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
                   </Grid>
                 </Grid>
                 <Grid
@@ -1090,7 +1284,6 @@ class EconomicStaffBlock extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
-
           <Dialog
             open={openExtra}
             keepMounted
@@ -1113,19 +1306,48 @@ class EconomicStaffBlock extends React.Component {
                   fullWidth=""
                   maxWidth=""
                 >
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} md={3}>
                     <TextField
                       id="extraordinaryDate"
                       label="Extraordinary Payment Date"
-                      variant="outlined"
                       name="extraordinaryDate"
                       value={extraordinaryDate}
                       type="date"
-                      required
                       fullWidth
                       onChange={this.handleChange}
                       InputLabelProps={{
                         shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <FormControl fullWidth required>
+                      <InputLabel>Select Currency</InputLabel>
+                      <Select
+                        name="currencyId"
+                        value={currencyId}
+                        onChange={this.handleChange}
+                      >
+                        {
+                          currencies.map((clt) => (
+                            <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                              {clt.currencyName}
+                            </MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} md={2}>
+                    <TextField
+                      id="currencyCode"
+                      label="Currency Code"
+                      name="currencyCode"
+                      value={currencyCode}
+                      onChange={this.handleChange}
+                      fullWidth
+                      InputProps={{
+                        readOnly: true,
                       }}
                     />
                   </Grid>
