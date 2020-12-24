@@ -485,10 +485,16 @@ class Commercial extends React.Component {
                       onClick: () => {
                         const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                         const fileExtension = '.xlsx';
-                        allClients.forEach((v) => { delete v.clientId;delete v.tableData});
-                        const ws = XLSX.utils.json_to_sheet(allClients);
+                          var myprop = allClients;
+                          myprop = myprop.filter(function (props) {
+                              delete props.countryId;
+                              delete props.stateId;
+                              return true;
+                          });
+                          myprop.forEach((v) => { delete v.clientId;delete v.tableData});
+                        console.log(myprop);
+                        const ws = XLSX.utils.json_to_sheet(myprop);
                         ws.F1 = '';
-                        console.log(ws);
                         const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
                         const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                         const data1 = new Blob([excelBuffer], { type: fileType });
