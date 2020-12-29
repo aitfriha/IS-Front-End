@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Button, Grid, TextField, Typography
+  Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography
 } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -42,9 +42,11 @@ class ConsultStaff extends React.Component {
       travelExpensesEuro: 0,
       salaryCompanyCost: 0,
       salaryCompanyCostEuro: 0,
+      totalPayment: 0,
+      totalPaymentEuro: 0,
+      currencyCode: '',
       open: false,
-      firstDate: '',
-      secondDate: ''
+      consultYear: ''
     };
   }
 
@@ -74,44 +76,10 @@ class ConsultStaff extends React.Component {
           motherName: economicStaff.motherName,
           highDate: economicStaff.highDate,
           lowDate: economicStaff.lowDate,
-          contractModel: economicStaff.staff.staffContract.contractModel.name
+          contractModel: economicStaff.staff.staffContract.contractModel.name,
+          currencyCode: economicStaff.currency.currencyCode
         });
       }
-    }
-
-    handleSubmit = () => {
-      const {
-        economicStaffId, staffId, highDate, lowDate, changeFactor, employeeNumber, name, fatherName, motherName, companyId,
-        grosSalary, netSalary, contributionSalary, companyCost, grosSalaryEuro, netSalaryEuro, contributionSalaryEuro, companyCostEuro,
-      } = this.state;
-      const staff = { staffId };
-      const financialCompany = { _id: companyId };
-      const EconomicStaff = {
-        economicStaffId,
-        staff,
-        financialCompany,
-        changeFactor,
-        employeeNumber,
-        name,
-        fatherName,
-        motherName,
-        highDate,
-        lowDate,
-        grosSalary,
-        netSalary,
-        contributionSalary,
-        companyCost,
-        grosSalaryEuro,
-        netSalaryEuro,
-        contributionSalaryEuro,
-        companyCostEuro
-      };
-      console.log(EconomicStaff);
-      EconomicStaffService.saveEconomicStaff(EconomicStaff).then(result => {
-        console.log(result);
-        // eslint-disable-next-line react/prop-types,react/destructuring-assignment
-        this.props.callsbackFromParent(false);
-      });
     }
 
     handleChange = (ev) => {
@@ -155,12 +123,15 @@ class ConsultStaff extends React.Component {
     render() {
       console.log(this.state);
       const {
-        name, fatherName, motherName, highDate, lowDate, company, employeeNumber,
-        grosSalary, netSalary, contributionSalary, companyCost, contractModel,
+        name, fatherName, motherName, highDate, lowDate, company, employeeNumber, totalPayment, totalPaymentEuro,
+        grosSalary, netSalary, contributionSalary, companyCost, contractModel, currencyCode,
         grosSalaryEuro, netSalaryEuro, contributionSalaryEuro, companyCostEuro,
-        firstDate, secondDate, travelExpenses, travelExpensesEuro, salaryCompanyCost, salaryCompanyCostEuro,
+        consultYear, travelExpenses, travelExpensesEuro, salaryCompanyCost, salaryCompanyCostEuro,
         extraordinaryExpenses, extraordinaryExpensesEuro, extraordinaryObjectives, extraordinaryObjectivesEuro
       } = this.state;
+
+      const year = 2015;
+      const years = Array.from(new Array(20), (val, index) => year + index);
 
       return (
         <div>
@@ -280,6 +251,55 @@ class ConsultStaff extends React.Component {
               />
             </Grid>
           </Grid>
+          <Grid
+            container
+            spacing={2}
+            alignItems="flex-start"
+            direction="row"
+            justify="center"
+            fullWidth=""
+            maxWidth=""
+          >
+            <Grid item xs={12} md={4}>
+              <TextField
+                id="totalPayment"
+                label="Total Payment"
+                name="totalPayment"
+                value={totalPayment}
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField
+                id="currencyCode"
+                label="Currency"
+                name="currencyCode"
+                value={currencyCode}
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                id="totalPaymentEuro"
+                label="Total Payment (€)"
+                name="totalPaymentEuro"
+                value={totalPaymentEuro}
+                onChange={this.handleChange}
+                fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </Grid>
+          </Grid>
           <br />
           <Typography variant="subtitle2" component="h2" color="primary">
                     Economic Staff Management
@@ -295,32 +315,22 @@ class ConsultStaff extends React.Component {
             maxWidth=""
           >
             <Grid item xs={12} md={3}>
-              <TextField
-                id="firstDate"
-                label="First Date"
-                name="firstDate"
-                value={firstDate}
-                type="date"
-                fullWidth
-                onChange={this.handleChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <TextField
-                id="secondDate"
-                label="Second Date"
-                name="secondDate"
-                value={secondDate}
-                type="date"
-                fullWidth
-                onChange={this.handleChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
+              <FormControl fullWidth required>
+                <InputLabel>Select Year</InputLabel>
+                <Select
+                  name="consultYear"
+                  value={consultYear}
+                  onChange={this.handleChange}
+                >
+                  {
+                    years.map((clt) => (
+                      <MenuItem key={clt} value={clt}>
+                        {clt}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
           <Grid
@@ -572,10 +582,7 @@ class ConsultStaff extends React.Component {
           <div align="center">
             <br />
             <br />
-            <Button size="small" color="inherit" onClick={this.handleGoBack}>Cancel</Button>
-            <Button variant="contained" color="primary" type="button" onClick={this.handleSubmit}>
-                        Save
-            </Button>
+            <Button size="medium" color="primary" onClick={this.handleGoBack}>Cancel</Button>
           </div>
         </div>
       );

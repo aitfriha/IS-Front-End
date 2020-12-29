@@ -78,12 +78,12 @@ module.exports = [
             link: '/app/gestion-commercial/service-type',
             icon: 'ios-people-outline'
           },
-/*          {
+          /*          {
             key: 'sectors',
             name: 'Sectors',
             link: '/app/gestion-commercial/sectors',
             icon: 'ios-people-outline'
-          },*/
+          }, */
           {
             key: 'sectorsCompany',
             name: 'Sectors Company',
@@ -138,7 +138,7 @@ module.exports = [
           {
             key: 'suppliersPayment',
             name: 'Suppliers Payment',
-            link: '/app/gestion-financial/Suppliers-Payment',
+            link: '/app/gestion-financial/Suppliers Payment',
             icon: 'ios-cash-outline'
           }
         ]

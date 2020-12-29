@@ -149,7 +149,9 @@ class AddEconomicStaff extends React.Component {
       }
       if (ev.target.name === 'currencyId') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const { netSalary, contributionSalary } = this.state;
+        const {
+          netSalary, contributionSalary, grosSalary, companyCost
+        } = this.state;
         let currencyCode;
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.currencies.map(currency => {
@@ -159,7 +161,7 @@ class AddEconomicStaff extends React.Component {
           }
         });
         this.setState({
-          netSalaryEuro: netSalary * changeFactor, contributionSalaryEuro: contributionSalary * changeFactor, changeFactor, currencyCode
+          companyCostEuro: companyCost * changeFactor, grosSalaryEuro: grosSalary * changeFactor, netSalaryEuro: netSalary * changeFactor, contributionSalaryEuro: contributionSalary * changeFactor, changeFactor, currencyCode
         });
       }
       if (ev.target.name === 'netSalary') {
