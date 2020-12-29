@@ -53,11 +53,9 @@ import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import EditContact from '../Contact/editContact';
 import AddContact from '../Contact/addContact';
 import { getContactByOperationById } from '../../../redux/contactByOperation/actions';
-const qpcListAdd = [];
-const pdcListAdd = [];
-const lacListAdd = [];
-var contactList = [] ;
-var noDupe =[];
+let qpcListAdd = [];
+let pdcListAdd = [];
+let lacListAdd = [];
 class AddCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
@@ -120,8 +118,6 @@ class AddCommercialOperation extends React.Component {
       qualification_process_contacts_close_decision_maker: false,
       qualification_process_contacts_close_decision_makerError: false,
       qualification_process_other_contactError: false,
-      procurement_department_other_contactError: false,
-      legal_area_other_contactErrorError: false,
       qualification_process_other_contact: false,
 
       procurement_department_other_contact: false,
@@ -216,14 +212,11 @@ class AddCommercialOperation extends React.Component {
   }
 
   handleOpenDoc3 = () => {
-    const { qpcOthercontact, qpcOthercontacts } = this.state;
-    if (qpcOthercontact.length > qpcOthercontacts.length) {
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const newElement = qpcOthercontacts.length + 1;
-      // eslint-disable-next-line react/destructuring-assignment
-      qpcOthercontacts.push(newElement);
-      this.setState({ openDoc: true });
-    }
+    const newElement = this.state.qpcOthercontacts.length + 1;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.state.qpcOthercontacts.push(newElement);
+    this.setState({ openDoc: true });
   }
 
   handleOpenDocpdc = () => {
@@ -248,6 +241,8 @@ class AddCommercialOperation extends React.Component {
     if (index !== -1) {
       qpcListAdd.splice(index, 1);
     }
+
+    this.setState({ qpcListAddOtherOperation: qpcListAdd });
     if (qpcOthercontacts.length > 1) {
       const newDocs = qpcOthercontacts.filter(rows => rows !== row);
       this.setState({
@@ -257,11 +252,12 @@ class AddCommercialOperation extends React.Component {
   }
 
   handleDeleteConceptpdc = (row) => {
-    const { pdcOthercontacts } = this.state;
+    const {  pdcOthercontacts } = this.state;
     const index = pdcOthercontacts.indexOf(pdcOthercontacts[row - 1]);
     if (index !== -1) {
       pdcOthercontacts.splice(index, 1);
     }
+    this.setState({ pdcListAddOtherOperation: pdcOthercontacts });
     if (pdcOthercontacts.length > 1) {
       const newDocs = pdcOthercontacts.filter(rows => rows !== row);
       this.setState({
@@ -277,6 +273,8 @@ class AddCommercialOperation extends React.Component {
     if (index !== -1) {
       lacListAdd.splice(index, 1);
     }
+    console.log('lacListAddOtherOperation : ',lacListAdd);
+    this.setState({ lacListAddOtherOperation: lacListAdd });
     if (lacOthercontacts.length > 1) {
       const newDocs = lacOthercontacts.filter(rows => rows !== row);
       this.setState({
@@ -669,34 +667,27 @@ class AddCommercialOperation extends React.Component {
   };
 
   LAChandleChangeOtheter= (ev) => {
-    console.log(ev.target.name);
-    this.setState({ [ev.target.name]: ev.target.value });
-    this.setState({ legal_area_other_contactError: false });
     // console.log(ev.target.value);
-    /* lacListAdd.push(ev.target.value);
+    lacListAdd.push(ev.target.value);
     lacListAdd = Object.keys(lacListAdd.reduce((p, c) => (p[c] = true, p), {}));
     this.setState({ lacListAddOtherOperation: lacListAdd });
-    console.log('lac : ', lacListAdd); */
+    console.log('lac : ', lacListAdd);
   };
 
   QPChandleChangeOtheter= (ev) => {
-    console.log(ev.target.name);
-    this.setState({ [ev.target.name]: ev.target.value });
-    this.setState({ qualification_process_other_contactError: false });
-    /* qpcListAdd.push(ev.target.value);
+    // console.log(ev.target.value);
+    qpcListAdd.push(ev.target.value);
     qpcListAdd = Object.keys(qpcListAdd.reduce((p, c) => (p[c] = true, p), {}));
     this.setState({ qpcListAddOtherOperation: qpcListAdd });
-    console.log('qpc : ', qpcListAdd); */
+    console.log('qpc : ',qpcListAdd);
   };
 
   PDChandleChangeOtheter= (ev) => {
-    console.log(ev.target.name);
-    this.setState({ [ev.target.name]: ev.target.value });
-    this.setState({ procurement_department_other_contactError: false });
-    /* pdcListAdd.push(ev.target.value);
+    // console.log(ev.target.value);
+    pdcListAdd.push(ev.target.value);
     pdcListAdd = Object.keys(pdcListAdd.reduce((p, c) => (p[c] = true, p), {}));
     this.setState({ pdcListAddOtherOperation: pdcListAdd });
-    console.log('pdc : ', pdcListAdd); */
+     console.log('pdc : ', pdcListAdd);
   };
 
 
@@ -802,79 +793,40 @@ class AddCommercialOperation extends React.Component {
 
     handleCreate = () => {
       const {
-        contactsId_DecisionMaker, contactsId_TechnicalLeader, contactsId_CloseDecisionMaker, qpcListAddOtherOperation, qualification_process_contacts_decision_maker,
-        qualification_process_contacts_technical_leader, qualification_process_contacts_close_decision_maker, qualification_process_other_contact,
-        lacListAddOtherOperation, pdcListAddOtherOperation, qpcOthercontacts, pdcOthercontacts, lacOthercontacts,legal_area_other_contact,
-        procurement_department_other_contact
+        contactsId_DecisionMaker, contactsId_TechnicalLeader, contactsId_CloseDecisionMaker, qpcListAddOtherOperation,qualification_process_contacts_decision_maker,
+        qualification_process_contacts_technical_leader,qualification_process_contacts_close_decision_maker,qualification_process_other_contact,
+        lacListAddOtherOperation,pdcListAddOtherOperation
       } = this.state;
-      contactList =[];
-      if (qualification_process_contacts_decision_maker == true && contactsId_DecisionMaker === '') {
+      if(qualification_process_contacts_decision_maker==true && contactsId_DecisionMaker===''){
         this.setState({ qualification_process_contacts_decision_makerError: true });
         notification('danger', 'contact of decision maker is mandatory');
         return;
       }
-      if (qualification_process_contacts_technical_leader == true && contactsId_TechnicalLeader === '') {
+      console.log('qualification_process_contacts_technical_leader : ',qualification_process_contacts_technical_leader)
+      console.log('contactsId_TechnicalLeader : ',contactsId_TechnicalLeader)
+      if(qualification_process_contacts_technical_leader==true && contactsId_TechnicalLeader===''){
         this.setState({ qualification_process_contacts_technical_leaderError: true });
         notification('danger', 'contact of technical leader is mandatory');
         return;
       }
-      if (qualification_process_contacts_close_decision_maker == true && contactsId_CloseDecisionMaker === '') {
+      if(qualification_process_contacts_close_decision_maker==true && contactsId_CloseDecisionMaker===''){
         this.setState({ qualification_process_contacts_close_decision_makerError: true });
         notification('danger', 'contact of the person close to decision maker is mandatory');
         return;
       }
-
-      var compteur1=0;
-      for (const key in qpcOthercontacts) {
-        const j = parseInt(key) + 1;
-        if(typeof this.state.['administrativeContact' + j] != 'undefined') {
-          contactList.push(this.state.['administrativeContact' + j]);
-          //this.setState({qpcListAddOtherOperation: Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}))});
-          compteur1=compteur1+1;
-        }
-      }
-      if(compteur1==0 && qualification_process_other_contact==true){
+      if(qualification_process_other_contact==true && contactsId_CloseDecisionMaker===''){
         this.setState({ qualification_process_other_contactError: true });
         notification('danger', 'other contact qualification process contacts');
         return;
       }
-      var compteur2=0;
-      for (const key in pdcOthercontacts) {
-        const j = parseInt(key) + 1;
-        if(typeof this.state.['proc_depa_cont' + j] != 'undefined') {
-          contactList.push(this.state.['proc_depa_cont' + j]);
-          //this.setState({qpcListAddOtherOperation: Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}))});
-          compteur2=compteur2+1;
-        }
-      }
-      if(compteur2==0 && procurement_department_other_contact==true){
-        this.setState({ procurement_department_other_contactError: true });
-        notification('danger', 'other contact procurement department contacts');
-        return;
-      }
-      var compteur3=0;
-      for (const key in lacOthercontacts) {
-        const j = parseInt(key) + 1;
-        if(typeof this.state.['lega_area_conta' + j] != 'undefined') {
-          contactList.push(this.state.['lega_area_conta' + j]);
-          //this.setState({qpcListAddOtherOperation: Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}))});
-          compteur3=compteur3+1;
-        }
-      }
-      if(compteur3==0 && legal_area_other_contact==true){
-        this.setState({ legal_area_other_contactError: true });
-        notification('danger', 'other contact legal area contacts');
-        return;
-      }
-    //  contactList = Object.keys(contactList.reduce((p, c) => (p[c] = true, p), {}));
-
-       noDupe = Array.from(new Set(contactList));
-
-      noDupe.push(contactsId_DecisionMaker);
-      noDupe.push(contactsId_TechnicalLeader);
-      noDupe.push(contactsId_CloseDecisionMaker);
-      // const qpcListAddOtherOperationx = Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}));
-      // this.setState({ qpcListAddOtherOperation: qpcListAddOtherOperationx });
+      qpcListAddOtherOperation.push.apply(qpcListAddOtherOperation, lacListAddOtherOperation);
+      //qpcListAddOtherOperation.push.apply(qpcListAddOtherOperation, qpcListAddOtherOperation);
+      qpcListAddOtherOperation.push.apply(qpcListAddOtherOperation, pdcListAddOtherOperation);
+      qpcListAddOtherOperation.push(contactsId_DecisionMaker);
+      qpcListAddOtherOperation.push(contactsId_TechnicalLeader);
+      qpcListAddOtherOperation.push(contactsId_CloseDecisionMaker);
+      const qpcListAddOtherOperationx = Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}));
+      this.setState({ qpcListAddOtherOperation: qpcListAddOtherOperationx });
       const { addCommercialOperation } = this.props;
       const {
         client,
@@ -908,9 +860,9 @@ class AddCommercialOperation extends React.Component {
         estimatedTradeVolume,
         devise,
         estimatedTradeVolumeInEuro,
-        contactsIds: noDupe
+        contactsIds: qpcListAddOtherOperation
       };
-      // console.log(qpcListAddOtherOperationx);return;
+//console.log(qpcListAddOtherOperationx);return;
       /** */
       const promise = new Promise((resolve) => {
         addCommercialOperation(operation);
@@ -1195,10 +1147,10 @@ class AddCommercialOperation extends React.Component {
       managementContact, administrativeContact, legalAreaMainContact, contactsId_DecisionMaker, contactsId_TechnicalLeader, contactsId_CloseDecisionMaker,
       commercialResponsible, commercialResponsibleAssistant,
       suppliersArea, supplierType, disabled,
-      qualification_process_contacts_decision_maker, qualification_process_contacts_decision_makerError,
-      qualification_process_contacts_technical_leader, qualification_process_contacts_technical_leaderError,
-      qualification_process_contacts_close_decision_maker, qualification_process_contacts_close_decision_makerError,
-      qualification_process_other_contact, qualification_process_other_contactError,procurement_department_other_contactError,legal_area_other_contactError,
+      qualification_process_contacts_decision_maker,qualification_process_contacts_decision_makerError,
+      qualification_process_contacts_technical_leader,qualification_process_contacts_technical_leaderError,
+      qualification_process_contacts_close_decision_maker,qualification_process_contacts_close_decision_makerError,
+      qualification_process_other_contact,qualification_process_other_contactError,
       procurement_department_other_contact,
       legal_area_other_contact,
       decisionMakers, technicalLeaders, closeDecisionMakers, qpcOthercontacts, qpcOthercontact, pdcOthercontacts, pdcOthercontact,
@@ -1608,7 +1560,7 @@ class AddCommercialOperation extends React.Component {
                   <FormControl fullWidth disabled={disabled} required={qualification_process_other_contact} error={qualification_process_other_contactError}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
-                      name={'administrativeContact' + row}
+                      name="administrativeContact"
                       value={administrativeContact[row]}
                       onChange={this.QPChandleChangeOtheter}
                       defaultValue=""
@@ -1632,19 +1584,6 @@ class AddCommercialOperation extends React.Component {
                   </IconButton>
                 </div>
               ))}
-              {/*              <div style={{ width: '85%' }}>
-                <Autocomplete
-                  multiple
-                  fullWidth
-                  className="auto-complete-multiline"
-                  options={qpcOthercontact}
-                  getOptionLabel={(option) => option.firstName + ' ' + option.fatherFamilyName}
-                  onChange={this.handleChangeMultiple}
-                  renderInput={(params) => (
-                    <TextField {...params} variant="outlined" label="Other Contact" />
-                  )}
-                />
-              </div> */}
               <br />
               <div align="center">
                 <Button variant="contained" color="secondary" type="button" disabled={disabled} onClick={() => this.handleOpen('Suppliers Area', 'Other contact')}>
@@ -1676,7 +1615,6 @@ class AddCommercialOperation extends React.Component {
                 <DialogContent dividers>
                   <AddContact
                     handleClose={this.handleClose}
-                    theCompany={client}
                     suppliersArea={suppliersArea}
                     supplierType={supplierType}
                     first_name={first_name}
@@ -1692,8 +1630,6 @@ class AddCommercialOperation extends React.Component {
                     _skype={_skype}
                     full_address={full_address}
                     post_code={post_code}
-                    etat="externe"
-                    close={this.handleCloseContact}
                   />
                 </DialogContent>
                 <DialogActions>
@@ -1704,10 +1640,10 @@ class AddCommercialOperation extends React.Component {
               </Dialog>
               {pdcOthercontacts.map((row) => (
                 <div style={{ display: 'flex' }}>
-                  <FormControl fullWidth disabled={disabled} required={procurement_department_other_contact} error={procurement_department_other_contactError}>
+                  <FormControl fullWidth disabled={disabled} required={procurement_department_other_contact}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
-                      name={'proc_depa_cont' + row}
+                      name="administrativeContact"
                       value={administrativeContact[row]}
                       onChange={this.PDChandleChangeOtheter}
                       defaultValue=""
@@ -1749,10 +1685,10 @@ class AddCommercialOperation extends React.Component {
               </Typography>
               {lacOthercontacts.map((row) => (
                 <div style={{ display: 'flex' }}>
-                  <FormControl fullWidth disabled={disabled} required={legal_area_other_contact} error={legal_area_other_contactError}>
+                  <FormControl fullWidth disabled={disabled} required={legal_area_other_contact}>
                     <InputLabel>Other Contact 1</InputLabel>
                     <Select
-                      name={'lega_area_conta' + row}
+                      name="administrativeContact"
                       value={administrativeContact[row]}
                       onChange={this.LAChandleChangeOtheter}
                       defaultValue=""

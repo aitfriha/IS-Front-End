@@ -677,6 +677,7 @@ class commercialOperationList extends React.Component {
                       <span style={{ color: 'blue' }}>{contact}</span>
                     </div>
                 ))}
+                {(contactDecisionMaker == '' && contactCloseToDecisionMaker == '' && contactOtherContactList.length==0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : ''}
                 <br />
               </Grid>
               <Grid
@@ -694,6 +695,7 @@ class commercialOperationList extends React.Component {
                     <span style={{ color: 'blue' }}>{contact}</span>
                   </div>
                 ))}
+                {(procurementDepartmentContactList.length==0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : '' }
                 <br />
               </Grid>
               <Grid
@@ -711,6 +713,7 @@ class commercialOperationList extends React.Component {
                     <span style={{ color: 'blue' }}>{contact}</span>
                   </div>
                 ))}
+                {(legalAreaContactsList.length==0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : '' }
                 <br />
               </Grid>
 
