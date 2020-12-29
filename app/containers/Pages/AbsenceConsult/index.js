@@ -9,11 +9,16 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Avatar,
   makeStyles,
-  Button
+  Button,
+  Tooltip,
+  Typography
 } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@material-ui/icons/Clear';
+import HourglassEmptyOutlinedIcon from '@material-ui/icons/HourglassEmptyOutlined';
 import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -23,7 +28,7 @@ import styles from './absenceRequest-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import {
   getAllAbsenceRequest,
-  deleteAbsenceRequest
+  updateAbsenceRequest
 } from '../../../redux/absenceRequest/actions';
 import notification from '../../../components/Notification/Notification';
 
@@ -40,7 +45,11 @@ class AbsenceRequest extends React.Component {
     docExtension: '',
     docIndex: 0,
     pageNumber: 1,
-    absenceRequestSelected: {}
+    absenceRequestSelected: {},
+    responseType: '',
+    isRespondDialog: false,
+    selectedRequestId: '',
+    isConfirmProcess: false
   };
 
   editingPromiseResolve = () => {};
@@ -52,6 +61,15 @@ class AbsenceRequest extends React.Component {
       options: {
         display: false,
         filter: false
+      }
+    },
+    {
+      name: 'state',
+      label: '',
+      options: {
+        customBodyRender: (value, tableMeta) => (
+          <React.Fragment>{this.renderStateAvatar(value)}</React.Fragment>
+        )
       }
     },
     {
@@ -116,21 +134,31 @@ class AbsenceRequest extends React.Component {
       }
     },
     {
-      label: 'Request State',
-      name: 'state',
-      options: {
-        filter: true
-      }
-    },
-    {
       label: ' ',
-      name: ' ',
+      name: 'state',
       options: {
         customBodyRender: (value, tableMeta) => (
           <React.Fragment>
-            <IconButton onClick={() => this.handleDeleteRequest(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
+            {value === 'In progress' && (
+              <div>
+                <Tooltip title="Accept">
+                  <IconButton
+                    onClick={() => this.handleOpenRespondDialog(tableMeta, 'Accept')
+                    }
+                  >
+                    <DoneIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Reject">
+                  <IconButton
+                    onClick={() => this.handleOpenRespondDialog(tableMeta, 'Reject')
+                    }
+                  >
+                    <ClearIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            )}
           </React.Fragment>
         )
       }
@@ -143,23 +171,75 @@ class AbsenceRequest extends React.Component {
     getAllAbsenceRequest();
   }
 
-  handleChange = ev => {
-    this.setState({ [ev.target.name]: ev.target.value });
+  renderStateAvatar = state => {
+    if (state === 'In progress') {
+      return (
+        <Avatar style={{ backgroundColor: '#67615A' }}>
+          <HourglassEmptyOutlinedIcon />
+        </Avatar>
+      );
+    }
+    if (state === 'Accepted') {
+      return (
+        <Avatar style={{ backgroundColor: '#008000' }}>
+          <DoneIcon />
+        </Avatar>
+      );
+    }
+    if (state === 'Rejected') {
+      return (
+        <Avatar style={{ backgroundColor: '#F10006' }}>
+          <ClearIcon />
+        </Avatar>
+      );
+    }
   };
 
-  handleDeleteRequest = tableMeta => {
-    const { getAllAbsenceRequest, deleteAbsenceRequest } = this.props;
+  handleOpenRespondDialog = (tableMeta, responseType) => {
+    this.setState({
+      isRespondDialog: true,
+      responseType,
+      selectedRequestId: tableMeta.rowData[0]
+    });
+  };
+
+  handleUpdateRequest = () => {
+    const { getAllAbsenceRequest, updateAbsenceRequest } = this.props;
+    const { responseType, selectedRequestId } = this.state;
+    let absenceRequest = {};
+    this.setState({
+      isConfirmProcess: true
+    });
+    if (responseType === 'Accept') {
+      absenceRequest = {
+        absenceRequestId: selectedRequestId,
+        state: 'Accepted'
+      };
+    } else if (responseType === 'Reject') {
+      absenceRequest = {
+        absenceRequestId: selectedRequestId,
+        state: 'Rejected'
+      };
+    }
+
     const promise = new Promise(resolve => {
-      deleteAbsenceRequest(tableMeta.rowData[0]);
+      console.log('execute update');
+      updateAbsenceRequest(absenceRequest);
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
+      console.log('result');
+      console.log(result);
       if (isString(result)) {
         notification('success', result);
         getAllAbsenceRequest();
+        this.handleCloseResponseDialog();
       } else {
         notification('danger', result);
       }
+      this.setState({
+        isConfirmProcess: false
+      });
     });
   };
 
@@ -196,6 +276,12 @@ class AbsenceRequest extends React.Component {
       isOpenDocument: false,
       docExtension: '',
       docIndex: 0
+    });
+  };
+
+  handleCloseResponseDialog = () => {
+    this.setState({
+      isRespondDialog: false
     });
   };
 
@@ -261,26 +347,20 @@ class AbsenceRequest extends React.Component {
       isOpenDocumentsList,
       isOpenDocument,
       absenceRequestSelected,
-      docExtension
+      docExtension,
+      responseType,
+      isRespondDialog,
+      isConfirmProcess
     } = this.state;
-    const title = brand.name + ' - Staff absence requests';
+    const title = brand.name + ' - Absence Consult';
     const { desc } = brand;
     const options = {
       filter: true,
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar
-          csvData={allAbsenceRequest}
-          url="/app/hh-rr/absenceRequest/create-absence-request"
-          tooltip="create new absence request"
-        />
-      )
+      rowsPerPage: 10
     };
-
-    console.log(absenceRequestSelected && absenceRequestSelected.documentList);
     !isLoadingAbsenceRequest
       && absenceRequestResponse
       && this.editingPromiseResolve(absenceRequestResponse);
@@ -298,6 +378,44 @@ class AbsenceRequest extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          open={isRespondDialog}
+          onClose={this.handleCloseResponseDialog}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">{`${responseType} absence request`}</DialogTitle>
+          <DialogContent>
+            <Typography
+              variant="subtitle1"
+              style={{
+                fontFamily: 'sans-serif , Arial',
+                fontSize: '17px'
+              }}
+            >
+              {`Are you sure you want to ${responseType} this absence request?`}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              autoFocus
+              color="primary"
+              onClick={this.handleCloseResponseDialog}
+              disabled={isConfirmProcess}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onClick={this.handleUpdateRequest}
+              disabled={isConfirmProcess}
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           maxWidth="xs"
           fullWidth
@@ -408,7 +526,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getAllAbsenceRequest,
-    deleteAbsenceRequest
+    updateAbsenceRequest
   },
   dispatch
 );

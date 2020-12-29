@@ -11,6 +11,9 @@ import {
   GET_ALL_ABSENCEREQUESTS,
   GET_ALL_ABSENCEREQUESTS_FAILURE,
   GET_ALL_ABSENCEREQUESTS_SUCCESS,
+  GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE,
+  GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_FAILURE,
+  GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_SUCCESS,
   UPDATE_ABSENCEREQUEST,
   UPDATE_ABSENCEREQUEST_FAILURE,
   UPDATE_ABSENCEREQUEST_SUCCESS
@@ -40,6 +43,7 @@ function* saveAbsenceRequest(action) {
 }
 
 function* updateAbsenceRequest(action) {
+  console.log('update saga');
   try {
     const { absenceRequestWithId } = action;
 
@@ -100,11 +104,35 @@ function* getAllAbsenceRequest() {
   }
 }
 
+function* getAllAbsenceRequestByAbsenceType(action) {
+  try {
+    const { absenceTypeId } = action;
+
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.ABSENCEREQUEST + '/all-by-absenceType/' + absenceTypeId
+    });
+    yield put({
+      type: GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* absenceRequestSaga() {
   yield all([
     takeLatest(ADD_ABSENCEREQUEST, saveAbsenceRequest),
     takeLatest(UPDATE_ABSENCEREQUEST, updateAbsenceRequest),
     takeLatest(DELETE_ABSENCEREQUEST, deleteAbsenceRequest),
-    takeLatest(GET_ALL_ABSENCEREQUESTS, getAllAbsenceRequest)
+    takeLatest(GET_ALL_ABSENCEREQUESTS, getAllAbsenceRequest),
+    takeLatest(
+      GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE,
+      getAllAbsenceRequestByAbsenceType
+    )
   ]);
 }

@@ -13,7 +13,7 @@ export const changeThemeAction = theme => ({
   theme
 });
 export const changeRandomThemeAction = {
-  type: types.CHANGE_RANDOM_THEME,
+  type: types.CHANGE_RANDOM_THEME
 };
 export const changeModeAction = mode => ({
   type: types.CHANGE_MODE,
@@ -42,4 +42,8 @@ export const changeDirectionAction = direction => ({
 export const playTransitionAction = isLoaded => ({
   type: types.LOAD_PAGE,
   isLoaded
+});
+export const showSpinner = isShowSpinner => ({
+  type: types.SHOW_SPINNER,
+  isShowSpinner
 });

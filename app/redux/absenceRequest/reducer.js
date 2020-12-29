@@ -8,6 +8,9 @@ import {
   GET_ALL_ABSENCEREQUESTS,
   GET_ALL_ABSENCEREQUESTS_FAILURE,
   GET_ALL_ABSENCEREQUESTS_SUCCESS,
+  GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE,
+  GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_FAILURE,
+  GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_SUCCESS,
   UPDATE_ABSENCEREQUEST,
   UPDATE_ABSENCEREQUEST_FAILURE,
   UPDATE_ABSENCEREQUEST_SUCCESS
@@ -17,7 +20,8 @@ const initialState = {
   isLoading: false,
   errors: {},
   absenceRequestResponse: '',
-  allAbsenceRequest: []
+  allAbsenceRequest: [],
+  allAbsenceRequestByAbsenceType: []
 };
 
 export default function absenceRequestReducer(state = initialState, action) {
@@ -25,6 +29,7 @@ export default function absenceRequestReducer(state = initialState, action) {
     // TRIGGERING ACTIONS
     // TRIGGERING ACTIONS
     case GET_ALL_ABSENCEREQUESTS:
+    case GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE:
     case ADD_ABSENCEREQUEST:
     case UPDATE_ABSENCEREQUEST:
     case DELETE_ABSENCEREQUEST:
@@ -53,8 +58,17 @@ export default function absenceRequestReducer(state = initialState, action) {
         absenceRequestResponse: ''
       };
 
+    case GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        allAbsenceRequestByAbsenceType: action.payload,
+        absenceRequestResponse: ''
+      };
+
     // FAILURE ACTIONS
     case GET_ALL_ABSENCEREQUESTS_FAILURE:
+    case GET_ALL_ABSENCEREQUEST_BY_ABSENCETYPE_FAILURE:
     case ADD_ABSENCEREQUEST_FAILURE:
     case UPDATE_ABSENCEREQUEST_FAILURE:
     case DELETE_ABSENCEREQUEST_FAILURE:

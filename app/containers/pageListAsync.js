@@ -157,6 +157,10 @@ export const AddAbsenceRequest = Loadable({
   loader: () => import('./Pages/AbsenceRequest/addAbsenceRequest'),
   loading: Loading
 });
+export const AbsenceConsult = Loadable({
+  loader: () => import('./Pages/AbsenceConsult'),
+  loading: Loading
+});
 export const CountryConfig = Loadable({
   loader: () => import('./Pages/Configurations/Country'),
   loading: Loading

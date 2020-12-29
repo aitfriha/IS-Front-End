@@ -13,8 +13,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  IconButton,
-  
+  IconButton
 } from '@material-ui/core';
 import PublishIcon from '@material-ui/icons/Publish';
 import { PapperBlock } from 'dan-components';
@@ -60,8 +59,7 @@ class AddAbsenceType extends React.Component {
       absenceResponsible: null,
       inCopyResponsible: null,
       doc: {},
-      docExtension: '',
-      docId: '',
+      docExtension: ''
     };
   }
 
@@ -530,7 +528,6 @@ class AddAbsenceType extends React.Component {
                   || documentsMandatory === ''
                   || !absenceResponsible
                   || !inCopyResponsible
-                  || doc.constructor === Object
                 }
               >
                 Save Type

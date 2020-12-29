@@ -627,7 +627,6 @@ class StaffProfileContractInformation extends Component {
     !isLoadingStaffContract
       && !staffContractResponse
       && this.editingPromiseResolve(errorStaffContract);
-    console.log(allLegalCategoryTypeByCompany);
     return (
       <div>
         <Dialog

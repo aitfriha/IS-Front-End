@@ -44,7 +44,7 @@ class ContractType extends React.Component {
     isDialogOpen: false,
     isDeleteDialogOpen: false,
     isRelated: false,
-    contractTypeIndex: 0,
+    contractTypeSelected: {},
     replaceContractTypeList: [],
     oldId: '',
     newId: ''
@@ -55,6 +55,14 @@ class ContractType extends React.Component {
   editingPromiseResolve2 = () => {};
 
   columns = [
+    {
+      name: 'contractTypeId',
+      label: 'Contract Type Id',
+      options: {
+        display: false,
+        filter: false
+      }
+    },
     {
       name: 'code',
       label: 'Code',
@@ -125,11 +133,10 @@ class ContractType extends React.Component {
       updateContractType
     } = this.props;
     const {
-      code, name, description, contractTypeIndex
+      code, name, description, contractTypeSelected
     } = this.state;
-    const contractTypeData = allContractType[contractTypeIndex];
     const contractType = {
-      contractTypeId: contractTypeData.contractTypeId,
+      contractTypeId: contractTypeSelected.contractTypeId,
       code,
       name,
       description
@@ -155,24 +162,26 @@ class ContractType extends React.Component {
 
   handleOpenDialog = tableMeta => {
     const { allContractType } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const contractTypeSelected = allContractType.filter(
+      contractType => contractType.contractTypeId === tableMeta.rowData[0]
+    )[0];
     this.setState({
-      contractTypeIndex: index,
-      code: allContractType[index].code,
-      name: allContractType[index].name,
-      description: allContractType[index].description,
+      contractTypeSelected,
+      code: contractTypeSelected.code,
+      name: contractTypeSelected.name,
+      description: contractTypeSelected.description,
       isDialogOpen: true
     });
   };
 
   handleOpenDeleteDialog = tableMeta => {
     const { allContractType, getAllStaffContractByContractType } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const contractTypeSelected = allContractType.filter(
+      contractType => contractType.contractTypeId === tableMeta.rowData[0]
+    )[0];
     const promise = new Promise(resolve => {
       // get client information
-      getAllStaffContractByContractType(allContractType[index].contractTypeId);
+      getAllStaffContractByContractType(contractTypeSelected.contractTypeId);
       this.editingPromiseResolve2 = resolve;
     });
     promise.then(result => {
@@ -180,16 +189,17 @@ class ContractType extends React.Component {
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: false,
-          oldId: allContractType[index].contractTypeId
+          oldId: contractTypeSelected.contractTypeId
         });
       } else {
         const replaceContractTypeList = allContractType.filter(
-          type => type.contractTypeId !== allContractType[index].contractTypeId
+          type => type.contractTypeId !== contractTypeSelected.contractTypeId
+            && type.stateName === contractTypeSelected.stateName
         );
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: true,
-          oldId: allContractType[index].contractTypeId,
+          oldId: contractTypeSelected.contractTypeId,
           replaceContractTypeList
         });
       }

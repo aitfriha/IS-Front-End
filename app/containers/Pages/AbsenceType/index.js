@@ -31,6 +31,7 @@ import {
   updateAbsenceType,
   deleteAbsenceType
 } from '../../../redux/absenceType/actions';
+import { getAllAbsenceRequestByAbsenceType } from '../../../redux/absenceRequest/actions';
 import { getAllStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 
@@ -50,18 +51,30 @@ class AbsenceType extends React.Component {
     name: '',
     description: '',
     isDialogOpen: false,
-    absenceTypeIndex: 0,
+    isDeleteDialogOpen: false,
+    isOpenDocument: false,
+    absenceTypeSelected: {},
     absenceResponsible: null,
     inCopyResponsible: null,
     doc: {},
     docExtension: '',
-    docId: '',
-    pageNumber: 1
+    pageNumber: 1,
+    replaceContractTypeList: []
   };
 
-  editingPromiseResolve = () => {};
+  editingPromiseResolve1 = () => {};
+
+  editingPromiseResolve2 = () => {};
 
   columns = [
+    {
+      name: 'absenceTypeId',
+      label: 'Absence Type Id',
+      options: {
+        display: false,
+        filter: false
+      }
+    },
     {
       name: 'code',
       label: 'Code',
@@ -153,7 +166,7 @@ class AbsenceType extends React.Component {
             <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
               <EditIcon color="secondary" />
             </IconButton>
-            <IconButton onClick={() => this.handleDeleteType(tableMeta)}>
+            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
               <DeleteIcon color="primary" />
             </IconButton>
           </React.Fragment>
@@ -179,15 +192,14 @@ class AbsenceType extends React.Component {
       code,
       name,
       description,
-      absenceTypeIndex,
+      absenceTypeSelected,
       absenceResponsible,
       inCopyResponsible,
       docExtension,
       doc
     } = this.state;
-    const absenceTypeData = allAbsenceType[absenceTypeIndex];
     const absenceType = {
-      absenceTypeId: absenceTypeData.absenceTypeId,
+      absenceTypeId: absenceTypeSelected.absenceTypeId,
       code,
       name,
       description,
@@ -211,7 +223,7 @@ class AbsenceType extends React.Component {
 
     const promise = new Promise(resolve => {
       updateAbsenceType(formData);
-      this.editingPromiseResolve = resolve;
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
@@ -230,31 +242,64 @@ class AbsenceType extends React.Component {
 
   handleOpenDialog = tableMeta => {
     const { allAbsenceType, allStaff } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const absenceTypeSelected = allAbsenceType.filter(
+      absenceType => absenceType.absenceTypeId === tableMeta.rowData[0]
+    )[0];
     this.setState({
-      absenceTypeIndex: index,
-      code: allAbsenceType[index].code,
-      name: allAbsenceType[index].name,
-      description: allAbsenceType[index].description,
+      absenceTypeSelected,
+      code: absenceTypeSelected.code,
+      name: absenceTypeSelected.name,
+      description: absenceTypeSelected.description,
       isDialogOpen: true,
       absenceResponsible: allStaff.filter(
-        staff => staff.staffId === allAbsenceType[index].absenceResponsibleId
+        staff => staff.staffId === absenceTypeSelected.absenceResponsibleId
       )[0],
       inCopyResponsible: allStaff.filter(
-        staff => staff.staffId === allAbsenceType[index].inCopyResponsibleId
+        staff => staff.staffId === absenceTypeSelected.inCopyResponsibleId
       )[0]
     });
   };
 
   handleOpenDocumentDialog = tableMeta => {
     const { allAbsenceType } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const absenceTypeSelected = allAbsenceType.filter(
+      absenceType => absenceType.absenceTypeId === tableMeta.rowData[0]
+    )[0];
     this.setState({
       isOpenDocument: true,
-      docExtension: allAbsenceType[index].docExtension,
-      absenceTypeIndex: index
+      docExtension: absenceTypeSelected.docExtension,
+      absenceTypeSelected
+    });
+  };
+
+  handleOpenDeleteDialog = tableMeta => {
+    const { allAbsenceType, getAllAbsenceRequestByAbsenceType } = this.props;
+    const absenceTypeSelected = allAbsenceType.filter(
+      absenceType => absenceType.absenceTypeId === tableMeta.rowData[0]
+    )[0];
+    const promise = new Promise(resolve => {
+      getAllAbsenceRequestByAbsenceType(absenceTypeSelected.absenceTypeId);
+      this.editingPromiseResolve2 = resolve;
+    });
+    promise.then(result => {
+      if (this.props.allAbsenceRequestByAbsenceType.length === 0) {
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: false,
+          absenceTypeSelected
+        });
+      } else {
+        const replaceAbsenceTypeList = allAbsenceType.filter(
+          type => type.absenceTypeId !== absenceTypeSelected.absenceTypeId
+            && type.stateName === absenceTypeSelected.stateName
+        );
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: true,
+          replaceAbsenceTypeList,
+          absenceTypeSelected
+        });
+      }
     });
   };
 
@@ -262,8 +307,10 @@ class AbsenceType extends React.Component {
     this.setState({
       isDialogOpen: false,
       isOpenDocument: false,
-      absenceTypeIndex: 0,
-      doc: {}
+      absenceTypeSelected: {},
+      doc: {},
+      isDeleteDialogOpen: false,
+      newId: ''
     });
   };
 
@@ -295,25 +342,25 @@ class AbsenceType extends React.Component {
 
   renderFile = () => {
     const { allAbsenceType } = this.props;
-    const { absenceTypeIndex, docExtension } = this.state;
+    const { absenceTypeSelected, docExtension } = this.state;
     console.log(docExtension);
     return `data:${this.handleFileDataType(docExtension)};base64,${
-      allAbsenceType[absenceTypeIndex].document
+      absenceTypeSelected.document
     }`;
   };
 
-  handleDeleteType = tableMeta => {
-    const { allAbsenceType, getAllAbsenceType, deleteAbsenceType } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+  handleDeleteType = () => {
+    const { getAllAbsenceType, deleteAbsenceType } = this.props;
+    const { absenceTypeSelected } = this.state;
     const promise = new Promise(resolve => {
-      deleteAbsenceType(allAbsenceType[index].absenceTypeId);
-      this.editingPromiseResolve = resolve;
+      deleteAbsenceType(absenceTypeSelected.absenceTypeId);
+      this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
         getAllAbsenceType();
+        this.handleClose();
       } else {
         notification('danger', result);
       }
@@ -328,15 +375,13 @@ class AbsenceType extends React.Component {
 
   handleDownload = () => {
     const { allAbsenceType } = this.props;
-    const { absenceTypeIndex } = this.state;
-    const doc = allAbsenceType[absenceTypeIndex].document;
-    const docName = `${allAbsenceType[absenceTypeIndex].name}_Document`;
+    const { absenceTypeSelected } = this.state;
+    const doc = absenceTypeSelected.document;
+    const docName = `${absenceTypeSelected.name}_Document`;
 
     const documentBase64 = this.fileToBase64(doc);
     const documentBlob = new Blob([documentBase64], {
-      type: this.handleFileDataType(
-        allAbsenceType[absenceTypeIndex].docExtension
-      )
+      type: this.handleFileDataType(absenceTypeSelected.docExtension)
     });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(documentBlob);
@@ -376,7 +421,10 @@ class AbsenceType extends React.Component {
       isLoadingAbsenceType,
       absenceTypeResponse,
       errorAbsenceType,
-      allStaff
+      allStaff,
+      isLoadingAbsenceRequest,
+      absenceRequestResponse,
+      errorAbsenceRequest
     } = this.props;
     const {
       code,
@@ -384,11 +432,13 @@ class AbsenceType extends React.Component {
       description,
       isDialogOpen,
       isOpenDocument,
-      absenceTypeIndex,
+      absenceTypeSelected,
       absenceResponsible,
       inCopyResponsible,
       doc,
-      pageNumber
+      pageNumber,
+      isDeleteDialogOpen,
+      isRelated
     } = this.state;
     const title = brand.name + ' - Types of staff absence';
     const { desc } = brand;
@@ -408,10 +458,17 @@ class AbsenceType extends React.Component {
     };
     !isLoadingAbsenceType
       && absenceTypeResponse
-      && this.editingPromiseResolve(absenceTypeResponse);
+      && this.editingPromiseResolve1(absenceTypeResponse);
     !isLoadingAbsenceType
       && !absenceTypeResponse
-      && this.editingPromiseResolve(errorAbsenceType);
+      && this.editingPromiseResolve1(errorAbsenceType);
+
+    !isLoadingAbsenceRequest
+      && absenceRequestResponse
+      && this.editingPromiseResolve2(absenceRequestResponse);
+    !isLoadingAbsenceRequest
+      && !absenceRequestResponse
+      && this.editingPromiseResolve2(errorAbsenceRequest);
     return (
       <div>
         <Helmet>
@@ -422,6 +479,62 @@ class AbsenceType extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          open={isDeleteDialogOpen}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">Delete Absence Type</DialogTitle>
+          <DialogContent>
+            {isRelated ? (
+              <div>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px'
+                  }}
+                >
+                  this type is related to some absence requests, notice that if
+                  you delete this type all the absence requests related in the
+                  system will be automatically deleted.
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    color: '#dc3545',
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px'
+                  }}
+                >
+                  Are you sure you want to continue with this operation?
+                </Typography>
+              </div>
+            ) : (
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px'
+                }}
+              >
+                this type is not related to any absence request, are you sure
+                you want to delete this type?
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.handleDeleteType}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           maxWidth="lg"
           fullWidth
@@ -434,8 +547,8 @@ class AbsenceType extends React.Component {
         >
           <DialogTitle id="SaveFormula">Document preview</DialogTitle>
           <DialogContent>
-            {allAbsenceType[absenceTypeIndex] ? (
-              allAbsenceType[absenceTypeIndex].docExtension === 'pdf' ? (
+            {absenceTypeSelected ? (
+              absenceTypeSelected.docExtension === 'pdf' ? (
                 <Document
                   file={this.renderFile()}
                   onLoadSuccess={this.onDocumentLoadSuccess}
@@ -632,14 +745,21 @@ const mapStateToProps = state => ({
   absenceTypeResponse: state.getIn(['absenceTypes']).absenceTypeResponse,
   isLoadingAbsenceType: state.getIn(['absenceTypes']).isLoading,
   errorAbsenceType: state.getIn(['absenceTypes']).errors,
-  allStaff: state.getIn(['staffs']).allStaff
+  allStaff: state.getIn(['staffs']).allStaff,
+  absenceRequestResponse: state.getIn(['absenceRequests'])
+    .absenceRequestResponse,
+  isLoadingAbsenceRequest: state.getIn(['absenceRequests']).isLoading,
+  errorAbsenceRequest: state.getIn(['absenceRequests']).errors,
+  allAbsenceRequestByAbsenceType: state.getIn(['absenceRequests'])
+    .allAbsenceRequestByAbsenceType
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     updateAbsenceType,
     getAllAbsenceType,
     deleteAbsenceType,
-    getAllStaff
+    getAllStaff,
+    getAllAbsenceRequestByAbsenceType
   },
   dispatch
 );

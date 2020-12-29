@@ -195,6 +195,12 @@ module.exports = [
         keyParent: 'hhrrSystem',
         child: [
           {
+            key: 'absenceConsult',
+            name: 'Absence Consult',
+            link: '/app/hh-rr/absenceConsult',
+            icon: 'ios-people-outline'
+          },
+          {
             key: 'absenceRequest',
             name: 'Absence Request',
             link: '/app/hh-rr/absenceRequest',
@@ -226,18 +232,6 @@ module.exports = [
         keyParent: 'hhrrSystem',
         child: [
           {
-            key: 'contractType',
-            name: 'Types of contract',
-            link: '/app/hh-rr/ContractType',
-            icon: 'ios-paper-outline'
-          },
-          {
-            key: 'legalCategoryType',
-            name: 'Types of legal category',
-            link: '/app/hh-rr/LegalCategoryType',
-            icon: 'ios-paper-outline'
-          },
-          {
             key: 'contractModel',
             name: 'Contract models',
             link: '/app/hh-rr/ContractModel',
@@ -247,6 +241,18 @@ module.exports = [
             key: 'absenceType',
             name: 'Types of absence',
             link: '/app/hh-rr/AbsenceType',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'contractType',
+            name: 'Types of contract',
+            link: '/app/hh-rr/ContractType',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'legalCategoryType',
+            name: 'Types of legal category',
+            link: '/app/hh-rr/LegalCategoryType',
             icon: 'ios-paper-outline'
           }
         ]

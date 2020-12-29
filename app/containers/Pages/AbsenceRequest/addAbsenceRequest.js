@@ -5,26 +5,19 @@ import {
   Button,
   Typography,
   makeStyles,
-  FormControl,
-  FormLabel,
-  Select,
-  MenuItem,
-  RadioGroup,
-  FormControlLabel,
-  Radio
+  IconButton,
+  Tooltip
 } from '@material-ui/core';
+import PublishIcon from '@material-ui/icons/Publish';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import moment from 'moment';
-import emailjs from 'emailjs-com';
 import { PapperBlock } from 'dan-components';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import AutoComplete from '../../../components/AutoComplete';
 import styles from './absenceRequest-jss';
 import history from '../../../utils/history';
 import '../Configurations/map/app.css';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import { isString } from 'lodash';
-import CountryService from '../../Services/CountryService';
-import StateCountryService from '../../Services/StateCountryService';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
@@ -37,11 +30,12 @@ import notification from '../../../components/Notification/Notification';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-  TimePicker
-} from '@material-ui/pickers';
+  KeyboardDatePicker} from '@material-ui/pickers';
 
 const useStyles = makeStyles(styles);
+
+
+const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
 
 class AddAbsenceType extends React.Component {
   constructor(props) {
@@ -55,8 +49,11 @@ class AddAbsenceType extends React.Component {
       minEndDate: new Date(),
       isStartDateError: false,
       isEndDateError: false,
-      startHour: new Date(),
-      endHour: new Date()
+      hourRate: 0,
+      doc: {},
+      docExtension: '',
+      isSubmit: false,
+      docList: [{ inputDoc: React.createRef(), doc: {}, docExtension: '' }]
     };
   }
 
@@ -67,7 +64,8 @@ class AddAbsenceType extends React.Component {
   }
 
   handleChange = ev => {
-    this.setState({ [ev.target.name]: ev.target.value });
+    const { name, value } = ev.target;
+    this.setState({ [name]: value });
   };
 
   handleSubmitAbsenceType = () => {
@@ -77,8 +75,8 @@ class AddAbsenceType extends React.Component {
       absenceType,
       startDate,
       endDate,
-      startHour,
-      endHour
+      hourRate,
+      docList
     } = this.state;
     console.log(staff);
     console.log(absenceType);
@@ -93,43 +91,52 @@ class AddAbsenceType extends React.Component {
           ? endDate.toISOString().slice(0, 10)
           : '-',
       absenceDays: absenceType.durationType === 'day' ? this.calculDays() : '-',
-      startHour:
-        absenceType.durationType === 'hour'
-          ? moment(startHour).format('LT')
-          : '-',
-      endHour:
-        absenceType.durationType === 'hour'
-          ? moment(endHour).format('LT')
-          : '-',
-      absenceHours:
-        absenceType.durationType === 'hour' ? this.calculHours() : '-',
+      hourRate: absenceType.durationType === 'hour' ? hourRate : '-',
       staffId: staff.staffId,
       absenceTypeId: absenceType.absenceTypeId,
-      sendToName: absenceType.absenceResponsibleName,
       fromName:
         staff.firstName
         + ' '
         + staff.fatherFamilyName
         + ' '
-        + staff.motherFamilyName,
-      sendToEmail: absenceType.absenceResponsibleEmail
+        + staff.motherFamilyName
     };
 
+    const docExtensionList = [];
+    const formData = new FormData();
+    docList.forEach(doc => {
+      if (doc.doc.constructor !== Object) {
+        docExtensionList.push(doc.docExtension);
+        formData.append('docList', doc.doc);
+      }
+    });
+
+    /* if (doc.constructor !== Object) {
+      formData.append('doc', doc);
+    } else {
+      formData.append(
+        'doc',
+        new Blob([JSON.stringify({})], {
+          type: 'application/json'
+        })
+      );
+    } */
+    formData.append('docExtensionList', docExtensionList);
+
+    Object.keys(absenceRequest).forEach(e => formData.append(e, absenceRequest[e])
+    );
     const promise = new Promise(resolve => {
-      saveAbsenceRequest(absenceRequest);
+      this.setState({
+        isSubmit: true
+      });
+      saveAbsenceRequest(formData);
       this.editingPromiseResolve = resolve;
     });
     promise.then(result => {
+      this.setState({
+        isSubmit: false
+      });
       if (isString(result)) {
-        /* this.sendEmail(
-          absenceType.absenceResponsibleName,
-          staff.firstName
-            + ' '
-            + staff.fatherFamilyName
-            + ' '
-            + staff.motherFamilyName,
-          absenceType.absenceResponsibleEmail
-        ); */
         notification('success', result);
         getAllAbsenceRequest();
         console.log(result);
@@ -162,33 +169,6 @@ class AddAbsenceType extends React.Component {
         [name]: value
       });
     }
-  };
-
-  handleTimeValue = (value, name) => {
-    const { startHour, endHour } = this.state;
-    if (name === 'endHour') {
-      const minTime = moment(startHour, 'HH:mm');
-      const maxTime = moment(value, 'HH:mm');
-      if (maxTime.isAfter(minTime)) {
-        this.setState({
-          [name]: value
-        });
-      }
-    } else {
-      const minTime = moment(value, 'HH:mm');
-      const maxTime = moment(endHour, 'HH:mm');
-      if (maxTime.isAfter(minTime)) {
-        this.setState({
-          [name]: value
-        });
-      }
-    }
-  };
-
-  handleTimeValue1 = (value, name) => {
-    this.setState({
-      [name]: value
-    });
   };
 
   handleValueChange = (value, type) => {
@@ -239,24 +219,6 @@ class AddAbsenceType extends React.Component {
     return null;
   };
 
-  calculHours = () => {
-    const { startHour, endHour } = this.state;
-    const hours = moment(endHour, 'HH:mm:ss').diff(
-      moment(startHour, 'HH:mm:ss'),
-      'hours'
-    );
-    const minutes = moment(endHour, 'HH:mm:ss').diff(
-      moment(startHour, 'HH:mm:ss'),
-      'minutes'
-    ) % 60;
-    console.log(startHour);
-    console.log(endHour);
-    console.log(hours);
-    console.log(minutes);
-    console.log(minutes % 60);
-    return hours + 'h ' + minutes + 'm ';
-  };
-
   calculDays = () => {
     const { startDate, endDate } = this.state;
     const start = moment(startDate, 'DD/MM/YYYY');
@@ -278,27 +240,52 @@ class AddAbsenceType extends React.Component {
     return workingDays;
   };
 
-  sendEmail = (to_name, from_name, send_to) => {
-    console.log('send email');
-    emailjs
-      .send(
-        'service_5dw5k4d',
-        'template_svs4ese',
-        {
-          to_name,
-          from_name,
-          send_to
-        },
-        'user_tL8sZHzEcw2kjuBxHvasN'
-      )
-      .then(
-        response => {
-          console.log('SUCCESS!', response.status, response.text);
-        },
-        error => {
-          console.log('FAILED...', error);
-        }
-      );
+  handleUploadDocClick = index => {
+    const { docList } = this.state;
+    console.log(index);
+    console.log(docList[index]);
+    docList[index].inputDoc.current.click();
+  };
+
+  handleDocChange = index => {
+    const { docList } = this.state;
+    const lastDot = docList[index].inputDoc.current.files[0].name.lastIndexOf(
+      '.'
+    );
+    const ext = docList[index].inputDoc.current.files[0].name
+      .substring(lastDot + 1)
+      .toLowerCase();
+    if (extList.includes(ext)) {
+      docList[index].doc = docList[index].inputDoc.current.files[0];
+      docList[index].docExtension = ext;
+      this.setState({
+        docList
+      });
+    }
+  };
+
+  handleCheckHourRateValue = () => {
+    const { hourRate, absenceType } = this.state;
+    if (absenceType && absenceType.durationType === 'hour') {
+      if (
+        Number(hourRate) === parseFloat(hourRate)
+        && parseFloat(hourRate) <= 1
+        && parseFloat(hourRate) > 0
+      ) {
+        console.log('return false');
+        return false;
+      }
+      return true;
+    }
+    return false;
+  };
+
+  handleAddDocumentButton = () => {
+    const { docList } = this.state;
+    docList.push({ inputDoc: React.createRef(), doc: {}, docExtension: '' });
+    this.setState({
+      docList
+    });
   };
 
   render() {
@@ -318,14 +305,39 @@ class AddAbsenceType extends React.Component {
       minEndDate,
       isStartDateError,
       isEndDateError,
-      startHour,
-      endHour
+      hourRate,
+      isSubmit,
+      docList
     } = this.state;
     console.log(
       moment()
         .startOf(startDate)
         .from(endDate)
     );
+
+    console.log(
+      !staff
+        || !absenceType
+        || isStartDateError
+        || isEndDateError
+        || (absenceType.documentsMandatory === 'yes'
+          && docList.length > 0
+          && docList[0].doc.constructor === Object)
+        || isSubmit
+        || this.handleCheckHourRateValue()
+    );
+    console.log(!absenceType);
+    console.log(!staff);
+    console.log(isStartDateError);
+    console.log(isEndDateError);
+    console.log(
+      absenceType
+        && absenceType.documentsMandatory === 'yes'
+        && docList.length > 0
+        && docList[0].doc.constructor === Object
+    );
+    console.log(isSubmit);
+    console.log(this.handleCheckHourRateValue());
 
     !isLoadingAbsenceRequest
       && absenceRequestResponse
@@ -334,6 +346,9 @@ class AddAbsenceType extends React.Component {
       && !absenceRequestResponse
       && this.editingPromiseResolve(errorAbsenceRequest);
     console.log(allAbsenceTypeByState);
+    console.log(
+      absenceType !== null && absenceType.documentsMandatory === 'yes'
+    );
     return (
       <div>
         <PapperBlock
@@ -462,7 +477,7 @@ class AddAbsenceType extends React.Component {
             ) : (
               <div />
             )}
-            {absenceType !== null && absenceType.durationType === 'hour' ? (
+            {absenceType !== null && absenceType.durationType === 'hour' && (
               <Grid
                 item
                 xs={12}
@@ -473,52 +488,104 @@ class AddAbsenceType extends React.Component {
                   marginBottom: 12
                 }}
               >
-                <div style={{ width: '40%', marginTop: 1 }}>
-                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <TimePicker
-                      disableToolbar
-                      variant="inline"
-                      format="hh:mm"
-                      margin="normal"
-                      id="date-picker-inline"
-                      name="startHour"
-                      label="Start Hour"
-                      value={startHour}
-                      ampm={false}
-                      minutesStep={1}
-                      onChange={value => this.handleTimeValue(value, 'startHour')
-                      }
-                      KeyboardButtonProps={{
-                        'aria-label': 'change time'
+                <div style={{ width: '100%' }}>
+                  <TextField
+                    id="outlined-basic"
+                    label="Hour rate"
+                    variant="outlined"
+                    name="hourRate"
+                    value={hourRate}
+                    fullWidth
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  {this.handleCheckHourRateValue() && (
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        color: '#dc3545',
+                        fontFamily: 'sans-serif , Arial',
+                        fontSize: '11px'
                       }}
-                      fullWidth
-                    />
-                  </MuiPickersUtilsProvider>
-                </div>
-                <div style={{ width: '40%', marginTop: 1 }}>
-                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <TimePicker
-                      disableToolbar
-                      variant="inline"
-                      format="hh:mm"
-                      margin="normal"
-                      id="date-picker-inline"
-                      name="endHour"
-                      label="End Hour"
-                      value={endHour}
-                      ampm={false}
-                      minutesStep={1}
-                      onChange={value => this.handleTimeValue(value, 'endHour')}
-                      KeyboardButtonProps={{
-                        'aria-label': 'change time'
-                      }}
-                      fullWidth
-                    />
-                  </MuiPickersUtilsProvider>
+                    >
+                      the inserted value must be a decimal number greater than 0
+                      and equal or less than 1
+                    </Typography>
+                  )}
                 </div>
               </Grid>
-            ) : (
-              <div />
+            )}
+            <Grid item xs={12} md={7}>
+              <div
+                style={{
+                  height: '100%',
+                  width: '100%',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center'
+                }}
+              >
+                {absenceType !== null
+                  && absenceType.documentsMandatory === 'yes'
+                  && docList.length > 0
+                  && docList.map((doc, index) => (
+                    <Button
+                      className={
+                        doc.doc.constructor === Object
+                          ? classes.uploadAvatarEmpty
+                          : classes.uploadAvatarDone
+                      }
+                      onClick={() => this.handleUploadDocClick(index)}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <input
+                          type="file"
+                          id="file"
+                          accept=".png, .jpg, .jpeg, .pdf, .tiff"
+                          ref={doc.inputDoc}
+                          multiple={false}
+                          style={{ display: 'none' }}
+                          onChange={() => this.handleDocChange(index)}
+                        />
+                        <PublishIcon
+                          className={classes.uploadIcon}
+                          color="secondary"
+                        />
+                      </div>
+                    </Button>
+                  ))}
+              </div>
+            </Grid>
+            {absenceType !== null && absenceType.documentsMandatory === 'yes' && (
+              <Grid
+                item
+                xs={12}
+                md={7}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginBottom: 5
+                }}
+              >
+                <Tooltip title="Add Document Field">
+                  <IconButton
+                    color="primary"
+                    variant="contained"
+                    size="medium"
+                    onClick={this.handleAddDocumentButton}
+                    disabled={docList.length === 18}
+                  >
+                    <AddCircleOutlineIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
+              </Grid>
             )}
 
             <Grid
@@ -537,7 +604,15 @@ class AddAbsenceType extends React.Component {
                 size="medium"
                 onClick={this.handleSubmitAbsenceType}
                 disabled={
-                  !staff || !absenceType || isStartDateError || isEndDateError
+                  !staff
+                  || !absenceType
+                  || isStartDateError
+                  || isEndDateError
+                  || (absenceType.documentsMandatory === 'yes'
+                    && docList.length > 0
+                    && docList[0].doc.constructor === Object)
+                  || isSubmit
+                  || this.handleCheckHourRateValue()
                 }
               >
                 Submit Request

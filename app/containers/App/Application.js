@@ -65,6 +65,7 @@ import {
   AddAbsenceType,
   AbsenceRequest,
   AddAbsenceRequest,
+  AbsenceConsult,
   SectorsCompany,
   CivilityTitle,
   EconomicStaff,
@@ -200,6 +201,11 @@ function Application(props) {
           exact
           path="/app/hh-rr/absenceRequest/create-absence-request"
           component={AddAbsenceRequest}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceConsult"
+          component={AbsenceConsult}
         />
         <Route exact path="/app/gestion-commercial/areas" component={Areas} />
         <Route
