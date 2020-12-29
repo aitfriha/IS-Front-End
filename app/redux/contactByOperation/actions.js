@@ -2,7 +2,8 @@ import {
   ADD_CONTACTBYOPERATION,
   DELETE_CONTACTBYOPERATION,
   GET_ALL_CONTACTBYOPERATIONS,
-  UPDATE_CONTACTBYOPERATION
+  UPDATE_CONTACTBYOPERATION,
+  GET_ONE_CONTACTBYOPERATIONS
 } from './constants';
 
 export const addContactByOperation = (contactByOperation) => ({
@@ -12,6 +13,11 @@ export const addContactByOperation = (contactByOperation) => ({
 
 export const updateContactByOperation = (contactByOperationWithId) => ({
   type: UPDATE_CONTACTBYOPERATION,
+  contactByOperationWithId
+});
+
+export const getContactByOperationById = (contactByOperationWithId) => ({
+  type: GET_ONE_CONTACTBYOPERATIONS,
   contactByOperationWithId
 });
 

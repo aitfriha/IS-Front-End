@@ -22,6 +22,8 @@ import MaterialTable, { MTableToolbar } from 'material-table';
 import { isString } from 'lodash';
 import { CSVReader } from 'react-papaparse';
 import CloudUploadIcon from '@material-ui/core/SvgIcon/SvgIcon';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 import { addClient } from '../../../../redux/actions/clientActions';
 import CommercialService from '../../../Services/CommercialService';
 import AssignmentService from '../../../Services/AssignmentService';
@@ -33,20 +35,20 @@ import CommercialAssignmentsMapped from './assignmentBlock';
 import ClientBlockMapped from '../../Clients/ClientBlock';
 import history from '../../../../utils/history';
 import {
-    addClientCommercial, deleteClient, getAllClient, getAllClientByCountry, importClientCommercial, updateClient
+  addClientCommercial, deleteClient, getAllClient, getAllClientByCountry, importClientCommercial, updateClient
 } from '../../../../redux/client/actions';
 // eslint-disable-next-line import/named
 import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
 import { addAssignment } from '../../../../redux/assignment/actions';
-import * as XLSX from "xlsx";
-import * as FileSaver from "file-saver";
 
 const buttonRef = React.createRef();
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {
+    };
+    this.editingPromiseResolveImport = () => {
     };
     this.state = {
       display: 'flex',
@@ -211,46 +213,49 @@ class Commercial extends React.Component {
   handleOnFileLoad = (data) => {
     const {
       // eslint-disable-next-line no-shadow
-      getAllCitys, importClientCommercial
+      importClientCommercial, getAllClientByCountry
     } = this.props;
+    const {
+      country
+    } = this.state;
     // country
     const newData = [];
     data.forEach(
       (val) => {
-          console.log(val.data[0]);
+        console.log(val.data[0]);
         if (val.data[0] !== '') {
           newData.push(Object.assign(
-              { name: val.data[0] },
-              { phone: val.data[1] },
-              { postCode: val.data[2] },
-              { addressName: val.data[3] },
-              { city: val.data[4] },
-              { isActive: val.data[5] },
-              { multinational: val.data[6] },
-              { type: val.data[7] },
-              { email: val.data[8] },
-              { webSite: val.data[9] },
-              { sector1: val.data[10] },
-              { sector2: val.data[11] },
-              { sector3: val.data[12] },
-              { assistantCommercial: val.data[13] },
-              { startDateResponsibleCommercial: new Date(val.data[14]) },
-              { endDateResponsibleCommercial: new Date(val.data[15])},
-              { responsibleCommercial: val.data[16] },
-              { startDateAssistantCommercial: new Date(val.data[17]) },
-              { endDateAssistantCommercial: new Date(val.data[18]) },
-              ));
+            { name: val.data[0] },
+            { phone: val.data[1] },
+            { postCode: val.data[2] },
+            { addressName: val.data[3] },
+            { city: val.data[4] },
+            { isActive: val.data[5] },
+            { multinational: val.data[6] },
+            { type: val.data[7] },
+            { email: val.data[8] },
+            { webSite: val.data[9] },
+            { sector1: val.data[10] },
+            { sector2: val.data[11] },
+            { sector3: val.data[12] },
+            { assistantCommercial: val.data[13] },
+            { startDateResponsibleCommercial: new Date(val.data[14]) },
+            { endDateResponsibleCommercial: new Date(val.data[15]) },
+            { responsibleCommercial: val.data[16] },
+            { startDateAssistantCommercial: new Date(val.data[17]) },
+            { endDateAssistantCommercial: new Date(val.data[18]) },
+          ));
         }
       }
     );
-      console.log(newData);
+    console.log(newData);
     const promise = new Promise((resolve) => {
       importClientCommercial(newData.slice(1));
-      this.editingPromiseResolve = resolve;
+      this.editingPromiseResolveImport = resolve;
     });
     promise.then((result) => {
       notification('success', result);
-      getAllCitys();
+      getAllClientByCountry(country);
     });
   }
 
@@ -286,16 +291,16 @@ class Commercial extends React.Component {
       this.setState({ type: 'assignment' });
     });
   };
+
   selectedRowsInTable= (rows) => {
     console.log(rows.length);
-if(rows.length>0){
-  this.setState({ display: 'none' });
-}
-else{
-  this.setState({ display: 'flex' });
-}
-
+    if (rows.length > 0) {
+      this.setState({ display: 'none' });
+    } else {
+      this.setState({ display: 'flex' });
+    }
   };
+
   selectedRows = (rows) => {
     console.log('ffffffffffffffffffffffffffffff');
     const listClientToUpdate = rows.map((row) => row.clientId);
@@ -344,7 +349,7 @@ else{
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
     const {
-      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment
+      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment, clientResponse, isLoading
     } = this.props;
     const {
       addresses,
@@ -353,11 +358,13 @@ else{
       commercials,
       type, countries, country,
       notifMessage, client, clients,
-      columns, openPopUp, typeResponsible, staff, openPopUpImport,display
+      columns, openPopUp, typeResponsible, staff, openPopUpImport, display
     } = this.state;
     (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
     (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
-    console.log('allStaffs ', allStaffs && allStaffs);
+    (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
+    /* (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolveImport(errorsAssignment); */
+
     return (
       <div>
         <Helmet>
@@ -461,11 +468,11 @@ else{
                   }}
                   onSelectionChange={(rows) => this.selectedRowsInTable(rows)}
                   actions={[
-                    {
+                    /* {
                       tooltip: 'Import',
                       icon: 'import_contacts',
                       onClick: (evt, data) => this.handleOnFileLoad(data)
-                    },
+                    }, */
                     {
                       tooltip: 'import',
                       icon: 'assignment_ind',
@@ -478,10 +485,16 @@ else{
                       onClick: () => {
                         const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                         const fileExtension = '.xlsx';
-                        console.log(allClients);
-                        const ws = XLSX.utils.json_to_sheet(allClients);
-                        ws["F1"]="";
-                        console.log(ws);
+                          var myprop = allClients;
+                          myprop = myprop.filter(function (props) {
+                              delete props.countryId;
+                              delete props.stateId;
+                              return true;
+                          });
+                          myprop.forEach((v) => { delete v.clientId;delete v.tableData});
+                        console.log(myprop);
+                        const ws = XLSX.utils.json_to_sheet(myprop);
+                        ws.F1 = '';
                         const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
                         const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                         const data1 = new Blob([excelBuffer], { type: fileType });
@@ -490,7 +503,7 @@ else{
                     }
                   ]}
                   editable={{
-                    onRowAdd: newData => new Promise((resolve) => {
+               /*     onRowAdd: newData => new Promise((resolve) => {
                       // add measurement unit action
                       addCommercialOperationStatus(newData);
                       this.editingPromiseResolve = resolve;
@@ -502,8 +515,8 @@ else{
                       } else {
                         notification('danger', result);
                       }
-                    }),
-                    onRowUpdate: (newData) => new Promise((resolve) => {
+                    }),*/
+          /*          onRowUpdate: (newData) => new Promise((resolve) => {
                       // update CommercialOperationStatus unit action
                       updateCommercialOperationStatus(newData);
                       this.editingPromiseResolve = resolve;
@@ -515,7 +528,7 @@ else{
                       } else {
                         notification('danger', result);
                       }
-                    }),
+                    }),*/
                     onRowDelete: oldData => new Promise((resolve) => {
                       // delete CommercialOperationStatus action
                       deleteCommercialOperationStatus(oldData.commercialOperationStatusId);
@@ -548,7 +561,7 @@ else{
                             {({ file }) => (
                               <aside
                                 style={{
-                                  display:  `${display}`,
+                                  display: `${display}`,
                                   flexDirection: 'row',
                                   marginBottom: 10,
                                 }}
@@ -598,7 +611,7 @@ else{
                                 >
                                       remove
                                 </Button>
-{/*                                <Button
+                                {/*                                <Button
                                     variant="contained"
                                     color="primary"
                                     component="span"
@@ -612,7 +625,7 @@ else{
 
                                   save
 
-                                </Button>*/}
+                                </Button> */}
                               </aside>
                             )}
                           </CSVReader>

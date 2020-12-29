@@ -2,11 +2,11 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
-import EconomicStaffBlock from './EconomicStaffBlock';
+import SupliersPaymentBlock from './SuppliersPaymentBlock';
 
-class StaffEconomicManagement extends React.Component {
+class SupliersPayment extends React.Component {
   render() {
-    const title = brand.name + ' - Economic Staff';
+    const title = brand.name + ' - Suppliers Payment';
     const description = brand.desc;
     return (
       <div>
@@ -18,12 +18,12 @@ class StaffEconomicManagement extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Economic Staff" icon="ios-person" noMargin overflowX>
-          <EconomicStaffBlock />
+        <PapperBlock title="Suppliers Payment" icon="ios-cash" noMargin overflowX>
+          <SupliersPaymentBlock />
         </PapperBlock>
       </div>
     );
   }
 }
 
-export default StaffEconomicManagement;
+export default SupliersPayment;

@@ -59,18 +59,6 @@ const SmallAvatar = withStyles(theme => ({
   }
 }))(Avatar);
 
-const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
-
-const inputContractDoc = React.createRef();
-const inputInternalRulesDoc = React.createRef();
-const inputPreContractDoc = React.createRef();
-const inputIdCardDoc = React.createRef();
-const inputPassportDoc = React.createRef();
-const inputProfessionalIdCardDoc = React.createRef();
-const inputHnsCardDoc = React.createRef();
-const reader = new FileReader();
-
-const useStyles = makeStyles(styles);
 
 class AddContact extends React.Component {
   constructor(props) {
@@ -78,10 +66,6 @@ class AddContact extends React.Component {
     this.editingPromiseResolve = () => {};
     this.state = {
       isChangeProfilePic: false,
-      isPersonalInformation: true,
-      isGeneralContractInformation: false,
-      isEconomicContractInformation: false,
-      isStaffDocumentation: false,
       firstName: '',
       fatherFamilyName: '',
       motherFamilyName: '',
@@ -103,65 +87,9 @@ class AddContact extends React.Component {
       postCode: '',
       state: {},
       city: {},
-      contractType: '',
-      legalCategoryType: '',
-      associateOffice: '',
-      hiringCountry: '',
-      hiringState: '',
-      townContract: '',
-      personalNumber: '',
-      highDate: new Date(),
-      lowDate: new Date(),
-      registrationDate: new Date(),
-      preContractDate: new Date(),
-      internalRulesDoc: {},
-      contractDoc: {},
-      preContractDoc: {},
-      countries: [],
-      states: [],
-      idCardNumber: '',
-      idCardExpeditionDate: new Date(),
-      idCardExpirationDate: new Date(),
-      passportNumber: '',
-      passportExpeditionDate: new Date(),
-      passportExpirationDate: new Date(),
-      professionalIdCardNumber: '',
-      professionalIdCardExpeditionDate: new Date(),
-      professionalIdCardExpirationDate: new Date(),
-      hnsCardNumber: '',
-      hnsCardExpeditionDate: new Date(),
-      hnsCardExpirationDate: new Date(),
-      idCardDoc: {},
-      passportDoc: {},
-      professionalIdCardDoc: {},
-      hnsCardDoc: {},
-      idCardDocExtension: '',
-      passportDocExtension: '',
-      professionalIdCardDocExtension: '',
-      hnsCardDocExtension: '',
-      contractTypes: [],
-      legalCategoryTypes: [],
-      contractSalary: 0,
-      companyContractCost: 0,
-      expenses: 0,
-      companyExpensesCost: 0,
-      objectives: 0,
-      companyObjectivesCost: 0,
-      totalCompanyCost: 0,
-      contractSalaryDateGoing: new Date(),
-      contractSalaryDateOut: new Date(),
-      companyContractCostDateGoing: new Date(),
-      companyContractCostDateOut: new Date(),
-      expensesDateGoing: new Date(),
-      expensesDateOut: new Date(),
-      companyExpensesCostDateGoing: new Date(),
-      companyExpensesCostDateOut: new Date(),
-      objectivesDateGoing: new Date(),
-      objectivesDateOut: new Date(),
-      companyObjectivesCostDateGoing: new Date(),
-      companyObjectivesCostDateOut: new Date(),
-      totalCompanyCostDateGoing: new Date(),
-      totalCompanyCostDateOut: new Date()
+      department: '',
+      position: '',
+      companyFixPhone: ''
     };
   }
 
@@ -188,8 +116,18 @@ class AddContact extends React.Component {
     });
   };
 
+  closeDialog = (b) => {
+    this.props.close(b);
+  };
+
   handleSubmitStaff = () => {
-    const { addContact, getAllContact, suppliersArea, supplierType } = this.props;
+    const {
+      addContact, getAllContact, suppliersArea, supplierType,
+      first_name, _skype, full_address, post_code, mother_family_name, father_family_name, _position, _department,
+      company_fix_phone, company_mobile_phone, company_email, personal_mobile_phone, personal_email, theCompany, etat
+    } = this.props;
+
+
     const {
       firstName,
       fatherFamilyName,
@@ -207,31 +145,136 @@ class AddContact extends React.Component {
       city,
       civilityId,
       fullAddress,
-      postCode
-    } = this.state;
-
-
-    const contact = {
-      firstName,
-      fatherFamilyName,
-      motherFamilyName,
-      companyId,
-      department,
-      position,
-      companyFixPhone,
-      companyMobilePhone,
-      companyEmail,
-      personalMobilePhone,
-      personalEmail,
-      skype,
-      photo,
-      cityId:city.cityId,
-      civilityId,
-      fullAddress,
       postCode,
-      suppliersArea,
-      supplierType
-    };
+
+    } = this.state;
+    console.log(theCompany);
+    if (first_name == true && firstName == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'first name is mandatory');
+      return;
+    }
+    if (_skype == true && skype == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'skype is mandatory');
+      return;
+    }
+    if (full_address == true && fullAddress == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'full address is mandatory');
+      return;
+    }
+    if (post_code == true && postCode == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'post code is mandatory');
+      return;
+    }
+    if (father_family_name == true && fatherFamilyName == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'father family name is mandatory');
+      return;
+    }
+    if (mother_family_name == true && motherFamilyName == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'mother family name is mandatory');
+      return;
+    }
+    if (_department == true && department == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'department is mandatory');
+      return;
+    }
+    if (_position == true && position == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'position is mandatory');
+      return;
+    }
+    if (company_fix_phone == true && companyFixPhone == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'company fix phone is mandatory');
+      return;
+    }
+    if (company_mobile_phone == true && companyMobilePhone == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'company mobile phone is mandatory');
+      return;
+    }
+    if (company_email == true && companyEmail == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'company email is mandatory');
+      return;
+    }
+    if (personal_mobile_phone == true && personalMobilePhone == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'personal mobile phone is mandatory');
+      return;
+    }
+    if (personal_email == true && personalEmail == '') {
+      // this.setState({ qualification_process_contacts_technical_leaderError: true });
+      this.closeDialog(false);
+      notification('danger', 'personal email is mandatory');
+      return;
+    }
+    var contact={};
+    if(theCompany!='')
+    {
+       contact = {
+        firstName,
+        fatherFamilyName,
+        motherFamilyName,
+        companyId: theCompany,
+        department,
+        position,
+        companyFixPhone,
+        companyMobilePhone,
+        companyEmail,
+        personalMobilePhone,
+        personalEmail,
+        skype,
+        photo,
+        cityId: city.cityId,
+        civilityId,
+        fullAddress,
+        postCode,
+        suppliersArea,
+        supplierType
+      };
+    }
+    else {
+       contact = {
+        firstName,
+        fatherFamilyName,
+        motherFamilyName,
+        companyId,
+        department,
+        position,
+        companyFixPhone,
+        companyMobilePhone,
+        companyEmail,
+        personalMobilePhone,
+        personalEmail,
+        skype,
+        photo,
+        cityId: city.cityId,
+        civilityId,
+        fullAddress,
+        postCode,
+        suppliersArea,
+        supplierType
+      };
+    }
     const promise = new Promise(resolve => {
       // get client information
       addContact(contact);
@@ -289,7 +332,22 @@ class AddContact extends React.Component {
     const title = brand.name + ' - Clients';
     const description = brand.desc;
     const {
-      classes, isLoadingContact, contactResponse, errorsContact, allClients,allCivilityTitles
+      classes, isLoadingContact, contactResponse, errorsContact, allClients, allCivilityTitles,
+      first_name,
+      father_family_name,
+      mother_family_name,
+      _department,
+      _position,
+      company_fix_phone,
+      company_mobile_phone,
+      company_email,
+      personal_mobile_phone,
+      personal_email,
+      _skype,
+      full_address,
+      post_code,
+      theCompany,
+      etat
     } = this.props;
     const {
       firstName,
@@ -411,18 +469,18 @@ class AddContact extends React.Component {
                   style={{ marginBottom: '10px', marginTop: '10px' }}
                 />
                 <Autocomplete
-                    id="combo-box-demo"
-                    options={allCivilityTitles && allCivilityTitles}
-                    getOptionLabel={option => (option ? option.name : '')}
-                    onChange={this.handleChangeCivility}
-                    renderInput={params => (
-                        <TextField
-                            fullWidth
-                            {...params}
-                            label="Title type*"
-                            variant="outlined"
-                        />
-                    )}
+                  id="combo-box-demo"
+                  options={allCivilityTitles && allCivilityTitles}
+                  getOptionLabel={option => (option ? option.name : '')}
+                  onChange={this.handleChangeCivility}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Title type*"
+                      variant="outlined"
+                    />
+                  )}
                 />
                 <TextField
                   id="outlined-basic"
@@ -430,7 +488,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="firstName"
                   fullWidth
-                  required
+                  required={first_name}
                   value={firstName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -441,6 +499,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="fatherFamilyName"
                   fullWidth
+                  required={father_family_name}
                   value={fatherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -451,6 +510,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="motherFamilyName"
                   fullWidth
+                  required={mother_family_name}
                   value={motherFamilyName}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -466,39 +526,48 @@ class AddContact extends React.Component {
                   variant="fullWidth"
                   style={{ marginBottom: '10px', marginTop: '10px' }}
                 />
-                <Autocomplete
-                  id="combo-box-demo"
-                  options={allClients && allClients}
-                  getOptionLabel={option => (option ? option.name : '')}
-                  onChange={this.handleChangeCompany}
-                  renderInput={params => (
-                    <TextField
-                      fullWidth
-                      {...params}
-                      label="Choose the company*"
-                      variant="outlined"
+                { etat == 'externe'
+                  ? (
+                    <Autocomplete
+                      id="combo-box-demo"
+                      options={allClients}
+                      getOptionLabel={option => (option ? option.name : '')}
+                      value={allClients.find(v => v.clientId === theCompany) || ''}
+                      onChange={this.handleChangeCompany}
+                      disabled
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the company*"
+                          variant="outlined"
+                        />
+                      )}
+                    />
+                  )
+                  : (
+                    <Autocomplete
+                      id="combo-box-demo"
+                      options={allClients && allClients}
+                      getOptionLabel={option => (option ? option.name : '')}
+                      onChange={this.handleChangeCompany}
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the company*"
+                          variant="outlined"
+                        />
+                      )}
                     />
                   )}
-                />
-                {/*                <FormControl
-                    className={classes.formControl}
-                    style={{ width: '48%' }}
-                    required
-                >
-                  <InputLabel>Type</InputLabel>
-                  <Select name="type"  onChange={this.handleChange}>
-                    {allClients && allClients.map(tp => (
-                        <MenuItem key={tp} value={tp.name}>
-                          {tp.name}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl> */}
+
                 <TextField
                   id="outlined-basic"
                   label="Department"
                   variant="outlined"
                   name="department"
+                  required={_department}
                   fullWidth
                   value={department}
                   className={classes.textField}
@@ -510,7 +579,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="position"
                   fullWidth
-                  required
+                  required={_position}
                   value={position}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -521,7 +590,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="companyFixPhone"
                   fullWidth
-                  required
+                  required={company_fix_phone}
                   value={companyFixPhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -532,7 +601,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="companyMobilePhone"
                   fullWidth
-                  required
+                  required={company_mobile_phone}
                   value={companyMobilePhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -543,7 +612,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="companyEmail"
                   fullWidth
-                  required
+                  required={company_email}
                   value={companyEmail}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -554,6 +623,7 @@ class AddContact extends React.Component {
                   variant="outlined"
                   name="personalMobilePhone"
                   fullWidth
+                  required={personal_mobile_phone}
                   value={personalMobilePhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -563,6 +633,7 @@ class AddContact extends React.Component {
                   label="personal email"
                   variant="outlined"
                   name="personalEmail"
+                  required={personal_email}
                   fullWidth
                   value={personalEmail}
                   className={classes.textField}
@@ -573,6 +644,7 @@ class AddContact extends React.Component {
                   label="Skype"
                   variant="outlined"
                   name="skype"
+                  required={_skype}
                   fullWidth
                   value={skype}
                   className={classes.textField}

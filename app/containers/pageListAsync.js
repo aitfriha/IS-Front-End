@@ -297,3 +297,7 @@ export const AddEconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
   loading: Loading
 });
+export const SuppliersPayment = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersPayment'),
+  loading: Loading
+});
