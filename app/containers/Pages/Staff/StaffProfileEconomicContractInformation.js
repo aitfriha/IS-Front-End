@@ -394,7 +394,6 @@ class StaffProfileEconomicContractInformation extends Component {
     const { allStaffEconomicContractInformationHistoryByContract } = this.props;
     const index = tableMeta.rowIndex;
     const data = allStaffEconomicContractInformationHistoryByContract[index];
-    console.log(data);
     this.setState(
       {
         contractSalary: data.contractSalary,

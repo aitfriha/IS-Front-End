@@ -63,9 +63,13 @@ import {
   AddContractModel,
   AbsenceType,
   AddAbsenceType,
+  AbsenceRequest,
+  AddAbsenceRequest,
+  AbsenceConsult,
   SectorsCompany,
   CivilityTitle,
   EconomicStaff,
+  SuppliersPayment,
   AddEconomicStaff
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -188,6 +192,21 @@ function Application(props) {
           exact
           path="/app/hh-rr/absenceType/create-absence-type"
           component={AddAbsenceType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceRequest"
+          component={AbsenceRequest}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceRequest/create-absence-request"
+          component={AddAbsenceRequest}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceConsult"
+          component={AbsenceConsult}
         />
         <Route exact path="/app/gestion-commercial/areas" component={Areas} />
         <Route
@@ -330,6 +349,11 @@ function Application(props) {
           exact
           path="/app/gestion-financial/Staff Economic Management"
           component={EconomicStaff}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Suppliers Payment"
+          component={SuppliersPayment}
         />
         <Route
           exact

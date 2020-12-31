@@ -26,13 +26,14 @@ const ENDPOINTS = {
   CONTACT: 'http://localhost:9000/api/contact',
   CONTRACTTYPE: 'http://localhost:9000/api/contractType',
   ABSENCETYPE: 'http://localhost:9000/api/absenceType',
+  ABSENCEREQUEST: 'http://localhost:9000/api/absenceRequest',
   LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
   CONTRACTMODEL: 'http://localhost:9000/api/contractModel',
   FUNCTIONALSTRUCTURE: 'http://localhost:9000/api/functionalStructure',
   ADMINISTRATIVESTRUCTURE: 'http://localhost:9000/api/administrativeStructure',
   FUNCTIONALSTRUCTUREASSIGNATIONHISTORY:
     'http://localhost:9000/api/functionalStructureAssignationHistory',
-    ADMINISTRATIVESTRUCTUREASSIGNATIONHISTORY:
+  ADMINISTRATIVESTRUCTUREASSIGNATIONHISTORY:
     'http://localhost:9000/api/administrativeStructureAssignationHistory',
   CONTACTBYOPERATION: 'http://localhost:9000/api/contactByOperation',
   CIVILITYTITLE: 'http://localhost:9000/api/civilityTitle',

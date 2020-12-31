@@ -41,6 +41,7 @@ import PublishIcon from '@material-ui/icons/Publish';
 import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { showSpinner } from 'dan-redux/actions/uiActions';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CountryService from '../../Services/CountryService';
 import StaffService from '../../Services/StaffService';
@@ -53,6 +54,9 @@ import {
   getAllStaff,
   updateStaff
 } from '../../../redux/staff/actions';
+import { getAllCountry } from '../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
 import {
   addStaffDocument,
   deleteStaffDocument
@@ -89,10 +93,10 @@ class StaffProfileGeneralInformation extends Component {
     emergencyContactPhone: '',
     photo: '',
     fullAddress: '',
-    adCountry: {},
+    adCountry: null,
     postCode: '',
-    state: {},
-    city: {},
+    state: null,
+    city: null,
     docNumber: '',
     docExpeditionDate: new Date(),
     docExpirationDate: new Date(),
@@ -106,15 +110,60 @@ class StaffProfileGeneralInformation extends Component {
 
   editingPromiseResolve2 = () => {};
 
+  editingPromiseResolve3 = () => {};
+
+  editingPromiseResolve4 = () => {};
+
+  editingPromiseResolve5 = () => {};
+
   componentDidMount() {
-    this.setInitialData();
-    CountryService.getCountries().then(({ data }) => {
-      this.setState({ countries: data });
+    const {
+      staff,
+      getAllCountry,
+      getAllStateByCountry,
+      getAllCityByState,
+      showSpinner
+    } = this.props;
+
+    const promise1 = new Promise(resolve => {
+      // get client information
+      getAllCountry();
+      this.editingPromiseResolve3 = resolve;
+    });
+    promise1.then(() => {
+      const promise2 = new Promise(resolve => {
+        // get client information
+        getAllStateByCountry(staff.countryId);
+        this.editingPromiseResolve4 = resolve;
+      });
+      promise2.then(() => {
+        const promise3 = new Promise(resolve => {
+          // get client information
+          getAllCityByState(staff.stateId);
+          this.editingPromiseResolve5 = resolve;
+        });
+        promise3.then(() => {
+          this.setInitialData();
+          showSpinner(false);
+        });
+      });
     });
   }
 
   setInitialData = () => {
     const { staff } = this.props;
+    const birthCountry = this.props.allCountrys.filter(
+      country => country.countryName === staff.birthCountry
+    )[0];
+    const adCountry = this.props.allCountrys.filter(
+      country => country.countryName === staff.countryName
+    )[0];
+    const state = this.props.allStateCountrys.filter(
+      state1 => state1.stateName === staff.stateName
+    )[0];
+    const city = this.props.allCitys.filter(
+      city1 => city1.cityName === staff.cityName
+    )[0];
     this.setState({
       firstName: staff.firstName,
       fatherFamilyName: staff.fatherFamilyName,
@@ -127,62 +176,21 @@ class StaffProfileGeneralInformation extends Component {
       companyEmail: staff.companyEmail,
       skype: staff.skype,
       birthday: new Date(staff.birthday),
-      birthCountry: staff.birthCountry,
+      birthCountry,
       emergencyContactName: staff.emergencyContactName,
       emergencyContactPhone: staff.emergencyContactPhone,
       fullAddress: staff.fullAddress,
-      adCountry: staff.countryName,
+      adCountry,
       postCode: staff.postCode,
-      state: staff.stateName,
-      city: staff.cityName
-    });
-  };
-
-  restoreData = () => {
-    const { staff, setEdit } = this.props;
-    setEdit(false);
-    this.setState({
-      firstName: staff.firstName,
-      fatherFamilyName: staff.fatherFamilyName,
-      motherFamilyName: staff.motherFamilyName,
-      personalPhone: staff.personalPhone,
-      personalEmail: staff.personalEmail,
-      companyName: staff.companyName,
-      companyPhone: staff.companyPhone,
-      companyMobilePhone: staff.companyMobilePhone,
-      companyEmail: staff.companyEmail,
-      skype: staff.skype,
-      birthday: new Date(staff.birthday),
-      birthCountry: staff.birthCountry,
-      emergencyContactName: staff.emergencyContactName,
-      emergencyContactPhone: staff.emergencyContactPhone,
-      fullAddress: staff.fullAddress,
-      adCountry: staff.countryName,
-      postCode: staff.postCode,
-      state: staff.stateName,
-      city: staff.cityName
+      state,
+      city
     });
   };
 
   handleOpenEditData = () => {
     const { setEdit } = this.props;
-    const {
-      personalPhone,
-      companyPhone,
-      companyMobilePhone,
-      emergencyContactPhone
-    } = this.state;
-    this.setState(
-      {
-        personalPhone: personalPhone.slice(4),
-        companyPhone: companyPhone.slice(4),
-        companyMobilePhone: companyMobilePhone.slice(4),
-        emergencyContactPhone: emergencyContactPhone.slice(4)
-      },
-      () => {
-        setEdit(true);
-      }
-    );
+
+    setEdit(true);
   };
 
   handleOpenEditDocumentation = () => {
@@ -191,22 +199,39 @@ class StaffProfileGeneralInformation extends Component {
     });
   };
 
-  handleChange = ev => {
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
     const {
       personalPhone,
       companyPhone,
       companyMobilePhone,
       emergencyContactPhone
     } = this.state;
-    if (ev.target.name === 'adCountry') {
-      this.setState({
-        personalPhone: ev.target.value.phonePrefix + personalPhone,
-        companyPhone: ev.target.value.phonePrefix + companyPhone,
-        companyMobilePhone: ev.target.value.phonePrefix + companyMobilePhone,
-        emergencyContactPhone:
-          ev.target.value.phonePrefix + emergencyContactPhone
-      });
-    }
+    this.setState({
+      adCountry: value,
+      personalPhone: value.phonePrefix + personalPhone,
+      companyPhone: value.phonePrefix + companyPhone,
+      companyMobilePhone: value.phonePrefix + companyMobilePhone,
+      emergencyContactPhone: value.phonePrefix + emergencyContactPhone
+    });
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    this.setState({
+      state: value
+    });
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ city: value });
+  };
+
+  handleChange = ev => {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
@@ -223,7 +248,7 @@ class StaffProfileGeneralInformation extends Component {
   handleCancel = () => {
     const { setEdit } = this.props;
     setEdit(false);
-    this.restoreData();
+    this.setInitialData();
   };
 
   handleUpdate = () => {
@@ -276,7 +301,6 @@ class StaffProfileGeneralInformation extends Component {
       this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
-      console.log(result);
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
@@ -359,7 +383,6 @@ class StaffProfileGeneralInformation extends Component {
       this.editingPromiseResolve2 = resolve;
     });
     promise.then(result => {
-      console.log(result);
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
@@ -447,7 +470,6 @@ class StaffProfileGeneralInformation extends Component {
       this.editingPromiseResolve2 = resolve;
     });
     promise.then(result => {
-      console.log(result);
       if (isString(result)) {
         notification('success', result);
         getAllStaff();
@@ -464,16 +486,26 @@ class StaffProfileGeneralInformation extends Component {
     const {
       classes,
       staff,
+      isEdit,
+      allCountrys,
+      allStateCountrys,
+      allCitys,
       isLoadingStaff,
       staffResponse,
       errorStaff,
       isLoadingStaffDocument,
       staffDocumentResponse,
       errorStaffDocument,
-      isEdit
+      isLoadingCountry,
+      countryResponse,
+      errorsCountry,
+      isLoadingState,
+      stateCountryResponse,
+      errorsState,
+      isLoadingCity,
+      cityResponse,
+      errorsCity
     } = this.props;
-    console.log(staffDocumentResponse);
-    console.log(errorStaffDocument);
     const {
       isAddDocumentation,
       isOpenDocument,
@@ -490,7 +522,11 @@ class StaffProfileGeneralInformation extends Component {
       birthCountry,
       emergencyContactName,
       emergencyContactPhone,
-      countries,
+      adCountry,
+      state,
+      city,
+      fullAddress,
+      postCode,
       docNumber,
       docExpeditionDate,
       docExpirationDate,
@@ -510,12 +546,30 @@ class StaffProfileGeneralInformation extends Component {
     !isLoadingStaff
       && !staffResponse
       && this.editingPromiseResolve1(errorStaff);
+
     !isLoadingStaffDocument
       && staffDocumentResponse
       && this.editingPromiseResolve2(staffDocumentResponse);
     !isLoadingStaffDocument
       && !staffDocumentResponse
       && this.editingPromiseResolve2(errorStaffDocument);
+
+    !isLoadingCountry
+      && countryResponse
+      && this.editingPromiseResolve3(countryResponse);
+    !isLoadingCountry
+      && !countryResponse
+      && this.editingPromiseResolve3(errorsCountry);
+
+    !isLoadingState
+      && stateCountryResponse
+      && this.editingPromiseResolve4(stateCountryResponse);
+    !isLoadingState
+      && !stateCountryResponse
+      && this.editingPromiseResolve4(errorsState);
+
+    !isLoadingCity && cityResponse && this.editingPromiseResolve5(cityResponse);
+    !isLoadingCity && !cityResponse && this.editingPromiseResolve5(errorsCity);
     return (
       <div>
         <Dialog
@@ -1130,7 +1184,7 @@ class StaffProfileGeneralInformation extends Component {
                 <Autocomplete
                   id="combo-box-demo"
                   value={birthCountry}
-                  options={countries}
+                  options={allCountrys}
                   getOptionLabel={option => option.countryName}
                   onChange={this.handleChangeBirthCountry}
                   style={{ marginTop: 25 }}
@@ -1249,7 +1303,83 @@ class StaffProfileGeneralInformation extends Component {
                   style={{ marginBottom: '10px', marginTop: '10px' }}
                 />
                 <div style={{ marginTop: 25 }}>
-                  <AddressBlock onChangeInput={this.handleChange} />
+                  <div>
+                    <Autocomplete
+                      id="combo-box-demo"
+                      value={adCountry}
+                      options={allCountrys}
+                      getOptionLabel={option => option.countryName}
+                      onChange={this.handleChangeCountry}
+                      clearOnEscape
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the country"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
+                    <Autocomplete
+                      id="combo-box-demo"
+                      value={state}
+                      options={allStateCountrys}
+                      getOptionLabel={option => option.stateName}
+                      onChange={this.handleChangeState}
+                      style={{ marginTop: 15 }}
+                      clearOnEscape
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the state"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
+                    <Autocomplete
+                      id="combo-box-demo"
+                      value={city}
+                      options={allCitys}
+                      getOptionLabel={option => (option ? option.cityName : '')}
+                      onChange={this.handleChangeCity}
+                      style={{ marginTop: 15 }}
+                      clearOnEscape
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Choose the city"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
+                    <TextField
+                      id="outlined-basic"
+                      label="Full Address"
+                      variant="outlined"
+                      name="fullAddress"
+                      fullWidth
+                      multiline
+                      value={fullAddress}
+                      className={classes.textField}
+                      onChange={this.handleChange}
+                    />
+                    <TextField
+                      id="outlined-basic"
+                      label="Post Code"
+                      variant="outlined"
+                      fullWidth
+                      required
+                      name="postCode"
+                      value={postCode}
+                      className={classes.textField}
+                      onChange={this.handleChange}
+                    />
+                  </div>
                 </div>
               </Grid>
             </Grid>
@@ -1375,7 +1505,22 @@ const mapStateToProps = state => ({
   staffDocumentResponse: state.getIn(['staffDocuments']).staffDocumentResponse,
   isLoadingStaffDocument: state.getIn(['staffDocuments']).isLoading,
   errorStaffDocument: state.getIn(['staffDocuments']).errors,
-  isEdit: state.getIn(['staffs']).isEditStaff
+  isEdit: state.getIn(['staffs']).isEditStaff,
+  // country
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoadingCountry: state.getIn(['countries']).isLoading,
+  errorsCountry: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
@@ -1385,7 +1530,11 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     setStaff,
     setEdit,
     addStaffDocument,
-    deleteStaffDocument
+    deleteStaffDocument,
+    getAllCountry,
+    getAllStateByCountry,
+    getAllCityByState,
+    showSpinner
   },
   dispatch
 );

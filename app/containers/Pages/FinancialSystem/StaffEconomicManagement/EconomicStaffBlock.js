@@ -13,6 +13,7 @@ import green from '@material-ui/core/colors/green';
 import red from '@material-ui/core/colors/red';
 import yellow from '@material-ui/core/colors/yellow';
 import blue from '@material-ui/core/colors/blue';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
 import EconomicStaffYearService from '../../../Services/EconomicStaffYearService';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
@@ -83,6 +84,24 @@ class EconomicStaffBlock extends React.Component {
       currencyId: '',
       currencyCode: '',
       columns: [
+        {
+          label: ' ',
+          name: 'lowDate',
+          options: {
+            customBodyRender: (lowDate) => (
+              <React.Fragment>
+                <IconButton>
+                  <RadioButtonUncheckedIcon style={{
+                    backgroundColor: lowDate ? 'red' : '',
+                    color: lowDate ? 'red' : '',
+                    borderRadius: '100%'
+                  }}
+                  />
+                </IconButton>
+              </React.Fragment>
+            )
+          }
+        },
         {
           name: 'staff',
           label: 'First Name',
@@ -674,7 +693,7 @@ class EconomicStaffBlock extends React.Component {
       console.log(EconomicStaffMonth);
       EconomicStaffMonthService.saveEconomicStaffMonth(EconomicStaffMonth).then(result => {
         console.log(result);
-        this.setState({ openExtra: false });
+        this.setState({ openMonth: false });
       });
     };
 
@@ -708,7 +727,7 @@ class EconomicStaffBlock extends React.Component {
       console.log(EconomicStaffExtra);
       EconomicStaffExtraService.saveEconomicStaffExtra(EconomicStaffExtra).then(result => {
         console.log(result);
-        this.setState({ openMonth: false, openCompanyCostMonth: false });
+        this.setState({ openExtra: false, openCompanyCostMonth: false });
       });
     };
 

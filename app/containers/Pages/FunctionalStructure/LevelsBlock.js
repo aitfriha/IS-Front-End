@@ -84,6 +84,14 @@ class LevelsBlock extends React.Component {
 
   columns = [
     {
+      name: 'levelId',
+      label: 'Level Id',
+      options: {
+        display: false,
+        filter: false
+      }
+    },
+    {
       name: 'name',
       label: 'Name',
       options: {
@@ -259,8 +267,6 @@ class LevelsBlock extends React.Component {
     const item = event.relatedTarget;
     item.classList.remove('dragging', 'cannot-drop');
     const draggedId = parseInt(event.relatedTarget.id.substr(12));
-    console.log(staffNotAssigned);
-    console.log(staffs[draggedId]);
     const staffNotAssigned2 = staffNotAssigned.filter(
       value => value.staffId !== staffs[draggedId].staffId
     );
@@ -268,12 +274,10 @@ class LevelsBlock extends React.Component {
     const exist = originalLevelStaffs.some(
       staff => staff.staffId === staffs[draggedId].staffId
     );
-    console.log(exist);
     if (!exist) {
       staffAssigned.push(staffs[draggedId]);
     }
     levelStaffs.push(staffs[draggedId]);
-    console.log(staffAssigned);
     staffs.splice(draggedId, 1);
     this.setState({
       staffs,
@@ -316,6 +320,14 @@ class LevelsBlock extends React.Component {
     const { getAllFunctionalStructureAssignationHistoryByLevel } = this.props;
     const { levelId } = level;
     getAllFunctionalStructureAssignationHistoryByLevel(levelId);
+    StaffService.getFunctionalNotAssignedStaffs().then(({ data }) => {
+      data.sort((a, b) => {
+        const textA = a.firstName.toUpperCase();
+        const textB = b.firstName.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+      this.setState({ staffs: data });
+    });
     StaffService.getStaffsByFunctionalLevel(levelId, 'no').then(({ data }) => {
       data.sort((a, b) => {
         const textA = a.firstName.toUpperCase();
@@ -340,41 +352,40 @@ class LevelsBlock extends React.Component {
   handleOpenEdit = tableMeta => {
     const { allFunctionalStructureLevel } = this.props;
     const { staffs } = this.state;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
-    StaffService.getStaffsByFunctionalLevel(
-      allFunctionalStructureLevel[index].levelId,
-      'yes'
-    ).then(({ data }) => {
-      const staffList = staffs;
-      if (data[0]) {
-        staffList.push(data[0]);
+    const levelSelected = allFunctionalStructureLevel.filter(
+      level => level.levelId === tableMeta.rowData[0]
+    )[0];
+    StaffService.getStaffsByFunctionalLevel(levelSelected.levelId, 'yes').then(
+      ({ data }) => {
+        const staffList = staffs;
+        if (data[0]) {
+          staffList.push(data[0]);
+        }
+        this.setState({
+          oldLeader: data[0],
+          newLeader: data[0],
+          level: levelSelected,
+          levelName: levelSelected.name,
+          description: levelSelected.description,
+          isProductionLevel: levelSelected.isProductionLevel,
+          isCommercialLevel: levelSelected.isCommercialLevel,
+          isLevelEdit: true,
+          staffs: staffList
+        });
       }
-      this.setState({
-        oldLeader: data[0],
-        newLeader: data[0],
-        level: allFunctionalStructureLevel[index],
-        levelName: allFunctionalStructureLevel[index].name,
-        description: allFunctionalStructureLevel[index].description,
-        isProductionLevel: allFunctionalStructureLevel[index].isProductionLevel,
-        isCommercialLevel: allFunctionalStructureLevel[index].isCommercialLevel,
-        isLevelEdit: true,
-        staffs: staffList
-      });
-    });
+    );
   };
 
   handleOpenDelete = tableMeta => {
     const { allFunctionalStructureLevel } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const levelSelected = allFunctionalStructureLevel.filter(
+      level => level.levelId === tableMeta.rowData[0]
+    )[0];
     this.setState({
-      level: allFunctionalStructureLevel[index],
+      level: levelSelected,
       isLevelDelete: true
     });
   };
-
-  handleD;
 
   handleClose = () => {
     this.updateData();
@@ -410,14 +421,6 @@ class LevelsBlock extends React.Component {
       this.setState({
         levels: data.payload
       });
-    });
-    StaffService.getFunctionalNotAssignedStaffs().then(({ data }) => {
-      data.sort((a, b) => {
-        const textA = a.firstName.toUpperCase();
-        const textB = b.firstName.toUpperCase();
-        return textA < textB ? -1 : textA > textB ? 1 : 0;
-      });
-      this.setState({ staffs: data });
     });
   };
 

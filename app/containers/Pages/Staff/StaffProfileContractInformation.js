@@ -142,38 +142,54 @@ class StaffProfileContractInformation extends Component {
       getAllStaffContractHistoryByContract,
       getAllContractModel
     } = this.props;
-    this.setInitialData();
     getAllContractTypeByState(staff.contractTypeStateId);
     getAllLegalCategoryTypeByCompany(staff.companyId);
     getAllStaffContractHistoryByContract(staff.staffContractId);
     getAllContractModel();
-    CountryService.getCountries().then(({ data }) => {
-      this.setState({ countries: data });
-    });
-    StateCountryService.getStatesByCountry(staff.hiringCountry).then(
-      response => {
-        this.setState({
-          hiringCountryName: staff.hiringCountry,
-          hiringStateName: staff.contractTypeState,
-
-          states: response.data.payload
-        });
-      }
-    );
     FinancialCompanyService.getCompany().then(({ data }) => {
       this.setState({ companies: data });
+    });
+    CountryService.getCountries().then(({ data }) => {
+      this.setState({ countries: data });
+      StateCountryService.getStatesByCountry(staff.contractTypeCountryId).then(
+        response => {
+          this.setState(
+            {
+              hiringCountryName: staff.hiringCountry,
+              hiringStateName: staff.contractTypeState,
+              states: response.data.payload
+            },
+            () => {
+              this.setInitialData();
+            }
+          );
+        }
+      );
     });
   }
 
   setInitialData = () => {
     const { staff } = this.props;
+    const { countries, states, companies } = this.state;
+    const hiringCountry = countries.filter(
+      country => country.countryName === staff.hiringCountry
+    )[0];
+    const hiringState = states.filter(
+      state => state.stateCountryId === staff.contractTypeStateId
+    )[0];
+    const company = companies.filter(
+      cmp => cmp.financialCompanyId === staff.companyId
+    )[0];
     const staffContract = {
       contractType: staff.contractTypeId,
       legalCategoryType: staff.legalCategoryTypeId,
       contractModel: staff.contractModelId,
       associateOffice: staff.associateOffice,
+      hiringCountry,
       hiringCountryName: staff.hiringCountry,
+      hiringState,
       hiringStateName: staff.contractTypeState,
+      company,
       townContract: staff.townContract,
       personalNumber: staff.personalNumber,
       highDate: new Date(staff.highDate),

@@ -43,7 +43,7 @@ class LegalCategoryType extends React.Component {
     isDialogOpen: false,
     isDeleteDialogOpen: false,
     isRelated: false,
-    legalCategoryTypeIndex: 0,
+    legalCategoryTypeSelected: {},
     replaceLegalCategoryTypeList: [],
     oldId: '',
     newId: ''
@@ -54,6 +54,14 @@ class LegalCategoryType extends React.Component {
   editingPromiseResolve2 = () => {};
 
   columns = [
+    {
+      name: 'legalCategoryTypeId',
+      label: 'Legal Category Type Id',
+      options: {
+        display: false,
+        filter: false
+      }
+    },
     {
       name: 'name',
       label: 'Name',
@@ -109,10 +117,9 @@ class LegalCategoryType extends React.Component {
       getAllLegalCategoryType,
       updateLegalCategoryType
     } = this.props;
-    const { name, functions, legalCategoryTypeIndex } = this.state;
-    const legalCategoryTypeData = allLegalCategoryType[legalCategoryTypeIndex];
+    const { name, functions, legalCategoryTypeSelected } = this.state;
     const legalCategoryType = {
-      legalCategoryTypeId: legalCategoryTypeData.legalCategoryTypeId,
+      legalCategoryTypeId: legalCategoryTypeSelected.legalCategoryTypeId,
       name,
       functions
     };
@@ -137,23 +144,30 @@ class LegalCategoryType extends React.Component {
 
   handleOpenDialog = tableMeta => {
     const { allLegalCategoryType } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const legalCategoryTypeSelected = allLegalCategoryType.filter(
+      legalCategoryType => legalCategoryType.legalCategoryTypeId === tableMeta.rowData[0]
+    )[0];
     this.setState({
-      legalCategoryTypeIndex: index,
-      name: allLegalCategoryType[index].name,
-      functions: allLegalCategoryType[index].functions,
+      legalCategoryTypeSelected,
+      name: legalCategoryTypeSelected.name,
+      functions: legalCategoryTypeSelected.functions,
       isDialogOpen: true
     });
   };
 
   handleOpenDeleteDialog = tableMeta => {
-    const { allLegalCategoryType, getAllStaffContractByLegalCategoryType } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const {
+      allLegalCategoryType,
+      getAllStaffContractByLegalCategoryType
+    } = this.props;
+    const legalCategoryTypeSelected = allLegalCategoryType.filter(
+      legalCategoryType => legalCategoryType.legalCategoryTypeId === tableMeta.rowData[0]
+    )[0];
     const promise = new Promise(resolve => {
       // get client information
-      getAllStaffContractByLegalCategoryType(allLegalCategoryType[index].legalCategoryTypeId);
+      getAllStaffContractByLegalCategoryType(
+        legalCategoryTypeSelected.legalCategoryTypeId
+      );
       this.editingPromiseResolve2 = resolve;
     });
     promise.then(result => {
@@ -161,22 +175,23 @@ class LegalCategoryType extends React.Component {
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: false,
-          oldId: allLegalCategoryType[index].legalCategoryTypeId
+          oldId: legalCategoryTypeSelected.legalCategoryTypeId
         });
       } else {
         const replaceLegalCategoryTypeList = allLegalCategoryType.filter(
-          type => type.legalCategoryTypeId !== allLegalCategoryType[index].legalCategoryTypeId
+          type => type.legalCategoryTypeId
+              !== legalCategoryTypeSelected.legalCategoryTypeId
+            && type.companyName === legalCategoryTypeSelected.companyName
         );
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: true,
-          oldId: allLegalCategoryType[index].legalCategoryTypeId,
+          oldId: legalCategoryTypeSelected.legalCategoryTypeId,
           replaceLegalCategoryTypeList
         });
       }
     });
   };
-
 
   handleClose = () => {
     this.setState({
@@ -215,10 +230,15 @@ class LegalCategoryType extends React.Component {
       staffContractResponse,
       errorStaffContract
     } = this.props;
-    const { name, functions, isDialogOpen,isDeleteDialogOpen,
+    const {
+      name,
+      functions,
+      isDialogOpen,
+      isDeleteDialogOpen,
       isRelated,
       replaceLegalCategoryTypeList,
-      newId } = this.state;
+      newId
+    } = this.state;
     const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
@@ -242,7 +262,7 @@ class LegalCategoryType extends React.Component {
       && !legalCategoryTypeResponse
       && this.editingPromiseResolve1(errorLegalCategoryType);
 
-      !isLoadingStaffContract
+    !isLoadingStaffContract
       && staffContractResponse
       && this.editingPromiseResolve2(staffContractResponse);
     !isLoadingStaffContract
@@ -279,8 +299,8 @@ class LegalCategoryType extends React.Component {
                     fontSize: '17px'
                   }}
                 >
-                  this type is related to some contracts, choose an other
-                  legal category type to replace it:
+                  this type is related to some contracts, choose an other legal
+                  category type to replace it:
                 </Typography>
                 <div>
                   <FormControl
@@ -295,7 +315,10 @@ class LegalCategoryType extends React.Component {
                       onChange={this.handleChange}
                     >
                       {replaceLegalCategoryTypeList.map(type => (
-                        <MenuItem key={type.code} value={type.legalCategoryTypeId}>
+                        <MenuItem
+                          key={type.code}
+                          value={type.legalCategoryTypeId}
+                        >
                           {type.name}
                         </MenuItem>
                       ))}
