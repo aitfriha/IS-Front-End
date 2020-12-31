@@ -829,7 +829,6 @@ class AddCommercialOperation extends React.Component {
         const j = parseInt(key) + 1;
         if(typeof this.state.['administrativeContact' + j] != 'undefined') {
           contactList.push(this.state.['administrativeContact' + j]);
-          //this.setState({qpcListAddOtherOperation: Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}))});
           compteur1=compteur1+1;
         }
       }
@@ -843,7 +842,6 @@ class AddCommercialOperation extends React.Component {
         const j = parseInt(key) + 1;
         if(typeof this.state.['proc_depa_cont' + j] != 'undefined') {
           contactList.push(this.state.['proc_depa_cont' + j]);
-          //this.setState({qpcListAddOtherOperation: Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}))});
           compteur2=compteur2+1;
         }
       }
@@ -857,7 +855,6 @@ class AddCommercialOperation extends React.Component {
         const j = parseInt(key) + 1;
         if(typeof this.state.['lega_area_conta' + j] != 'undefined') {
           contactList.push(this.state.['lega_area_conta' + j]);
-          //this.setState({qpcListAddOtherOperation: Object.keys(qpcListAddOtherOperation.reduce((p, c) => (p[c] = true, p), {}))});
           compteur3=compteur3+1;
         }
       }

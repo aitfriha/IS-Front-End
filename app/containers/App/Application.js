@@ -35,6 +35,7 @@ import {
   Operations,
   OperationsAssignment,
   CommercialOperation,
+  CommercialAction,
   AddCommercialOperation,
   FinancialCompany,
   AddFinancialCompany,
@@ -272,6 +273,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/Commercial-Operations"
           component={CommercialOperation}
+        />
+        <Route
+            exact
+            path="/app/commercial-action"
+            component={CommercialAction}
         />
         <Route
           exact

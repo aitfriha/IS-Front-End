@@ -68,12 +68,12 @@ function* updateAssignment(action) {
 function* deleteAssignment(action) {
   try {
     const {
-      assignmentId
+      clientId
     } = action;
 
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.ASSIGNMENT + '/delete/' + assignmentId
+      url: ENDPOINTS.ASSIGNMENT + '/delete/' + clientId
     });
 
     yield put({

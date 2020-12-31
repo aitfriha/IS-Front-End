@@ -38,6 +38,11 @@ module.exports = [
             key: 'country_assignment',
             name: 'Country assignment',
             link: '/app/configurations/countries'
+          },
+          {
+            key: 'commercial_action',
+            name: 'Commercial Action',
+            link: '/app/commercial-action'
           }
         ]
       },
