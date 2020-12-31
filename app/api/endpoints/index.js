@@ -28,6 +28,7 @@ const ENDPOINTS = {
   ABSENCETYPE: 'http://localhost:9000/api/absenceType',
   ABSENCEREQUEST: 'http://localhost:9000/api/absenceRequest',
   LEGALCATEGORYTYPE: 'http://localhost:9000/api/legalCategoryType',
+  LOCALBANKHOLIDAY: 'http://localhost:9000/api/localBankHoliday',
   CONTRACTMODEL: 'http://localhost:9000/api/contractModel',
   FUNCTIONALSTRUCTURE: 'http://localhost:9000/api/functionalStructure',
   ADMINISTRATIVESTRUCTURE: 'http://localhost:9000/api/administrativeStructure',

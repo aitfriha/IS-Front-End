@@ -238,6 +238,12 @@ module.exports = [
             icon: 'ios-paper-outline'
           },
           {
+            key: 'localBankHoliday',
+            name: 'Local bank holiday',
+            link: '/app/hh-rr/LocalBankHoliday',
+            icon: 'ios-paper-outline'
+          },
+          {
             key: 'absenceType',
             name: 'Types of absence',
             link: '/app/hh-rr/AbsenceType',

@@ -59,6 +59,8 @@ import {
   AddContractType,
   LegalCategoryType,
   AddLegalCategoryType,
+  LocalBankHoliday,
+  AddLocalBankHoliday,
   ContractModel,
   AddContractModel,
   AbsenceType,
@@ -176,6 +178,16 @@ function Application(props) {
           exact
           path="/app/hh-rr/legalCategoryType/create-legal-category-type"
           component={AddLegalCategoryType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/localBankHoliday"
+          component={LocalBankHoliday}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/localBankHoliday/create-local-bank-holiday"
+          component={AddLocalBankHoliday}
         />
         <Route
           exact

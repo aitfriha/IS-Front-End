@@ -133,6 +133,14 @@ export const AddLegalCategoryType = Loadable({
   loader: () => import('./Pages/LegalCategoryType/addLegalCategoryType'),
   loading: Loading
 });
+export const LocalBankHoliday = Loadable({
+  loader: () => import('./Pages/LocalBankHoliday'),
+  loading: Loading
+});
+export const AddLocalBankHoliday = Loadable({
+  loader: () => import('./Pages/LocalBankHoliday/addLocalBankHoliday'),
+  loading: Loading
+});
 export const ContractModel = Loadable({
   loader: () => import('./Pages/ContractModel'),
   loading: Loading

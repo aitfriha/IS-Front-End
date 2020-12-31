@@ -315,40 +315,12 @@ class AddAbsenceType extends React.Component {
         .from(endDate)
     );
 
-    console.log(
-      !staff
-        || !absenceType
-        || isStartDateError
-        || isEndDateError
-        || (absenceType.documentsMandatory === 'yes'
-          && docList.length > 0
-          && docList[0].doc.constructor === Object)
-        || isSubmit
-        || this.handleCheckHourRateValue()
-    );
-    console.log(!absenceType);
-    console.log(!staff);
-    console.log(isStartDateError);
-    console.log(isEndDateError);
-    console.log(
-      absenceType
-        && absenceType.documentsMandatory === 'yes'
-        && docList.length > 0
-        && docList[0].doc.constructor === Object
-    );
-    console.log(isSubmit);
-    console.log(this.handleCheckHourRateValue());
-
     !isLoadingAbsenceRequest
       && absenceRequestResponse
       && this.editingPromiseResolve(absenceRequestResponse);
     !isLoadingAbsenceRequest
       && !absenceRequestResponse
       && this.editingPromiseResolve(errorAbsenceRequest);
-    console.log(allAbsenceTypeByState);
-    console.log(
-      absenceType !== null && absenceType.documentsMandatory === 'yes'
-    );
     return (
       <div>
         <PapperBlock
