@@ -40,7 +40,7 @@ import {
 // eslint-disable-next-line import/named
 import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
-import { addAssignment } from '../../../../redux/assignment/actions';
+import { addAssignment, deleteAssignment } from '../../../../redux/assignment/actions';
 
 const buttonRef = React.createRef();
 class Commercial extends React.Component {
@@ -53,9 +53,11 @@ class Commercial extends React.Component {
     this.state = {
       display: 'flex',
       openPopUpImport: false,
+      openPopUpDelete: false,
       staff: '',
       listClientToUpdate: [],
       typeResponsible: '',
+      clientIdToDelete: '',
       openPopUp: false,
       addresses: [],
       startDate: '',
@@ -164,7 +166,6 @@ class Commercial extends React.Component {
   handleClients = () => {
     const { country } = this.state;
     const { getAllClientByCountry } = this.props;
-    console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr ', country);
     ClientService.getClientsByCountry(country).then((res) => {
       console.log(res);
       if (res.data.length > 0) {
@@ -254,8 +255,17 @@ class Commercial extends React.Component {
       this.editingPromiseResolveImport = resolve;
     });
     promise.then((result) => {
-      notification('success', result);
-      getAllClientByCountry(country);
+      console.log(result);
+      if (result.message === 'staff not exist in our data base !') {
+        notification('danger', result);
+      }
+      if (result.message === 'staff is not assigned to a commercial level !') {
+        notification('danger', result);
+      }
+      if (result === 'imported') {
+        notification('success', result);
+        getAllClientByCountry(country);
+      }
     });
   }
 
@@ -317,6 +327,7 @@ class Commercial extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
+
   assineStaffToClient = () => {
     const {
       typeResponsible, staff, listClientToUpdate, country
@@ -335,6 +346,38 @@ class Commercial extends React.Component {
       this.editingPromiseResolve = resolve;
       this.setState({ openPopUp: false });
     });
+    this.setState({ display: 'flex' });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+        this.selectedRowsInTable(0);
+        getAllClientByCountry(country);
+      } else {
+        notification('danger', result);
+      }
+    });
+  };
+
+  deleteAssignement= (event, rowData) => {
+
+    this.setState({ openPopUpDelete: true });
+    this.setState({ clientIdToDelete: rowData[0].clientId });
+  };
+
+  handleCloseDelete= () => {
+    this.setState({ openPopUpDelete: false });
+  };
+
+  deleteConfirmeAssignement = () => {
+    this.setState({ display: 'flex' });
+    const { deleteAssignment, getAllClientByCountry } = this.props;
+    const { clientIdToDelete, country } = this.state;
+    const promise = new Promise((resolve) => {
+      // get client information
+      deleteAssignment(clientIdToDelete);
+      this.editingPromiseResolve = resolve;
+      this.setState({ openPopUpDelete: false });
+    });
     promise.then((result) => {
       if (isString(result)) {
         notification('success', result);
@@ -349,13 +392,14 @@ class Commercial extends React.Component {
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
     const {
-      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment, clientResponse, isLoading
+      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment, clientResponse, isLoading, errors
     } = this.props;
     const {
       addresses,
       responsibleAssignments,
       assistantAssignments,
       commercials,
+      openPopUpDelete,
       type, countries, country,
       notifMessage, client, clients,
       columns, openPopUp, typeResponsible, staff, openPopUpImport, display
@@ -363,7 +407,9 @@ class Commercial extends React.Component {
     (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
     (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
     (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
+    (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
     /* (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolveImport(errorsAssignment); */
+    (!isLoading && clientResponse === '') && this.editingPromiseResolveImport(errors);
 
     return (
       <div>
@@ -474,6 +520,11 @@ class Commercial extends React.Component {
                       onClick: (evt, data) => this.handleOnFileLoad(data)
                     }, */
                     {
+                      icon: 'delete',
+                      tooltip: 'Delete User',
+                      onClick: (event, rowData) => this.deleteAssignement(event, rowData)
+                    },
+                    {
                       tooltip: 'import',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
@@ -485,13 +536,13 @@ class Commercial extends React.Component {
                       onClick: () => {
                         const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                         const fileExtension = '.xlsx';
-                          var myprop = allClients;
-                          myprop = myprop.filter(function (props) {
-                              delete props.countryId;
-                              delete props.stateId;
-                              return true;
-                          });
-                          myprop.forEach((v) => { delete v.clientId;delete v.tableData});
+                        let myprop = allClients;
+                        myprop = myprop.filter((props) => {
+                          delete props.countryId;
+                          delete props.stateId;
+                          return true;
+                        });
+                        myprop.forEach((v) => { delete v.clientId; delete v.tableData; });
                         console.log(myprop);
                         const ws = XLSX.utils.json_to_sheet(myprop);
                         ws.F1 = '';
@@ -503,7 +554,7 @@ class Commercial extends React.Component {
                     }
                   ]}
                   editable={{
-               /*     onRowAdd: newData => new Promise((resolve) => {
+                    /*     onRowAdd: newData => new Promise((resolve) => {
                       // add measurement unit action
                       addCommercialOperationStatus(newData);
                       this.editingPromiseResolve = resolve;
@@ -515,8 +566,8 @@ class Commercial extends React.Component {
                       } else {
                         notification('danger', result);
                       }
-                    }),*/
-          /*          onRowUpdate: (newData) => new Promise((resolve) => {
+                    }), */
+                    /*          onRowUpdate: (newData) => new Promise((resolve) => {
                       // update CommercialOperationStatus unit action
                       updateCommercialOperationStatus(newData);
                       this.editingPromiseResolve = resolve;
@@ -528,8 +579,8 @@ class Commercial extends React.Component {
                       } else {
                         notification('danger', result);
                       }
-                    }),*/
-                    onRowDelete: oldData => new Promise((resolve) => {
+                    }), */
+                    /*    onRowDelete: oldData => new Promise((resolve) => {
                       // delete CommercialOperationStatus action
                       deleteCommercialOperationStatus(oldData.commercialOperationStatusId);
                       this.editingPromiseResolve = resolve;
@@ -541,7 +592,7 @@ class Commercial extends React.Component {
                       } else {
                         notification('danger', result);
                       }
-                    }),
+                    }), */
                   }}
                   components={{
                     Toolbar: props => (
@@ -634,6 +685,33 @@ class Commercial extends React.Component {
                     ),
                   }}
                 />
+                <Dialog
+                  open={openPopUpDelete}
+                  keepMounted
+                  scroll="body"
+                  onClose={this.handleClose}
+                  aria-labelledby="alert-dialog-slide-title"
+                  aria-describedby="alert-dialog-slide-description"
+                  fullWidth=""
+                  maxWidth=""
+                >
+                  <DialogTitle id="alert-dialog-slide-title"> Delete Assignment </DialogTitle>
+                  <DialogContent dividers>
+                    Are you sure you want to delete ?
+                  </DialogContent>
+                  <DialogActions>
+                    <Button color="secondary" onClick={this.handleCloseDelete}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.deleteConfirmeAssignement}
+                    >
+                      Delete
+                    </Button>
+                  </DialogActions>
+                </Dialog>
                 <Dialog
                   open={openPopUpImport}
                   keepMounted
@@ -784,7 +862,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClientByCountry,
   getAllStaff,
   addAssignment,
-  importClientCommercial
+  importClientCommercial,
+  deleteAssignment
 }, dispatch);
 
 export default withStyles(styles)(connect(

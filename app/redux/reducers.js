@@ -27,8 +27,10 @@ import commercialOperationReducer from './commercialOperation/reducer';
 import staffReducer from './staff/reducer';
 import contractTypeReducer from './contractType/reducer';
 import absenceTypeReducer from './absenceType/reducer';
+import absenceRequestReducer from './absenceRequest/reducer';
 import contractModelReducer from './contractModel/reducer';
 import legalCategoryTypeReducer from './legalCategoryType/reducer';
+import localBankHolidayReducer from './localBankHoliday/reducer';
 import functionalStructureReducer from './functionalStructure/reducer';
 import functionalStructureAssignationHistoryReducer from './functionalStructureAssignationHistory/reducer';
 import administrativeStructureReducer from './administrativeStructure/reducer';
@@ -74,7 +76,9 @@ export default function createReducer(injectedReducers = {}) {
     staffEconomicContractInformationHistories: staffEconomicContractInformationHistoryReducer,
     contractTypes: contractTypeReducer,
     absenceTypes: absenceTypeReducer,
+    absenceRequests: absenceRequestReducer,
     legalCategoryTypes: legalCategoryTypeReducer,
+    localBankHolidays: localBankHolidayReducer,
     contractModels: contractModelReducer,
     functionalStructureLevels: functionalStructureReducer,
     administrativeStructureLevels: administrativeStructureReducer,

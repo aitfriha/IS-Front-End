@@ -15,9 +15,9 @@ export const updateAssignment = (assignmentWithId) => ({
   assignmentWithId
 });
 
-export const deleteAssignment = (assignmentId) => ({
+export const deleteAssignment = (clientId) => ({
   type: DELETE_ASSIGNMENT,
-  assignmentId
+  clientId
 });
 
 export const getAllAssignment = () => ({

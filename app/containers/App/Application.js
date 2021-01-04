@@ -35,6 +35,7 @@ import {
   Operations,
   OperationsAssignment,
   CommercialOperation,
+  CommercialAction,
   AddCommercialOperation,
   FinancialCompany,
   AddFinancialCompany,
@@ -61,10 +62,15 @@ import {
   AddContractType,
   LegalCategoryType,
   AddLegalCategoryType,
+  LocalBankHoliday,
+  AddLocalBankHoliday,
   ContractModel,
   AddContractModel,
   AbsenceType,
   AddAbsenceType,
+  AbsenceRequest,
+  AddAbsenceRequest,
+  AbsenceConsult,
   SectorsCompany,
   CivilityTitle,
   EconomicStaff,
@@ -178,6 +184,16 @@ function Application(props) {
         />
         <Route
           exact
+          path="/app/hh-rr/localBankHoliday"
+          component={LocalBankHoliday}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/localBankHoliday/create-local-bank-holiday"
+          component={AddLocalBankHoliday}
+        />
+        <Route
+          exact
           path="/app/hh-rr/contractModel"
           component={ContractModel}
         />
@@ -191,6 +207,21 @@ function Application(props) {
           exact
           path="/app/hh-rr/absenceType/create-absence-type"
           component={AddAbsenceType}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceRequest"
+          component={AbsenceRequest}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceRequest/create-absence-request"
+          component={AddAbsenceRequest}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/absenceConsult"
+          component={AbsenceConsult}
         />
         <Route exact path="/app/gestion-commercial/areas" component={Areas} />
         <Route
@@ -244,6 +275,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/Commercial-Operations"
           component={CommercialOperation}
+        />
+        <Route
+            exact
+            path="/app/commercial-action"
+            component={CommercialAction}
         />
         <Route
           exact

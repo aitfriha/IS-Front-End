@@ -33,31 +33,6 @@ const styles = theme => ({
       }
     }
   },
-
-  divContactInline: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-    width: '100%'
-  },
-  divInline: {
-    display: 'flex',
-    justifyContent: 'right',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 10,
-    width: '50%'
-  },
-  divEconomicInline: {
-    display: 'flex',
-    justifyContent: 'right',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 15,
-    width: '100%'
-  },
   iconButton: {
     display: 'flex',
     flexDirection: 'column',
@@ -111,20 +86,7 @@ const styles = theme => ({
     textTransform: 'none',
     transition: 'color ease 0.3s',
     fontWeight: theme.typography.fontWeightRegular,
-    fontSize: '1rem',
-    '&:hover': {
-      background: 'none',
-      color: theme.palette.secondary.main
-    }
-  },
-  historyButtonLink: {
-    background: 'none',
-    padding: 0,
-    textTransform: 'none',
-    transition: 'color ease 0.3s',
-    fontWeight: theme.typography.fontWeightRegular,
-    color: '#FF0000',
-    fontSize: '1rem',
+    fontSize: '0.875rem',
     '&:hover': {
       background: 'none',
       color: theme.palette.secondary.main
@@ -256,61 +218,14 @@ const styles = theme => ({
     height: theme.spacing(20),
     boxShadow: theme.glow.light
   },
-  uploadAvatarEmpty: {
+  avatar: {
     alignItems: 'center',
     textAlign: 'center',
     margin: '0 auto',
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    boxShadow: '1px 1px 20px #DF1010'
-  },
-  uploadAvatarDone: {
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '0 auto',
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    boxShadow: '1px 1px 20px #0BA21B'
-  },
-  uploadText: {
-    color: '#000',
-    fontFamily: 'sans-serif , Arial',
-    fontSize: 12,
-    fontWeight: 'bold',
-    opacity: 0.6
-  },
-  uploadIcon: {
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '0 auto',
-    width: theme.spacing(5),
-    height: theme.spacing(5)
-  },
-  btnCenter: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  root: {
-    flexGrow: 1,
-    marginBottom: '10px'
-  },
-  normalTypography: {
-    color: '#000',
-    fontFamily: 'sans-serif , Arial',
-    fontSize: '17px',
-    opacity: 0.7
-  },
-  historyTypography: {
-    color: '#FF0000',
-    fontFamily: 'sans-serif , Arial',
-    fontSize: '17px',
-    opacity: 0.7
-  },
-  circularProgress: {
-    position: 'fixed',
-    top: 'calc(50% - 75px)',
-    left: 'calc(50% - 75px)'
-  },
+    width: theme.spacing(9),
+    height: theme.spacing(9),
+    boxShadow: theme.glow.light
+  }
 });
+
 export default styles;

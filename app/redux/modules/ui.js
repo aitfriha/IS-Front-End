@@ -13,7 +13,8 @@ import {
   CHANGE_BG_POSITION,
   CHANGE_LAYOUT,
   CHANGE_DIRECTION,
-  LOAD_PAGE
+  LOAD_PAGE,
+  SHOW_SPINNER
 } from '../constants/uiConstants';
 
 const initialState = {
@@ -47,7 +48,8 @@ const initialState = {
   ]),
   sidebarOpen: true,
   pageLoaded: false,
-  subMenuOpen: []
+  subMenuOpen: [],
+  showSpinner: false
 };
 
 const getMenus = menuArray => menuArray.map(item => {
@@ -74,19 +76,19 @@ const initialImmutableState = fromJS(initialState);
 export default function reducer(state = initialImmutableState, action = {}) {
   switch (action.type) {
     case TOGGLE_SIDEBAR:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('sidebarOpen', !state.get('sidebarOpen'));
       });
     case OPEN_MENU:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('sidebarOpen', true);
       });
     case CLOSE_MENU:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('sidebarOpen', false);
       });
     case OPEN_SUBMENU:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         // Set initial open parent menu
         const activeParent = setNavCollapse(
           getMenus(MenuContent),
@@ -112,42 +114,46 @@ export default function reducer(state = initialImmutableState, action = {}) {
         }
       });
     case CHANGE_RANDOM_THEME:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         const paletteArray = state.get('palette').toJS();
         const random = paletteArray[Math.floor(Math.random() * paletteArray.length)];
         mutableState.set('theme', random.value);
       });
     case CHANGE_THEME:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('theme', action.theme);
       });
     case CHANGE_MODE:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('type', action.mode);
       });
     case CHANGE_GRADIENT:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('gradient', action.gradient);
       });
     case CHANGE_DECO:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('decoration', action.deco);
       });
     case CHANGE_BG_POSITION:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('bgPosition', action.position);
       });
     case CHANGE_LAYOUT:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('layout', action.layout);
       });
     case CHANGE_DIRECTION:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('direction', action.direction);
       });
     case LOAD_PAGE:
-      return state.withMutations((mutableState) => {
+      return state.withMutations(mutableState => {
         mutableState.set('pageLoaded', action.isLoaded);
+      });
+    case SHOW_SPINNER:
+      return state.withMutations(mutableState => {
+        mutableState.set('showSpinner', action.isShowSpinner);
       });
     default:
       return state;

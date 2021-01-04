@@ -20,6 +20,9 @@ import { connect } from 'react-redux';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import styles from './staff-jss';
 import StaffService from '../../Services/StaffService';
+import {
+  showSpinner
+} from 'dan-redux/actions/uiActions';
 import { setStaff, getAllStaff } from '../../../redux/staff/actions';
 
 class StaffBlock extends React.Component {
@@ -29,6 +32,13 @@ class StaffBlock extends React.Component {
       staffs: [],
       columnsType: 'generalInformation',
       generalInformationColumns: [
+        {
+          name: 'staffId',
+          label: 'Staff Id',
+          options: {
+            display: false
+          }
+        },
         {
           label: 'Photo',
           name: 'photo',
@@ -123,6 +133,13 @@ class StaffBlock extends React.Component {
         }
       ],
       contractInformationColumns: [
+        {
+          name: 'staffId',
+          label: 'Staff Id',
+          options: {
+            display: false
+          }
+        },
         {
           label: 'Photo',
           name: 'photo',
@@ -222,6 +239,13 @@ class StaffBlock extends React.Component {
       ],
       economicInformationColumns: [
         {
+          name: 'staffId',
+          label: 'Staff Id',
+          options: {
+            display: false
+          }
+        },
+        {
           label: 'Photo',
           name: 'photo',
           options: {
@@ -246,7 +270,7 @@ class StaffBlock extends React.Component {
         },
         {
           name: 'contractSalaryInEuro',
-          label: 'Contract Salary (Euro)',
+          label: 'Contract Salary (€)',
           options: this.columnOptions
         },
         {
@@ -266,7 +290,7 @@ class StaffBlock extends React.Component {
         },
         {
           name: 'companyContractCostInEuro',
-          label: 'Company Contract (Euro)',
+          label: 'Company Contract (€)',
           options: this.columnOptions
         },
         {
@@ -286,7 +310,7 @@ class StaffBlock extends React.Component {
         },
         {
           name: 'expensesInEuro',
-          label: 'Expenses (Euro)',
+          label: 'Expenses (€)',
           options: this.columnOptions
         },
         {
@@ -305,7 +329,7 @@ class StaffBlock extends React.Component {
           options: this.columnOptions
         },
         {
-          label: 'Company Expenses Cost (Euro)',
+          label: 'Company Expenses Cost (€)',
           name: 'companyExpensesCostInEuro',
           options: this.columnOptions
         },
@@ -326,7 +350,7 @@ class StaffBlock extends React.Component {
         },
         {
           name: 'objectivesInEuro',
-          label: 'Objectives (Euro)',
+          label: 'Objectives (€)',
           options: this.columnOptions
         },
         {
@@ -346,7 +370,7 @@ class StaffBlock extends React.Component {
         },
         {
           name: 'companyObjectivesCostInEuro',
-          label: 'Company Objectives Cost (Euro)',
+          label: 'Company Objectives Cost (€)',
           options: this.columnOptions
         },
         {
@@ -366,7 +390,7 @@ class StaffBlock extends React.Component {
         },
         {
           name: 'totalCompanyCostInEuro',
-          label: 'Total Company Cost (Euro)',
+          label: 'Total Company Cost (€)',
           options: this.columnOptions
         },
         {
@@ -452,11 +476,13 @@ class StaffBlock extends React.Component {
   }
 
   viewStaffProfile = (value, tableMeta) => {
-    const { setStaff, allStaff } = this.props;
+    const { setStaff, allStaff, showSpinner } = this.props;
     const { showProfile } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
-    setStaff(allStaff[index]);
+    const staffSelected = allStaff.filter(
+      staff => staff.staffId === tableMeta.rowData[0]
+    )[0];
+    setStaff(staffSelected);
+    showSpinner(true);
     showProfile(true);
   };
 
@@ -612,7 +638,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getAllStaff,
-    setStaff
+    setStaff,
+    showSpinner
   },
   dispatch
 );

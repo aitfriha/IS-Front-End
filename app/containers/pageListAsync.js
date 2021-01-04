@@ -133,6 +133,14 @@ export const AddLegalCategoryType = Loadable({
   loader: () => import('./Pages/LegalCategoryType/addLegalCategoryType'),
   loading: Loading
 });
+export const LocalBankHoliday = Loadable({
+  loader: () => import('./Pages/LocalBankHoliday'),
+  loading: Loading
+});
+export const AddLocalBankHoliday = Loadable({
+  loader: () => import('./Pages/LocalBankHoliday/addLocalBankHoliday'),
+  loading: Loading
+});
 export const ContractModel = Loadable({
   loader: () => import('./Pages/ContractModel'),
   loading: Loading
@@ -147,6 +155,18 @@ export const AbsenceType = Loadable({
 });
 export const AddAbsenceType = Loadable({
   loader: () => import('./Pages/AbsenceType/addAbsenceType'),
+  loading: Loading
+});
+export const AbsenceRequest = Loadable({
+  loader: () => import('./Pages/AbsenceRequest'),
+  loading: Loading
+});
+export const AddAbsenceRequest = Loadable({
+  loader: () => import('./Pages/AbsenceRequest/addAbsenceRequest'),
+  loading: Loading
+});
+export const AbsenceConsult = Loadable({
+  loader: () => import('./Pages/AbsenceConsult'),
   loading: Loading
 });
 export const CountryConfig = Loadable({
@@ -191,6 +211,10 @@ export const OperationsAssignment = Loadable({
 });
 export const CommercialOperation = Loadable({
   loader: () => import('./Pages/CommercialOperation/commercialOperationList'),
+  loading: Loading
+});
+export const CommercialAction = Loadable({
+  loader: () => import('./Pages/CommercialAction/index'),
   loading: Loading
 });
 export const AddCommercialOperation = Loadable({

@@ -35,8 +35,8 @@ class AddContractType extends React.Component {
       code: '',
       name: '',
       description: '',
-      country: {},
-      state: {},
+      country: null,
+      state: null,
       countries: [],
       states: []
     };

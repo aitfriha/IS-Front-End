@@ -44,7 +44,7 @@ class ContractModel extends React.Component {
     isDialogOpen: false,
     isDeleteDialogOpen: false,
     isRelated: false,
-    contractModelIndex: 0,
+    contractModelSelected: {},
     replaceContractModelList: [],
     oldId: '',
     newId: ''
@@ -59,7 +59,8 @@ class ContractModel extends React.Component {
       name: 'code',
       label: 'Code',
       options: {
-        filter: true
+        filter: true,
+        filter: false
       }
     },
     {
@@ -111,11 +112,10 @@ class ContractModel extends React.Component {
       updateContractModel
     } = this.props;
     const {
-      code, name, description, contractModelIndex
+      code, name, description, contractModelSelected
     } = this.state;
-    const contractModelData = allContractModel[contractModelIndex];
     const contractModel = {
-      contractModelId: contractModelData.contractModelId,
+      contractModelId: contractModelSelected.contractModelId,
       code,
       name,
       description
@@ -141,26 +141,23 @@ class ContractModel extends React.Component {
 
   handleOpenDialog = tableMeta => {
     const { allContractModel } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const contractModelSelected = allContractModel.filter(
+      contractModel => contractModel.contractModelId === tableMeta.rowData[0]
+    )[0];
     this.setState({
-      contractModelIndex: index,
-      code: allContractModel[index].code,
-      name: allContractModel[index].name,
-      description: allContractModel[index].description,
+      contractModelSelected,
+      code: contractModelSelected.code,
+      name: contractModelSelected.name,
+      description: contractModelSelected.description,
       isDialogOpen: true
     });
   };
 
   handleOpenDeleteDialog = tableMeta => {
     const { allContractModel, getAllStaffContractByContractModel } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
     const promise = new Promise(resolve => {
       // get client information
-      getAllStaffContractByContractModel(
-        allContractModel[index].contractModelId
-      );
+      getAllStaffContractByContractModel(tableMeta.rowData[0]);
       this.editingPromiseResolve2 = resolve;
     });
     promise.then(result => {

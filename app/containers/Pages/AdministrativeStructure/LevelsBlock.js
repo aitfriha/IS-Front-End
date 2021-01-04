@@ -64,9 +64,9 @@ class LevelsBlock extends React.Component {
     index2: -1,
     staffs: [],
     staffAssigned: [],
+    staffNotAssigned: [],
     originalLevelStaffs: [],
     levelStaffs: [],
-    staffNotAssigned: [],
     isStaffAssignation: false,
     isLevelEdit: false,
     isLevelDelete: false,
@@ -81,6 +81,14 @@ class LevelsBlock extends React.Component {
   editingPromiseResolve = () => {};
 
   columns = [
+    {
+      name: 'levelId',
+      label: 'Level Id',
+      options: {
+        display: false,
+        filter: false
+      }
+    },
     {
       name: 'name',
       label: 'Name',
@@ -261,7 +269,6 @@ class LevelsBlock extends React.Component {
       staffAssigned.push(staffs[draggedId]);
     }
     levelStaffs.push(staffs[draggedId]);
-
     staffs.splice(draggedId, 1);
     this.setState({
       staffs,
@@ -286,14 +293,16 @@ class LevelsBlock extends React.Component {
         + event.currentTarget.id
     );
     const draggedId = parseInt(event.relatedTarget.id.substr(12));
-    staffs.push(staffAssigned[draggedId]);
-    staffNotAssigned.push(staffAssigned[draggedId]);
-    staffAssigned.splice(draggedId, 1);
+    staffs.push(levelStaffs[draggedId]);
+    staffNotAssigned.push(levelStaffs[draggedId]);
+    const staffAssigned2 = staffAssigned.filter(
+      staff => staff.staffId !== levelStaffs[draggedId].staffId
+    );
     levelStaffs.splice(draggedId, 1);
     this.setState({
       staffs,
       levelStaffs,
-      staffAssigned,
+      staffAssigned: staffAssigned2,
       staffNotAssigned
     });
   };
@@ -324,8 +333,7 @@ class LevelsBlock extends React.Component {
         this.setState({
           level,
           originalLevelStaffs: JSON.parse(JSON.stringify(data)),
-          levelStaffs: JSON.parse(JSON.stringify(data)),
-          staffAssigned: JSON.parse(JSON.stringify(data))
+          levelStaffs: JSON.parse(JSON.stringify(data))
         });
       }
     );
@@ -343,10 +351,11 @@ class LevelsBlock extends React.Component {
   handleOpenEdit = tableMeta => {
     const { allAdministrativeStructureLevel } = this.props;
     const { staffs } = this.state;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const levelSelected = allAdministrativeStructureLevel.filter(
+      level => level.levelId === tableMeta.rowData[0]
+    )[0];
     StaffService.getStaffsByAdministrativeLevel(
-      allAdministrativeStructureLevel[index].levelId,
+      levelSelected.levelId,
       'yes'
     ).then(({ data }) => {
       const staffList = staffs;
@@ -356,9 +365,9 @@ class LevelsBlock extends React.Component {
       this.setState({
         oldLeader: data[0],
         newLeader: data[0],
-        level: allAdministrativeStructureLevel[index],
-        levelName: allAdministrativeStructureLevel[index].name,
-        description: allAdministrativeStructureLevel[index].description,
+        level: levelSelected,
+        levelName: levelSelected.name,
+        description: levelSelected.description,
         isLevelEdit: true,
         staffs: staffList
       });
@@ -367,15 +376,14 @@ class LevelsBlock extends React.Component {
 
   handleOpenDelete = tableMeta => {
     const { allAdministrativeStructureLevel } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-      + tableMeta.rowIndex;
+    const levelSelected = allAdministrativeStructureLevel.filter(
+      level => level.levelId === tableMeta.rowData[0]
+    )[0];
     this.setState({
-      level: allAdministrativeStructureLevel[index],
+      level: levelSelected,
       isLevelDelete: true
     });
   };
-
-  handleD;
 
   handleClose = () => {
     this.updateData();
@@ -383,7 +391,9 @@ class LevelsBlock extends React.Component {
       isStaffAssignation: false,
       isLevelEdit: false,
       isLevelDelete: false,
-      isViewHistory: false
+      isViewHistory: false,
+      staffAssigned: [],
+      staffNotAssigned: []
     });
   };
 
@@ -529,6 +539,7 @@ class LevelsBlock extends React.Component {
       staffs,
       levelStaffs,
       originalLevelStaffs,
+      staffAssigned,
       level,
       levels,
       index1,
@@ -564,6 +575,7 @@ class LevelsBlock extends React.Component {
       const textB = b.name.toUpperCase();
       return textA < textB ? -1 : textA > textB ? 1 : 0;
     });
+    console.log(staffs);
     return (
       <div>
         <Dialog
@@ -757,9 +769,23 @@ class LevelsBlock extends React.Component {
                   </Typography>
                   {leader ? (
                     <Tooltip
-                      title={`${leader.firstName} ${leader.fatherFamilyName} ${
-                        leader.motherFamilyName
-                      }`}
+                      title={(
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <p>
+                            {`${leader.firstName} ${leader.fatherFamilyName} ${
+                              leader.motherFamilyName
+                            }`}
+                          </p>
+                          <p>{`${leader.companyName}`}</p>
+                        </div>
+                      )}
                     >
                       <Avatar
                         className={classes.avatar}
@@ -817,9 +843,23 @@ class LevelsBlock extends React.Component {
                         id={`staffElement${index}`}
                       >
                         <Tooltip
-                          title={`${row.firstName} ${row.fatherFamilyName} ${
-                            row.motherFamilyName
-                          }`}
+                          title={(
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <p>
+                                {`${row.firstName} ${row.fatherFamilyName} ${
+                                  row.motherFamilyName
+                                }`}
+                              </p>
+                              <p>{`${row.companyName}`}</p>
+                            </div>
+                          )}
                         >
                           <Avatar
                             className={classes.avatar}
@@ -866,9 +906,23 @@ class LevelsBlock extends React.Component {
                         id={`levelElement${index}`}
                       >
                         <Tooltip
-                          title={`${row.firstName} ${row.fatherFamilyName} ${
-                            row.motherFamilyName
-                          }`}
+                          title={(
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <p>
+                                {`${row.firstName} ${row.fatherFamilyName} ${
+                                  row.motherFamilyName
+                                }`}
+                              </p>
+                              <p>{`${row.companyName}`}</p>
+                            </div>
+                          )}
                         >
                           <Avatar
                             className={classes.avatar}

@@ -38,6 +38,11 @@ module.exports = [
             key: 'country_assignment',
             name: 'Country assignment',
             link: '/app/configurations/countries'
+          },
+          {
+            key: 'commercial_action',
+            name: 'Commercial Action',
+            link: '/app/commercial-action'
           }
         ]
       },
@@ -95,7 +100,7 @@ module.exports = [
             name: 'Title type',
             link: '/app/gestion-commercial/title-Type',
             icon: 'ios-people-outline'
-          },
+          }
 
           /* {
             name: 'Countries',
@@ -201,9 +206,22 @@ module.exports = [
         keyParent: 'hhrrSystem',
         child: [
           {
-            key: 'staff',
-            name: 'Staff',
-            link: '/app/hh-rr/staff'
+            key: 'absenceConsult',
+            name: 'Absence Consult',
+            link: '/app/hh-rr/absenceConsult',
+            icon: 'ios-people-outline'
+          },
+          {
+            key: 'absenceRequest',
+            name: 'Absence Request',
+            link: '/app/hh-rr/absenceRequest',
+            icon: 'ios-people-outline'
+          },
+          {
+            key: 'administrativeStructure',
+            name: 'Administrative Structure',
+            link: '/app/hh-rr/administrativeStructure',
+            icon: 'ios-people-outline'
           },
           {
             key: 'functionalStructure',
@@ -212,10 +230,9 @@ module.exports = [
             icon: 'ios-people-outline'
           },
           {
-            key: 'administrativeStructure',
-            name: 'Administrative Structure',
-            link: '/app/hh-rr/administrativeStructure',
-            icon: 'ios-people-outline'
+            key: 'staff',
+            name: 'Staff',
+            link: '/app/hh-rr/staff'
           }
         ]
       },
@@ -226,6 +243,24 @@ module.exports = [
         keyParent: 'hhrrSystem',
         child: [
           {
+            key: 'contractModel',
+            name: 'Contract models',
+            link: '/app/hh-rr/ContractModel',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'localBankHoliday',
+            name: 'Local bank holiday',
+            link: '/app/hh-rr/LocalBankHoliday',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'absenceType',
+            name: 'Types of absence',
+            link: '/app/hh-rr/AbsenceType',
+            icon: 'ios-paper-outline'
+          },
+          {
             key: 'contractType',
             name: 'Types of contract',
             link: '/app/hh-rr/ContractType',
@@ -235,18 +270,6 @@ module.exports = [
             key: 'legalCategoryType',
             name: 'Types of legal category',
             link: '/app/hh-rr/LegalCategoryType',
-            icon: 'ios-paper-outline'
-          },
-          {
-            key: 'contractModel',
-            name: 'Contract models',
-            link: '/app/hh-rr/ContractModel',
-            icon: 'ios-paper-outline'
-          },
-          {
-            key: 'absenceType',
-            name: 'Types of absence',
-            link: '/app/hh-rr/AbsenceType',
             icon: 'ios-paper-outline'
           }
         ]
