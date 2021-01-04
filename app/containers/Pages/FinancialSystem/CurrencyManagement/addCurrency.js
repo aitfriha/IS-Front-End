@@ -13,6 +13,7 @@ import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { connect } from 'react-redux';
 import history from '../../../../utils/history';
 import CurrencyService from '../../../Services/CurrencyService';
+import TypeOfCurrencylService from '../../../Services/TypeOfCurrencylService';
 
 import { ThemeContext } from '../../../App/ThemeWrapper';
 
@@ -24,6 +25,7 @@ class AddCurrency extends React.Component {
     const year = (new Date()).getFullYear();
     this.years = Array.from(new Array(20), (val, index) => index + year);
     this.state = {
+      currencies: [],
       currencyCode: '',
       currencyName: '',
       year: '',
@@ -33,6 +35,9 @@ class AddCurrency extends React.Component {
   }
 
   componentDidMount() {
+    TypeOfCurrencylService.getTypeOfCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -67,6 +72,13 @@ class AddCurrency extends React.Component {
     }
 
     handleChange = (ev) => {
+      const { currencies } = this.state;
+      if (ev.target.name === 'currencyName') {
+        // eslint-disable-next-line array-callback-return
+        currencies.map(row => {
+          if (row.typeOfCurrencyId === ev.target.value) this.setState({ currencyCode: row.currencyCode });
+        });
+      }
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
@@ -126,7 +138,7 @@ class AddCurrency extends React.Component {
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        currencyName, currencyCode, year, month, changeFactor
+        currencyName, currencyCode, year, month, changeFactor, currencies
       } = this.state;
       return (
         <div>
@@ -159,18 +171,25 @@ class AddCurrency extends React.Component {
               justify="center"
             >
               <Grid item xs={10} md={4}>
-                <TextField
-                  id="currencyName"
-                  label="Currency Name"
-                  variant="outlined"
-                  name="currencyName"
-                  value={currencyName}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                />
+                <FormControl fullWidth required>
+                  <InputLabel>Select Currency </InputLabel>
+                  <Select
+                    name="currencyName"
+                    value={currencyName}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      currencies.map((clt) => (
+                        <MenuItem key={clt.typeOfCurrencyId} value={clt.typeOfCurrencyId}>
+                          {clt.currencyName}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={10} md={4}>
+                <br />
                 <TextField
                   id="currencyCode"
                   label="Currency Code"
@@ -179,10 +198,11 @@ class AddCurrency extends React.Component {
                   value={currencyCode}
                   required
                   fullWidth
-                  onChange={this.handleChange}
+                  disabled
                 />
               </Grid>
               <Grid item xs={10} md={4}>
+                <br />
                 <TextField
                   id="changeFactor"
                   label=" Change Factor "

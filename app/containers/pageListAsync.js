@@ -269,6 +269,14 @@ export const AddCurrency = Loadable({
   loader: () => import('./Pages/FinancialSystem/CurrencyManagement/addCurrency'),
   loading: Loading
 });
+export const TypeOfCurrency = Loadable({
+  loader: () => import('./Pages/FinancialSystem/TypeOfCurrency'),
+  loading: Loading
+});
+export const AddTypeOfCurrency = Loadable({
+  loader: () => import('./Pages/FinancialSystem/TypeOfCurrency/addTypeOfCurrency'),
+  loading: Loading
+});
 export const Retention = Loadable({
   loader: () => import('./Pages/FinancialSystem/Retentions'),
   loading: Loading
