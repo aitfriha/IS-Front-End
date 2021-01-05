@@ -92,7 +92,7 @@ class ConsultStaff extends React.Component {
           highDate: economicStaff.highDate,
           lowDate: economicStaff.lowDate,
           contractModel: economicStaff.staff.staffContract.contractModel.name,
-          currencyCode: economicStaff.currency.currencyCode,
+          currencyCode: economicStaff.currency.typeOfCurrency.currencyCode,
           economicStaff
         });
       }
