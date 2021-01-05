@@ -12,7 +12,10 @@ import {
   UPDATE_STAFF_FAILURE,
   UPDATE_STAFF_SUCCESS,
   SET_STAFF,
-  SET_EDIT
+  SET_EDIT,
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS,
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_SUCCESS,
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_FAILURE
 } from './constants';
 
 const initialState = {
@@ -40,6 +43,7 @@ export default function staffReducer(state = initialState, action) {
     // TRIGGERING ACTIONS
     // TRIGGERING ACTIONS
     case GET_ALL_STAFFS:
+    case GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS:
     case ADD_STAFF:
     case UPDATE_STAFF:
     case DELETE_STAFF:
@@ -61,6 +65,7 @@ export default function staffReducer(state = initialState, action) {
       };
 
     case GET_ALL_STAFFS_SUCCESS:
+    case GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -70,6 +75,7 @@ export default function staffReducer(state = initialState, action) {
 
     // FAILURE ACTIONS
     case GET_ALL_STAFFS_FAILURE:
+    case GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_FAILURE:
     case ADD_STAFF_FAILURE:
     case UPDATE_STAFF_FAILURE:
     case DELETE_STAFF_FAILURE:
