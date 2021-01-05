@@ -46,25 +46,17 @@ class AddCurrency extends React.Component {
   }
 
     handleSubmit = () => {
-      let {
-        currencyName, currencyCode
-      } = this.state;
       const {
-        year, month, changeFactor
+        year, month, changeFactor, currencyName
       } = this.state;
-      currencyName = currencyName.toUpperCase();
-      currencyCode = currencyCode.toUpperCase();
+      const typeOfCurrency = { _id: currencyName };
       const Currency = {
-        currencyName, currencyCode, year, month, changeFactor
+        year, month, changeFactor, typeOfCurrency
       };
-      const code = currencyCode.toString();
-      console.log(code.length);
-      if (code.length < 3) {
-        CurrencyService.saveCurrency(Currency).then(result => {
-          console.log(result);
-          history.push('/app/gestion-financial/Currency-Management');
-        });
-      }
+      CurrencyService.saveCurrency(Currency).then(result => {
+        console.log(result);
+        history.push('/app/gestion-financial/Currency-Management');
+      });
     }
 
     handleGoBack = () => {
@@ -170,12 +162,14 @@ class AddCurrency extends React.Component {
               direction="row"
               justify="center"
             >
-              <Grid item xs={10} md={4}>
+              <Grid item xs={12} md={4}>
                 <FormControl fullWidth required>
                   <InputLabel>Select Currency </InputLabel>
+                  <br />
                   <Select
                     name="currencyName"
                     value={currencyName}
+                    variant="outlined"
                     onChange={this.handleChange}
                   >
                     {
@@ -188,7 +182,7 @@ class AddCurrency extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={10} md={4}>
+              <Grid item xs={12} md={4}>
                 <br />
                 <TextField
                   id="currencyCode"
@@ -201,7 +195,7 @@ class AddCurrency extends React.Component {
                   disabled
                 />
               </Grid>
-              <Grid item xs={10} md={4}>
+              <Grid item xs={12} md={4}>
                 <br />
                 <TextField
                   id="changeFactor"

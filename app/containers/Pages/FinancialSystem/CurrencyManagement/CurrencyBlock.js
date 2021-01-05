@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import CurrencyService from '../../../Services/CurrencyService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
+import TypeOfCurrencylService from '../../../Services/TypeOfCurrencylService';
 
 const useStyles = makeStyles();
 
@@ -21,6 +22,7 @@ class CurrencyBlock extends React.Component {
     this.years = Array.from(new Array(20), (val, index) => index + year);
     this.state = {
       currencyId: '',
+      currencies: [],
       datas: [],
       openPopUp: false,
       currencyCode: '',
@@ -32,16 +34,30 @@ class CurrencyBlock extends React.Component {
       columns: [
         {
           label: 'Currency Name',
-          name: 'currencyName',
+          name: 'typeOfCurrency',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.currencyName
+                }
+              </React.Fragment>
+            )
           }
         },
         {
           label: 'Currency Code',
-          name: 'currencyCode',
+          name: 'typeOfCurrency',
           options: {
-            filter: true
+            filter: true,
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value.currencyCode
+                }
+              </React.Fragment>
+            )
           }
         },
         {
@@ -92,6 +108,9 @@ class CurrencyBlock extends React.Component {
     CurrencyService.getCurrency().then(result => {
       this.setState({ datas: result.data });
     });
+    TypeOfCurrencylService.getTypeOfCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -106,10 +125,11 @@ class CurrencyBlock extends React.Component {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].currencyId;
       CurrencyService.getCurrencyById(id).then(result => {
+        console.log(result.data);
         this.setState({
           currencyId: id,
-          currencyName: result.data.currencyName,
-          currencyCode: result.data.currencyCode,
+          currencyName: result.data.typeOfCurrency._id,
+          currencyCode: result.data.typeOfCurrency.currencyCode,
           year: result.data.year,
           month: result.data.month,
           changeFactor: result.data.changeFactor,
@@ -133,16 +153,12 @@ class CurrencyBlock extends React.Component {
     };
 
     handleSave = () => {
-      let {
-        currencyName, currencyCode
-      } = this.state;
       const {
-        currencyId, year, month, changeFactor
+        currencyId, year, month, changeFactor, currencyName
       } = this.state;
-      currencyName = currencyName.toUpperCase();
-      currencyCode = currencyCode.toUpperCase();
+      const typeOfCurrency = { _id: currencyName };
       const Currency = {
-        currencyId, currencyName, currencyCode, year, month, changeFactor
+        currencyId, year, month, changeFactor, typeOfCurrency
       };
       CurrencyService.updateCurrency(Currency).then(result => {
         this.setState({ datas: result.data, openPopUp: false });
@@ -150,6 +166,13 @@ class CurrencyBlock extends React.Component {
     };
 
     handleChange = (ev) => {
+      const { currencies } = this.state;
+      if (ev.target.name === 'currencyName') {
+        // eslint-disable-next-line array-callback-return
+        currencies.map(row => {
+          if (row.typeOfCurrencyId === ev.target.value) this.setState({ currencyCode: row.currencyCode });
+        });
+      }
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
@@ -206,7 +229,7 @@ class CurrencyBlock extends React.Component {
           label: 'December ',
         }];
       const {
-        columns, openPopUp, datas, currencyName, currencyCode, year, month, changeFactor
+        columns, openPopUp, datas, currencyName, currencyCode, year, month, changeFactor, currencies
       } = this.state;
       const options = {
         filter: true,
@@ -251,19 +274,28 @@ class CurrencyBlock extends React.Component {
                   direction="row"
                   justify="center"
                 >
-                  <Grid item xs={10} md={4}>
-                    <TextField
-                      id="currencyName"
-                      label="Currency Name"
-                      variant="outlined"
-                      name="currencyName"
-                      value={currencyName}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
+                  <Grid item xs={12} md={4}>
+                    <FormControl fullWidth required>
+                      <InputLabel>Select Currency </InputLabel>
+                      <br />
+                      <Select
+                        name="currencyName"
+                        value={currencyName}
+                        variant="outlined"
+                        onChange={this.handleChange}
+                      >
+                        {
+                          currencies.map((clt) => (
+                            <MenuItem key={clt.typeOfCurrencyId} value={clt.typeOfCurrencyId}>
+                              {clt.currencyName}
+                            </MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
                   </Grid>
-                  <Grid item xs={10} md={4}>
+                  <Grid item xs={12} md={4}>
+                    <br />
                     <TextField
                       id="currencyCode"
                       label="Currency Code"
@@ -272,15 +304,17 @@ class CurrencyBlock extends React.Component {
                       value={currencyCode}
                       required
                       fullWidth
-                      onChange={this.handleChange}
+                      disabled
                     />
                   </Grid>
-                  <Grid item xs={10} md={4}>
+                  <Grid item xs={12} md={4}>
+                    <br />
                     <TextField
                       id="changeFactor"
                       label=" Change Factor "
                       variant="outlined"
                       name="changeFactor"
+                      type="number"
                       value={changeFactor}
                       required
                       fullWidth
