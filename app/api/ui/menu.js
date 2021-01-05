@@ -167,6 +167,12 @@ module.exports = [
             icon: 'ios-newspaper-outline'
           },
           {
+            key: 'TypeOfCurrency',
+            name: 'Currency Type',
+            link: '/app/gestion-financial/Currency-Type',
+            icon: 'ios-cash-outline'
+          },
+          {
             key: 'currencyManagement',
             name: 'Currency Management',
             link: '/app/gestion-financial/Currency-Management',
@@ -240,6 +246,12 @@ module.exports = [
             key: 'contractModel',
             name: 'Contract models',
             link: '/app/hh-rr/ContractModel',
+            icon: 'ios-paper-outline'
+          },
+          {
+            key: 'localBankHoliday',
+            name: 'Local bank holiday',
+            link: '/app/hh-rr/LocalBankHoliday',
             icon: 'ios-paper-outline'
           },
           {
