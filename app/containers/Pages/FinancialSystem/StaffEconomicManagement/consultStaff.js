@@ -93,6 +93,8 @@ class ConsultStaff extends React.Component {
           lowDate: economicStaff.lowDate,
           contractModel: economicStaff.staff.staffContract.contractModel.name,
           currencyCode: economicStaff.currency.typeOfCurrency.currencyCode,
+          totalPayment: economicStaff.contributionSalary + economicStaff.grosSalary,
+          totalPaymentEuro: economicStaff.contributionSalaryEuro + economicStaff.grosSalaryEuro,
           economicStaff
         });
       }
