@@ -359,7 +359,7 @@ class ContractBlock extends React.Component {
             }),
             customBodyRender: (value) => (
               <React.Fragment>
-                { value.currencyCode }
+                { value.typeOfCurrency.currencyCode }
               </React.Fragment>
             )
           }

@@ -158,7 +158,7 @@ class EditContract extends React.Component {
         contractTradeVolume: contract.contractTradeVolume,
         contractTradeVolumeEuro: contract.contractTradeVolumeEuro,
         currencyId: contract.currency._id,
-        currencyCode: contract.currency.currencyCode,
+        currencyCode: contract.currency.typeOfCurrency.currencyCode,
         changeFactor: contract.currency.changeFactor,
         paymentsBDDays: contract.paymentsBDDays,
         nbrConcepts: contract.nbrConcepts,
@@ -231,7 +231,7 @@ class EditContract extends React.Component {
           // eslint-disable-next-line prefer-destructuring
           if (currency.currencyId === ev.target.value) {
             // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+            changeFactor = currency.changeFactor; currencyCode = currency.typeOfCurrency.currencyCode;
           }
         });
         this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor, currencyCode });
@@ -1102,7 +1102,7 @@ class EditContract extends React.Component {
                 {
                   currencies.map((clt) => (
                     <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                      {clt.currencyName}
+                      {clt.typeOfCurrency.currencyName}
                     </MenuItem>
                   ))
                 }
