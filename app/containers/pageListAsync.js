@@ -101,6 +101,22 @@ export const AddArea = Loadable({
   loader: () => import('./Pages/Areas/addArea'),
   loading: Loading
 });
+export const SelectionTypeEvaluation = Loadable({
+  loader: () => import('./Pages/SelectionTypeEvaluation'),
+  loading: Loading
+});
+export const AddSelectionTypeEvaluation = Loadable({
+  loader: () => import('./Pages/SelectionTypeEvaluation/addSelectionType'),
+  loading: Loading
+});
+export const SelectionProcessInformation = Loadable({
+  loader: () => import('./Pages/SelectionProcessInformation'),
+  loading: Loading
+});
+export const AddSelectionProcessInformation = Loadable({
+  loader: () => import('./Pages/SelectionProcessInformation/addSelectionProcess'),
+  loading: Loading
+});
 export const FunctionalStructure = Loadable({
   loader: () => import('./Pages/FunctionalStructure'),
   loading: Loading

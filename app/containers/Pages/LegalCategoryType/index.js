@@ -3,6 +3,7 @@ import MUIDataTable from 'mui-datatables';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
+
 import {
   IconButton,
   Dialog,
@@ -23,6 +24,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Transition from '../../../components/Transition/transition';
 import styles from './legalCategoryType-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
@@ -285,6 +287,7 @@ class LegalCategoryType extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             Delete Legal Category Type
@@ -378,6 +381,7 @@ class LegalCategoryType extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             Edit Legal Category Type

@@ -224,6 +224,12 @@ module.exports = [
             icon: 'ios-people-outline'
           },
           {
+            key: 'selectionProcessInformation',
+            name: 'Selection Process Information',
+            link: '/app/hh-rr/selectionProcessInformation',
+            icon: 'ios-people-outline'
+          },
+          {
             key: 'staff',
             name: 'Staff',
             link: '/app/hh-rr/staff'
@@ -247,6 +253,13 @@ module.exports = [
             name: 'Local bank holiday',
             link: '/app/hh-rr/LocalBankHoliday',
             icon: 'ios-paper-outline'
+          },
+
+          {
+            key: 'selectionTypeEvaluation',
+            name: 'Selection Type Evaluation',
+            link: '/app/hh-rr/selectionTypeEvaluation',
+            icon: 'ios-people-outline'
           },
           {
             key: 'absenceType',

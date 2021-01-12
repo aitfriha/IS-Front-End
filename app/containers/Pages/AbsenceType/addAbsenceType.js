@@ -103,7 +103,7 @@ class AddAbsenceType extends React.Component {
     };
 
     const formData = new FormData();
-    if (doc.constructor !== Object) {
+    if (doc.constructor === File) {
       formData.append('doc', doc);
     } else {
       formData.append(

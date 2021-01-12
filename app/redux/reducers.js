@@ -31,6 +31,8 @@ import absenceRequestReducer from './absenceRequest/reducer';
 import contractModelReducer from './contractModel/reducer';
 import legalCategoryTypeReducer from './legalCategoryType/reducer';
 import localBankHolidayReducer from './localBankHoliday/reducer';
+import selectionTypeEvaluationReducer from './selectionTypeEvaluation/reducer';
+import selectionProcessInformationReducer from './selectionProcessInformation/reducer';
 import functionalStructureReducer from './functionalStructure/reducer';
 import functionalStructureAssignationHistoryReducer from './functionalStructureAssignationHistory/reducer';
 import administrativeStructureReducer from './administrativeStructure/reducer';
@@ -80,6 +82,8 @@ export default function createReducer(injectedReducers = {}) {
     legalCategoryTypes: legalCategoryTypeReducer,
     localBankHolidays: localBankHolidayReducer,
     contractModels: contractModelReducer,
+    selectionTypeEvaluations: selectionTypeEvaluationReducer,
+    selectionProcessInformations: selectionProcessInformationReducer,
     functionalStructureLevels: functionalStructureReducer,
     administrativeStructureLevels: administrativeStructureReducer,
     functionalStructureAssignationHistories: functionalStructureAssignationHistoryReducer,

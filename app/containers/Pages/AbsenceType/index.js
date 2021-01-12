@@ -3,6 +3,7 @@ import MUIDataTable from 'mui-datatables';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
+
 import {
   IconButton,
   Dialog,
@@ -23,6 +24,7 @@ import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack';
+import Transition from '../../../components/Transition/transition';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './absenceType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
@@ -209,7 +211,7 @@ class AbsenceType extends React.Component {
     };
 
     const formData = new FormData();
-    if (doc.constructor !== Object) {
+    if (doc.constructor === File) {
       formData.append('doc', doc);
     } else {
       formData.append(
@@ -486,6 +488,7 @@ class AbsenceType extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">Delete Absence Type</DialogTitle>
           <DialogContent>
@@ -537,8 +540,9 @@ class AbsenceType extends React.Component {
         </Dialog>
         <Dialog
           maxWidth="lg"
+          TransitionComponent={Transition}
           fullWidth
-          scroll="paper"
+          scroll="body"
           aria-labelledby="changeProfilePic"
           open={isOpenDocument}
           classes={{
@@ -581,6 +585,7 @@ class AbsenceType extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             Edit Staff Absence Type
