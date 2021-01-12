@@ -21,6 +21,7 @@ import {
   TableHead,
   TableRow
 } from '@material-ui/core';
+
 import ProfilePicture from 'profile-picture';
 import 'profile-picture/build/ProfilePicture.css';
 import '../Configurations/map/app.css';
@@ -30,6 +31,7 @@ import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Transition from '../../../components/Transition/transition';
 import styles from './staff-jss';
 import FunctionalStructureService from '../../Services/FunctionalStructureService';
 import AdministrativeStructureService from '../../Services/AdministrativeStructureService';
@@ -319,6 +321,7 @@ export class StaffProfile extends Component {
         >
           <Dialog
             maxWidth="lg"
+            TransitionComponent={Transition}
             fullWidth
             scroll="paper"
             aria-labelledby="levelsDialog"
@@ -402,6 +405,7 @@ export class StaffProfile extends Component {
           </Dialog>
           <Dialog
             maxWidth="lg"
+            TransitionComponent={Transition}
             fullWidth
             scroll="paper"
             aria-labelledby="levelsDialog"
@@ -487,6 +491,7 @@ export class StaffProfile extends Component {
             disableBackdropClick
             disableEscapeKeyDown
             maxWidth="xs"
+            TransitionComponent={Transition}
             fullWidth
             aria-labelledby="changeProfilePic"
             open={isChangeProfilePic}

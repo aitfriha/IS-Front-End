@@ -30,10 +30,10 @@ import notification from '../../../components/Notification/Notification';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  KeyboardDatePicker} from '@material-ui/pickers';
+  KeyboardDatePicker
+} from '@material-ui/pickers';
 
 const useStyles = makeStyles(styles);
-
 
 const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
 
@@ -105,13 +105,13 @@ class AddAbsenceType extends React.Component {
     const docExtensionList = [];
     const formData = new FormData();
     docList.forEach(doc => {
-      if (doc.doc.constructor !== Object) {
+      if (doc.doc.constructor === File) {
         docExtensionList.push(doc.docExtension);
         formData.append('docList', doc.doc);
       }
     });
 
-    /* if (doc.constructor !== Object) {
+    /* if (doc.constructor === File) {
       formData.append('doc', doc);
     } else {
       formData.append(

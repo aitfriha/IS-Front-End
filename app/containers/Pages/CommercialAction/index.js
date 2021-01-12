@@ -86,6 +86,7 @@ class CommercialAction extends React.Component {
 
     handleChangeStaff = (ev, value) => {
       // this.setState({ civilityId: value.civilityTitleId });
+        console.log(value.staffId);
     };
 
     render() {

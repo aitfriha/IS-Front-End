@@ -493,7 +493,7 @@ class AddStaff extends React.Component {
       hnsCardDocExtension
     };
     const Documents = new FormData();
-    if (contractDoc.constructor !== Object) {
+    if (contractDoc.constructor === File) {
       Documents.append('contractDoc', contractDoc);
     } else {
       Documents.append(
@@ -503,7 +503,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (internalRulesDoc.constructor !== Object) {
+    if (internalRulesDoc.constructor === File) {
       Documents.append('internalRulesDoc', internalRulesDoc);
     } else {
       Documents.append(
@@ -513,7 +513,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (preContractDoc.constructor !== Object) {
+    if (preContractDoc.constructor === File) {
       Documents.append('preContractDoc', preContractDoc);
     } else {
       Documents.append(

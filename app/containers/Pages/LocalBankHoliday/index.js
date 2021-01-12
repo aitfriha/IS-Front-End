@@ -3,6 +3,7 @@ import MUIDataTable from 'mui-datatables';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
+
 import {
   IconButton,
   Dialog,
@@ -29,6 +30,7 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
+import Transition from '../../../components/Transition/transition';
 import AutoComplete from '../../../components/AutoComplete';
 import styles from './localBankHoliday-jss';
 import { ThemeContext } from '../../App/ThemeWrapper';
@@ -365,6 +367,7 @@ class LocalBankHoliday extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             Edit Local Bank Holiday

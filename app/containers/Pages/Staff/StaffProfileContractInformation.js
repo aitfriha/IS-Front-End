@@ -17,6 +17,7 @@ import {
   IconButton,
   Typography
 } from '@material-ui/core';
+
 import PropTypes from 'prop-types';
 import MUIDataTable from 'mui-datatables';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -35,6 +36,7 @@ import { DataUsageOutlined } from '@material-ui/icons';
 import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Transition from '../../../components/Transition/transition';
 import styles from './staff-jss';
 import FinancialCompanyService from '../../Services/FinancialCompanyService';
 import CountryService from '../../Services/CountryService';
@@ -485,7 +487,7 @@ class StaffProfileContractInformation extends Component {
 
     const formData = new FormData();
     Object.keys(contract).forEach(e => formData.append(e, contract[e]));
-    if (newContractDoc.constructor !== Object) {
+    if (newContractDoc.constructor === File) {
       formData.append('contractDoc', newContractDoc);
     } else {
       formData.append(
@@ -495,7 +497,7 @@ class StaffProfileContractInformation extends Component {
         })
       );
     }
-    if (newInternalRulesDoc.constructor !== Object) {
+    if (newInternalRulesDoc.constructor === File) {
       formData.append('internalRulesDoc', newInternalRulesDoc);
     } else {
       formData.append(
@@ -505,7 +507,7 @@ class StaffProfileContractInformation extends Component {
         })
       );
     }
-    if (newPreContractDoc.constructor !== Object) {
+    if (newPreContractDoc.constructor === File) {
       formData.append('preContractDoc', newPreContractDoc);
     } else {
       formData.append(
@@ -631,8 +633,9 @@ class StaffProfileContractInformation extends Component {
       <div>
         <Dialog
           maxWidth="lg"
+          TransitionComponent={Transition}
           fullWidth
-          scroll="paper"
+          scroll="body"
           aria-labelledby="changeProfilePic"
           open={isOpenDocument}
           classes={{

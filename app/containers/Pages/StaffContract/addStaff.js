@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
+
 import {
   Grid,
   FormControl,
@@ -36,6 +37,7 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import Transition from '../../../components/Transition/transition';
 import history from '../../../utils/history';
 import styles from './people-jss';
 import AddressBlock from '../Address';
@@ -260,6 +262,7 @@ class AddStaff extends React.Component {
           disableBackdropClick
           disableEscapeKeyDown
           maxWidth="xs"
+          TransitionComponent={Transition}
           fullWidth
           aria-labelledby="changeProfilePic"
           open={isChangeProfilePic}

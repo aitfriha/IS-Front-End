@@ -23,6 +23,7 @@ import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack';
+import Transition from '../../../components/Transition/transition';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './absenceRequest-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
@@ -385,6 +386,7 @@ class AbsenceRequest extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">{`${responseType} absence request`}</DialogTitle>
           <DialogContent>
@@ -418,6 +420,7 @@ class AbsenceRequest extends React.Component {
         </Dialog>
         <Dialog
           maxWidth="xs"
+          TransitionComponent={Transition}
           fullWidth
           scroll="paper"
           aria-labelledby="changeProfilePic"
@@ -460,8 +463,9 @@ class AbsenceRequest extends React.Component {
         </Dialog>
         <Dialog
           maxWidth="lg"
+          TransitionComponent={Transition}
           fullWidth
-          scroll="paper"
+          scroll="body"
           aria-labelledby="changeProfilePic"
           open={isOpenDocument}
           classes={{

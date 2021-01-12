@@ -3,6 +3,7 @@ import MUIDataTable from 'mui-datatables';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
+
 import {
   IconButton,
   Dialog,
@@ -23,6 +24,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Transition from '../../../components/Transition/transition';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './contractType-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
@@ -300,6 +302,7 @@ class ContractType extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             Delete Contract Type
@@ -390,6 +393,7 @@ class ContractType extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             Edit Staff Contract Type

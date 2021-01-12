@@ -18,6 +18,10 @@ import {
   ContactByOperationStatus,
   Sectors,
   AddSector,
+  SelectionTypeEvaluation,
+  AddSelectionTypeEvaluation,
+  SelectionProcessInformation,
+  AddSelectionProcessInformation,
   FunctionalStructure,
   AddFunctionalLevel,
   AdministrativeStructure,
@@ -145,6 +149,26 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/sectors/create-sector"
           component={AddSector}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/selectionTypeEvaluation"
+          component={SelectionTypeEvaluation}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/selectionTypeEvaluation/create-type"
+          component={AddSelectionTypeEvaluation}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/selectionProcessInformation"
+          component={SelectionProcessInformation}
+        />
+        <Route
+          exact
+          path="/app/hh-rr/selectionProcessInformation/add-selection-process"
+          component={AddSelectionProcessInformation}
         />
         <Route
           exact
@@ -277,9 +301,9 @@ function Application(props) {
           component={CommercialOperation}
         />
         <Route
-            exact
-            path="/app/commercial-action"
-            component={CommercialAction}
+          exact
+          path="/app/commercial-action"
+          component={CommercialAction}
         />
         <Route
           exact

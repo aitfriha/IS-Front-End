@@ -17,12 +17,10 @@ import {
 } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { showSpinner } from 'dan-redux/actions/uiActions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import styles from './staff-jss';
 import StaffService from '../../Services/StaffService';
-import {
-  showSpinner
-} from 'dan-redux/actions/uiActions';
 import { setStaff, getAllStaff } from '../../../redux/staff/actions';
 
 class StaffBlock extends React.Component {
@@ -36,7 +34,8 @@ class StaffBlock extends React.Component {
           name: 'staffId',
           label: 'Staff Id',
           options: {
-            display: false
+            display: false,
+            filter: false
           }
         },
         {

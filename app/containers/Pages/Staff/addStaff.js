@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
+
 import {
   Grid,
   FormControl,
@@ -42,6 +43,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
+import Transition from '../../../components/Transition/transition';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
 import styles from './staff-jss';
@@ -402,7 +404,7 @@ class AddStaff extends React.Component {
 
     const formData = new FormData();
     Object.keys(staff).forEach(e => formData.append(e, staff[e]));
-    if (contractDoc.constructor !== Object) {
+    if (contractDoc.constructor === File) {
       formData.append('contractDoc', contractDoc);
     } else {
       formData.append(
@@ -412,7 +414,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (internalRulesDoc.constructor !== Object) {
+    if (internalRulesDoc.constructor === File) {
       formData.append('internalRulesDoc', internalRulesDoc);
     } else {
       formData.append(
@@ -422,7 +424,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (preContractDoc.constructor !== Object) {
+    if (preContractDoc.constructor === File) {
       formData.append('preContractDoc', preContractDoc);
     } else {
       formData.append(
@@ -432,7 +434,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (idCardDoc.constructor !== Object) {
+    if (idCardDoc.constructor === File) {
       formData.append('idCardDoc', idCardDoc);
     } else {
       formData.append(
@@ -442,7 +444,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (passportDoc.constructor !== Object) {
+    if (passportDoc.constructor === File) {
       formData.append('passportDoc', passportDoc);
     } else {
       formData.append(
@@ -452,7 +454,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (professionalIdCardDoc.constructor !== Object) {
+    if (professionalIdCardDoc.constructor === File) {
       formData.append('professionalIdCardDoc', professionalIdCardDoc);
     } else {
       formData.append(
@@ -462,7 +464,7 @@ class AddStaff extends React.Component {
         })
       );
     }
-    if (hnsCardDoc.constructor !== Object) {
+    if (hnsCardDoc.constructor === File) {
       formData.append('hnsCardDoc', hnsCardDoc);
     } else {
       formData.append(
@@ -807,6 +809,7 @@ class AddStaff extends React.Component {
           disableBackdropClick
           disableEscapeKeyDown
           maxWidth="xs"
+          TransitionComponent={Transition}
           fullWidth
           aria-labelledby="changeProfilePic"
           open={isChangeProfilePic}

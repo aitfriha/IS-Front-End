@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import Slide from '@material-ui/core/Slide';
+
 import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
 import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import {
@@ -40,6 +41,7 @@ import { connect } from 'react-redux';
 import HistoryIcon from '@material-ui/icons/History';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { PapperBlock } from 'dan-components';
+import Transition from '../../../components/Transition/transition';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import styles from './levels-jss';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
@@ -607,6 +609,7 @@ class LevelsBlock extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">Delete Level</DialogTitle>
           <DialogContent>
@@ -638,6 +641,7 @@ class LevelsBlock extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">Edit Level</DialogTitle>
           <DialogContent>
@@ -731,6 +735,7 @@ class LevelsBlock extends React.Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">
             {isViewHistory ? `${level.name} History` : level.name}
