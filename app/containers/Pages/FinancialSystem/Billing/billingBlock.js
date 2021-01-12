@@ -538,7 +538,7 @@ class BillingBlock extends React.Component {
             customBodyRender: (currency) => (
               <React.Fragment>
                 {
-                  currency.currencyCode
+                  currency.typeOfCurrency.currencyCode
                 }
               </React.Fragment>
             )

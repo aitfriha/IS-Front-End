@@ -208,7 +208,7 @@ class SuppliersPaymentBlock extends React.Component {
             customBodyRender: (currency) => (
               <React.Fragment>
                 {
-                  currency.currencyCode
+                  currency.typeOfCurrency.currencyCode
                 }
               </React.Fragment>
             )
@@ -639,7 +639,7 @@ class SuppliersPaymentBlock extends React.Component {
             customBodyRender: (currency) => (
               <React.Fragment>
                 {
-                  currency.currencyCode
+                  currency.typeOfCurrency.currencyCode
                 }
               </React.Fragment>
             )
@@ -1070,7 +1070,7 @@ class SuppliersPaymentBlock extends React.Component {
             customBodyRender: (currency) => (
               <React.Fragment>
                 {
-                  currency.currencyCode
+                  currency.typeOfCurrency.currencyCode
                 }
               </React.Fragment>
             )
@@ -1275,7 +1275,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].ivaId;
+      const id = this.state.datas[index].economicStaffYearId;
       EconomicStaffYearService.deleteEconomicStaffYear(id).then(result => {
         this.setState({ economicStaffsYear: result.data });
       });
@@ -1285,7 +1285,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].ivaId;
+      const id = this.state.datas[index].economicStaffMonthId;
       EconomicStaffMonthService.deleteEconomicStaffMonth(id).then(result => {
         this.setState({ economicStaffSMonth: result.data });
       });
@@ -1295,7 +1295,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
           + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].ivaId;
+      const id = this.state.datas[index].economicStaffExtraId;
       EconomicStaffExtraService.deleteEconomicStaffExtra(id).then(result => {
         this.setState({ economicStaffSExtra: result.data });
       });
