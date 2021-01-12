@@ -36,6 +36,9 @@ const ENDPOINTS = {
     'http://localhost:9000/api/functionalStructureAssignationHistory',
   ADMINISTRATIVESTRUCTUREASSIGNATIONHISTORY:
     'http://localhost:9000/api/administrativeStructureAssignationHistory',
+  SELECTIONTYPEEVALUATION: 'http://localhost:9000/api/selectionTypeEvaluation',
+  SELECTIONPROCESSINFORMATION:
+    'http://localhost:9000/api/selectionProcessInformation',
   CONTACTBYOPERATION: 'http://localhost:9000/api/contactByOperation',
   CIVILITYTITLE: 'http://localhost:9000/api/civilityTitle',
   CONTRACTING: {

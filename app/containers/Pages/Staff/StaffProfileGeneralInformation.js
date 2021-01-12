@@ -24,6 +24,7 @@ import {
   MenuItem,
   InputLabel
 } from '@material-ui/core';
+
 import PropTypes from 'prop-types';
 import Ionicon from 'react-ionicons';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -42,6 +43,7 @@ import { isString } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { showSpinner } from 'dan-redux/actions/uiActions';
+import Transition from '../../../components/Transition/transition';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CountryService from '../../Services/CountryService';
 import StaffService from '../../Services/StaffService';
@@ -365,7 +367,7 @@ class StaffProfileGeneralInformation extends Component {
     };
 
     const formData = new FormData();
-    if (doc.constructor !== Object) {
+    if (doc.constructor === File) {
       formData.append('doc', doc);
     } else {
       formData.append(
@@ -574,8 +576,9 @@ class StaffProfileGeneralInformation extends Component {
       <div>
         <Dialog
           maxWidth="lg"
+          TransitionComponent={Transition}
           fullWidth
-          scroll="paper"
+          scroll="body"
           aria-labelledby="changeProfilePic"
           open={isOpenDocument}
           classes={{
@@ -614,6 +617,7 @@ class StaffProfileGeneralInformation extends Component {
           aria-describedby="alert-dialog-slide-description"
           fullWidth
           maxWidth="sm"
+          TransitionComponent={Transition}
         >
           <DialogTitle id="alert-dialog-title">Add new document</DialogTitle>
           <DialogContent>

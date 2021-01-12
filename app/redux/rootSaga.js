@@ -15,6 +15,8 @@ import absenceRequestSaga from './absenceRequest/saga';
 import legalCategoryTypeSaga from './legalCategoryType/saga';
 import localBankHolidaySaga from './localBankHoliday/saga';
 import contractModelSaga from './contractModel/saga';
+import selectionTypeEvaluationSaga from './selectionTypeEvaluation/saga';
+import selectionProcessInformationSaga from './selectionProcessInformation/saga';
 import functionalStructureSaga from './functionalStructure/saga';
 import functionalStructureAssignationHistorySaga from './functionalStructureAssignationHistory/saga';
 import administrativeStructureSaga from './administrativeStructure/saga';
@@ -47,6 +49,8 @@ export default function* rootSaga() {
     legalCategoryTypeSaga(),
     localBankHolidaySaga(),
     contractModelSaga(),
+    selectionTypeEvaluationSaga(),
+    selectionProcessInformationSaga(),
     functionalStructureSaga(),
     functionalStructureAssignationHistorySaga(),
     administrativeStructureSaga(),
