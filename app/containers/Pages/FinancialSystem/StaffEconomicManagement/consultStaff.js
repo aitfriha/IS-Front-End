@@ -92,7 +92,9 @@ class ConsultStaff extends React.Component {
           highDate: economicStaff.highDate,
           lowDate: economicStaff.lowDate,
           contractModel: economicStaff.staff.staffContract.contractModel.name,
-          currencyCode: economicStaff.currency.currencyCode,
+          currencyCode: economicStaff.currency.typeOfCurrency.currencyCode,
+          totalPayment: economicStaff.contributionSalary + economicStaff.grosSalary,
+          totalPaymentEuro: economicStaff.contributionSalaryEuro + economicStaff.grosSalaryEuro,
           economicStaff
         });
       }
@@ -142,17 +144,17 @@ class ConsultStaff extends React.Component {
   handleCalculCompanyCost = () => {
     const {
       grosSalary, grosSalaryEuro, extraordinaryExpenses, extraordinaryExpensesEuro, extraordinaryObjectives,
-      extraordinaryObjectivesEuro, netSalary, netSalaryEuro, contributionSalary, contributionSalaryEuro
+      extraordinaryObjectivesEuro, travelExpenses, travelExpensesEuro, contributionSalary, contributionSalaryEuro
     } = this.state;
-    const total = Number(grosSalary) + extraordinaryExpenses + extraordinaryObjectives + netSalary + contributionSalary;
-    const totalEuro = grosSalaryEuro + extraordinaryExpensesEuro + extraordinaryObjectivesEuro + netSalaryEuro + contributionSalaryEuro;
+    const total = Number(grosSalary) + extraordinaryExpenses + extraordinaryObjectives + contributionSalary;
+    const totalEuro = grosSalaryEuro + extraordinaryExpensesEuro + extraordinaryObjectivesEuro + contributionSalaryEuro;
     console.log(total);
     console.log(totalEuro);
     this.setState({
-      companyCost: total,
-      companyCostEuro: totalEuro,
       salaryCompanyCost: total,
       salaryCompanyCostEuro: totalEuro,
+      companyCost: total + travelExpenses,
+      companyCostEuro: totalEuro + travelExpensesEuro,
       openCompanyCost: true
     });
   };

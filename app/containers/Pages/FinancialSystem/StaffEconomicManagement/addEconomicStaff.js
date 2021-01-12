@@ -157,7 +157,7 @@ class AddEconomicStaff extends React.Component {
         this.state.currencies.map(currency => {
           if (currency.currencyId === ev.target.value) {
             // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+            changeFactor = currency.changeFactor; currencyCode = currency.typeOfCurrency.currencyCode;
           }
         });
         this.setState({
@@ -355,7 +355,7 @@ class AddEconomicStaff extends React.Component {
                     {
                       currencies.map((clt) => (
                         <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                          {clt.currencyName}
+                          {clt.typeOfCurrency.currencyName}
                         </MenuItem>
                       ))
                     }

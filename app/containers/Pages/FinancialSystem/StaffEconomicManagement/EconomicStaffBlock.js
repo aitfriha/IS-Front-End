@@ -260,7 +260,7 @@ class EconomicStaffBlock extends React.Component {
             customBodyRender: (value) => (
               <React.Fragment>
                 {
-                  value.currencyCode
+                  value.typeOfCurrency.currencyCode
                 }
               </React.Fragment>
             )
@@ -545,7 +545,7 @@ class EconomicStaffBlock extends React.Component {
           netSalaryEuroYear: economicStaff.netSalaryEuro,
           contributionSalaryEuroYear: economicStaff.contributionSalaryEuro,
           currencyId: economicStaff.currency._id,
-          currencyCode: economicStaff.currency.currencyCode,
+          currencyCode: economicStaff.currency.typeOfCurrency.currencyCode,
           changeFactor: economicStaff.changeFactor,
           economicStaff
         });
@@ -569,7 +569,7 @@ class EconomicStaffBlock extends React.Component {
           netSalaryEuroMonth: economicStaff.netSalaryEuro,
           contributionSalaryEuroMonth: economicStaff.contributionSalaryEuro,
           currencyId: economicStaff.currency._id,
-          currencyCode: economicStaff.currency.currencyCode,
+          currencyCode: economicStaff.currency.typeOfCurrency.currencyCode,
           changeFactor: economicStaff.changeFactor,
           economicStaff
         });
@@ -597,7 +597,7 @@ class EconomicStaffBlock extends React.Component {
         const economicStaff = result.data;
         console.log(economicStaff);
         this.setState({
-          openExtra: true, currencyId: economicStaff.currency._id, currencyCode: economicStaff.currency.currencyCode, changeFactor: economicStaff.changeFactor, economicStaff
+          openExtra: true, currencyId: economicStaff.currency._id, currencyCode: economicStaff.currency.typeOfCurrency.currencyCode, changeFactor: economicStaff.changeFactor, economicStaff
         });
       });
     }
@@ -760,7 +760,7 @@ class EconomicStaffBlock extends React.Component {
         this.state.currencies.map(currency => {
           if (currency.currencyId === ev.target.value) {
             // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+            changeFactor = currency.changeFactor; currencyCode = currency.typeOfCurrency.currencyCode;
           }
         });
         this.setState({
@@ -924,7 +924,7 @@ class EconomicStaffBlock extends React.Component {
                         {
                           currencies.map((clt) => (
                             <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                              {clt.currencyName}
+                              {clt.typeOfCurrency.currencyName}
                             </MenuItem>
                           ))
                         }
@@ -1137,7 +1137,7 @@ class EconomicStaffBlock extends React.Component {
                         {
                           currencies.map((clt) => (
                             <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                              {clt.currencyName}
+                              {clt.typeOfCurrency.currencyName}
                             </MenuItem>
                           ))
                         }
@@ -1350,7 +1350,7 @@ class EconomicStaffBlock extends React.Component {
                         {
                           currencies.map((clt) => (
                             <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                              {clt.currencyName}
+                              {clt.typeOfCurrency.currencyName}
                             </MenuItem>
                           ))
                         }

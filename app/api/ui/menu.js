@@ -167,6 +167,12 @@ module.exports = [
             icon: 'ios-newspaper-outline'
           },
           {
+            key: 'TypeOfCurrency',
+            name: 'Currency Type',
+            link: '/app/gestion-financial/Currency-Type',
+            icon: 'ios-cash-outline'
+          },
+          {
             key: 'currencyManagement',
             name: 'Currency Management',
             link: '/app/gestion-financial/Currency-Management',

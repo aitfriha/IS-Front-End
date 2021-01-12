@@ -566,7 +566,7 @@ class EditBill extends React.Component {
                   {
                     currencies.map((clt) => (
                       <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                        {clt.currencyName}
+                        {clt.typeOfCurrency.currencyName}
                       </MenuItem>
                     ))
                   }

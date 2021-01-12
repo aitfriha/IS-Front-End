@@ -13,7 +13,10 @@ import {
   GET_ALL_STAFFS_SUCCESS,
   UPDATE_STAFF,
   UPDATE_STAFF_FAILURE,
-  UPDATE_STAFF_SUCCESS
+  UPDATE_STAFF_SUCCESS,
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS,
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_SUCCESS,
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_FAILURE
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -101,11 +104,30 @@ function* getAllStaff() {
   }
 }
 
+function* allStaffAssignedToFunctionalLevel() {
+  try {
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.STAFF + '/allStaffAssignedToFunctionalLevel'
+    });
+    yield put({
+      type: GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* staffSaga() {
   yield all([
     takeLatest(ADD_STAFF, saveStaff),
     takeLatest(UPDATE_STAFF, updateStaff),
     takeLatest(DELETE_STAFF, deleteStaff),
+    takeLatest(GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS, allStaffAssignedToFunctionalLevel),
     takeLatest(GET_ALL_STAFFS, getAllStaff)
   ]);
 }
