@@ -31,6 +31,7 @@ import assignmentSaga from './assignment/saga';
 import contactSaga from './contact/saga';
 import contactByOperationSaga from './contactByOperation/saga';
 import civilityTitleSaga from './civilityTitle/saga';
+import authSaga from '../../transversal-administration/redux/auth/saga';
 // import watchers from other files
 export default function* rootSaga() {
   yield all([
@@ -63,7 +64,8 @@ export default function* rootSaga() {
     staffEconomicContractInformationHistorySaga(),
     contactSaga(),
     contactByOperationSaga(),
-    civilityTitleSaga()
+    civilityTitleSaga(),
+    authSaga(),
     // add other watchers to the array
   ]);
 }

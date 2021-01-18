@@ -1,6 +1,6 @@
 // API Endpoints
 const ENDPOINTS = {
-  AUTH: '/api/auth',
+  AUTH: 'http://localhost:9000/api/auth',
   TRANSLATION: {
     DEFAULT_SENTENCE: '/api/translation/defaultSentence',
     TRANSLATE_SENTENCE: '/api/translation/translateSentence'

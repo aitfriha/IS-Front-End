@@ -10,14 +10,18 @@ import {
   GET_ALL_ASSIGNMENTS_SUCCESS,
   UPDATE_ASSIGNMENT,
   UPDATE_ASSIGNMENT_FAILURE,
-  UPDATE_ASSIGNMENT_SUCCESS
+  UPDATE_ASSIGNMENT_SUCCESS,
+
+  GET_ALL_ASSIGNMENTS_BY_STAFF_SUCCESS,
+  GET_ALL_ASSIGNMENTS_BY_STAFF_FAILURE
 } from './constants';
 
 const initialState = {
   isLoading: false,
   errors: {},
   assignmentResponse: '',
-  allAssignments: []
+  allAssignments: [],
+  assignmentResponseList:  []
 };
 
 export default function assignmentReducer(state = initialState, action) {
@@ -52,7 +56,16 @@ export default function assignmentReducer(state = initialState, action) {
         assignmentResponse: ''
       };
 
+    case GET_ALL_ASSIGNMENTS_BY_STAFF_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        allAssignments: action.payload,
+        assignmentResponse: 'ok',
+      };
+
       // FAILURE ACTIONS
+    case GET_ALL_ASSIGNMENTS_BY_STAFF_FAILURE:
     case GET_ALL_ASSIGNMENTS_FAILURE:
     case ADD_ASSIGNMENT_FAILURE:
     case UPDATE_ASSIGNMENT_FAILURE:
