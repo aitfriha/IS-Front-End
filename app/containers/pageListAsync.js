@@ -201,6 +201,10 @@ export const CommercialAssignment = Loadable({
   loader: () => import('./Pages/Assignments/Commercial'),
   loading: Loading
 });
+export const UnauthorizedDedicated = Loadable({
+  loader: () => import('./Pages/Standalone/UnauthorizedDedicated'),
+  loading: Loading,
+});
 export const People = Loadable({
   loader: () => import('./Pages/People/index'),
   loading: Loading

@@ -2,7 +2,8 @@ import {
   ADD_ASSIGNMENT,
   DELETE_ASSIGNMENT,
   GET_ALL_ASSIGNMENTS,
-  UPDATE_ASSIGNMENT
+  UPDATE_ASSIGNMENT,
+  GET_ALL_ASSIGNMENTS_BY_STAFF
 } from './constants';
 
 export const addAssignment = (assignment) => ({
@@ -22,4 +23,9 @@ export const deleteAssignment = (clientId) => ({
 
 export const getAllAssignment = () => ({
   type: GET_ALL_ASSIGNMENTS,
+});
+
+export const getAssignmentByStaff = (staffId) => ({
+  type: GET_ALL_ASSIGNMENTS_BY_STAFF,
+  staffId
 });
