@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
-import SupliersPaymentBlock from './SuppliersPaymentBlock';
+import SupliersPaymentBlock from './EconomicStaffPaymentBlock';
 
 class SupliersPayment extends React.Component {
   render() {
@@ -18,7 +18,7 @@ class SupliersPayment extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="Suppliers Payment" icon="ios-cash" noMargin overflowX>
+        <PapperBlock title="Staffs Payments List" icon="ios-cash" noMargin overflowX>
           <SupliersPaymentBlock />
         </PapperBlock>
       </div>

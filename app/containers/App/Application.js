@@ -78,7 +78,7 @@ import {
   SectorsCompany,
   CivilityTitle,
   EconomicStaff,
-  SuppliersPayment,
+  EconomicStaffsPayment,
   AddEconomicStaff
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -398,8 +398,8 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/gestion-financial/Suppliers Payment"
-          component={SuppliersPayment}
+          path="/app/gestion-financial/Staff Economic Payments"
+          component={EconomicStaffsPayment}
         />
         <Route
           exact

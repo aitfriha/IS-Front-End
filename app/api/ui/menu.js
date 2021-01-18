@@ -135,9 +135,15 @@ module.exports = [
             icon: 'ios-cash-outline'
           },
           {
-            key: 'staffPayment',
+            key: 'staffPaymentManagement',
             name: 'Staff Economic Management',
             link: '/app/gestion-financial/Staff Economic Management',
+            icon: 'ios-cash-outline'
+          },
+          {
+            key: 'staffPayment',
+            name: 'Staff Economic Payments',
+            link: '/app/gestion-financial/Staff Economic Payments',
             icon: 'ios-cash-outline'
           },
           {

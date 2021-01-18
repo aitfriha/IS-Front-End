@@ -4,7 +4,18 @@ import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, TextField
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
@@ -23,6 +34,8 @@ class CurrencyBlock extends React.Component {
     this.state = {
       currencyId: '',
       currencies: [],
+      AllDatas: [],
+      currencyNameFilter: 'All',
       datas: [],
       openPopUp: false,
       currencyCode: '',
@@ -106,9 +119,10 @@ class CurrencyBlock extends React.Component {
 
   componentDidMount() {
     CurrencyService.getCurrency().then(result => {
-      this.setState({ datas: result.data });
+      this.setState({ datas: result.data, AllDatas: result.data });
     });
     TypeOfCurrencylService.getTypeOfCurrency().then(result => {
+      result.data.push({ currencyName: 'All', typeOfCurrencyId: 'All' });
       this.setState({ currencies: result.data });
     });
     const {
@@ -144,7 +158,7 @@ class CurrencyBlock extends React.Component {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].currencyId;
       CurrencyService.deleteCurrency(id).then(result => {
-        this.setState({ datas: result.data });
+        this.setState({ datas: result.data, AllDatas: result.data });
       });
     };
 
@@ -161,12 +175,20 @@ class CurrencyBlock extends React.Component {
         currencyId, year, month, changeFactor, typeOfCurrency
       };
       CurrencyService.updateCurrency(Currency).then(result => {
-        this.setState({ datas: result.data, openPopUp: false });
+        this.setState({ datas: result.data, AllDatas: result.data, openPopUp: false });
       });
     };
 
     handleChange = (ev) => {
-      const { currencies } = this.state;
+      const { currencies, AllDatas, datas } = this.state;
+      if (ev.target.name === 'currencyNameFilter') {
+        if (ev.target.value === 'All') {
+          this.setState({ datas: AllDatas });
+        } else {
+          const test = datas.filter(row => row.typeOfCurrency._id === ev.target.value);
+          this.setState({ datas: test });
+        }
+      }
       if (ev.target.name === 'currencyName') {
         // eslint-disable-next-line array-callback-return
         currencies.map(row => {
@@ -229,7 +251,7 @@ class CurrencyBlock extends React.Component {
           label: 'December ',
         }];
       const {
-        columns, openPopUp, datas, currencyName, currencyCode, year, month, changeFactor, currencies
+        columns, openPopUp, datas, currencyName, currencyCode, year, month, changeFactor, currencies, currencyNameFilter
       } = this.state;
       const options = {
         filter: true,
@@ -248,6 +270,45 @@ class CurrencyBlock extends React.Component {
 
       return (
         <div>
+          <Grid
+            container
+            spacing={1}
+            direction="row"
+            justifyContent="left"
+            alignItems="start"
+          >
+            <Grid item xs={12} md={1}>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '15px',
+                  fontWeight: 'bold',
+                  opacity: 0.4,
+                  marginRight: 20,
+                  width: '100%'
+                }}
+              >
+                Show :
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl style={{ width: '100%' }}>
+                <Select
+                  name="currencyNameFilter"
+                  value={currencyNameFilter}
+                  onChange={this.handleChange}
+                >
+                  { currencies.map((clt) => (
+                    <MenuItem key={clt.typeOfCurrencyId} value={clt.typeOfCurrencyId}>
+                      {clt.currencyName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
           <MUIDataTable
             title="The Currencies List"
             data={datas}

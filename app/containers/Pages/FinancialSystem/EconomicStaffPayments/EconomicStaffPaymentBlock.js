@@ -13,7 +13,7 @@ import EconomicStaffExtraService from '../../../Services/EconomicStaffExtraServi
 
 const useStyles = makeStyles();
 
-class SuppliersPaymentBlock extends React.Component {
+class EconomicStaffPaymentBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -1242,7 +1242,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
           + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].ivaId;
+      const id = this.state.economicStaffsYear[index].economicStaffYearId;
       console.log(id);
     }
 
@@ -1251,7 +1251,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].ivaId;
+      const id = this.state.economicStaffsMonth[index].economicStaffMonthId;
       console.log(id);
     }
 
@@ -1260,7 +1260,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
           + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].ivaId;
+      const id = this.state.economicStaffsExtra[index].economicStaffExtraId;
       console.log(id);
     }
 
@@ -1275,7 +1275,8 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].economicStaffYearId;
+      const id = this.state.economicStaffsYear[index].economicStaffYearId;
+      console.log(id);
       EconomicStaffYearService.deleteEconomicStaffYear(id).then(result => {
         this.setState({ economicStaffsYear: result.data });
       });
@@ -1285,7 +1286,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].economicStaffMonthId;
+      const id = this.state.economicStaffsMonth[index].economicStaffMonthId;
       EconomicStaffMonthService.deleteEconomicStaffMonth(id).then(result => {
         this.setState({ economicStaffSMonth: result.data });
       });
@@ -1295,7 +1296,7 @@ class SuppliersPaymentBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
           + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].economicStaffExtraId;
+      const id = this.state.economicStaffsExtra[index].economicStaffExtraId;
       EconomicStaffExtraService.deleteEconomicStaffExtra(id).then(result => {
         this.setState({ economicStaffSExtra: result.data });
       });
@@ -1376,7 +1377,7 @@ class SuppliersPaymentBlock extends React.Component {
   }
 }
 const SupliersPaymentBlockMapped = connect(
-)(SuppliersPaymentBlock);
+)(EconomicStaffPaymentBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
