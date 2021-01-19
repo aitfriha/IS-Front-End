@@ -732,7 +732,7 @@ class EconomicStaffBlock extends React.Component {
     };
 
     componentDidMount() {
-      CurrencyService.getCurrency().then(result => {
+      CurrencyService.getFilteredCurrency().then(result => {
         this.setState({ currencies: result.data });
       });
       EconomicStaffService.getEconomicStaff().then(result => {

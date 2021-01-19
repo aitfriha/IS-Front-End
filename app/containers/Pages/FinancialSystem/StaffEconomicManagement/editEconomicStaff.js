@@ -41,7 +41,7 @@ class EditEconomicStaff extends React.Component {
     editingPromiseResolve = () => {};
 
     componentDidMount() {
-      CurrencyService.getCurrency().then(result => {
+      CurrencyService.getFilteredCurrency().then(result => {
         this.setState({ currencies: result.data });
       });
     }
@@ -127,7 +127,7 @@ class EditEconomicStaff extends React.Component {
         this.state.currencies.map(currency => {
           if (currency.currencyId === ev.target.value) {
             // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+            changeFactor = currency.changeFactor; currencyCode = currency.typeOfCurrency.currencyCode;
           }
         });
         this.setState({
@@ -285,7 +285,7 @@ class EditEconomicStaff extends React.Component {
                   {
                     currencies.map((clt) => (
                       <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                        {clt.currencyName}
+                        {clt.typeOfCurrency.currencyName}
                       </MenuItem>
                     ))
                   }

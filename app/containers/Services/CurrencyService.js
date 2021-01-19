@@ -4,6 +4,8 @@ import { API } from '../../config/apiUrl';
 class CurrencyService {
     getCurrency = () => axios.get(`${API}/currency/all`);
 
+    getFilteredCurrency = () => axios.get(`${API}/currency/Filtered`);
+
     getCurrencyById = Id => axios.post(`${API}/currency/row/${Id}`);
 
     saveCurrency = currency => axios.post(`${API}/currency/add`, currency);

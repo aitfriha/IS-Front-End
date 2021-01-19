@@ -124,7 +124,7 @@ class AddContract extends React.Component {
     const { getAllCountry } = this.props;
     getAllCountry();
     // services calls
-    CurrencyService.getCurrency().then(result => {
+    CurrencyService.getFilteredCurrency().then(result => {
       this.setState({ currencies: result.data });
     });
     ContractStatusService.getContractStatus().then(result => {
@@ -171,7 +171,7 @@ class AddContract extends React.Component {
           // eslint-disable-next-line prefer-destructuring
           if (currency.currencyId === ev.target.value) {
             // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor; currencyCode = currency.currencyCode;
+            changeFactor = currency.changeFactor; currencyCode = currency.typeOfCurrency.currencyCode;
           }
         });
         this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor, currencyCode });

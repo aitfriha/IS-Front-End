@@ -54,7 +54,7 @@ class AddEconomicStaff extends React.Component {
   editingPromiseResolve = () => {};
 
   componentDidMount() {
-    CurrencyService.getCurrency().then(result => {
+    CurrencyService.getFilteredCurrency().then(result => {
       this.setState({ currencies: result.data });
     });
     const {
