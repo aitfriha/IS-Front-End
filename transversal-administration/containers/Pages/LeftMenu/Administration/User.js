@@ -9,8 +9,6 @@ import { connect } from 'react-redux';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
-import HelmetCustom from '../../../../../app/components/HelmetCustom/HelmetCustom';
-import localizationMaterialTable from '../../../../../app/api/localizationMaterialUI/localizationMaterialTable';
 import notification from '../../../../../app/components/Notification/Notification';
 import {
     addUser,
@@ -229,20 +227,20 @@ class User extends React.Component {
             });
             return lookupDepartment;
         };
-        const subjectColumnLookupAdapterLanguage = (languages) => {
+       /* const subjectColumnLookupAdapterLanguage = (languages) => {
             const lookupLanguage = {};
             ['en-US', ...props.systemTranslateLanguages].map(e => (e));
             languages.forEach(e => {
                 lookupLanguage[e] = e;
             });
             return lookupLanguage;
-        };
+        };*/
 
 
         if (!isEmpty(props.allRoles) || !isEmpty(props.allDepartments)) {
             state.columns.find(e => e.field === 'userRolesIds').lookup = subjectColumnLookupAdapterRole(props.allRoles);
             state.columns.find(e => e.field === 'userDepartmentId').lookup = subjectColumnLookupAdapterDepartment(props.allDepartments);
-            state.columns.find(e => e.field === 'userCountryLanguage').lookup = subjectColumnLookupAdapterLanguage(['en-US', ...props.systemTranslateLanguages]);
+          //  state.columns.find(e => e.field === 'userCountryLanguage').lookup = subjectColumnLookupAdapterLanguage(['en-US', ...props.systemTranslateLanguages]);
             return state.columns;
         }
         /* if (!isEmpty(props.allDepartments)) {
@@ -265,7 +263,6 @@ class User extends React.Component {
 
         return (
             <div>
-                <HelmetCustom location={location} />
                 <MaterialTable
                     components={{
                         EditField: fieldProps => {
@@ -352,7 +349,6 @@ class User extends React.Component {
                             }
                         }),
                     }}
-                    localization={localizationMaterialTable(intl)}
                 />
             </div>
         );
@@ -396,7 +392,7 @@ const mapStateToProps = state => ({
     errors: state.getIn(['user']).errors,
     allRoles: state.getIn(['roles']).allRoles,
     allDepartments: state.getIn(['department']).allDepartments,
-    systemTranslateLanguages: state.getIn(['translateSentences']).systemTranslateLanguages,
+   // systemTranslateLanguages: state.getIn(['translateSentences']).systemTranslateLanguages,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

@@ -337,7 +337,15 @@ export const AddEconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
   loading: Loading
 });
+export const User = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/User'),
+  loading: Loading
+});
 export const EconomicStaffsPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/EconomicStaffPayments'),
+  loading: Loading
+});
+export const RoleAbility = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleAbility'),
   loading: Loading
 });
