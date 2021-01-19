@@ -35,6 +35,8 @@ import authSaga from '../../transversal-administration/redux/auth/saga';
 import usersSaga from "../../transversal-administration/redux/users/saga";
 import rolesSaga from "../../transversal-administration/redux/rolesAbilities/saga";
 import departmentsSaga from "../../transversal-administration/redux/departments/saga";
+import subjectsSaga from "../../transversal-administration/redux/subjects/saga";
+import actionsSaga from "../../transversal-administration/redux/actions/saga";
 // import watchers from other files
 export default function* rootSaga() {
   yield all([
@@ -72,6 +74,8 @@ export default function* rootSaga() {
     usersSaga(),
     rolesSaga(),
     departmentsSaga(),
+    subjectsSaga(),
+    actionsSaga(),
     // add other watchers to the array
   ]);
 }

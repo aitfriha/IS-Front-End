@@ -16,8 +16,6 @@ import {
     addRole, deleteRole, getAllRoles, updateRole, addRoleAbilities
 } from '../../../../redux/rolesAbilities/actions';
 import notification from '../../../../../app/components/Notification/Notification';
-import localizationMaterialTable from '../../../../../app/api/localizationMaterialUI/localizationMaterialTable';
-import HelmetCustom from '../../../../../app/components/HelmetCustom/HelmetCustom';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
 import { getAllActions } from '../../../../redux/actions/actions';
 
@@ -157,7 +155,6 @@ class RoleAbility extends React.Component {
         (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
         return (
             <div>
-                <HelmetCustom location={location} />
                 <MaterialTable
                     title=""
                     columns={columns}
@@ -219,7 +216,6 @@ class RoleAbility extends React.Component {
                             }
                         }),
                     }}
-                    localization={localizationMaterialTable(intl)}
                     detailPanel={rowData => (
 
                         <Grid container direction="column">

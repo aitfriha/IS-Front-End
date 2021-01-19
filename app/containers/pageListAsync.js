@@ -345,3 +345,7 @@ export const EconomicStaffsPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/EconomicStaffPayments'),
   loading: Loading
 });
+export const RoleAbility = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleAbility'),
+  loading: Loading
+});
