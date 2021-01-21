@@ -201,6 +201,10 @@ export const CommercialAssignment = Loadable({
   loader: () => import('./Pages/Assignments/Commercial'),
   loading: Loading
 });
+export const UnauthorizedDedicated = Loadable({
+  loader: () => import('./Pages/Standalone/UnauthorizedDedicated'),
+  loading: Loading,
+});
 export const People = Loadable({
   loader: () => import('./Pages/People/index'),
   loading: Loading
@@ -333,7 +337,15 @@ export const AddEconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
   loading: Loading
 });
-export const SuppliersPayment = Loadable({
-  loader: () => import('./Pages/FinancialSystem/SuppliersPayment'),
+export const User = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/User'),
+  loading: Loading
+});
+export const EconomicStaffsPayment = Loadable({
+  loader: () => import('./Pages/FinancialSystem/EconomicStaffPayments'),
+  loading: Loading
+});
+export const RoleAbility = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleAbility'),
   loading: Loading
 });

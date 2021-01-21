@@ -46,6 +46,12 @@ import staffEconomicContractInformationHistoryReducer from './staffEconomicContr
 import contactReducer from './contact/reducer';
 import contactByOperationReducer from './contactByOperation/reducer';
 import civilityTitleReducer from './civilityTitle/reducer';
+import authReducer from '../../transversal-administration/redux/auth/reducer';
+import usersReducer from "../../transversal-administration/redux/users/reducer";
+import rolesReducer from "../../transversal-administration/redux/rolesAbilities/reducer";
+import departmentsReducer from "../../transversal-administration/redux/departments/reducer";
+import subjectsReducer from "../../transversal-administration/redux/subjects/reducer";
+import actionsReducer from "../../transversal-administration/redux/actions/reducer";
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -92,6 +98,12 @@ export default function createReducer(injectedReducers = {}) {
     contacts: contactReducer,
     contactByOperations: contactByOperationReducer,
     civilityTitle: civilityTitleReducer,
+    auth: authReducer,
+    user: usersReducer,
+    roles: rolesReducer,
+    department: departmentsReducer,
+    subject: subjectsReducer,
+    action: actionsReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
     ...injectedReducers

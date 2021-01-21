@@ -1,6 +1,6 @@
 // API Endpoints
 const ENDPOINTS = {
-  AUTH: '/api/auth',
+  AUTH: 'http://localhost:9000/api/auth',
   TRANSLATION: {
     DEFAULT_SENTENCE: '/api/translation/defaultSentence',
     TRANSLATE_SENTENCE: '/api/translation/translateSentence'
@@ -46,13 +46,13 @@ const ENDPOINTS = {
     CONTRACTS: '/api/contract'
   },
   ADMINISTRATION: {
-    DEPARTMENT: '/api/department',
-    ACTION: '/api/action',
-    SUBJECT: '/api/subject',
-    SUBJECT_FIELD: '/api/subjectField',
-    MACHINE: '/api/machine',
-    USER: '/api/user',
-    ROLE: '/api/role'
+    DEPARTMENT: 'http://localhost:9000/api/department',
+    ACTION: 'http://localhost:9000/api/action',
+    SUBJECT: 'http://localhost:9000/api/subject',
+    SUBJECT_FIELD: 'http://localhost:9000/api/subjectField',
+    MACHINE: 'http://localhost:9000/api/machine',
+    USER: 'http://localhost:9000/api/user',
+    ROLE: 'http://localhost:9000/api/role'
   },
   TEST: '/api/test/t'
 };

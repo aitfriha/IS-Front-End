@@ -78,7 +78,9 @@ import {
   SectorsCompany,
   CivilityTitle,
   EconomicStaff,
-  SuppliersPayment,
+  EconomicStaffsPayment,
+  User,
+  RoleAbility,
   AddEconomicStaff
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -398,13 +400,23 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/gestion-financial/Suppliers Payment"
-          component={SuppliersPayment}
+          path="/app/gestion-financial/Staff Economic Payments"
+          component={EconomicStaffsPayment}
         />
         <Route
           exact
           path="/app/gestion-financial/Add Economic Staff"
           component={AddEconomicStaff}
+        />
+        <Route
+            exact
+            path="/app/data/administration/users"
+            component={User}
+        />
+        <Route
+            exact
+            path="/app/data/administration/roles_abilities"
+            component={RoleAbility}
         />
         <Route exact component={NotFound} />
       </Switch>

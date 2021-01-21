@@ -39,6 +39,7 @@ class AddFinancialCompany extends React.Component {
       phone2: '',
       logo: '',
       currentCity: '',
+      taxNumber: '',
       postCode: '',
       fullAddress: ''
     };
@@ -89,21 +90,19 @@ class AddFinancialCompany extends React.Component {
 
     handleSubmit = () => {
       const {
-        name, code, email, phone1, phone2, logo, postCode, currentCity, fullAddress
+        name, code, email, phone1, phone2, logo, postCode, currentCity, fullAddress, taxNumber
       } = this.state;
       const city = { _id: currentCity };
       const address = {
         postCode, city, fullAddress
       };
       const FinancialCompany = {
-        name, code, email, phone1, phone2, logo, address
+        name, code, taxNumber, email, phone1, phone2, logo, address
       };
-      if (code.toString().length === 3) {
-        FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
-          console.log(result);
-          history.push('/app/gestion-financial/Company');
-        });
-      }
+      FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
+        console.log(result);
+        history.push('/app/gestion-financial/Company');
+      });
     }
 
     handleChange = (ev) => {
@@ -126,6 +125,7 @@ class AddFinancialCompany extends React.Component {
       const {
         name,
         code,
+        taxNumber,
         email,
         phone1,
         phone2,
@@ -184,6 +184,17 @@ class AddFinancialCompany extends React.Component {
                   variant="outlined"
                   name="code"
                   value={code}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Tax Number (NIF)"
+                  variant="outlined"
+                  name="taxNumber"
+                  value={taxNumber}
                   required
                   fullWidth
                   onChange={this.handleChange}

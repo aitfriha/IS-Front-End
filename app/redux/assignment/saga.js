@@ -13,7 +13,11 @@ import {
   GET_ALL_ASSIGNMENTS_SUCCESS,
   UPDATE_ASSIGNMENT,
   UPDATE_ASSIGNMENT_FAILURE,
-  UPDATE_ASSIGNMENT_SUCCESS
+  UPDATE_ASSIGNMENT_SUCCESS,
+
+  GET_ALL_ASSIGNMENTS_BY_STAFF,
+  GET_ALL_ASSIGNMENTS_BY_STAFF_SUCCESS,
+  GET_ALL_ASSIGNMENTS_BY_STAFF_FAILURE
 } from './constants';
 
 import ENDPOINTS from '../../api/endpoints';
@@ -107,11 +111,33 @@ function* getAllAssignment() {
   }
 }
 
+function* getAssignmentByStaff(action) {
+  try {
+    const {
+      staffId
+    } = action;
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.ASSIGNMENT + '/assignmentByStaff/' + staffId
+    });
+    yield put({
+      type: GET_ALL_ASSIGNMENTS_BY_STAFF_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_ALL_ASSIGNMENTS_BY_STAFF_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 export default function* assignmentSaga() {
   yield all([
     takeLatest(ADD_ASSIGNMENT, addAssignment),
     takeLatest(UPDATE_ASSIGNMENT, updateAssignment),
     takeLatest(DELETE_ASSIGNMENT, deleteAssignment),
     takeLatest(GET_ALL_ASSIGNMENTS, getAllAssignment),
+    takeLatest(GET_ALL_ASSIGNMENTS_BY_STAFF, getAssignmentByStaff),
   ]);
 }

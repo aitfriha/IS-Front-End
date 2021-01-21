@@ -5,25 +5,40 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { LoginForm } from 'dan-components';
 import styles from 'dan-components/Forms/user-jss';
-
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { isEmpty } from 'lodash';
+import { signIn } from '../../../../transversal-administration/redux/auth/actions';
+import notification from '../../../components/Notification/Notification';
 class Login extends React.Component {
-  state = {
-    valueForm: []
+  componentDidUpdate() {
+    const {
+      history, isLoading, errors, signInResponse
+    } = this.props;
+
+    (!isLoading && !isEmpty(errors) && notification('danger', errors));
+    (!isLoading && !isEmpty(signInResponse) && history.push('/app'));
   }
 
   submitForm(values) {
-    const { valueForm } = this.state;
-    setTimeout(() => {
-      this.setState({ valueForm: values });
-      console.log(`You submitted:\n\n${valueForm}`);
-      window.location.href = '/app';
-    }, 500); // simulate server latency
+    const {
+      signIn
+    } = this.props;
+
+    const authBody = {
+      userEmail: values.get('email'),
+      userPassword: values.get('password')
+    };
+    signIn(authBody);
   }
+
 
   render() {
     const title = brand.name + ' - Login';
     const description = brand.desc;
     const { classes } = this.props;
+
     return (
       <div className={classes.root}>
         <Helmet>
@@ -46,6 +61,24 @@ class Login extends React.Component {
 
 Login.propTypes = {
   classes: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+  signInResponse: PropTypes.object.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  signIn: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(Login);
+const mapStateToProps = state => ({
+  signInResponse: state.getIn(['auth']).signInResponse,
+  isLoading: state.getIn(['auth']).isLoading,
+  errors: state.getIn(['auth']).errors
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  signIn
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(Login)));

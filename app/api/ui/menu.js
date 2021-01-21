@@ -135,9 +135,15 @@ module.exports = [
             icon: 'ios-cash-outline'
           },
           {
-            key: 'staffPayment',
+            key: 'staffPaymentManagement',
             name: 'Staff Economic Management',
             link: '/app/gestion-financial/Staff Economic Management',
+            icon: 'ios-cash-outline'
+          },
+          {
+            key: 'staffPayment',
+            name: 'Staff Economic Payments',
+            link: '/app/gestion-financial/Staff Economic Payments',
             icon: 'ios-cash-outline'
           },
           {
@@ -346,5 +352,47 @@ module.exports = [
     name: 'One Level Menu',
     icon: 'ios-document-outline',
     linkParent: '/app'
-  }
+  },
+  {
+    key: 'administration',
+    name: 'Administration',
+    icon: 'ios-people',
+    child: [
+      {
+        key: 'actions',
+        name: 'actions',
+        link: '/app/data/administration/actions'
+      },
+      /*  {
+          key: 'departments',
+          name: 'departments',
+          link: '/app/data/administration/departments'
+        },
+        {
+          key: 'subjects',
+          name: 'subjects',
+          link: '/app/data/administration/subjects'
+        }, */
+      // {
+      //     key: 'fields',
+      //     name: 'fields',
+      //     link: '/app/data/administration/fields'
+      // },
+      {
+        key: 'users',
+        name: 'users',
+        link: '/app/data/administration/users'
+      },
+      {
+        key: 'roles_abilities',
+        name: 'roles abilities',
+        link: '/app/data/administration/roles_abilities'
+      } /* ,
+    {
+        key: 'machines',
+        name: 'machines',
+        link: '/app/data/administration/machines'
+      } */
+    ]
+  },
 ];

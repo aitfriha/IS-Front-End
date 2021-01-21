@@ -84,7 +84,7 @@ class AddBilling extends React.Component {
     const { getAllCountry } = this.props;
     getAllCountry();
     // services calls
-    CurrencyService.getCurrency().then(result => {
+    CurrencyService.getFilteredCurrency().then(result => {
       this.setState({ currencies: result.data });
     });
     FinancialCompanyService.getCompany().then(result => {
