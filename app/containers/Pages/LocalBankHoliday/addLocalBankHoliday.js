@@ -45,6 +45,8 @@ class AddLocalBankHoliday extends React.Component {
     this.state = {
       name: '',
       code: '',
+      type: '',
+      description: '',
       startDate: new Date(),
       endDate: new Date(),
       minEndDate: new Date(),
@@ -79,11 +81,19 @@ class AddLocalBankHoliday extends React.Component {
   handleSubmitLocalBankHoliday = () => {
     const { saveLocalBankHoliday, getAllLocalBankHoliday } = this.props;
     const {
-      name, code, startDate, endDate, company
+      name,
+      code,
+      type,
+      description,
+      startDate,
+      endDate,
+      company
     } = this.state;
     const localBankHoliday = {
       name,
       code,
+      type,
+      description,
       startDate: startDate.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
       totalDays: this.calculDays(),
@@ -184,6 +194,8 @@ class AddLocalBankHoliday extends React.Component {
     const {
       name,
       code,
+      type,
+      description,
       startDate,
       endDate,
       minEndDate,
@@ -206,6 +218,8 @@ class AddLocalBankHoliday extends React.Component {
     !isLoadingLocalBankHoliday
       && !localBankHolidayResponse
       && this.editingPromiseResolve(errorLocalBankHoliday);
+
+    const holidayTypes = ['Country', 'Local'];
     return (
       <div>
         <PapperBlock
@@ -259,7 +273,7 @@ class AddLocalBankHoliday extends React.Component {
                 marginBottom: 6
               }}
             >
-              <div style={{ width: '40%' }}>
+              <div style={{ width: '30%' }}>
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Name"
@@ -268,7 +282,7 @@ class AddLocalBankHoliday extends React.Component {
                   attribute="name"
                 />
               </div>
-              <div style={{ width: '40%' }}>
+              <div style={{ width: '30%' }}>
                 <AutoComplete
                   value={this.handleValueChange}
                   placeholder="Code"
@@ -277,6 +291,42 @@ class AddLocalBankHoliday extends React.Component {
                   attribute="code"
                 />
               </div>
+              <FormControl
+                className={classes.formControl}
+                style={{ width: '30%', marginTop: 1 }}
+              >
+                <InputLabel>Type of holiday</InputLabel>
+
+                <Select name="type" value={type} onChange={this.handleChange}>
+                  {holidayTypes.map(item => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={8}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-around',
+                marginBottom: 6
+              }}
+            >
+              <TextField
+                id="outlined-basic"
+                label="Description"
+                variant="outlined"
+                name="description"
+                value={description}
+                fullWidth
+                multiline
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
             </Grid>
             <Grid
               item
