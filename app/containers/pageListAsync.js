@@ -333,6 +333,10 @@ export const EconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement'),
   loading: Loading
 });
+export const Action = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/Action'),
+  loading: Loading
+});
 export const AddEconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
   loading: Loading

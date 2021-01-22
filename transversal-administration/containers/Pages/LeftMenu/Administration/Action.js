@@ -6,8 +6,6 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { isString } from 'lodash';
 import { connect } from 'react-redux';
-import HelmetCustom from '../../../../../app/components/HelmetCustom/HelmetCustom';
-import localizationMaterialTable from '../../../../../app/api/localizationMaterialUI/localizationMaterialTable';
 import notification from '../../../../../app/components/Notification/Notification';
 import {
     addAction,
@@ -127,7 +125,7 @@ class Action extends React.Component {
         (!isLoading && !actionResponse) && this.editingPromiseResolve(errors);
         return (
             <div>
-                <HelmetCustom location={location} />
+
                 <MaterialTable
                     title=""
                     columns={columns}
@@ -187,7 +185,7 @@ class Action extends React.Component {
                             }
                         }),
                     }}
-                    localization={localizationMaterialTable(intl)}
+
                 />
             </div>
         );

@@ -81,6 +81,7 @@ import {
   EconomicStaffsPayment,
   User,
   RoleAbility,
+  Action,
   AddEconomicStaff
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -417,6 +418,11 @@ function Application(props) {
             exact
             path="/app/data/administration/roles_abilities"
             component={RoleAbility}
+        />
+        <Route
+            exact
+            path="/app/data/administration/actions"
+            component={Action}
         />
         <Route exact component={NotFound} />
       </Switch>
