@@ -4,13 +4,14 @@ import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import TypeOfCurrencylService from '../../../Services/TypeOfCurrencylService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
+import CurrencyService from '../../../Services/CurrencyService';
 
 const useStyles = makeStyles();
 
@@ -20,7 +21,9 @@ class TypeOfCurrencyBlock extends React.Component {
     this.state = {
       typeOfCurrencyId: '',
       datas: [],
+      currencies: [],
       openPopUp: false,
+      openWarning: false,
       currencyCode: '',
       currencyName: '',
       row: [],
@@ -66,6 +69,9 @@ class TypeOfCurrencyBlock extends React.Component {
     TypeOfCurrencylService.getTypeOfCurrency().then(result => {
       this.setState({ datas: result.data });
     });
+    CurrencyService.getCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -92,15 +98,24 @@ class TypeOfCurrencyBlock extends React.Component {
     handleDelete = (tableMeta) => {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      let test = false;
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].typeOfCurrencyId;
-      TypeOfCurrencylService.deleteTypeOfCurrency(id).then(result => {
-        this.setState({ datas: result.data });
+      console.log(id);
+      // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+      this.state.currencies.map(row => {
+        if ((row.typeOfCurrency._id) === (id)) test = true;
       });
+      if (test) this.setState({ openWarning: true });
+      else {
+        TypeOfCurrencylService.deleteTypeOfCurrency(id).then(result => {
+          this.setState({ datas: result.data });
+        });
+      }
     };
 
     handleClose = () => {
-      this.setState({ openPopUp: false });
+      this.setState({ openPopUp: false, openWarning: false });
     };
 
     handleSave = () => {
@@ -127,7 +142,7 @@ class TypeOfCurrencyBlock extends React.Component {
     render() {
       console.log(this.state);
       const {
-        columns, openPopUp, datas, currencyName, currencyCode
+        columns, openPopUp, datas, currencyName, currencyCode, openWarning
       } = this.state;
       const options = {
         filter: true,
@@ -209,6 +224,39 @@ class TypeOfCurrencyBlock extends React.Component {
                 onClick={this.handleSave}
               >
                             save
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            open={openWarning}
+            keepMounted
+            scroll="paper"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth=""
+            maxWidth=""
+          >
+            <DialogTitle id="alert-dialog-slide-title"> Operation Denied </DialogTitle>
+            <DialogContent dividers>
+              <Typography
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  opacity: 0.4,
+                  marginRight: 20,
+                  width: '100%'
+                }}
+              >
+                 This Currency is used in other module of this application
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button color="secondary" onClick={this.handleClose}>
+                Cancel
               </Button>
             </DialogActions>
           </Dialog>

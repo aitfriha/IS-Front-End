@@ -114,7 +114,7 @@ class EditContract extends React.Component {
     const { getAllCountry } = this.props;
     getAllCountry();
     // services calls
-    CurrencyService.getCurrency().then(result => {
+    CurrencyService.getFilteredCurrency().then(result => {
       this.setState({ currencies: result.data });
     });
     ContractStatusService.getContractStatus().then(result => {

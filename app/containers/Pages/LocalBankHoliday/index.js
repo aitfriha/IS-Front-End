@@ -49,6 +49,8 @@ class LocalBankHoliday extends React.Component {
   state = {
     name: '',
     code: '',
+    type: '',
+    description: '',
     startDate: new Date(),
     endDate: new Date(),
     minEndDate: new Date(),
@@ -83,6 +85,20 @@ class LocalBankHoliday extends React.Component {
     {
       label: 'Code',
       name: 'code',
+      options: {
+        filter: true
+      }
+    },
+    {
+      label: 'Type',
+      name: 'type',
+      options: {
+        filter: true
+      }
+    },
+    {
+      label: 'Description',
+      name: 'description',
       options: {
         filter: true
       }
@@ -153,6 +169,8 @@ class LocalBankHoliday extends React.Component {
     const {
       name,
       code,
+      type,
+      description,
       startDate,
       endDate,
       localBankHolidaySelected
@@ -161,6 +179,8 @@ class LocalBankHoliday extends React.Component {
       localBankHolidayId: localBankHolidaySelected.localBankHolidayId,
       name,
       code,
+      type,
+      description,
       startDate: startDate.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
       totalDays: this.calculDays()
@@ -197,6 +217,8 @@ class LocalBankHoliday extends React.Component {
       localBankHolidaySelected,
       name: localBankHolidaySelected.name,
       code: localBankHolidaySelected.code,
+      type: localBankHolidaySelected.type,
+      description: localBankHolidaySelected.description,
       startDate: new Date(localBankHolidaySelected.startDate),
       endDate: new Date(localBankHolidaySelected.endDate),
       companyId: localBankHolidaySelected.financialCompanyId,
@@ -308,15 +330,14 @@ class LocalBankHoliday extends React.Component {
     const {
       name,
       code,
+      type,
+      description,
       startDate,
       endDate,
       minEndDate,
       isStartDateError,
       isEndDateError,
-      isDialogOpen,
-      isRelated,
-      replaceLocalBankHolidayList,
-      newId
+      isDialogOpen
     } = this.state;
     console.log(allLocalBankHolidayByCompany);
     const title = brand.name + ' - Types of legal category';
@@ -348,6 +369,9 @@ class LocalBankHoliday extends React.Component {
     !isLoadingStaffContract
       && !staffContractResponse
       && this.editingPromiseResolve2(errorStaffContract);
+
+    const holidayTypes = ['Country', 'Local'];
+
     return (
       <div>
         <Helmet>
@@ -391,6 +415,31 @@ class LocalBankHoliday extends React.Component {
                 attribute="code"
               />
             </div>
+            <FormControl
+              className={classes.formControl}
+              style={{ width: '100%', marginTop: 1 }}
+            >
+              <InputLabel>Type of holiday</InputLabel>
+
+              <Select name="type" value={type} onChange={this.handleChange}>
+                {holidayTypes.map(item => (
+                  <MenuItem key={item} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              id="outlined-basic"
+              label="Description"
+              variant="outlined"
+              name="description"
+              value={description}
+              fullWidth
+              multiline
+              className={classes.textField}
+              onChange={this.handleChange}
+            />
             <div style={{ width: '100%', marginTop: 1 }}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
