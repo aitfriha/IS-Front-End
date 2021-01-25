@@ -525,7 +525,7 @@ class Commercial extends React.Component {
                       onClick: (event, rowData) => this.deleteAssignement(event, rowData)
                     },
                     {
-                      tooltip: 'import',
+                      tooltip: 'Assign',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
                     },

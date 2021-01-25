@@ -55,11 +55,18 @@ class User extends React.Component {
     this.editingPromiseResolve = () => {
     };
     this.state = {
+      firstName: '',
+      fatherFamilyName: '',
+      motherFamilyName: '',
+      userEmail: '',
       openPopUp: false,
       client: '',
+      staff: '',
       companies: [],
+      xclients: [],
       actif: false,
       company: '',
+      userPassword: '',
       columns: [
         {
           title: 'full name *',
@@ -162,22 +169,22 @@ class User extends React.Component {
             maxWidth: 140
           }
         },
-        {
+        /*        {
           title: 'status',
           field: 'userStatus',
           lookup: {
             online: 'online',
             offline: 'offline',
           },
-          /*              cellStyle: {
+                     cellStyle: {
                         width: 140,
                         maxWidth: 140
                     },
                     headerStyle: {
                         width: 140,
                         maxWidth: 140
-                    } */
-        },
+                    }
+        }, */
         {
           title: intl.formatMessage({ id: 'department' }),
           field: 'userDepartmentId',
@@ -301,6 +308,11 @@ class User extends React.Component {
       this.setState({ openPopUp: false });
     };
 
+  handleChangePassword= (event) => {
+    this.setState({ userPassword: event.target.value });
+    console.log('xxxxxxxxxxxxxxxxxxxxx');
+  };
+
     handleChangeActif = (event) => {
       const { actif } = this.state;
       this.setState({ actif: !actif });
@@ -309,82 +321,132 @@ class User extends React.Component {
     handleChangeCompany = (ev) => {
       const { allClients } = this.props;
       this.setState({ [ev.target.name]: ev.target.value });
-      console.log(ev.target.value);
-      StaffService.getAllStaffsByCompany(ev.target.value);
+      StaffService.getAllStaffsByCompany(ev.target.value).then(result => {
+        console.log(result.data);
+        this.setState({ xclients: result.data });
+      });
     }
 
     handleChangeStaff= (ev) => {
-      console.log('hello');
+      const { xclients } = this.state;
+      this.setState({ [ev.target.name]: ev.target.value });
+      for (const key in xclients) {
+        if (xclients[key].staffId === ev.target.value) {
+          console.log(xclients[key]);
+          this.setState({ firstName: xclients[key].firstName });
+          this.setState({ fatherFamilyName: xclients[key].fatherFamilyName });
+          this.setState({ motherFamilyName: xclients[key].motherFamilyName });
+          this.setState({ userEmail: xclients[key].companyEmail });
+          break;
+        }
+      }
     }
 
-    render() {
-      const {
-        location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients
-      } = this.props;
-      const {
-        columns, openPopUp, client, actif, companies,company
-      } = this.state;
+  addUser = () => {
+    const {
+      userEmail, userPassword, firstName, fatherFamilyName, motherFamilyName
+    } = this.state;
+    const newData = {
+      userCompanyId: '37',
+      userNationalId: '37',
+      userPassportId: '37',
+      userEmail:'aitfriha.zaid@gmail.com',
+      userPassword,
+      userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
+      userMobileNumber: '3711111',
+      userStatus: 'status',
+      userCountryLanguage: 'en',
+      userIsActive: false,
+      userRolesIds: ['ADMIN'],
+      userDepartment: '5f0c320c8ebd876a33b2a66e'
+    };
+    const { addUser, getAllUsers } = this.props;
+    new Promise((resolve) => {
+      addUser(newData);
+      this.editingPromiseResolve = resolve;
+    }).then((result) => {
+      if (isString(result)) {
+        // Fetch data
+        getAllUsers();
+        notification('success', result);
+      } else {
+        notification('danger', result);
+      }
+    });
+  }
+
+  render() {
+    const {
+      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients
+    } = this.props;
+    const {
+      columns, openPopUp, client, actif, companies, company, xclients, staff, userPassword,
+      firstName,
+      fatherFamilyName,
+      motherFamilyName,
+      userEmail,
+    } = this.state;
       // Sent resolve to editing promises
-      (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
-      (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
+    (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
+    (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
 
-      return (
-        <div>
-          <MaterialTable
-            components={{
-              EditField: fieldProps => {
-                const {
-                  columnDef: { lookup },
-                } = fieldProps;
-                if (lookup && fieldProps.columnDef.field === 'userRolesIds') {
-                  return (
+    return (
+      <div>
+        <MaterialTable
+          components={{
+            EditField: fieldProps => {
+              const {
+                columnDef: { lookup },
+              } = fieldProps;
+              if (lookup && fieldProps.columnDef.field === 'userRolesIds') {
+                return (
 
 
-                    <Select
-                      multiple
-                      value={fieldProps.value ? fieldProps.value : []}
-                      onChange={e => fieldProps.onChange(e.target.value)}
-                      input={<Input />}
-                      renderValue={(selected) => selected.join(', ')}
-                    >
-                      {Object.values(fieldProps.columnDef.lookup).map((name) => (
-                        <MenuItem key={name} value={name}>
-                          {name}
-                        </MenuItem>
-                      ))}
-                    </Select>
+                  <Select
+                    multiple
+                    value={fieldProps.value ? fieldProps.value : []}
+                    onChange={e => fieldProps.onChange(e.target.value)}
+                    input={<Input />}
+                    renderValue={(selected) => selected.join(', ')}
+                  >
+                    {Object.values(fieldProps.columnDef.lookup).map((name) => (
+                      <MenuItem key={name} value={name}>
+                        {name}
+                      </MenuItem>
+                    ))}
+                  </Select>
 
-                  );
-                }
-                return <MTableEditField {...{ ...fieldProps, value: fieldProps.value || '' }} />;
-              },
-            }}
-            title=""
-            columns={columns}
-            data={allUsers && allUsers}
-            options={{
-              exportFileName: intl.formatMessage({ id: 'users' }),
-              filtering: true,
-              grouping: true,
-              exportButton: true,
-              pageSize: 10,
-              actionsCellStyle: {
-                paddingLeft: 30,
-                width: 140,
-                maxWidth: 140,
-              },
-            }}
-            actions={[
-              {
-                tooltip: 'Add',
-                icon: 'person_add',
-                onClick: (evt, data) => this.selectedRows(data),
-                isFreeAction: true,
+                );
               }
-            ]}
+              return <MTableEditField {...{ ...fieldProps, value: fieldProps.value || '' }} />;
+            },
+          }}
+          title=""
+          columns={columns}
+          data={allUsers && allUsers}
+          options={{
+            exportFileName: intl.formatMessage({ id: 'users' }),
+            filtering: true,
+            grouping: true,
+            exportButton: true,
+            pageSize: 10,
+            actionsCellStyle: {
+              paddingLeft: 30,
+              width: 140,
+              maxWidth: 140,
+            },
+          }}
+          actions={[
+            {
+              tooltip: 'Add',
+              icon: 'person_add',
+              onClick: (evt, data) => this.selectedRows(data),
+              isFreeAction: true,
+            }
+          ]}
 
-            editable={{
-              /* onRowAdd: newData => new Promise((resolve) => {
+          editable={{
+            /* onRowAdd: newData => new Promise((resolve) => {
                             addUser(newData);
                             this.editingPromiseResolve = resolve;
                         }).then((result) => {
@@ -396,150 +458,152 @@ class User extends React.Component {
                                 notification('danger', result);
                             }
                         }), */
-              onRowUpdate: (newData) => new Promise((resolve) => {
-                // newData.userDepartment = newData.userDepartment.departmentCode;
-                // update User action
-                updateUser(newData);
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllUsers();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-              onRowDelete: oldData => new Promise((resolve) => {
-                // delete User action
-                deleteUser(oldData.userId);
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllUsers();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-            }}
-          />
-          <Dialog
-            open={openPopUp}
-            keepMounted
-            scroll="body"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth="md"
-            maxWidth="md"
-          >
-            <DialogTitle id="alert-dialog-slide-title"> Add new User </DialogTitle>
-            {/*   style={{ textAlign: 'center' }} */}
-            <DialogContent dividers>
-              <div>
-                <FormControl fullWidth="false" required style={{ width: '50%' }}>
-                  <InputLabel>Select Client Company Name</InputLabel>
-                  <Select
-                    name="company"
-                    value={company}
-                    onChange={this.handleChangeCompany}
-                  >
-                    {
-                      companies.map((clt) => (
-                        <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
-                          {clt.name}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </div>
-              <div>
-                <FormControl fullWidth="false" required style={{ width: '50%' }}>
-                  <InputLabel>Select the Staff associated</InputLabel>
-                  <Select
-                    name="staff"
-                    value={client}
-                    onChange={this.handleChangeStaff}
-                  >
-                    {
-                      allClients.map((clt) => (
-                        <MenuItem key={clt.clientId} value={clt.clientId}>
-                          {clt.name}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
-                </FormControl>
-              </div>
-              <Chip
-                style={{ marginTop: '9px' }}
-                label="Additional information"
-                avatar={<Avatar>P</Avatar>}
-                color="primary"
-              />
-              <Divider
-                variant="fullWidth"
-                style={{ marginBottom: '10px', marginTop: '10px' }}
-              />
-              <div>
-                <FormControl component="fieldset">
-                  <TextField id="standard-basic" label="first name" />
-                </FormControl>
-&nbsp;
-                <FormControl component="fieldset">
-                  <TextField id="standard-basic" label="Father Family Name" />
-                </FormControl>
-&nbsp;
-                <FormControl component="fieldset">
-                  <TextField id="standard-basic" label="Mother Family Name" />
-                </FormControl>
-&nbsp;
-                <FormControl component="fieldset">
-                  <TextField id="standard-basic" label="User Email" />
-                </FormControl>
-              </div>
-              <br />
-              <div>
-                <FormControl component="fieldset">
-                  <FormControlLabel
-                    control={(
-                      <Checkbox
-                        checked={actif}
-                        onChange={this.handleChangeActif}
-                        name="checkedB"
-                        color="primary"
-                      />
-                    )}
-                    label="Actif"
-                  />
-                </FormControl>
-              </div>
-              <div>
-                <FormControl component="fieldset">
-                  <TextField id="standard-basic" label="password" />
-                </FormControl>
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleCloseDelete}>
+            onRowUpdate: (newData) => new Promise((resolve) => {
+              // newData.userDepartment = newData.userDepartment.departmentCode;
+              // update User action
+              console.log(newData);
+              return;
+              updateUser(newData);
+              this.editingPromiseResolve = resolve;
+            }).then((result) => {
+              if (isString(result)) {
+                // Fetch data
+                getAllUsers();
+                notification('success', result);
+              } else {
+                notification('danger', result);
+              }
+            }),
+            onRowDelete: oldData => new Promise((resolve) => {
+              // delete User action
+              deleteUser(oldData.userId);
+              this.editingPromiseResolve = resolve;
+            }).then((result) => {
+              if (isString(result)) {
+                // Fetch data
+                getAllUsers();
+                notification('success', result);
+              } else {
+                notification('danger', result);
+              }
+            }),
+          }}
+        />
+        <Dialog
+          open={openPopUp}
+          keepMounted
+          scroll="body"
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth="md"
+          maxWidth="md"
+        >
+          <DialogTitle id="alert-dialog-slide-title"> Add new User </DialogTitle>
+          {/*   style={{ textAlign: 'center' }} */}
+          <DialogContent dividers>
+            <div>
+              <FormControl fullWidth="false" required style={{ width: '50%' }}>
+                <InputLabel>Select Client Company Name</InputLabel>
+                <Select
+                  name="company"
+                  value={company}
+                  onChange={this.handleChangeCompany}
+                >
+                  {
+                    companies.map((clt) => (
+                      <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                        {clt.name}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </div>
+            <div>
+              <FormControl fullWidth="false" required style={{ width: '50%' }}>
+                <InputLabel>Select the Staff associated</InputLabel>
+                <Select
+                  name="staff"
+                  value={staff}
+                  onChange={this.handleChangeStaff}
+                >
+                  {
+                    xclients.map((clt) => (
+                      <MenuItem key={clt.staffId} value={clt.staffId} staff={clt}>
+                        {clt.firstName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </div>
+            <Chip
+              style={{ marginTop: '9px' }}
+              label="Additional information"
+              avatar={<Avatar>A</Avatar>}
+              color="primary"
+            />
+            <Divider
+              variant="fullWidth"
+              style={{ marginBottom: '10px', marginTop: '10px' }}
+            />
+            <div>
+              <FormControl component="fieldset">
+                <TextField id="standard-basic" label="first name" value={firstName} />
+              </FormControl>
+                &nbsp;
+              <FormControl component="fieldset">
+                <TextField id="standard-basic" label="Father Family Name" value={fatherFamilyName} />
+              </FormControl>
+                &nbsp;
+              <FormControl component="fieldset">
+                <TextField id="standard-basic" label="Mother Family Name" value={motherFamilyName} />
+              </FormControl>
+                &nbsp;
+              <FormControl component="fieldset">
+                <TextField id="standard-basic" label="User Email" value={userEmail} />
+              </FormControl>
+            </div>
+            <br />
+            <div>
+              <FormControl component="fieldset">
+                <FormControlLabel
+                  control={(
+                    <Checkbox
+                      checked={actif}
+                      onChange={this.handleChangeActif}
+                      name="checkedB"
+                      color="primary"
+                    />
+                  )}
+                  label="Actif"
+                />
+              </FormControl>
+            </div>
+            <div>
+              <FormControl component="fieldset">
+                <TextField id="standard-basic" label="password" onChange={this.handleChangePassword} value={userPassword} />
+              </FormControl>
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleCloseDelete}>
                             Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.deleteConfirmeAssignement}
-              >
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.addUser}
+            >
                             Add
-              </Button>
-            </DialogActions>
-          </Dialog>
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 }
 
 

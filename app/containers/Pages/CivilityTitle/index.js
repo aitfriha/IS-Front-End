@@ -156,7 +156,7 @@ deleteConfirme= () => {
                   notification('danger', result);
                 }
               }),
-              onRowDelete: oldData => new Promise((resolve) => {
+/*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialOperationStatus action
                 deleteCivilityTitleStatus(oldData.civilityTitleId);
                 this.editingPromiseResolve = resolve;
@@ -168,7 +168,7 @@ deleteConfirme= () => {
                 } else {
                   notification('danger', result);
                 }
-              }),
+              }),*/
 
             }}
             actions={[
