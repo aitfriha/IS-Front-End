@@ -36,8 +36,10 @@ class ResetForm extends React.Component {
       <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
         <div className={classes.topBar}>
           <NavLink to="/" className={classes.brand}>
-           {/* <img src={logo} alt={brand.name} />*/} Internal Project
-           {/* {brand.name}*/}
+            {/* <img src={logo} alt={brand.name} /> */}
+            {' '}
+Internal Project
+            {/* {brand.name} */}
           </NavLink>
         </div>
         <Typography variant="h4" className={classes.title} gutterBottom>

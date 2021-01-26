@@ -70,7 +70,7 @@ class LoginForm extends React.Component {
           </NavLink>
         </Hidden>
         <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
-{/*          <Hidden smDown>
+          {/*          <Hidden smDown>
             <div className={classes.topBar}>
               <NavLink to="/" className={classes.brand}>
                 <img src={logo} alt={brand.name} />
@@ -81,14 +81,14 @@ class LoginForm extends React.Component {
                 Create new account
               </Button>
             </div>
-          </Hidden>*/}
+          </Hidden> */}
           <Typography variant="h4" className={classes.title} gutterBottom>
             Sign In
           </Typography>
-          <Typography variant="h4" className={classes.title} gutterBottom style={{fontWeight:'bold'}}>
+          <Typography variant="h4" className={classes.title} gutterBottom style={{ fontWeight: 'bold' }}>
            Sistemas Internos
           </Typography>
-{/*          <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
+          {/*          <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
             Lorem ipsum dolor sit amet
           </Typography>
           <section className={classes.socmedLogin}>
@@ -107,7 +107,7 @@ class LoginForm extends React.Component {
               </Button>
             </div>
             <ContentDivider content="Or sign in with email" />
-          </section>*/}
+          </section> */}
           <section className={classes.formWrap}>
             <form onSubmit={handleSubmit}>
               <div>

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import styles from '../../../components/Forms/user-jss';
-import ForgetForm from "../../../components/Forms/ForgetForm";
+import ForgetForm from '../../../components/Forms/ForgetForm';
 
 class ResetPassword extends React.Component {
   state = {

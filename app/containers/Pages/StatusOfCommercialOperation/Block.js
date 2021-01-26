@@ -16,13 +16,13 @@ class StatusOfCommercialOperationBlock extends React.Component {
             filter: true
           }
         },
-/*        {
+        /*        {
           name: 'statusDescription',
           label: 'Status Description',
           options: {
             filter: true
           }
-        },*/
+        }, */
         {
           label: 'Actions',
           name: ' ',
@@ -40,8 +40,9 @@ class StatusOfCommercialOperationBlock extends React.Component {
           }
         }
       ]
-    }
+    };
   }
+
   updateStatus = (rowIndex) => {
     const { onSelected, status } = this.props;
     onSelected(status[rowIndex]);

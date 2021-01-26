@@ -359,7 +359,6 @@ class Commercial extends React.Component {
   };
 
   deleteAssignement= (event, rowData) => {
-
     this.setState({ openPopUpDelete: true });
     this.setState({ clientIdToDelete: rowData[0].clientId });
   };

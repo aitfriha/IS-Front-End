@@ -2,8 +2,8 @@
 const ENDPOINTS = {
   AUTH: 'http://localhost:9000/api/auth',
   TRANSLATION: {
-    DEFAULT_SENTENCE: '/api/translation/defaultSentence',
-    TRANSLATE_SENTENCE: '/api/translation/translateSentence'
+    DEFAULT_SENTENCE: 'http://localhost:9000/api/translation/defaultSentence',
+    TRANSLATE_SENTENCE: 'http://localhost:9000/api/translation/translateSentence'
   },
   COUNTRY: 'http://localhost:9000/api/county',
   STATECOUNTRY: 'http://localhost:9000/api/stateCountry',
@@ -54,7 +54,24 @@ const ENDPOINTS = {
     USER: 'http://localhost:9000/api/user',
     ROLE: 'http://localhost:9000/api/role'
   },
-  TEST: '/api/test/t'
+  TEST: '/api/test/t',
+
+  ASSIGNMENT_TYPE: 'http://localhost:9000/api/assignmentType',
+  BUSINESS_EXPENSE_TYPES: 'http://localhost:9000/api/businessExpenseTypes',
+  STAFF_EXPENSE_TYPES: 'http://localhost:9000/api/staffExpenseTypes',
+  PERSON_TYPE: 'http://localhost:9000/api/personType',
+  VOUCHER_TYPE: 'http://localhost:9000/api/voucherType',
+  EXPENSE_STATUS: 'http://localhost:9000/api/expenseStatus',
+  EXPENSE_EMAIL_ADDRESS: 'http://localhost:9000/api/expenseEmailAddress',
+  STAFF_ASSIGNMENT: 'http://localhost:9000/api/staffAssignment',
+  TRAVEL_REQUEST: 'http://localhost:9000/api/travelRequest',
+  EXPENSE: 'http://localhost:9000/api/expense',
+  CURRENCY: 'http://localhost:9000/api/currency',
+  CURRENCY_TYPE: 'http://localhost:9000/api/typeOfCurrency',
+  REQUEST_STATUS: 'http://localhost:9000/api/requestStatus',
+  TRAVEL_REQUEST_EMAIL_ADDRESS: 'http://localhost:9000/api/travelRequestEmailAddress',
+  WEEKLY_REPORT: 'http://localhost:9000/api/weeklyReport',
+  WEEKLY_REPORT_CONFIG: 'http://localhost:9000/api/weeklyReportConfig',
 };
 
 export default ENDPOINTS;

@@ -350,7 +350,7 @@ class User extends React.Component {
       userCompanyId: '37',
       userNationalId: '37',
       userPassportId: '37',
-      userEmail:'aitfriha.zaid@gmail.com',
+      userEmail: 'aitfriha.zaid@gmail.com',
       userPassword,
       userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
       userMobileNumber: '3711111',
