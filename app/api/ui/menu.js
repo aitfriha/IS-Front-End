@@ -512,12 +512,12 @@ module.exports = [
       // },
       {
         key: 'users',
-        name: 'users',
+        name: 'Users Management',
         link: '/app/data/administration/users'
       },
       {
         key: 'roles_abilities',
-        name: 'roles abilities',
+        name: 'Roles Management',
         link: '/app/data/administration/roles_abilities'
       } /* ,
     {

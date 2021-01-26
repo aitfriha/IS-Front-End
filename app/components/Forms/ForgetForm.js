@@ -23,7 +23,7 @@ const email = value => (
     : undefined
 );
 
-class ResetForm extends React.Component {
+class ForgetForm extends React.Component {
   render() {
     const {
       classes,
@@ -34,19 +34,17 @@ class ResetForm extends React.Component {
     } = this.props;
     return (
       <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
-        <div className={classes.topBar}>
+        {/*        <div className={classes.topBar}>
           <NavLink to="/" className={classes.brand}>
-            {/* <img src={logo} alt={brand.name} /> */}
-            {' '}
-Internal Project
-            {/* {brand.name} */}
+            <img src={logo} alt={brand.name} /> Internal Project
+            {brand.name}
           </NavLink>
-        </div>
+        </div> */}
         <Typography variant="h4" className={classes.title} gutterBottom>
-          Reset Password
+          forget Password
         </Typography>
         <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
-         change you password
+            Did you forget your password ?
         </Typography>
         <section className={classes.formWrap}>
           <form onSubmit={handleSubmit}>
@@ -55,8 +53,8 @@ Internal Project
                 <Field
                   name="email"
                   component={TextFieldRedux}
-                  placeholder="New password"
-                  label="new password"
+                  placeholder="email"
+                  label="email"
                   required
                   validate={[required, email]}
                   className={classes.field}
@@ -76,7 +74,7 @@ Internal Project
   }
 }
 
-ResetForm.propTypes = {
+ForgetForm.propTypes = {
   classes: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   pristine: PropTypes.bool.isRequired,
@@ -87,7 +85,7 @@ ResetForm.propTypes = {
 const ResetFormReduxed = reduxForm({
   form: 'immutableEResetFrm',
   enableReinitialize: true,
-})(ResetForm);
+})(ForgetForm);
 
 const reducer = 'ui';
 const RegisterFormMapped = connect(

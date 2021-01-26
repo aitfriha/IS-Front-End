@@ -18,6 +18,8 @@ class StaffService {
 
   getAdministrativeNotAssignedStaffsByCompany = companyId => axios.get(`${API}/staff/staff-no-assigned-administrative-by-company/${companyId}`);
 
+  getAllStaffsByCompany = companyId => axios.get(`${API}/staff/by-company/${companyId}`);
+
   saveStaff = data => axios.post(`${API}/staff/staff-add`, data, config);
 
   updateStaff = (staffId, cityId, data) => axios.put(

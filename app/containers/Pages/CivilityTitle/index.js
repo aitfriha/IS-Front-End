@@ -8,13 +8,15 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { isString } from 'lodash';
+import {
+  Button, Dialog, DialogActions, DialogContent, DialogTitle
+} from '@material-ui/core';
 import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
   addCivilityTitleStatus, deleteCivilityTitleStatus,
   getAllCivilityTitleStatus, updateCivilityTitleStatus
 } from '../../../redux/civilityTitle/actions';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
 
 const styles = {};
 
@@ -51,25 +53,25 @@ class StatusOfCommercialOperation extends React.Component {
     const { getAllCivilityTitleStatus } = this.props;
     getAllCivilityTitleStatus();
   }
+
 delete = (event, rowData) => {
-this.setState({rowDataCivilityTitleId:rowData.civilityTitleId})
-if(rowData.related==true){
-  this.setState({message:'this title type is related to contact !'});
-}
-else {
-  this.setState({message:'Are you sure you want to delete ?'});
-}
-  this.setState({openPopUp:true});
+  this.setState({ rowDataCivilityTitleId: rowData.civilityTitleId });
+  if (rowData.related == true) {
+    this.setState({ message: 'this title type is related to contact !' });
+  } else {
+    this.setState({ message: 'Are you sure you want to delete ?' });
+  }
+  this.setState({ openPopUp: true });
 }
 
 handleClose = (event, rowData) => {
-    this.setState({openPopUp:false});
-  }
+  this.setState({ openPopUp: false });
+}
 
 deleteConfirme= () => {
-    const {rowDataCivilityTitleId} = this.state;
+  const { rowDataCivilityTitleId } = this.state;
   console.log(rowDataCivilityTitleId);
-  const { deleteCivilityTitleStatus,getAllCivilityTitleStatus } = this.props;
+  const { deleteCivilityTitleStatus, getAllCivilityTitleStatus } = this.props;
   new Promise((resolve) => {
     // delete CommercialOperationStatus action
     deleteCivilityTitleStatus(rowDataCivilityTitleId);
@@ -82,81 +84,81 @@ deleteConfirme= () => {
     } else {
       notification('danger', result);
     }
-  })
-  this.setState({openPopUp:false});
+  });
+  this.setState({ openPopUp: false });
 };
 
-  render() {
-    const title = brand.name + ' - Status Of Commercial Operation';
-    const description = brand.desc;
-    const {
-      columns,openPopUp,message
-    } = this.state;
-    const {
-      // eslint-disable-next-line no-shadow
-      errors, isLoading, civilityTitleResponse, addCivilityTitleStatus, getAllCivilityTitleStatus, allCivilityTitles, updateCivilityTitleStatus, deleteCivilityTitleStatus
-    } = this.props;
-    (!isLoading && civilityTitleResponse) && this.editingPromiseResolve(civilityTitleResponse);
-    (!isLoading && !civilityTitleResponse) && this.editingPromiseResolve(errors);
-    return (
-      <div>
-        <Helmet>
-          <title>{title}</title>
-          <meta name="description" content={description} />
-          <meta property="og:title" content={title} />
-          <meta property="og:description" content={description} />
-          <meta property="twitter:title" content={title} />
-          <meta property="twitter:description" content={description} />
-        </Helmet>
-        <PapperBlock title="Title type Management" desc="" noMargin>
-          {/* <StatusOfCommercialOperationBlock onSelected={this.handleChangeSelectedStatus} status={status} /> */}
-          <MaterialTable
-            title=""
-            columns={columns}
-            data={allCivilityTitles && allCivilityTitles}
-            options={{
-              exportFileName: 'title type List',
-              // filtering: true,
-              // draggable: true,
-              exportButton: true,
-              pageSize: 10,
-              // grouping: true,
-              actionsCellStyle: {
+render() {
+  const title = brand.name + ' - Status Of Commercial Operation';
+  const description = brand.desc;
+  const {
+    columns, openPopUp, message
+  } = this.state;
+  const {
+    // eslint-disable-next-line no-shadow
+    errors, isLoading, civilityTitleResponse, addCivilityTitleStatus, getAllCivilityTitleStatus, allCivilityTitles, updateCivilityTitleStatus, deleteCivilityTitleStatus
+  } = this.props;
+  (!isLoading && civilityTitleResponse) && this.editingPromiseResolve(civilityTitleResponse);
+  (!isLoading && !civilityTitleResponse) && this.editingPromiseResolve(errors);
+  return (
+    <div>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+      </Helmet>
+      <PapperBlock title="Title type Management" desc="" noMargin>
+        {/* <StatusOfCommercialOperationBlock onSelected={this.handleChangeSelectedStatus} status={status} /> */}
+        <MaterialTable
+          title=""
+          columns={columns}
+          data={allCivilityTitles && allCivilityTitles}
+          options={{
+            exportFileName: 'title type List',
+            // filtering: true,
+            // draggable: true,
+            exportButton: true,
+            pageSize: 10,
+            // grouping: true,
+            actionsCellStyle: {
               //  paddingLeft: 30,
-                // width: 120,
-                //   maxWidth: 120,
-              },
-              actionsColumnIndex: -1
-            }}
+              // width: 120,
+              //   maxWidth: 120,
+            },
+            actionsColumnIndex: -1
+          }}
 
-            editable={{
-              onRowAdd: newData => new Promise((resolve) => {
-                // add measurement unit action
-                addCivilityTitleStatus(newData);
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllCivilityTitleStatus();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-              onRowUpdate: (newData) => new Promise((resolve) => {
-                // update CommercialOperationStatus unit action
-                updateCivilityTitleStatus(newData);
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllCivilityTitleStatus();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-              onRowDelete: oldData => new Promise((resolve) => {
+          editable={{
+            onRowAdd: newData => new Promise((resolve) => {
+              // add measurement unit action
+              addCivilityTitleStatus(newData);
+              this.editingPromiseResolve = resolve;
+            }).then((result) => {
+              if (isString(result)) {
+                // Fetch data
+                getAllCivilityTitleStatus();
+                notification('success', result);
+              } else {
+                notification('danger', result);
+              }
+            }),
+            onRowUpdate: (newData) => new Promise((resolve) => {
+              // update CommercialOperationStatus unit action
+              updateCivilityTitleStatus(newData);
+              this.editingPromiseResolve = resolve;
+            }).then((result) => {
+              if (isString(result)) {
+                // Fetch data
+                getAllCivilityTitleStatus();
+                notification('success', result);
+              } else {
+                notification('danger', result);
+              }
+            }),
+            /*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialOperationStatus action
                 deleteCivilityTitleStatus(oldData.civilityTitleId);
                 this.editingPromiseResolve = resolve;
@@ -168,52 +170,52 @@ deleteConfirme= () => {
                 } else {
                   notification('danger', result);
                 }
-              }),
+              }), */
 
-            }}
-            actions={[
-              {
-                icon: 'delete',
-                tooltip: 'Delete User',
-                onClick: (event, rowData) => this.delete(event, rowData)
-              }
-            ]}
-          />
-        </PapperBlock>
-        <Dialog
-            open={openPopUp}
-            keepMounted
-            scroll="body"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth=""
-            maxWidth=""
-        >
-          <DialogTitle id="alert-dialog-slide-title"> Delete title type </DialogTitle>
-          <DialogContent dividers>
-            {message !== 'Are you sure you want to delete ?' ? (
-                <p style={{ color: 'red' }}>{message}</p>
-            ) : (
-                <p>{message}</p>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button color="secondary" onClick={this.handleClose}>
+          }}
+          actions={[
+            {
+              icon: 'delete',
+              tooltip: 'Delete User',
+              onClick: (event, rowData) => this.delete(event, rowData)
+            }
+          ]}
+        />
+      </PapperBlock>
+      <Dialog
+        open={openPopUp}
+        keepMounted
+        scroll="body"
+        onClose={this.handleClose}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+        fullWidth=""
+        maxWidth=""
+      >
+        <DialogTitle id="alert-dialog-slide-title"> Delete title type </DialogTitle>
+        <DialogContent dividers>
+          {message !== 'Are you sure you want to delete ?' ? (
+            <p style={{ color: 'red' }}>{message}</p>
+          ) : (
+            <p>{message}</p>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button color="secondary" onClick={this.handleClose}>
               Cancel
-            </Button>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={this.deleteConfirme}
-            >
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={this.deleteConfirme}
+          >
               Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
-  }
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
 }
 StatusOfCommercialOperation.propTypes = {
   // eslint-disable-next-line react/no-unused-prop-types

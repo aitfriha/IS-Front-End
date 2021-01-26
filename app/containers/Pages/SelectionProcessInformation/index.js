@@ -76,29 +76,41 @@ class SelectionProcessInformation extends React.Component {
     firstName: '',
     fatherFamilyName: '',
     motherFamilyName: '',
+    profile: '',
     testDate: new Date(),
     energy: '',
     adaptability: '',
     integrity: '',
     interpersonalSensitivity: '',
-    economicProposal: 0,
-    economicProposalInEuro: 0.0,
+    economicCandidateProposal: 0,
+    economicCandidateProposalInEuro: 0.0,
     economicClaimsValue: 0,
     economicClaimsValueInEuro: 0.0,
     economicClaimsRange1: 0,
     economicClaimsRange1InEuro: 0,
     economicClaimsRange2: 0,
     economicClaimsRange2InEuro: 0,
-    proposalType: '',
-    salaryType: '',
+    candidateProposalType: '',
+    candidateSalaryType: '',
     economicClaimsType: '',
+    economicCompanyProposal: 0,
+    economicCompanyProposalInEuro: 0.0,
+    objectives: 0,
+    objectivesInEuro: 0.0,
+    companyProposalType: '',
+    companySalaryType: '',
     checkedKnowledges: [],
     experiences: [],
     economicProposalDoc: {},
     curriculumDoc: {},
     attitudeTestDoc: {},
     currencies: [],
-    currency: ''
+    currency: '',
+    allSelectionProcesses: [],
+    filteredSelectionProcesses: [],
+    filterCheckedKnowledges: [],
+    filterExperiences: [],
+    isFilterDialogOpen: false
   };
 
   editingPromiseResolve = () => {};
@@ -135,6 +147,15 @@ class SelectionProcessInformation extends React.Component {
     {
       name: 'motherFamilyName',
       label: 'Mother Family Name',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      name: 'profile',
+      label: 'Profile',
       options: {
         filter: true,
         setCellProps: () => this.setCellProps(),
@@ -187,6 +208,42 @@ class SelectionProcessInformation extends React.Component {
       }
     },
     {
+      label: 'Candidate Proposal Type',
+      name: 'candidateProposalType',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Candidate Salary Type',
+      name: 'candidateSalaryType',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Economic Candidate Proposal',
+      name: 'economicCandidateProposal',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Economic Candidate Proposal (€)',
+      name: 'economicCandidateProposalInEuro',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
       label: 'Economic Claims Type',
       name: 'economicClaimsType',
       options: {
@@ -204,9 +261,28 @@ class SelectionProcessInformation extends React.Component {
         setCellHeaderProps: () => this.setCellHeaderProps()
       }
     },
+
+    {
+      label: 'Economic Claims Value (€)',
+      name: 'economicClaimsValueInEuro',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
     {
       label: 'Economic Claims Range 1',
       name: 'economicClaimsRange1',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Economic Claims Range 1 (€)',
+      name: 'economicClaimsRange1InEuro',
       options: {
         filter: true,
         setCellProps: () => this.setCellProps(),
@@ -223,8 +299,8 @@ class SelectionProcessInformation extends React.Component {
       }
     },
     {
-      label: 'Economic Proposal',
-      name: 'economicProposal',
+      label: 'Economic Claims Range 2 (€)',
+      name: 'economicClaimsRange2InEuro',
       options: {
         filter: true,
         setCellProps: () => this.setCellProps(),
@@ -232,8 +308,8 @@ class SelectionProcessInformation extends React.Component {
       }
     },
     {
-      label: 'Proposal Type',
-      name: 'proposalType',
+      label: 'Company Proposal Type',
+      name: 'companyProposalType',
       options: {
         filter: true,
         setCellProps: () => this.setCellProps(),
@@ -241,8 +317,45 @@ class SelectionProcessInformation extends React.Component {
       }
     },
     {
-      label: 'Salary Type',
-      name: 'salaryType',
+      label: 'Company Salary Type',
+      name: 'companySalaryType',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Economic Company Proposal',
+      name: 'economicCompanyProposal',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Economic Company Proposal (€)',
+      name: 'economicCompanyProposalInEuro',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+    {
+      label: 'Company Objectives',
+      name: 'objectives',
+      options: {
+        filter: true,
+        setCellProps: () => this.setCellProps(),
+        setCellHeaderProps: () => this.setCellHeaderProps()
+      }
+    },
+
+    {
+      label: 'Company Objectives (€)',
+      name: 'objectivesInEuro',
       options: {
         filter: true,
         setCellProps: () => this.setCellProps(),
@@ -373,9 +486,57 @@ class SelectionProcessInformation extends React.Component {
     } = this.props;
     changeTheme('blueCyanTheme');
     getAllSelectionTypeEvaluation();
-    getAllSelectionProcessInformation();
     CurrencyService.getCurrency().then(({ data }) => {
       this.setState({ currencies: data });
+    });
+    const promise = new Promise(resolve => {
+      getAllSelectionProcessInformation();
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      const allSelectionProcesses = [];
+      this.props.allSelectionProcessInformation.forEach(process => {
+        const factor = process.changeFactor;
+        const economicCandidateProposalInEuro = process.economicCandidateProposal * factor;
+        let economicClaimsValueInEuro = process.economicClaimsValue * factor;
+        let economicClaimsRange1InEuro = process.economicClaimsRange1 * factor;
+        let economicClaimsRange2InEuro = process.economicClaimsRange2 * factor;
+        const economicCompanyProposalInEuro = process.economicCompanyProposal * factor;
+        const objectivesInEuro = process.objectives * factor;
+        if (process.economicClaimsType === 'Number') {
+          economicClaimsRange1InEuro = '-';
+          economicClaimsRange2InEuro = '-';
+        } else {
+          economicClaimsValueInEuro = '-';
+        }
+        const newProcess = {
+          ...process,
+          economicCandidateProposalInEuro: economicCandidateProposalInEuro.toFixed(
+            5
+          ),
+          economicClaimsValueInEuro:
+            process.economicClaimsType === 'Number'
+              ? economicClaimsValueInEuro.toFixed(5)
+              : economicClaimsValueInEuro,
+          economicClaimsRange1InEuro:
+            process.economicClaimsType === 'Range'
+              ? economicClaimsRange1InEuro.toFixed(5)
+              : economicClaimsRange1InEuro,
+          economicClaimsRange2InEuro:
+            process.economicClaimsType === 'Range'
+              ? economicClaimsRange2InEuro.toFixed(5)
+              : economicClaimsRange2InEuro,
+          economicCompanyProposalInEuro: economicCompanyProposalInEuro.toFixed(
+            5
+          ),
+          objectivesInEuro: objectivesInEuro.toFixed(5)
+        };
+        allSelectionProcesses.push(newProcess);
+      });
+      this.setState({
+        allSelectionProcesses,
+        filteredSelectionProcesses: allSelectionProcesses
+      });
     });
   }
 
@@ -399,10 +560,6 @@ class SelectionProcessInformation extends React.Component {
     }
   });
 
-  handleChange = ev => {
-    this.setState({ [ev.target.name]: ev.target.value });
-  };
-
   handleUpdate = () => {
     const {
       updateSelectionProcessInformation,
@@ -413,18 +570,23 @@ class SelectionProcessInformation extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
+      profile,
       testDate,
       energy,
       adaptability,
       integrity,
       interpersonalSensitivity,
-      economicProposal,
+      economicCandidateProposal,
       economicClaimsValue,
       economicClaimsRange1,
       economicClaimsRange2,
       economicClaimsType,
-      proposalType,
-      salaryType,
+      candidateProposalType,
+      candidateSalaryType,
+      economicCompanyProposal,
+      objectives,
+      companyProposalType,
+      companySalaryType,
       checkedKnowledges,
       experiences,
       economicProposalDoc,
@@ -438,12 +600,13 @@ class SelectionProcessInformation extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
+      profile,
       testDate: testDate.toISOString().slice(0, 10),
       energy,
       adaptability,
       integrity,
       interpersonalSensitivity,
-      economicProposal,
+      economicCandidateProposal,
       economicClaimsValue:
         economicClaimsType === 'Number' ? economicClaimsValue : '-',
       economicClaimsRange1:
@@ -451,8 +614,12 @@ class SelectionProcessInformation extends React.Component {
       economicClaimsRange2:
         economicClaimsType === 'Range' ? economicClaimsRange2 : '-',
       economicClaimsType,
-      proposalType,
-      salaryType,
+      candidateProposalType,
+      candidateSalaryType,
+      economicCompanyProposal,
+      objectives,
+      companyProposalType,
+      companySalaryType,
       knowledgeIdList: checkedKnowledges,
       experiences,
       currencyId: currency
@@ -520,13 +687,18 @@ class SelectionProcessInformation extends React.Component {
     )[0];
     const factor = parseFloat(selectionProcessInformationSelected.changeFactor);
     console.log(factor);
-    const economicProposalInEuro = parseFloat(selectionProcessInformationSelected.economicProposal) * factor;
+    const economicCandidateProposalInEuro = parseFloat(
+      selectionProcessInformationSelected.economicCandidateProposal
+    ) * factor;
     const economicClaimsValueInEuro = parseFloat(selectionProcessInformationSelected.economicClaimsValue)
       * factor;
     const economicClaimsRange1InEuro = parseFloat(selectionProcessInformationSelected.economicClaimsRange1)
       * factor;
     const economicClaimsRange2InEuro = parseFloat(selectionProcessInformationSelected.economicClaimsRange2)
       * factor;
+    const economicCompanyProposalInEuro = parseFloat(selectionProcessInformationSelected.economicCompanyProposal)
+      * factor;
+    const objectivesInEuro = parseFloat(selectionProcessInformationSelected.objectives) * factor;
     const checkedKnowledges = [];
     selectionProcessInformationSelected.knowledge.forEach(elem => {
       checkedKnowledges.push(elem._id);
@@ -543,8 +715,9 @@ class SelectionProcessInformation extends React.Component {
       integrity: selectionProcessInformationSelected.integrity,
       interpersonalSensitivity:
         selectionProcessInformationSelected.interpersonalSensitivity,
-      economicProposal: selectionProcessInformationSelected.economicProposal,
-      economicProposalInEuro,
+      economicCandidateProposal:
+        selectionProcessInformationSelected.economicCandidateProposal,
+      economicCandidateProposalInEuro,
       economicClaimsValue:
         selectionProcessInformationSelected.economicClaimsValue,
       economicClaimsValueInEuro,
@@ -554,8 +727,18 @@ class SelectionProcessInformation extends React.Component {
       economicClaimsRange2:
         selectionProcessInformationSelected.economicClaimsRange2,
       economicClaimsRange2InEuro,
-      proposalType: selectionProcessInformationSelected.proposalType,
-      salaryType: selectionProcessInformationSelected.salaryType,
+      economicCompanyProposal:
+        selectionProcessInformationSelected.economicCompanyProposal,
+      economicCompanyProposalInEuro,
+      objectives: selectionProcessInformationSelected.objectives,
+      objectivesInEuro,
+      candidateProposalType:
+        selectionProcessInformationSelected.candidateProposalType,
+      candidateSalaryType:
+        selectionProcessInformationSelected.candidateSalaryType,
+      companyProposalType:
+        selectionProcessInformationSelected.companyProposalType,
+      companySalaryType: selectionProcessInformationSelected.companySalaryType,
       economicClaimsType:
         selectionProcessInformationSelected.economicClaimsType,
       checkedKnowledges,
@@ -616,7 +799,8 @@ class SelectionProcessInformation extends React.Component {
       isOpenKnowledge: false,
       selectionProcessInformationSelected: null,
       doc: {},
-      isDeleteDialogOpen: false
+      isDeleteDialogOpen: false,
+      isFilterDialogOpen: false
     });
   };
 
@@ -703,10 +887,12 @@ class SelectionProcessInformation extends React.Component {
     const { name } = ev.target;
     if (
       [
-        'economicProposal',
+        'economicCandidateProposal',
         'economicClaimsValue',
         'economicClaimsRange1',
-        'economicClaimsRange2'
+        'economicClaimsRange2',
+        'economicCompanyProposal',
+        'objectives'
       ].includes(name)
     ) {
       if (currency !== '') {
@@ -747,6 +933,64 @@ class SelectionProcessInformation extends React.Component {
     });
   };
 
+  handleChangeFilterCheked = event => {
+    const { filterCheckedKnowledges, filterExperiences } = this.state;
+    const { name } = event.target;
+    const filterCheckedKnowledgesList = JSON.parse(
+      JSON.stringify(filterCheckedKnowledges)
+    );
+    const filterExperiencesList = JSON.parse(JSON.stringify(filterExperiences));
+    if (event.target.checked) {
+      filterCheckedKnowledgesList.push(name);
+      filterExperiencesList.push(0);
+    } else {
+      const index = filterCheckedKnowledgesList.indexOf(name);
+      console.log(index);
+      filterCheckedKnowledgesList.splice(index, 1);
+      filterExperiencesList.splice(index, 1);
+    }
+    console.log(filterExperiencesList);
+    this.setState({
+      filterCheckedKnowledges: filterCheckedKnowledgesList,
+      filterExperiences: filterExperiencesList
+    });
+  };
+
+  updateTableData = () => {
+    const {
+      filterCheckedKnowledges,
+      filterExperiences,
+      allSelectionProcesses
+    } = this.state;
+    let processesToCheck = JSON.parse(JSON.stringify(allSelectionProcesses));
+    let filteredProcessesList = [];
+    filterCheckedKnowledges.forEach((elem, index) => {
+      console.log(processesToCheck);
+      filteredProcessesList = processesToCheck.filter(process => {
+        console.log(process.knowledge);
+        console.log(elem);
+        console.log(process.knowledge.some(obj => obj._id === elem));
+        const objIndex = process.knowledge.findIndex(obj => obj._id === elem);
+        //
+        if (filterExperiences[index] === 'all') {
+          return process.knowledge.some(obj => obj._id === elem);
+        }
+        return (
+          process.knowledge.some(obj => obj._id === elem)
+          && Number(process.experiences[objIndex])
+            === Number(filterExperiences[index])
+        );
+      });
+      processesToCheck = JSON.parse(JSON.stringify(filteredProcessesList));
+      console.log(filteredProcessesList);
+    });
+
+    this.setState({
+      filteredSelectionProcesses: filteredProcessesList,
+      isFilterDialogOpen: false
+    });
+  };
+
   handleChangeExperiences = event => {
     const { experiences } = this.state;
     console.log(event.target.name);
@@ -754,6 +998,28 @@ class SelectionProcessInformation extends React.Component {
     experiences[event.target.name] = event.target.value;
     this.setState({
       experiences
+    });
+  };
+
+  handleChangeFilterExperiences = event => {
+    const { filterExperiences } = this.state;
+    console.log(event.target.name);
+    console.log(event.target.value);
+    filterExperiences[event.target.name] = event.target.value;
+    this.setState({
+      filterExperiences
+    });
+  };
+
+  handleChangeSelectAllChecked = event => {
+    const { filterExperiences } = this.state;
+    if (event.target.checked) {
+      filterExperiences[event.target.name] = 'all';
+    } else {
+      filterExperiences[event.target.name] = 0;
+    }
+    this.setState({
+      filterExperiences
     });
   };
 
@@ -806,23 +1072,31 @@ class SelectionProcessInformation extends React.Component {
 
   convertHandler = currencyId => {
     const {
-      economicProposal,
+      economicCandidateProposal,
       economicClaimsValue,
       economicClaimsRange1,
       economicClaimsRange2,
+      economicCompanyProposal,
+      objectives,
       currencies
     } = this.state;
     const currency = currencies.filter(cur => cur.currencyId === currencyId)[0];
     const factor = parseFloat(currency.changeFactor);
-    const economicProposalInEuro = economicProposal * factor;
+    const economicCandidateProposalInEuro = economicCandidateProposal * factor;
     const economicClaimsValueInEuro = economicClaimsValue * factor;
     const economicClaimsRange1InEuro = economicClaimsRange1 * factor;
     const economicClaimsRange2InEuro = economicClaimsRange2 * factor;
+    const economicCompanyProposalInEuro = economicCompanyProposal * factor;
+    const objectivesInEuro = objectives * factor;
     this.setState({
-      economicProposalInEuro: economicProposalInEuro.toFixed(5),
+      economicCandidateProposalInEuro: economicCandidateProposalInEuro.toFixed(
+        5
+      ),
       economicClaimsValueInEuro: economicClaimsValueInEuro.toFixed(5),
       economicClaimsRange1InEuro: economicClaimsRange1InEuro.toFixed(5),
-      economicClaimsRange2InEuro: economicClaimsRange2InEuro.toFixed(5)
+      economicClaimsRange2InEuro: economicClaimsRange2InEuro.toFixed(5),
+      economicCompanyProposalInEuro: economicCompanyProposalInEuro.toFixed(5),
+      objectivesInEuro: objectivesInEuro.toFixed(5)
     });
   };
 
@@ -863,6 +1137,12 @@ class SelectionProcessInformation extends React.Component {
     );
   };
 
+  handleOpenFilterDialog = () => {
+    this.setState({
+      isFilterDialogOpen: true
+    });
+  };
+
   render() {
     const {
       classes,
@@ -873,6 +1153,7 @@ class SelectionProcessInformation extends React.Component {
       allSelectionTypeEvaluation
     } = this.props;
     const {
+      filteredSelectionProcesses,
       isEditDialogOpen,
       isOpenDocument,
       isOpenKnowledge,
@@ -883,32 +1164,41 @@ class SelectionProcessInformation extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
+      profile,
       testDate,
       energy,
       adaptability,
       integrity,
       interpersonalSensitivity,
-      economicProposal,
-      economicProposalInEuro,
+      economicCandidateProposal,
+      economicCandidateProposalInEuro,
       economicClaimsValue,
       economicClaimsValueInEuro,
       economicClaimsRange1,
       economicClaimsRange1InEuro,
       economicClaimsRange2,
       economicClaimsRange2InEuro,
-      proposalType,
-      salaryType,
+      candidateProposalType,
+      candidateSalaryType,
       economicClaimsType,
+      economicCompanyProposal,
+      economicCompanyProposalInEuro,
+      objectives,
+      objectivesInEuro,
+      companyProposalType,
+      companySalaryType,
       checkedKnowledges,
       experiences,
       economicProposalDoc,
       curriculumDoc,
       attitudeTestDoc,
       currency,
-      currencies
+      currencies,
+      filterCheckedKnowledges,
+      filterExperiences,
+      isFilterDialogOpen
     } = this.state;
-    console.log(checkedKnowledges);
-    console.log(experiences);
+    console.log(filteredSelectionProcesses);
     const title = brand.name + ' - Selection process information';
     const { desc } = brand;
     const options = {
@@ -921,7 +1211,7 @@ class SelectionProcessInformation extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
-          csvData={allSelectionProcessInformation}
+          csvData={filteredSelectionProcesses}
           url="/app/hh-rr/selectionProcessInformation/add-selection-process"
           tooltip="add new selection process"
         />
@@ -951,6 +1241,149 @@ class SelectionProcessInformation extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          maxWidth="lg"
+          TransitionComponent={Transition}
+          fullWidth
+          disableBackdropClick
+          disableEscapeKeyDown
+          scroll="body"
+          aria-labelledby="changeProfilePic"
+          open={isFilterDialogOpen}
+          classes={{
+            paper: classes.paper
+          }}
+        >
+          <DialogTitle id="SaveFormula">
+            Filter by knowledge and experiences
+          </DialogTitle>
+          <DialogContent>
+            <Grid
+              container
+              spacing={6}
+              direction="row"
+              justify="center"
+              alignItems="center"
+            >
+              <Grid
+                item
+                xs={12}
+                md={9}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 12
+                }}
+              >
+                <FormControl
+                  component="fieldset"
+                  className={classes.formControl}
+                  fullWidth
+                >
+                  <FormLabel component="legend" style={{ marginBottom: 20 }}>
+                    Knowledges
+                  </FormLabel>
+                  {allSelectionTypeEvaluation
+                    .filter(type => type.type === 'Main Type')
+                    .map(mainType => (
+                      <div>
+                        <FormLabel component="legend">
+                          {mainType.name}
+                        </FormLabel>
+                        <FormGroup row>
+                          {mainType.childs.map(subType => (
+                            <FormControlLabel
+                              control={(
+                                <Checkbox
+                                  checked={filterCheckedKnowledges.includes(
+                                    subType.selectionTypeId
+                                  )}
+                                  onChange={this.handleChangeFilterCheked}
+                                  name={subType.selectionTypeId}
+                                />
+                              )}
+                              label={subType.name}
+                            />
+                          ))}
+                        </FormGroup>
+                      </div>
+                    ))}
+
+                  <FormHelperText>Choose the knowledges</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={9}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 12
+                }}
+              >
+                <FormControl
+                  component="fieldset"
+                  className={classes.formControl}
+                  fullWidth
+                >
+                  <FormLabel component="legend" style={{ marginBottom: 20 }}>
+                    Experiences
+                  </FormLabel>
+                  <FormGroup row>
+                    {filterExperiences.map((experience, index) => (
+                      <div className={classes.divSpace}>
+                        <FormControlLabel
+                          control={(
+                            <TextField
+                              id="outlined-basic"
+                              label="Experience By Years"
+                              variant="outlined"
+                              name={index}
+                              style={{ marginBottom: 10 }}
+                              value={experience}
+                              className={classes.textField}
+                              onChange={this.handleChangeFilterExperiences}
+                              disabled={filterExperiences[index] === 'all'}
+                            />
+                          )}
+                          label={
+                            allSelectionTypeEvaluation.filter(
+                              type => type.selectionTypeId
+                                === filterCheckedKnowledges[index]
+                            )[0].name
+                          }
+                          labelPlacement="top"
+                        />
+                        <FormControlLabel
+                          control={(
+                            <Checkbox
+                              checked={filterExperiences[index] === 'all'}
+                              onChange={this.handleChangeSelectAllChecked}
+                              name={index}
+                            />
+                          )}
+                          label="Select all"
+                        />
+                      </div>
+                    ))}
+                  </FormGroup>
+                  <FormHelperText>
+                    Set years of experience for each knowledge
+                  </FormHelperText>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={this.handleClose} color="primary">
+              Close
+            </Button>
+            <Button autoFocus onClick={this.updateTableData} color="primary">
+              Apply
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           maxWidth="lg"
           TransitionComponent={Transition}
@@ -990,7 +1423,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="firstName"
                     value={firstName}
-                    style={{ width: '30%' }}
+                    style={{ width: '22%' }}
                     className={classes.textField}
                     onChange={this.handleChange}
                   />
@@ -1000,7 +1433,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="fatherFamilyName"
                     value={fatherFamilyName}
-                    style={{ width: '30%' }}
+                    style={{ width: '22%' }}
                     className={classes.textField}
                     onChange={this.handleChange}
                   />
@@ -1010,10 +1443,43 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="motherFamilyName"
                     value={motherFamilyName}
-                    style={{ width: '30%' }}
+                    style={{ width: '22%' }}
                     className={classes.textField}
                     onChange={this.handleChange}
                   />
+                  <TextField
+                    id="outlined-basic"
+                    label="Profile"
+                    variant="outlined"
+                    name="profile"
+                    value={profile}
+                    style={{ width: '22%' }}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={9}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    marginBottom: -60
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '20px',
+                      fontWeight: 'bold',
+                      opacity: 0.6
+                    }}
+                  >
+                    Attitude Test Results
+                  </Typography>
                 </Grid>
                 <Grid
                   item
@@ -1096,8 +1562,31 @@ class SelectionProcessInformation extends React.Component {
                   md={9}
                   style={{
                     display: 'flex',
+                    justifyContent: 'flex-start',
+                    marginBottom: -60
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '20px',
+                      fontWeight: 'bold',
+                      opacity: 0.6
+                    }}
+                  >
+                    Economical requirements of the candidate
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={9}
+                  style={{
+                    display: 'flex',
                     justifyContent: 'space-between',
-                    marginBottom: 12
+                    marginBottom: -40
                   }}
                 >
                   <FormControl
@@ -1113,7 +1602,7 @@ class SelectionProcessInformation extends React.Component {
                     >
                       {currencies.map(clt => (
                         <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                          {clt.currencyName}
+                          {clt.typeOfCurrency.currencyName}
                         </MenuItem>
                       ))}
                     </Select>
@@ -1125,8 +1614,8 @@ class SelectionProcessInformation extends React.Component {
                     <InputLabel>Proposal Type</InputLabel>
 
                     <Select
-                      name="proposalType"
-                      value={proposalType}
+                      name="candidateProposalType"
+                      value={candidateProposalType}
                       onChange={this.handleChange}
                     >
                       {proposalTypes.map(item => (
@@ -1143,8 +1632,8 @@ class SelectionProcessInformation extends React.Component {
                     <InputLabel>Salary Type</InputLabel>
 
                     <Select
-                      name="salaryType"
-                      value={salaryType}
+                      name="candidateSalaryType"
+                      value={candidateSalaryType}
                       onChange={this.handleChange}
                     >
                       {salaryTypes.map(item => (
@@ -1180,17 +1669,17 @@ class SelectionProcessInformation extends React.Component {
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    marginBottom: 12
+                    marginBottom: -40
                   }}
                 >
                   <TextField
                     id="outlined-basic"
                     label="Economic Proposal"
                     variant="outlined"
-                    name="economicProposal"
+                    name="economicCandidateProposal"
                     type="number"
                     style={{ width: '40%' }}
-                    value={economicProposal}
+                    value={economicCandidateProposal}
                     className={classes.textField}
                     onChange={this.handleChange}
                   />
@@ -1198,10 +1687,10 @@ class SelectionProcessInformation extends React.Component {
                     id="outlined-basic"
                     label="Economic Proposal In Euro"
                     variant="outlined"
-                    name="economicProposalInEuro"
+                    name="economicCandidateProposalInEuro"
                     type="number"
                     style={{ width: '40%' }}
-                    value={economicProposalInEuro}
+                    value={economicCandidateProposalInEuro}
                     className={classes.textField}
                     disabled
                   />
@@ -1213,8 +1702,7 @@ class SelectionProcessInformation extends React.Component {
                     md={9}
                     style={{
                       display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: 12
+                      justifyContent: 'space-between'
                     }}
                   >
                     <TextField
@@ -1248,8 +1736,7 @@ class SelectionProcessInformation extends React.Component {
                     md={9}
                     style={{
                       display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: 12
+                      justifyContent: 'space-between'
                     }}
                   >
                     <TextField
@@ -1299,6 +1786,121 @@ class SelectionProcessInformation extends React.Component {
                   </Grid>
                 )}
 
+                <Grid
+                  item
+                  xs={12}
+                  md={9}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    marginTop: 40,
+                    marginBottom: -60
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      color: '#000',
+                      fontFamily: 'sans-serif , Arial',
+                      fontSize: '20px',
+                      fontWeight: 'bold',
+                      opacity: 0.6
+                    }}
+                  >
+                    Economical company proposal
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={9}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: 12
+                  }}
+                >
+                  <FormControl
+                    className={classes.formControl}
+                    style={{ width: '15%' }}
+                  >
+                    <InputLabel>Proposal Type</InputLabel>
+
+                    <Select
+                      name="companyProposalType"
+                      value={companyProposalType}
+                      onChange={this.handleChange}
+                    >
+                      {proposalTypes.map(item => (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl
+                    className={classes.formControl}
+                    style={{ width: '15%' }}
+                  >
+                    <InputLabel>Salary Type</InputLabel>
+
+                    <Select
+                      name="companySalaryType"
+                      value={companySalaryType}
+                      onChange={this.handleChange}
+                    >
+                      {salaryTypes.map(item => (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    id="outlined-basic"
+                    label="Economic Proposal"
+                    variant="outlined"
+                    name="economicCompanyProposal"
+                    type="number"
+                    style={{ width: '15%' }}
+                    value={economicCompanyProposal}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Economic Proposal In Euro"
+                    variant="outlined"
+                    name="economicCompanyProposalInEuro"
+                    type="number"
+                    style={{ width: '15%' }}
+                    value={economicCompanyProposalInEuro}
+                    className={classes.textField}
+                    disabled
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Objectives"
+                    variant="outlined"
+                    name="objectives"
+                    type="number"
+                    style={{ width: '15%' }}
+                    value={objectives}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    label="Objectives In Euro"
+                    variant="outlined"
+                    name="objectivesInEuro"
+                    type="number"
+                    style={{ width: '15%' }}
+                    value={objectivesInEuro}
+                    className={classes.textField}
+                    disabled
+                  />
+                </Grid>
                 <Grid
                   item
                   xs={12}
@@ -1671,9 +2273,10 @@ class SelectionProcessInformation extends React.Component {
           icon="ios-paper-outline"
           noMargin
         >
+          <Button onClick={this.handleOpenFilterDialog}>Filter</Button>
           <MUIDataTable
             title=""
-            data={allSelectionProcessInformation}
+            data={filteredSelectionProcesses}
             columns={this.columns}
             options={options}
           />

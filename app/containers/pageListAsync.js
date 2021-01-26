@@ -30,7 +30,11 @@ export const Register = Loadable({
   loading: Loading
 });
 export const ResetPassword = Loadable({
-  loader: () => import('./Pages/Users/ResetPassword'),
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/ResetPassword'),
+  loading: Loading
+});
+export const ForgetPassword = Loadable({
+  loader: () => import('./Pages/Users/forgetPassword'),
   loading: Loading
 });
 export const NotFound = Loadable({
@@ -333,6 +337,14 @@ export const EconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement'),
   loading: Loading
 });
+export const Action = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/Action'),
+  loading: Loading
+});
+/* export const ResetPassword = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/resetPassword'),
+  loading: Loading
+}); */
 export const AddEconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
   loading: Loading
