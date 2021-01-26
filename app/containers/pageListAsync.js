@@ -33,6 +33,10 @@ export const ResetPassword = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/ResetPassword'),
   loading: Loading
 });
+export const ForgetPassword = Loadable({
+  loader: () => import('./Pages/Users/forgetPassword'),
+  loading: Loading
+});
 export const NotFound = Loadable({
   loader: () => import('./NotFound/NotFound'),
   loading: Loading

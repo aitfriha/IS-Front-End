@@ -19,13 +19,13 @@
 		<ellipse class="st1" cx="50" cy="66.3" rx="15.6" ry="32.7"/>
 		<ellipse class="st2" cx="66.3" cy="50" rx="32.7" ry="15.6"/>
 		<ellipse class="st3" cx="33.7" cy="50" rx="32.7" ry="15.6"/>
-		
+
 			<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -15.9298 38.4579)" class="st4" cx="38.5" cy="38.5" rx="15.6" ry="32.7"/>
-		
+
 			<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -25.4916 61.5421)" class="st5" cx="61.5" cy="61.5" rx="15.6" ry="32.7"/>
-		
+
 			<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -32.2528 45.2191)" class="st6" cx="38.5" cy="61.5" rx="32.7" ry="15.6"/>
-		
+
 			<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -9.1686 54.7809)" class="st7" cx="61.5" cy="38.5" rx="32.7" ry="15.6"/>
 	</g>
 	<circle class="st8" cx="50" cy="50" r="12.6"/>
