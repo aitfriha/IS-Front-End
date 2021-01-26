@@ -210,12 +210,6 @@ const applicationTheme = (color, mode, direction) => ({
         paddingLeft: 5,
       },
     },
-    // Add by Miguel
-    MuiChip: {
-      label: {
-        textTransform: 'capitalize'
-      }
-    },
 
     /* MuiSelect: {
       root: {
@@ -463,6 +457,9 @@ const applicationTheme = (color, mode, direction) => ({
       },
     },
     MuiChip: {
+      /*label: {
+        textTransform: 'capitalize'
+      },*/
       deleteIcon: {
         margin: direction === 'rtl' ? '0 -8px 0 4px' : '0 4px 0 -8px'
       }
