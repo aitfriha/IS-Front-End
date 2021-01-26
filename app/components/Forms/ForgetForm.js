@@ -34,12 +34,13 @@ class ForgetForm extends React.Component {
     } = this.props;
     return (
       <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
-        {/*        <div className={classes.topBar}>
+{/*        <div className={classes.topBar}>
           <NavLink to="/" className={classes.brand}>
             <img src={logo} alt={brand.name} /> Internal Project
             {brand.name}
           </NavLink>
-        </div> */}
+        </div>*/}
+
         <Typography variant="h4" className={classes.title} gutterBottom>
           forget Password
         </Typography>
