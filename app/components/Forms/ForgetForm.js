@@ -40,6 +40,7 @@ class ForgetForm extends React.Component {
             {brand.name}
           </NavLink>
         </div>*/}
+
         <Typography variant="h4" className={classes.title} gutterBottom>
           forget Password
         </Typography>
