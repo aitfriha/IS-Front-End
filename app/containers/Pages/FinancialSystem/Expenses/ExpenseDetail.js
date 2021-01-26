@@ -147,7 +147,6 @@ export class ExpenseDetail extends React.Component {
 
   componentDidMount() {
     const { obj, staffExpensesTypes } = this.props;
-    console.log(staffExpensesTypes);
     const index = staffExpensesTypes.findIndex(el => el.masterValue === obj.type);
     this.setState({
       expenseDate: obj.hasOwnProperty('expenseDate') ? obj.expenseDate : null,
@@ -292,6 +291,7 @@ export class ExpenseDetail extends React.Component {
   loadList(objName, option) {
     const countryId = option === 'expense' ? this.state.expenseCountry : option === 'from' ? this.state.fromCountry : this.state.toCountry;
     const stateId = option === 'expense' ? this.state.expenseState : option === 'from' ? this.state.fromState : this.state.toState;
+
     const { countries } = this.props;
     let resultList = [];
     const countryIndex = countries.findIndex(obj => obj.countryId === countryId);
@@ -306,7 +306,7 @@ export class ExpenseDetail extends React.Component {
         }
       }
     }
-    return resultList;
+    return resultList ? resultList : [];
   }
 
   changePersonValue(evt) {
@@ -717,7 +717,7 @@ export class ExpenseDetail extends React.Component {
                       <MenuItem value="none">
                         <em>Empty</em>
                       </MenuItem>
-                      {voucherTypes.map(type => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
+                      {voucherTypes && voucherTypes.map(type => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
                     </Select>
                     {this.state.voucherType === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                   </FormControl>
@@ -764,7 +764,7 @@ export class ExpenseDetail extends React.Component {
                       <MenuItem value="none">
                         <em>Empty</em>
                       </MenuItem>
-                      {currencyTypes.map(type => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
+                      {currencyTypes && currencyTypes.map(type => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
                     </Select>
                     {this.state.currencyType === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                   </FormControl>
@@ -842,7 +842,7 @@ export class ExpenseDetail extends React.Component {
                             <MenuItem value="none">
                               <em>Empty</em>
                             </MenuItem>
-                            {countries.map(country => <MenuItem key={country.id} value={country.id}>{country.name}</MenuItem>)}
+                            {countries && countries.map(country => <MenuItem key={country.countryId} value={country.countryId}>{country.countryName}</MenuItem>)}
                           </Select>
                           {this.state.expenseCountry === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                         </FormControl>
@@ -1002,7 +1002,7 @@ export class ExpenseDetail extends React.Component {
                               <MenuItem value="none">
                                 <em>Empty</em>
                               </MenuItem>
-                              {countries.map(country => <MenuItem key={country.id} value={country.id}>{country.name}</MenuItem>)}
+                              {countries && countries.map(country => <MenuItem key={country.countryId} value={country.countryId}>{country.countryName}</MenuItem>)}
                             </Select>
                             {this.state.fromCountry === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                           </FormControl>
@@ -1081,7 +1081,7 @@ export class ExpenseDetail extends React.Component {
                               <MenuItem value="none">
                                 <em>Empty</em>
                               </MenuItem>
-                              {countries.map(country => <MenuItem key={country.id} value={country.id}>{country.name}</MenuItem>)}
+                              {countries && countries.map(country => <MenuItem key={country.countryId} value={country.countryId}>{country.countryName}</MenuItem>)}
                             </Select>
                             {this.state.toCountry === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                           </FormControl>
