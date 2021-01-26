@@ -134,6 +134,19 @@ const applicationTheme = (color, mode, direction) => ({
       },
     },
     MuiInput: {
+      underline: {
+        width: '100%',
+      }
+    },
+    // Add by Miguel
+    td: {
+      MuiTextField: {
+        root: {
+          width: '100%',
+        }
+      }
+    },
+    /* MuiInput: {
       root: {
         border:
           mode === 'dark'
@@ -186,7 +199,7 @@ const applicationTheme = (color, mode, direction) => ({
           transform: 'translate(4px, -16px) scale(0.75)',
         },
       },
-    },
+    }, */
     MuiFormLabel: {
       root: {
         fontSize: 14,
@@ -197,7 +210,14 @@ const applicationTheme = (color, mode, direction) => ({
         paddingLeft: 5,
       },
     },
-    MuiSelect: {
+    // Add by Miguel
+    MuiChip: {
+      label: {
+        textTransform: 'capitalize'
+      }
+    },
+
+    /* MuiSelect: {
       root: {
         borderRadius: 8,
       },
@@ -208,8 +228,8 @@ const applicationTheme = (color, mode, direction) => ({
       selectMenu: {
         paddingRight: '24px',
       }
-    },
-    MuiFormControl: {
+    }, */
+    /* MuiFormControl: {
       root: {
         '& label + div': {
           alignItems: 'flex-end',
@@ -222,7 +242,7 @@ const applicationTheme = (color, mode, direction) => ({
           },
         },
       },
-    },
+    }, */
     // //xaid
     MuiIcon: {
       root: {
@@ -230,7 +250,8 @@ const applicationTheme = (color, mode, direction) => ({
         color: '#65819D'
       }
     },
-    MuiInputAdornment: {
+
+    /* MuiInputAdornment: {
       root: {
         alignItems: 'flex-end',
         paddingLeft: 0,
@@ -257,7 +278,7 @@ const applicationTheme = (color, mode, direction) => ({
       positionEnd: {
         marginRight: 0,
       },
-    },
+    }, */
     MuiToolbar: {
       root: {
         borderRadius: 8,
@@ -325,8 +346,7 @@ const applicationTheme = (color, mode, direction) => ({
     },
     MuiPickersClockPointer: {
       thumb: {
-        boxShadow: `0 1px 10px 0px ${
-          themePalette(color, mode).palette.primary.main
+        boxShadow: `0 1px 10px 0px ${themePalette(color, mode).palette.primary.main
         }`,
       },
     },

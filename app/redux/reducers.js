@@ -47,11 +47,31 @@ import contactReducer from './contact/reducer';
 import contactByOperationReducer from './contactByOperation/reducer';
 import civilityTitleReducer from './civilityTitle/reducer';
 import authReducer from '../../transversal-administration/redux/auth/reducer';
-import usersReducer from "../../transversal-administration/redux/users/reducer";
-import rolesReducer from "../../transversal-administration/redux/rolesAbilities/reducer";
-import departmentsReducer from "../../transversal-administration/redux/departments/reducer";
-import subjectsReducer from "../../transversal-administration/redux/subjects/reducer";
-import actionsReducer from "../../transversal-administration/redux/actions/reducer";
+import usersReducer from '../../transversal-administration/redux/users/reducer';
+import rolesReducer from '../../transversal-administration/redux/rolesAbilities/reducer';
+import departmentsReducer from '../../transversal-administration/redux/departments/reducer';
+import subjectsReducer from '../../transversal-administration/redux/subjects/reducer';
+import actionsReducer from '../../transversal-administration/redux/actions/reducer';
+
+
+import defaultSentencesReducer from '../../transversal-translation/redux/defaultSentences/reducer';
+import translateSentencesReducer from '../../transversal-translation/redux/translateSentences/reducer';
+import businessExpenseTypeReducer from './businessExpenseType/reducer';
+import staffAssignmentReducer from './staffAssignment/reducer';
+import travelRequestReducer from './travelRequest/reducer';
+import currencyReducer from './currency/reducer';
+import currencyTypeReducer from './currencyType/reducer';
+import requestStatusReducer from './requestStatus/reducer';
+import travelRequestEmailAddressReducer from './travelRequestEmailAddress/reducer';
+import staffExpenseTypeReducer from './staffExpenseType/reducer';
+import personTypeReducer from './personType/reducer';
+import voucherTypeReducer from './voucherType/reducer';
+import expenseReducer from './expense/reducer';
+import assignmentTypeReducer from './assignmentType/reducer';
+import expenseStatusReducer from './expenseStatus/reducer';
+import expenseEmailAddressReducer from './expenseEmailAddress/reducer';
+import weeklyReportReducer from './weeklyReport/reducer';
+import weeklyReportConfigReducer from './weeklyReportConfig/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -106,7 +126,26 @@ export default function createReducer(injectedReducers = {}) {
     action: actionsReducer,
     language: languageProviderReducer,
     router: connectRouter(history),
-    ...injectedReducers
+    ...injectedReducers,
+
+    defaultSentences: defaultSentencesReducer,
+    translateSentences: translateSentencesReducer,
+    businessExpenseType: businessExpenseTypeReducer,
+    staffAssignment: staffAssignmentReducer,
+    travelRequest: travelRequestReducer,
+    currency: currencyReducer,
+    currencyType: currencyTypeReducer,
+    requestStatus: requestStatusReducer,
+    travelRequestEmailAddress: travelRequestEmailAddressReducer,
+    staffExpenseType: staffExpenseTypeReducer,
+    personType: personTypeReducer,
+    voucherType: voucherTypeReducer,
+    expense: expenseReducer,
+    expenseStatus: expenseStatusReducer,
+    expenseEmailAddress: expenseEmailAddressReducer,
+    assignmentType: assignmentTypeReducer,
+    weeklyReport: weeklyReportReducer,
+    weeklyReportConfig: weeklyReportConfigReducer,
   });
   // Wrap the root reducer and return a new root reducer with router state
   const mergeWithRouterState = connectRouter(history);

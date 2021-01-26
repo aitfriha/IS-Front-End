@@ -349,3 +349,92 @@ export const RoleAbility = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleAbility'),
   loading: Loading
 });
+
+export const ExpensesRecord = Loadable({
+  loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesRecord'),
+  loading: Loading
+});
+
+export const ExpensesManagement = Loadable({
+  loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesManagement'),
+  loading: Loading
+});
+
+export const TravelRequest = Loadable({
+  loader: () => import('./Pages/FinancialSystem/Travels/TravelRequest'),
+  loading: Loading
+});
+
+export const TravelManagement = Loadable({
+  loader: () => import('./Pages/FinancialSystem/Travels/TravelManagement'),
+  loading: Loading
+});
+
+export const BusinessExpenseTypes = Loadable({
+  loader: () => import('./Pages/FinancialSystem/BusinessExpenseType/BusinessExpenseTypes'),
+  loading: Loading
+});
+
+export const RequestStatus = Loadable({
+  loader: () => import('./Pages/FinancialSystem/RequestStatus/RequestStatus'),
+  loading: Loading
+});
+
+export const TravelRequestEmailAddress = Loadable({
+  loader: () => import('./Pages/FinancialSystem/TravelRequestEmailAddress/TravelRequestEmailAddress'),
+  loading: Loading
+});
+
+export const StaffExpenseTypes = Loadable({
+  loader: () => import('./Pages/FinancialSystem/StaffExpenseType/StaffExpenseTypes'),
+  loading: Loading
+});
+
+export const PersonTypes = Loadable({
+  loader: () => import('./Pages/FinancialSystem/PersonTypes/PersonTypes'),
+  loading: Loading
+});
+
+export const VoucherTypes = Loadable({
+  loader: () => import('./Pages/FinancialSystem/VoucherTypes/VoucherTypes'),
+  loading: Loading
+});
+
+export const ExpenseStatus = Loadable({
+  loader: () => import('./Pages/FinancialSystem/ExpenseStatus/ExpenseStatus'),
+  loading: Loading
+});
+
+export const ExpenseEmailAddress = Loadable({
+  loader: () => import('./Pages/FinancialSystem/ExpenseEmailAddress/ExpenseEmailAddress'),
+  loading: Loading
+});
+
+export const StaffAssignment = Loadable({
+  loader: () => import('./Pages/OperativeSystem/StaffAssignment/StaffAssignment'),
+  loading: Loading
+});
+
+export const WeeklyReport = Loadable({
+  loader: () => import('./Pages/OperativeSystem/WeeklyReport/WeeklyReport'),
+  loading: Loading
+});
+
+export const AssignmentTypes = Loadable({
+  loader: () => import('./Pages/OperativeSystem/BasicTables/AssignmentTypes'),
+  loading: Loading
+});
+
+export const WeeklyReportConfig = Loadable({
+  loader: () => import('./Pages/OperativeSystem/Configurations/WeeklyReportConfig'),
+  loading: Loading
+});
+
+export const DefaultSentence = Loadable({
+  loader: () => import('../../transversal-translation/containers/Pages/LeftMenu/Translation/DefaultSentence'),
+  loading: Loading
+});
+export const TranslationSentence = Loadable({
+  loader: () => import('../../transversal-translation/containers/Pages/LeftMenu/Translation/TranslationSentence'),
+  loading: Loading
+});
