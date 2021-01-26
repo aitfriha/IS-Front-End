@@ -577,7 +577,7 @@ class User extends React.Component {
                       color="primary"
                     />
                   )}
-                  label="Actif"
+                  label="Is Active"
                 />
               </FormControl>
             </div>
