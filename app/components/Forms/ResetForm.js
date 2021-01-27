@@ -36,15 +36,17 @@ class ResetForm extends React.Component {
       <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
         <div className={classes.topBar}>
           <NavLink to="/" className={classes.brand}>
-            <img src={logo} alt={brand.name} />
-            {brand.name}
+            {/* <img src={logo} alt={brand.name} /> */}
+            {' '}
+Internal Project
+            {/* {brand.name} */}
           </NavLink>
         </div>
         <Typography variant="h4" className={classes.title} gutterBottom>
           Reset Password
         </Typography>
         <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
-          Send reset password link to Your email
+         change you password
         </Typography>
         <section className={classes.formWrap}>
           <form onSubmit={handleSubmit}>
@@ -53,8 +55,8 @@ class ResetForm extends React.Component {
                 <Field
                   name="email"
                   component={TextFieldRedux}
-                  placeholder="Your Email"
-                  label="Your Email"
+                  placeholder="New password"
+                  label="new password"
                   required
                   validate={[required, email]}
                   className={classes.field}
@@ -63,7 +65,7 @@ class ResetForm extends React.Component {
             </div>
             <div className={classes.btnArea}>
               <Button variant="contained" color="primary" type="submit">
-                Send Reset Link
+                Send
                 <ArrowForward className={classNames(classes.rightIcon, classes.iconSmall)} disabled={submitting || pristine} />
               </Button>
             </div>

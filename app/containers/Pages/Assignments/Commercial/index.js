@@ -359,7 +359,6 @@ class Commercial extends React.Component {
   };
 
   deleteAssignement= (event, rowData) => {
-
     this.setState({ openPopUpDelete: true });
     this.setState({ clientIdToDelete: rowData[0].clientId });
   };
@@ -525,7 +524,7 @@ class Commercial extends React.Component {
                       onClick: (event, rowData) => this.deleteAssignement(event, rowData)
                     },
                     {
-                      tooltip: 'import',
+                      tooltip: 'Assign',
                       icon: 'assignment_ind',
                       onClick: (evt, data) => this.selectedRows(data)
                     },

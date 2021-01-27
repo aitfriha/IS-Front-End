@@ -56,22 +56,29 @@ class AddSelectionProcess extends React.Component {
       firstName: '',
       fatherFamilyName: '',
       motherFamilyName: '',
+      profile: '',
       testDate: new Date(),
       energy: '',
       adaptability: '',
       integrity: '',
       interpersonalSensitivity: '',
-      economicProposal: 0,
-      economicProposalInEuro: 0.0,
+      economicCandidateProposal: 0,
+      economicCandidateProposalInEuro: 0.0,
       economicClaimsValue: 0,
       economicClaimsValueInEuro: 0.0,
       economicClaimsRange1: 0,
       economicClaimsRange1InEuro: 0,
       economicClaimsRange2: 0,
       economicClaimsRange2InEuro: 0,
-      proposalType: '',
-      salaryType: '',
+      candidateProposalType: '',
+      candidateSalaryType: '',
       economicClaimsType: '',
+      economicCompanyProposal: 0,
+      economicCompanyProposalInEuro: 0.0,
+      objectives: 0,
+      objectivesInEuro: 0.0,
+      companyProposalType: '',
+      companySalaryType: '',
       checkedKnowledges: [],
       experiences: [],
       economicProposalDoc: {},
@@ -96,10 +103,12 @@ class AddSelectionProcess extends React.Component {
     const { name } = ev.target;
     if (
       [
-        'economicProposal',
+        'economicCandidateProposal',
         'economicClaimsValue',
         'economicClaimsRange1',
-        'economicClaimsRange2'
+        'economicClaimsRange2',
+        'economicCompanyProposal',
+        'objectives'
       ].includes(name)
     ) {
       if (currency !== '') {
@@ -159,18 +168,23 @@ class AddSelectionProcess extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
+      profile,
       testDate,
       energy,
       adaptability,
       integrity,
       interpersonalSensitivity,
-      economicProposal,
+      economicCandidateProposal,
       economicClaimsValue,
       economicClaimsRange1,
       economicClaimsRange2,
       economicClaimsType,
-      proposalType,
-      salaryType,
+      candidateProposalType,
+      candidateSalaryType,
+      economicCompanyProposal,
+      objectives,
+      companyProposalType,
+      companySalaryType,
       checkedKnowledges,
       experiences,
       economicProposalDoc,
@@ -182,12 +196,13 @@ class AddSelectionProcess extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
+      profile,
       testDate: testDate.toISOString().slice(0, 10),
       energy,
       adaptability,
       integrity,
       interpersonalSensitivity,
-      economicProposal,
+      economicCandidateProposal,
       economicClaimsValue:
         economicClaimsType === 'Number' ? economicClaimsValue : '-',
       economicClaimsRange1:
@@ -195,13 +210,17 @@ class AddSelectionProcess extends React.Component {
       economicClaimsRange2:
         economicClaimsType === 'Range' ? economicClaimsRange2 : '-',
       economicClaimsType,
-      proposalType,
-      salaryType,
+      candidateProposalType,
+      candidateSalaryType,
+      economicCompanyProposal,
+      objectives,
+      companyProposalType,
+      companySalaryType,
       knowledgeIdList: checkedKnowledges,
       experiences,
       currencyId: currency
     };
-
+    console.log(selectionProcessInformation);
     const formData = new FormData();
     if (economicProposalDoc.constructor === File) {
       formData.append('economicProposalDoc', economicProposalDoc);
@@ -302,23 +321,31 @@ class AddSelectionProcess extends React.Component {
 
   convertHandler = currencyId => {
     const {
-      economicProposal,
+      economicCandidateProposal,
       economicClaimsValue,
       economicClaimsRange1,
       economicClaimsRange2,
+      economicCompanyProposal,
+      objectives,
       currencies
     } = this.state;
     const currency = currencies.filter(cur => cur.currencyId === currencyId)[0];
     const factor = parseFloat(currency.changeFactor);
-    const economicProposalInEuro = economicProposal * factor;
+    const economicCandidateProposalInEuro = economicCandidateProposal * factor;
     const economicClaimsValueInEuro = economicClaimsValue * factor;
     const economicClaimsRange1InEuro = economicClaimsRange1 * factor;
     const economicClaimsRange2InEuro = economicClaimsRange2 * factor;
+    const economicCompanyProposalInEuro = economicCompanyProposal * factor;
+    const objectivesInEuro = objectives * factor;
     this.setState({
-      economicProposalInEuro: economicProposalInEuro.toFixed(5),
+      economicCandidateProposalInEuro: economicCandidateProposalInEuro.toFixed(
+        5
+      ),
       economicClaimsValueInEuro: economicClaimsValueInEuro.toFixed(5),
       economicClaimsRange1InEuro: economicClaimsRange1InEuro.toFixed(5),
-      economicClaimsRange2InEuro: economicClaimsRange2InEuro.toFixed(5)
+      economicClaimsRange2InEuro: economicClaimsRange2InEuro.toFixed(5),
+      economicCompanyProposalInEuro: economicCompanyProposalInEuro.toFixed(5),
+      objectivesInEuro: objectivesInEuro.toFixed(5)
     });
   };
 
@@ -334,22 +361,29 @@ class AddSelectionProcess extends React.Component {
       firstName,
       fatherFamilyName,
       motherFamilyName,
+      profile,
       testDate,
       energy,
       adaptability,
       integrity,
       interpersonalSensitivity,
-      economicProposal,
-      economicProposalInEuro,
+      economicCandidateProposal,
+      economicCandidateProposalInEuro,
       economicClaimsValue,
       economicClaimsValueInEuro,
       economicClaimsRange1,
       economicClaimsRange1InEuro,
       economicClaimsRange2,
       economicClaimsRange2InEuro,
-      proposalType,
-      salaryType,
+      candidateProposalType,
+      candidateSalaryType,
       economicClaimsType,
+      economicCompanyProposal,
+      economicCompanyProposalInEuro,
+      objectives,
+      objectivesInEuro,
+      companyProposalType,
+      companySalaryType,
       checkedKnowledges,
       experiences,
       economicProposalDoc,
@@ -402,7 +436,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="firstName"
                 value={firstName}
-                style={{ width: '30%' }}
+                style={{ width: '22%' }}
                 className={classes.textField}
                 onChange={this.handleChange}
               />
@@ -412,7 +446,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="fatherFamilyName"
                 value={fatherFamilyName}
-                style={{ width: '30%' }}
+                style={{ width: '22%' }}
                 className={classes.textField}
                 onChange={this.handleChange}
               />
@@ -422,10 +456,43 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="motherFamilyName"
                 value={motherFamilyName}
-                style={{ width: '30%' }}
+                style={{ width: '22%' }}
                 className={classes.textField}
                 onChange={this.handleChange}
               />
+              <TextField
+                id="outlined-basic"
+                label="Profile"
+                variant="outlined"
+                name="profile"
+                value={profile}
+                style={{ width: '22%' }}
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={9}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                marginBottom: -60
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  opacity: 0.6
+                }}
+              >
+                Attitude Test Results
+              </Typography>
             </Grid>
             <Grid
               item
@@ -508,8 +575,31 @@ class AddSelectionProcess extends React.Component {
               md={9}
               style={{
                 display: 'flex',
+                justifyContent: 'flex-start',
+                marginBottom: -60
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  opacity: 0.6
+                }}
+              >
+                Economical requirements of the candidate
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={9}
+              style={{
+                display: 'flex',
                 justifyContent: 'space-between',
-                marginBottom: 12
+                marginBottom: -40
               }}
             >
               <FormControl
@@ -537,8 +627,8 @@ class AddSelectionProcess extends React.Component {
                 <InputLabel>Proposal Type</InputLabel>
 
                 <Select
-                  name="proposalType"
-                  value={proposalType}
+                  name="candidateProposalType"
+                  value={candidateProposalType}
                   onChange={this.handleChange}
                 >
                   {proposalTypes.map(item => (
@@ -555,8 +645,8 @@ class AddSelectionProcess extends React.Component {
                 <InputLabel>Salary Type</InputLabel>
 
                 <Select
-                  name="salaryType"
-                  value={salaryType}
+                  name="candidateSalaryType"
+                  value={candidateSalaryType}
                   onChange={this.handleChange}
                 >
                   {salaryTypes.map(item => (
@@ -592,17 +682,17 @@ class AddSelectionProcess extends React.Component {
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                marginBottom: 12
+                marginBottom: -40
               }}
             >
               <TextField
                 id="outlined-basic"
                 label="Economic Proposal"
                 variant="outlined"
-                name="economicProposal"
+                name="economicCandidateProposal"
                 type="number"
                 style={{ width: '40%' }}
-                value={economicProposal}
+                value={economicCandidateProposal}
                 className={classes.textField}
                 onChange={this.handleChange}
               />
@@ -610,10 +700,10 @@ class AddSelectionProcess extends React.Component {
                 id="outlined-basic"
                 label="Economic Proposal In Euro"
                 variant="outlined"
-                name="economicProposalInEuro"
+                name="economicCandidateProposalInEuro"
                 type="number"
                 style={{ width: '40%' }}
-                value={economicProposalInEuro}
+                value={economicCandidateProposalInEuro}
                 className={classes.textField}
                 disabled
               />
@@ -625,8 +715,7 @@ class AddSelectionProcess extends React.Component {
                 md={9}
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: 12
+                  justifyContent: 'space-between'
                 }}
               >
                 <TextField
@@ -660,8 +749,7 @@ class AddSelectionProcess extends React.Component {
                 md={9}
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: 12
+                  justifyContent: 'space-between'
                 }}
               >
                 <TextField
@@ -711,6 +799,121 @@ class AddSelectionProcess extends React.Component {
               </Grid>
             )}
 
+            <Grid
+              item
+              xs={12}
+              md={9}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                marginTop: 40,
+                marginBottom: -60
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  opacity: 0.6
+                }}
+              >
+                Economical company proposal
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={9}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: 12
+              }}
+            >
+              <FormControl
+                className={classes.formControl}
+                style={{ width: '15%' }}
+              >
+                <InputLabel>Proposal Type</InputLabel>
+
+                <Select
+                  name="companyProposalType"
+                  value={companyProposalType}
+                  onChange={this.handleChange}
+                >
+                  {proposalTypes.map(item => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl
+                className={classes.formControl}
+                style={{ width: '15%' }}
+              >
+                <InputLabel>Salary Type</InputLabel>
+
+                <Select
+                  name="companySalaryType"
+                  value={companySalaryType}
+                  onChange={this.handleChange}
+                >
+                  {salaryTypes.map(item => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                id="outlined-basic"
+                label="Economic Proposal"
+                variant="outlined"
+                name="economicCompanyProposal"
+                type="number"
+                style={{ width: '15%' }}
+                value={economicCompanyProposal}
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Economic Proposal In Euro"
+                variant="outlined"
+                name="economicCompanyProposalInEuro"
+                type="number"
+                style={{ width: '15%' }}
+                value={economicCompanyProposalInEuro}
+                className={classes.textField}
+                disabled
+              />
+              <TextField
+                id="outlined-basic"
+                label="Objectives"
+                variant="outlined"
+                name="objectives"
+                type="number"
+                style={{ width: '15%' }}
+                value={objectives}
+                className={classes.textField}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Objectives In Euro"
+                variant="outlined"
+                name="objectivesInEuro"
+                type="number"
+                style={{ width: '15%' }}
+                value={objectivesInEuro}
+                className={classes.textField}
+                disabled
+              />
+            </Grid>
             <Grid
               item
               xs={12}

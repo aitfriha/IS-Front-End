@@ -213,6 +213,90 @@ module.exports = [
             name: 'Purchase Order Acceptance ',
             link: '/app/gestion-financial/Purchase-Order',
             icon: 'ios-cash-outline'
+          },
+          {
+            key: 'businessExpenseTypes',
+            name: 'business_expense_types',
+            link: '/app/gestion-financial/business-expense-types',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'requestStatus',
+            name: 'request_status',
+            link: '/app/gestion-financial/request-status',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'travelRequestEmailAddress',
+            name: 'travel_request_email_address',
+            link: '/app/gestion-financial/travel-request-email-address',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'staffExpenseTypes',
+            name: 'staff_expense_types',
+            link: '/app/gestion-financial/staff-expense-types',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'personTypes',
+            name: 'person_types',
+            link: '/app/gestion-financial/person-types',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'voucherTypes',
+            name: 'voucher_types',
+            link: '/app/gestion-financial/voucher-types',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'expenseStatus',
+            name: 'expense_status',
+            link: '/app/gestion-financial/expense-status',
+            // icon: 'ios-cash-outline'
+          },
+          {
+            key: 'expenseEmailAddress',
+            name: 'expense_email_address',
+            link: '/app/gestion-financial/expense-email-address',
+            // icon: 'ios-cash-outline'
+          }
+        ]
+      },
+      {
+        key: 'financial-expenses',
+        name: 'financial_expenses',
+        // icon: 'card_travel-icon',
+        keyParent: 'financial',
+        child: [
+          {
+            key: 'expensesRecord',
+            name: 'expenses_record',
+            link: '/app/gestion-financial/expenses-record'
+          },
+          {
+            key: 'expensesManagement',
+            name: 'expenses_management',
+            link: '/app/gestion-financial/expenses-management'
+          }
+        ]
+      },
+      {
+        key: 'financial-travels',
+        name: 'financial_travels',
+        // icon: 'card_travel-icon',
+        keyParent: 'financial',
+        child: [
+          {
+            key: 'travelRequests',
+            name: 'travel_requests',
+            link: '/app/gestion-financial/travel-requests'
+          },
+          {
+            key: 'travelManagement',
+            name: 'travel_management',
+            link: '/app/gestion-financial/travel-management'
           }
         ]
       }
@@ -314,6 +398,54 @@ module.exports = [
     ]
   },
   {
+    key: 'operativeSystem',
+    name: 'operative_system',
+    icon: 'ios-cash',
+    multilevel: true,
+    child: [
+      {
+        key: 'staffAssignment',
+        name: 'staff_assignment',
+        link: '/app/operative-system/staff-assignment',
+        // icon: 'ios-newspaper-outline'
+      },
+      {
+        key: 'weeklyReport',
+        name: 'weekly_report',
+        link: '/app/operative-system/weekly-report',
+        // icon: 'ios-newspaper-outline'
+      },
+      {
+        key: 'operativeBasicTables',
+        name: 'operative_basic_tables',
+        // icon: 'ios-newspaper-outline',
+        keyParent: 'operativeSystem',
+        child: [
+          {
+            key: 'assignmentType',
+            name: 'assignment_type',
+            link: '/app/operative-system/basic-tables/assignment-types',
+            // icon: 'ios-newspaper-outline'
+          }
+        ]
+      },
+      {
+        key: 'operativeConfigurations',
+        name: 'operative_configurations',
+        // icon: 'ios-newspaper-outline',
+        keyParent: 'operativeSystem',
+        child: [
+          {
+            key: 'weeklyReportConfig',
+            name: 'weekly_report_config',
+            link: '/app/operative-system/configurations/weekly-report',
+            // icon: 'ios-newspaper-outline'
+          }
+        ]
+      }
+    ]
+  },
+  {
     key: 'errors',
     name: 'Errors',
     icon: 'ios-paw-outline',
@@ -398,12 +530,12 @@ module.exports = [
       // },
       {
         key: 'users',
-        name: 'users',
+        name: 'Users Management',
         link: '/app/data/administration/users'
       },
       {
         key: 'roles_abilities',
-        name: 'roles abilities',
+        name: 'Roles Management',
         link: '/app/data/administration/roles_abilities'
       } /* ,
     {
@@ -413,4 +545,21 @@ module.exports = [
       } */
     ]
   },
+  {
+    key: 'translation',
+    name: 'translation',
+    icon: 'translate-icon',
+    child: [
+      {
+        key: 'defaultSentences',
+        name: 'default_sentences',
+        link: '/app/translation/default-sentences'
+      },
+      {
+        key: 'translationSentences',
+        name: 'translation_sentences',
+        link: '/app/translation/translation-sentences'
+      }
+    ]
+  }
 ];

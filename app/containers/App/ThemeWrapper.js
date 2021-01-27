@@ -48,7 +48,7 @@ const styles = {
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
 export const ThemeContext = React.createContext(undefined);
-
+export const AppContext = React.createContext();
 function ThemeWrapper(props) {
   const [progress, setProgress] = useState(0);
   const [theme, setTheme] = useState(

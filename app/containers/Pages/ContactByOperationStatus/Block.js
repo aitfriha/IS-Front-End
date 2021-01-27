@@ -85,13 +85,13 @@ class ContactByOperationStatusBlock extends React.Component {
             filter: true
           }
         },
-        {
+        /*        {
           name: 'description',
           label: 'Status Description',
           options: {
             filter: true
           }
-        },
+        }, */
         {
           name: 'contactsType',
           label: 'contacts Type',

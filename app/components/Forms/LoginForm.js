@@ -66,12 +66,11 @@ class LoginForm extends React.Component {
       <Fragment>
         <Hidden mdUp>
           <NavLink to="/" className={classNames(classes.brand, classes.outer)}>
-            <img src={logo} alt={brand.name} />
-            {brand.name}
+            <img src="{logo}" alt={brand.name} />
           </NavLink>
         </Hidden>
         <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
-          <Hidden smDown>
+          {/*          <Hidden smDown>
             <div className={classes.topBar}>
               <NavLink to="/" className={classes.brand}>
                 <img src={logo} alt={brand.name} />
@@ -82,11 +81,14 @@ class LoginForm extends React.Component {
                 Create new account
               </Button>
             </div>
-          </Hidden>
+          </Hidden> */}
           <Typography variant="h4" className={classes.title} gutterBottom>
             Sign In
           </Typography>
-          <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
+          <Typography variant="h4" className={classes.title} gutterBottom style={{ fontWeight: 'bold' }}>
+           Sistemas Internos
+          </Typography>
+          {/*          <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
             Lorem ipsum dolor sit amet
           </Typography>
           <section className={classes.socmedLogin}>
@@ -105,7 +107,7 @@ class LoginForm extends React.Component {
               </Button>
             </div>
             <ContentDivider content="Or sign in with email" />
-          </section>
+          </section> */}
           <section className={classes.formWrap}>
             <form onSubmit={handleSubmit}>
               <div>
@@ -149,7 +151,7 @@ class LoginForm extends React.Component {
               </div>
               <div className={classes.optArea}>
                 <FormControlLabel className={classes.label} control={<Field name="checkbox" component={CheckboxRedux} />} label="Remember" />
-                <Button size="small" component={LinkBtn} to="/reset-password" className={classes.buttonLink}>Forgot Password</Button>
+                <Button size="small" component={LinkBtn} to="/forget-password" className={classes.buttonLink}>Forgot Password</Button>
               </div>
               <div className={classes.btnArea}>
                 <Button variant="contained" color="primary" size="large" type="submit">

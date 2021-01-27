@@ -83,7 +83,26 @@ import {
   EconomicStaffsPayment,
   User,
   RoleAbility,
-  AddEconomicStaff
+  AddEconomicStaff,
+  ExpensesRecord,
+  ExpensesManagement,
+  TravelRequest,
+  TravelManagement,
+  BusinessExpenseTypes,
+  RequestStatus,
+  TravelRequestEmailAddress,
+  StaffExpenseTypes,
+  PersonTypes,
+  VoucherTypes,
+  ExpenseStatus,
+  ExpenseEmailAddress,
+  StaffAssignment,
+  AssignmentTypes,
+  WeeklyReport,
+  WeeklyReportConfig,
+  DefaultSentence,
+  TranslationSentence,
+
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
 
@@ -392,6 +411,46 @@ function Application(props) {
         />
         <Route
           exact
+          path="/app/gestion-financial/business-expense-types"
+          component={BusinessExpenseTypes}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/request-status"
+          component={RequestStatus}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/travel-request-email-address"
+          component={TravelRequestEmailAddress}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/staff-expense-types"
+          component={StaffExpenseTypes}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/person-types"
+          component={PersonTypes}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/voucher-types"
+          component={VoucherTypes}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/expense-status"
+          component={ExpenseStatus}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/expense-email-address"
+          component={ExpenseEmailAddress}
+        />
+        <Route
+          exact
           path="/app/gestion-financial/Add-Retention"
           component={AddRetention}
         />
@@ -422,6 +481,46 @@ function Application(props) {
         />
         <Route
           exact
+          path="/app/gestion-financial/expenses-record"
+          component={ExpensesRecord}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/expenses-management"
+          component={ExpensesManagement}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/travel-requests"
+          component={TravelRequest}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/travel-management"
+          component={TravelManagement}
+        />
+        <Route
+          exact
+          path="/app/operative-system/staff-assignment"
+          component={StaffAssignment}
+        />
+        <Route
+          exact
+          path="/app/operative-system/weekly-report"
+          component={WeeklyReport}
+        />
+        <Route
+          exact
+          path="/app/operative-system/basic-tables/assignment-types"
+          component={AssignmentTypes}
+        />
+        <Route
+          exact
+          path="/app/operative-system/configurations/weekly-report"
+          component={WeeklyReportConfig}
+        />
+        <Route
+          exact
           path="/app/data/administration/users"
           component={User}
         />
@@ -430,6 +529,19 @@ function Application(props) {
           path="/app/data/administration/roles_abilities"
           component={RoleAbility}
         />
+
+        <Route
+          exact
+          path="/app/translation/default-sentences"
+          component={DefaultSentence}
+        />
+
+        <Route
+          exact
+          path="/app/translation/translation-sentences"
+          component={TranslationSentence}
+        />
+
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>

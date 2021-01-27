@@ -32,11 +32,32 @@ import contactSaga from './contact/saga';
 import contactByOperationSaga from './contactByOperation/saga';
 import civilityTitleSaga from './civilityTitle/saga';
 import authSaga from '../../transversal-administration/redux/auth/saga';
-import usersSaga from "../../transversal-administration/redux/users/saga";
-import rolesSaga from "../../transversal-administration/redux/rolesAbilities/saga";
-import departmentsSaga from "../../transversal-administration/redux/departments/saga";
-import subjectsSaga from "../../transversal-administration/redux/subjects/saga";
-import actionsSaga from "../../transversal-administration/redux/actions/saga";
+import usersSaga from '../../transversal-administration/redux/users/saga';
+import rolesSaga from '../../transversal-administration/redux/rolesAbilities/saga';
+import departmentsSaga from '../../transversal-administration/redux/departments/saga';
+import subjectsSaga from '../../transversal-administration/redux/subjects/saga';
+import actionsSaga from '../../transversal-administration/redux/actions/saga';
+
+
+import defaultSentencesSaga from '../../transversal-translation/redux/defaultSentences/saga';
+import translateSentencesSaga from '../../transversal-translation/redux/translateSentences/saga';
+import businessExpenseTypesSaga from './businessExpenseType/saga';
+import staffAssignmentSaga from './staffAssignment/saga';
+import travelRequestSaga from './travelRequest/saga';
+import currencySaga from './currency/saga';
+import currencyTypeSaga from './currencyType/saga';
+import requestStatusSaga from './requestStatus/saga';
+import travelRequestEmailAddressSaga from './travelRequestEmailAddress/saga';
+import staffExpenseTypesSaga from './staffExpenseType/saga';
+import personTypeSaga from './personType/saga';
+import voucherTypeSaga from './voucherType/saga';
+import expenseSaga from './expense/saga';
+import expenseStatusSaga from './expenseStatus/saga';
+import expenseEmailAddressSaga from './expenseEmailAddress/saga';
+import assignmentTypeSaga from './assignmentType/saga';
+import weeklyReportSaga from './weeklyReport/saga';
+import weeklyReportConfigSaga from './weeklyReportConfig/saga';
+
 // import watchers from other files
 export default function* rootSaga() {
   yield all([
@@ -76,6 +97,25 @@ export default function* rootSaga() {
     departmentsSaga(),
     subjectsSaga(),
     actionsSaga(),
+
+    defaultSentencesSaga(),
+    translateSentencesSaga(),
+    businessExpenseTypesSaga(),
+    staffAssignmentSaga(),
+    travelRequestSaga(),
+    currencySaga(),
+    currencyTypeSaga(),
+    requestStatusSaga(),
+    travelRequestEmailAddressSaga(),
+    staffExpenseTypesSaga(),
+    personTypeSaga(),
+    voucherTypeSaga(),
+    expenseSaga(),
+    expenseStatusSaga(),
+    expenseEmailAddressSaga(),
+    assignmentTypeSaga(),
+    weeklyReportSaga(),
+    weeklyReportConfigSaga(),
     // add other watchers to the array
   ]);
 }

@@ -8,7 +8,8 @@ import {
   ComingSoon,
   Maintenance,
   NotFound,
-  UnauthorizedDedicated
+  UnauthorizedDedicated,
+  ForgetPassword
 } from '../pageListAsync';
 
 function Auth() {
@@ -18,6 +19,7 @@ function Auth() {
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/forget-password" component={ForgetPassword} />
         <Route path="/maintenance" component={Maintenance} />
         <Route path="/coming-soon" component={ComingSoon} />
         <Route path="/unauthorized" component={UnauthorizedDedicated} />
