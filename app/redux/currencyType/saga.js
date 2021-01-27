@@ -15,7 +15,7 @@ import ENDPOINTS from '../../api/endpoints';
 function* getCurrencyTypes() {
   try {
     const request = yield axios({
-      method: 'post',
+      method: 'get',
       url: ENDPOINTS.CURRENCY_TYPE + '/all'
     });
 

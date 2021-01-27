@@ -42,7 +42,7 @@ function* getDataByCurrencyType(action) {
 function* getDataAssociatedWithCurrencyTypes() {
   try {
     const request = yield axios({
-      method: 'post',
+      method: 'get',
       url: ENDPOINTS.CURRENCY + '/lastDataAssociatedWithCurrencyTypes',
     });
 

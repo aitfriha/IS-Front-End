@@ -1049,7 +1049,7 @@ ExpensesRecord.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  allCountrys: state.getIn(['countries']).allCountrys,
+  countries: state.getIn(['countries']).allCountrys,
   countryResponse: state.getIn(['countries']).countryResponse,
 
   personTypes: state.getIn(['personType']).personTypes,
