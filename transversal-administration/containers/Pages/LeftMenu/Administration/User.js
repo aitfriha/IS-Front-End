@@ -504,7 +504,7 @@ class User extends React.Component {
           <DialogContent dividers>
             <div>
               <FormControl fullWidth="false" required style={{ width: '50%' }}>
-                <InputLabel>Select Client Company Name</InputLabel>
+                <InputLabel>Select Company Name</InputLabel>
                 <Select
                   name="company"
                   value={company}

@@ -4,18 +4,27 @@ import NotFound from 'containers/Pages/Standalone/NotFoundDedicated';
 import Auth from './Auth';
 import Application from './Application';
 import LoginDedicated from '../Pages/Standalone/LoginDedicated';
-import ThemeWrapper from './ThemeWrapper';
+import ThemeWrapper, { AppContext } from './ThemeWrapper';
+import SecuredRoute from '../../../transversal-administration/redux/security/SecuredRoute';
+
 window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true;
 
 function App() {
   return (
     <ThemeWrapper>
-      <Switch>
-        <Route path="/" exact component={LoginDedicated} />
-        <Route path="/app" component={Application} />
-        <Route component={Auth} />
-        <Route component={NotFound} />
-      </Switch>
+      <AppContext.Consumer>
+        {(changeMode) => (
+          <Switch>
+            <Route path="/" exact component={LoginDedicated} />
+            <SecuredRoute
+              path="/app"
+              component={(props) => <Application {...props} changeMode={changeMode} />}
+            />
+            <Route component={Auth} changeMode={changeMode} />
+            <Route component={NotFound} />
+          </Switch>
+        )}
+      </AppContext.Consumer>
     </ThemeWrapper>
   );
 }
