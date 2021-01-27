@@ -250,7 +250,7 @@ class AddFinancialCompany extends React.Component {
                       component="span"
                       startIcon={<Image color="primary" />}
                     >
-                                        Photo
+                                        Logo
                     </Button>
                   </FormLabel>
                 </FormControl>

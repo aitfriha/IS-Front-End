@@ -35,6 +35,8 @@ import {
   People,
   AddWorkers,
   Staff,
+  SupplierType,
+  AddSupplierType,
   AddStaff,
   Operations,
   OperationsAssignment,
@@ -395,6 +397,16 @@ function Application(props) {
         />
         <Route
           exact
+          path="/app/gestion-financial/Suppliers-Type"
+          component={SupplierType}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-Suppliers"
+          component={AddSupplierType}
+        />
+        <Route
+          exact
           path="/app/gestion-financial/Staff Economic Management"
           component={EconomicStaff}
         />
@@ -409,14 +421,14 @@ function Application(props) {
           component={AddEconomicStaff}
         />
         <Route
-            exact
-            path="/app/data/administration/users"
-            component={User}
+          exact
+          path="/app/data/administration/users"
+          component={User}
         />
         <Route
-            exact
-            path="/app/data/administration/roles_abilities"
-            component={RoleAbility}
+          exact
+          path="/app/data/administration/roles_abilities"
+          component={RoleAbility}
         />
         <Route exact component={NotFound} />
       </Switch>

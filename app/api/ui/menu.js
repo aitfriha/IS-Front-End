@@ -195,6 +195,24 @@ module.exports = [
             name: 'Types of Retentions',
             link: '/app/gestion-financial/Retention',
             icon: 'ios-cash-outline'
+          },
+          {
+            key: 'suppliersType',
+            name: 'Suppliers Type ',
+            link: '/app/gestion-financial/Suppliers-Type',
+            icon: 'ios-cash-outline'
+          },
+          {
+            key: 'externalSuppliers',
+            name: 'External Suppliers ',
+            link: '/app/gestion-financial/External-Suppliers',
+            icon: 'ios-cash-outline'
+          },
+          {
+            key: 'purchaseOrderAcceptance',
+            name: 'Purchase Order Acceptance ',
+            link: '/app/gestion-financial/Purchase-Order',
+            icon: 'ios-cash-outline'
           }
         ]
       }
