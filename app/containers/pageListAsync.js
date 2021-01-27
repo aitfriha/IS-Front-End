@@ -367,6 +367,7 @@ export const SupplierType = Loadable({
 });
 export const AddSupplierType = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersType/addSuppliersType'),
+  loading: Loading
 });
 export const ExpensesRecord = Loadable({
   loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesRecord'),

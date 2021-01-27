@@ -24,14 +24,18 @@ class AddExternalSupplier extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      clientId: '',
-      companyId: '',
+      code: '',
       name: '',
-      description: '',
-      operationAssociated: false,
-      internalOrder: false,
-      operations: [],
-      companies: [],
+      companyName: '',
+      firstName: '',
+      fatherFamilyName: '',
+      motherFamilyName: '',
+      email: '',
+      currentCity: '',
+      postCode: '',
+      fullAddress: '',
+      taxNumber: '',
+      URL: '',
       open: false,
       open2: false,
     };
@@ -65,37 +69,25 @@ class AddExternalSupplier extends React.Component {
       };
       SuppliersTypeService.saveSuppliersType(TypeOfCurrency).then(result => {
         console.log(result);
-        history.push('/app/gestion-financial/Suppliers-Type');
+        history.push('/app/gestion-financial/External-Suppliers');
       });
     }
 
     handleGoBack = () => {
-      history.push('/app/gestion-financial/Suppliers-Type');
+      history.push('/app/gestion-financial/External-Suppliers');
     }
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
-    handleCheck = () => {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const ok = !this.state.open;
-      this.setState({ open: ok });
-    }
-
-    handleCheck2 = () => {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const ok = !this.state.open2;
-      this.setState({ open2: ok });
-    }
-
     render() {
       console.log(this.state);
-      const title = brand.name + ' - Add New Supplier Type';
+      const title = brand.name + ' - Add New External Supplier';
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        name, description, operationAssociated, internalOrder, open, open2, clientId, operationId, operations, companies, companyId
+        name, description, operationAssociated, internalOrder, open, open2, operationId, operations, companies, companyId
       } = this.state;
       return (
         <div>
@@ -108,7 +100,7 @@ class AddExternalSupplier extends React.Component {
             <meta property="twitter:description" content={desc} />
           </Helmet>
           <PapperBlock
-            title="Supplier Type "
+            title="Add External Supplier "
             desc="Please, Fill in the fields"
             icon="ios-add-circle"
           >
