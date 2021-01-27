@@ -323,7 +323,7 @@ class AddExternalSupplier extends React.Component {
                   size="medium"
                   onClick={this.handleSubmit}
                 >
-                  Save Company
+                  Save
                 </Button>
               </Grid>
             </Grid>

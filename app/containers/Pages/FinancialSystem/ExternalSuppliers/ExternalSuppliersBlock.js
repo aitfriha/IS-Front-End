@@ -1,31 +1,53 @@
 import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
-import DeleteIcon from '@material-ui/icons/Delete';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
 } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Chip from '@material-ui/core/Chip';
+import Avatar from '@material-ui/core/Avatar';
+import Divider from '@material-ui/core/Divider';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
-import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
-import TypeOfCurrencylService from '../../../Services/TypeOfCurrencylService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
-import SuppliersTypeService from '../../../Services/SuppliersTypeService';
+import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
+import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
+import styles from '../Company/companies-jss';
 
-const useStyles = makeStyles();
+const useStyles = makeStyles(styles);
 
 class ExternalSuppliersBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      datas: [],
+      externalSupplierId: '',
+      code: '',
+      companyName: '',
+      firstName: '',
+      fatherFamilyName: '',
+      motherFamilyName: '',
+      email: '',
+      currentCity: '',
+      postCode: '',
+      fullAddress: '',
+      taxNumber: '',
+      URL: '',
       openPopUp: false,
-      row: [],
+      addressId: '',
+      datas: [],
       columns: [
         {
-          label: 'Name',
-          name: 'name',
+          name: 'code',
+          label: 'Code',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -49,8 +71,8 @@ class ExternalSuppliersBlock extends React.Component {
           }
         },
         {
-          label: 'Description',
-          name: 'description',
+          name: 'companyName',
+          label: 'Company Name',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -74,49 +96,192 @@ class ExternalSuppliersBlock extends React.Component {
           }
         },
         {
-          label: 'Operation Associated',
-          name: 'operationAssociated',
+          name: 'firstName',
+          label: 'Responsible First Name',
           options: {
             filter: true,
-            customBodyRender: (value) => (
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'fatherFamilyName',
+          label: 'Father Family Name',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'motherFamilyName',
+          label: 'Mother Family Name',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'email',
+          label: 'Email',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'taxNumber',
+          label: 'Tax Number (NIF)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          label: 'Company URL',
+          name: 'URL',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          label: 'Address',
+          name: 'address',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  (value ? 'Yes' : 'No')
+                  address ? address.fullAddress : ''
                 }
               </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
+            )
           }
         },
         {
-          label: 'Client Name',
-          name: 'client',
+          label: 'Country',
+          name: 'address',
           options: {
             filter: true,
-            customBodyRender: (client) => (
-              <React.Fragment>
-                {
-                  (client.name ? client.name : '')
-                }
-              </React.Fragment>
-            ),
             setCellProps: () => ({
               style: {
                 whiteSpace: 'nowrap',
@@ -135,20 +300,20 @@ class ExternalSuppliersBlock extends React.Component {
                 zIndex: 101
               }
             }),
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address ? address.city.stateCountry.country.countryName : ' '
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          label: 'Client Code',
-          name: 'client',
+          name: 'address',
+          label: 'City',
           options: {
             filter: true,
-            customBodyRender: (client) => (
-              <React.Fragment>
-                {
-                  (client.code ? client.code : '')
-                }
-              </React.Fragment>
-            ),
             setCellProps: () => ({
               style: {
                 whiteSpace: 'nowrap',
@@ -167,20 +332,20 @@ class ExternalSuppliersBlock extends React.Component {
                 zIndex: 101
               }
             }),
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address ? address.city.cityName : ' '
+                }
+              </React.Fragment>
+            )
           }
         },
         {
-          label: 'Operation Name',
-          name: 'commercialOperation',
+          name: 'address',
+          label: 'State',
           options: {
             filter: true,
-            customBodyRender: (commercialOperation) => (
-              <React.Fragment>
-                {
-                  (commercialOperation.name ? commercialOperation.name : '')
-                }
-              </React.Fragment>
-            ),
             setCellProps: () => ({
               style: {
                 whiteSpace: 'nowrap',
@@ -199,299 +364,18 @@ class ExternalSuppliersBlock extends React.Component {
                 zIndex: 101
               }
             }),
-          }
-        },
-        {
-          label: 'Operation Code',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
+            customBodyRender: (address) => (
               <React.Fragment>
                 {
-                  (commercialOperation.code ? commercialOperation.code : '')
+                  address ? address.city.stateCountry.stateName : ' '
                 }
               </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
+            )
           }
         },
         {
-          label: 'Status',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-              <React.Fragment>
-                {
-                  (commercialOperation.status ? commercialOperation.status : '')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Estimated Trade Volume',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-              <React.Fragment>
-                {
-                  (commercialOperation.estimatedTradeVolume ? commercialOperation.estimatedTradeVolume : '')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Devise',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-              <React.Fragment>
-                {
-                  (commercialOperation.devise ? commercialOperation.devise : '')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Estimated Trade Volume (€)',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-              <React.Fragment>
-                {
-                  (commercialOperation.estimatedTradeVolumeInEuro ? commercialOperation.estimatedTradeVolumeInEuro : '')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Internal Order',
-          name: 'internalOrder',
-          options: {
-            filter: true,
-            customBodyRender: (value) => (
-              <React.Fragment>
-                {
-                  (value ? 'Yes' : 'No')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Company',
-          name: 'financialCompany',
-          options: {
-            filter: true,
-            customBodyRender: (financialCompany) => (
-              <React.Fragment>
-                {
-                  financialCompany.name
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Company Code',
-          name: 'financialCompany',
-          options: {
-            filter: true,
-            customBodyRender: (financialCompany) => (
-              <React.Fragment>
-                {
-                  (financialCompany.code ? financialCompany.code : '')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Tax Number',
-          name: 'financialCompany',
-          options: {
-            filter: true,
-            customBodyRender: (financialCompany) => (
-              <React.Fragment>
-                {
-                  (financialCompany.taxNumber ? financialCompany.taxNumber : '')
-                }
-              </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Actions',
           name: 'Actions',
+          label: ' Actions',
           options: {
             filter: false,
             sort: false,
@@ -531,10 +415,9 @@ class ExternalSuppliersBlock extends React.Component {
   }
 
   componentDidMount() {
-    SuppliersTypeService.getSuppliersType().then(result => {
-      console.log(result);
-      this.setState({ datas: result.data });
-    });
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -542,195 +425,387 @@ class ExternalSuppliersBlock extends React.Component {
     changeTheme('greyTheme');
   }
 
-    // eslint-disable-next-line react/sort-comp
-    handleDetails = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-            + tableMeta.rowIndex;
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].typeOfCurrencyId;
-      TypeOfCurrencylService.getTypeOfCurrencyById(id).then(result => {
-        this.setState({
-          typeOfCurrencyId: id,
-          currencyName: result.data.currencyName,
-          currencyCode: result.data.currencyCode,
-          openPopUp: true
-        });
+  // eslint-disable-next-line react/sort-comp
+  handleDetails = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].externalSupplierId;
+    FinancialCompanyService.getCompanyById(id).then(result => {
+      console.log(result.data);
+      this.setState({
+        financialCompanyId: result.data._id,
+        name: result.data.name,
+        code: result.data.code,
+        taxNumber: result.data.taxNumber,
+        email: result.data.email,
+        phone1: result.data.phone1,
+        phone2: result.data.phone2,
+        logo: result.data.logo,
+        address: result.data.address,
+        addressId: result.data.address.addressId,
+        postCode: result.data.address.postCode,
+        fullAddress: result.data.address.fullAddress,
+        openPopUp: true
       });
-    }
+    });
+  }
 
-    handleDelete = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-            + tableMeta.rowIndex;
-      let test = false;
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].typeOfCurrencyId;
-      console.log(id);
-      // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-      this.state.currencies.map(row => {
-        if ((row.typeOfCurrency._id) === (id)) test = true;
-      });
-      if (test) this.setState({ openWarning: true });
-      else {
-        TypeOfCurrencylService.deleteTypeOfCurrency(id).then(result => {
-          this.setState({ datas: result.data });
-        });
-      }
+  handleDelete = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].externalSupplierId;
+    FinancialCompanyService.deleteCompany(id).then(result => {
+      console.log(result.data);
+      this.setState({ datas: result.data });
+    });
+  };
+
+  handleSave = () => {
+    const {
+      financialCompanyId, name, code, taxNumber, email, phone1, phone2, logo, currentCity, postCode, fullAddress, addressId
+    } = this.state;
+    const city = { _id: currentCity };
+    const address = {
+      addressId, postCode, city, fullAddress
+    };
+    const FinancialCompany = {
+      financialCompanyId, name, code, taxNumber, email, phone1, phone2, logo, address
     };
 
-    handleClose = () => {
-      this.setState({ openPopUp: false, openWarning: false });
+    FinancialCompanyService.updateCompany(FinancialCompany).then(result => {
+      this.setState({ datas: result.data, openPopUp: false });
+    });
+  };
+
+  handleClose = () => {
+    this.setState({ openPopUp: false });
+  };
+
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ currentCity: value.cityId });
+  };
+
+  handleChange = (ev) => {
+    this.setState({ [ev.target.name]: ev.target.value });
+  };
+
+  render() {
+    console.log(this.state);
+    const {
+      // eslint-disable-next-line react/prop-types
+      allCountrys, allStateCountrys, allCitys, classes
+    } = this.props;
+    const {
+      datas, columns, openPopUp,
+      code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
+      postCode, fullAddress, taxNumber, URL
+    } = this.state;
+    const options = {
+      filter: true,
+      selectableRows: false,
+      filterType: 'dropdown',
+      responsive: 'stacked',
+      rowsPerPage: 10,
+      customToolbar: () => (
+        <CustomToolbar
+          csvData={datas}
+          url="/app/gestion-financial/Add-External Suppliers"
+          tooltip="Add New External Supplier"
+        />
+      )
     };
 
-    handleSave = () => {
-      let {
-        currencyName, currencyCode
-      } = this.state;
-      const {
-        typeOfCurrencyId
-      } = this.state;
-      currencyName = currencyName.toUpperCase();
-      currencyCode = currencyCode.toUpperCase();
-      const Currency = {
-        typeOfCurrencyId, currencyName, currencyCode
-      };
-      TypeOfCurrencylService.updateTypeOfCurrency(Currency).then(result => {
-        this.setState({ datas: result.data, openPopUp: false });
-      });
-    };
-
-    handleChange = (ev) => {
-      this.setState({ [ev.target.name]: ev.target.value });
-    };
-
-    render() {
-      console.log(this.state);
-      const {
-        columns, openPopUp, datas, currencyName, currencyCode, openWarning
-      } = this.state;
-      const options = {
-        filter: true,
-        selectableRows: false,
-        filterType: 'dropdown',
-        responsive: 'stacked',
-        rowsPerPage: 10,
-        customToolbar: () => (
-          <CustomToolbar
-            csvData={datas}
-            url="/app/gestion-financial/Add-External Suppliers"
-            tooltip="Add New External Supplier"
-          />
-        )
-      };
-
-      return (
-        <div>
-          <MUIDataTable
-            title="The Suppliers Type List"
-            data={datas}
-            columns={columns}
-            options={options}
-          />
-          <Dialog
-            open={openPopUp}
-            keepMounted
-            scroll="paper"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth="md"
-            maxWidth="md"
-          >
-            <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
-            <DialogContent dividers>
-              <div>
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="flex-start"
-                  direction="row"
-                  justify="center"
+    return (
+      <div>
+        <MUIDataTable
+          title="The External Supplier List"
+          data={datas}
+          columns={columns}
+          options={options}
+        />
+        <Dialog
+          open={openPopUp}
+          keepMounted
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth="md"
+          maxWidth="md"
+        >
+          <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
+          <DialogContent dividers>
+            <Grid
+              container
+              spacing={10}
+              alignItems="flex-start"
+              direction="row"
+              justify="center"
+            >
+              <Grid item xs={12} md={4}>
+                <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
+                <TextField
+                  label="External Supplier Code"
+                  variant="outlined"
+                  name="code"
+                  value={code}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Company Name"
+                  variant="outlined"
+                  name="companyName"
+                  value={companyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Responsible's First Name"
+                  variant="outlined"
+                  name="firstName"
+                  value={firstName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Father Family Name"
+                  variant="outlined"
+                  name="fatherFamilyName"
+                  value={fatherFamilyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Mother Family Name"
+                  variant="outlined"
+                  name="motherFamilyName"
+                  value={motherFamilyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Email"
+                  variant="outlined"
+                  name="email"
+                  value={email}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  id="outlined-basic"
+                  label="Tax Number (NIF)"
+                  variant="outlined"
+                  name="taxNumber"
+                  value={taxNumber}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Company URL"
+                  variant="outlined"
+                  name="URL"
+                  value={URL}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Chip label="Supplier Address" avatar={<Avatar>S</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCountrys}
+                  getOptionLabel={option => option.countryName}
+                  onChange={this.handleChangeCountry}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allStateCountrys}
+                  getOptionLabel={option => option.stateName}
+                  onChange={this.handleChangeState}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the state"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCitys}
+                  getOptionLabel={option => option.cityName}
+                  onChange={this.handleChangeCity}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the city"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <br />
+                <TextField
+                  id="fullAddress"
+                  label="Name of address"
+                  variant="outlined"
+                  name="fullAddress"
+                  value={fullAddress}
+                  fullWidth
+                  required
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <br />
+                <br />
+                <TextField
+                  id="outlined-basic"
+                  label="Post Code"
+                  variant="outlined"
+                  fullWidth
+                  value={postCode}
+                  required
+                  name="postCode"
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={7}
+                style={{ display: 'flex', justifyContent: 'center' }}
+              >
+                <Button
+                  size="small"
+                  color="inherit"
+                  onClick={this.handleGoBack}
                 >
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      id="currencyName"
-                      label="Currency Name"
-                      variant="outlined"
-                      name="currencyName"
-                      value={currencyName}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      id="currencyCode"
-                      label="Currency Code"
-                      variant="outlined"
-                      name="currencyCode"
-                      value={currencyCode}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
-                  </Grid>
-                </Grid>
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleClose}>
-                            Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleSave}
-              >
-                            save
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog
-            open={openWarning}
-            keepMounted
-            scroll="paper"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth=""
-            maxWidth=""
-          >
-            <DialogTitle id="alert-dialog-slide-title"> Operation Denied </DialogTitle>
-            <DialogContent dividers>
-              <Typography
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  opacity: 0.4,
-                  marginRight: 20,
-                  width: '100%'
-                }}
-              >
-                 This Currency is used in other module of this application
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  size="medium"
+                  onClick={this.handleSubmit}
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={this.handleClose}>
                 Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </div>
-      );
-    }
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.handleSave}
+            >
+                save
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  }
 }
-const SuppliersTypeMapped = connect()(ExternalSuppliersBlock);
+ExternalSuppliersBlock.propTypes = {
+  // eslint-disable-next-line react/no-unused-prop-types
+  classes: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/no-unused-prop-types
+  add: PropTypes.func.isRequired,
+  // eslint-disable-next-line react/no-unused-prop-types
+  back: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState,
+}, dispatch);
+
+const ExternalSuppliersBlockMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ExternalSuppliersBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <SuppliersTypeMapped changeTheme={changeTheme} classes={classes} />;
+  return <ExternalSuppliersBlockMapped changeTheme={changeTheme} classes={classes} />;
 };
