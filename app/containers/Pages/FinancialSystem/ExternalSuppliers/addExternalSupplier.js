@@ -1,47 +1,43 @@
 import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
-import {
-  Button, FormControl, Grid, TextField
-} from '@material-ui/core';
+import { Grid, TextField } from '@material-ui/core';
+import brand from 'dan-api/dummy/brand';
+import { PapperBlock } from 'dan-components';
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import Chip from '@material-ui/core/Chip';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
-import FormLabel from '@material-ui/core/FormLabel';
-import { Image } from '@material-ui/icons';
-import brand from 'dan-api/dummy/brand';
-import { PapperBlock } from 'dan-components';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import IconButton from '@material-ui/core/IconButton';
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import history from '../../../../utils/history';
-import styles from '../../Companies/companies-jss';
+import SuppliersTypeService from '../../../Services/SuppliersTypeService';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
-import { addClientCommercial, getAllClient } from '../../../../redux/client/actions';
-import FinancialCompanyService from '../../../Services/FinancialCompanyService';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles();
 
-class AddFinancialCompany extends React.Component {
+class AddExternalSupplier extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
       code: '',
+      companyName: '',
+      firstName: '',
+      fatherFamilyName: '',
+      motherFamilyName: '',
       email: '',
-      phone1: '',
-      phone2: '',
-      logo: '',
       currentCity: '',
-      taxNumber: '',
       postCode: '',
-      fullAddress: ''
+      fullAddress: '',
+      taxNumber: '',
+      URL: '',
     };
   }
 
@@ -72,80 +68,53 @@ class AddFinancialCompany extends React.Component {
     this.setState({ currentCity: value.cityId });
   };
 
-  // eslint-disable-next-line react/sort-comp
-  readURI(e) {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      console.log(e.target.files);
-      reader.onload = function (ev) {
-        this.setState({ logo: ev.target.result });
-      }.bind(this);
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  }
-
-    handleChangeLogo = e => {
-      this.readURI(e);
-    };
-
     handleSubmit = () => {
       const {
-        name, code, email, phone1, phone2, logo, postCode, currentCity, fullAddress, taxNumber
+        currencyName, currencyCode
       } = this.state;
-      const city = { _id: currentCity };
-      const address = {
-        postCode, city, fullAddress
+      const TypeOfCurrency = {
+        currencyName, currencyCode
       };
-      const FinancialCompany = {
-        name, code, taxNumber, email, phone1, phone2, logo, address
-      };
-      FinancialCompanyService.saveCompany(FinancialCompany).then(result => {
+      SuppliersTypeService.saveSuppliersType(TypeOfCurrency).then(result => {
         console.log(result);
-        history.push('/app/gestion-financial/Company');
+        history.push('/app/gestion-financial/External-Suppliers');
       });
+    }
+
+    handleGoBack = () => {
+      history.push('/app/gestion-financial/External-Suppliers');
     }
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
-    handleGoBack = () => {
-      history.push('/app/gestion-financial/Company');
-    }
-
     render() {
+      console.log(this.state);
+      const title = brand.name + ' - Add New External Supplier';
+      const { desc } = brand;
       const {
         // eslint-disable-next-line react/prop-types
         allCountrys, allStateCountrys, allCitys, classes
       } = this.props;
-      console.log(this.state);
-      const title = brand.name + ' - Companies';
-      const description = brand.desc;
       // eslint-disable-next-line react/prop-types
       const {
-        name,
-        code,
-        taxNumber,
-        email,
-        phone1,
-        phone2,
-        logo,
-        postCode,
-        fullAddress
+        code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
+        postCode, fullAddress, taxNumber, URL
       } = this.state;
       return (
         <div>
           <Helmet>
             <title>{title}</title>
-            <meta name="description" content={description} />
+            <meta name="description" content={desc} />
             <meta property="og:title" content={title} />
-            <meta property="og:description" content={description} />
+            <meta property="og:description" content={desc} />
             <meta property="twitter:title" content={title} />
-            <meta property="twitter:description" content={description} />
+            <meta property="twitter:description" content={desc} />
           </Helmet>
           <PapperBlock
-            title="New Financial Company"
-            desc="Please, Fill in the all field"
+            title="Add External Supplier "
+            desc="Please, Fill in the fields"
             icon="ios-add-circle"
           >
             <Grid container spacing={1}>
@@ -167,19 +136,7 @@ class AddFinancialCompany extends React.Component {
                 <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
                 <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <TextField
-                  id="outlined-basic"
-                  label="Name"
-                  variant="outlined"
-                  name="name"
-                  value={name}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Code"
+                  label="External Supplier Code"
                   variant="outlined"
                   name="code"
                   value={code}
@@ -188,6 +145,68 @@ class AddFinancialCompany extends React.Component {
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
+                <br />
+                <br />
+                <TextField
+                  label="Company Name"
+                  variant="outlined"
+                  name="companyName"
+                  value={companyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Responsible's First Name"
+                  variant="outlined"
+                  name="firstName"
+                  value={firstName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Father Family Name"
+                  variant="outlined"
+                  name="fatherFamilyName"
+                  value={fatherFamilyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Mother Family Name"
+                  variant="outlined"
+                  name="motherFamilyName"
+                  value={motherFamilyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Email"
+                  variant="outlined"
+                  name="email"
+                  value={email}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
                 <TextField
                   id="outlined-basic"
                   label="Tax Number (NIF)"
@@ -199,68 +218,21 @@ class AddFinancialCompany extends React.Component {
                   onChange={this.handleChange}
                   className={classes.textField}
                 />
-                <TextField
-                  id="outlined-basic"
-                  label="Email"
-                  variant="outlined"
-                  name="email"
-                  value={email}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="General Phone 1"
-                  variant="outlined"
-                  name="phone1"
-                  value={phone1}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="General Phone 2"
-                  variant="outlined"
-                  name="phone2"
-                  value={phone2}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                  className={classes.textField}
-                />
                 <br />
                 <br />
-                <FormControl>
-                  <input
-                    style={{ display: 'none' }}
-                    id="outlined-button-file-2"
-                    type="file"
-                    onChange={this.handleChangeLogo.bind(this)}
-                    className={classes.textField}
-                  />
-                  <FormLabel htmlFor="outlined-button-file-2">
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      component="span"
-                      startIcon={<Image color="primary" />}
-                    >
-                                        Logo
-                    </Button>
-                  </FormLabel>
-                </FormControl>
-                {
-                  logo ? (
-                    <Avatar alt="User Name" src={logo} className={classes.large} />
-                  ) : (<div />)
-                }
+                <TextField
+                  label="Company URL"
+                  variant="outlined"
+                  name="URL"
+                  value={URL}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
               </Grid>
               <Grid item xs={12} md={3}>
-                <Chip label="Company Address" avatar={<Avatar>S</Avatar>} color="primary" />
+                <Chip label="Supplier Address" avatar={<Avatar>S</Avatar>} color="primary" />
                 <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <Autocomplete
                   id="combo-box-demo"
@@ -306,6 +278,7 @@ class AddFinancialCompany extends React.Component {
                     />
                   )}
                 />
+                <br />
                 <TextField
                   id="fullAddress"
                   label="Name of address"
@@ -317,6 +290,8 @@ class AddFinancialCompany extends React.Component {
                   className={classes.textField}
                   onChange={this.handleChange}
                 />
+                <br />
+                <br />
                 <TextField
                   id="outlined-basic"
                   label="Post Code"
@@ -340,7 +315,7 @@ class AddFinancialCompany extends React.Component {
                   color="inherit"
                   onClick={this.handleGoBack}
                 >
-                    Cancel
+                  Cancel
                 </Button>
                 <Button
                   color="primary"
@@ -348,7 +323,7 @@ class AddFinancialCompany extends React.Component {
                   size="medium"
                   onClick={this.handleSubmit}
                 >
-                                Save Company
+                  Save
                 </Button>
               </Grid>
             </Grid>
@@ -357,7 +332,7 @@ class AddFinancialCompany extends React.Component {
       );
     }
 }
-AddFinancialCompany.propTypes = {
+AddExternalSupplier.propTypes = {
   classes: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
@@ -379,18 +354,16 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
   getAllStateByCountry,
-  getAllCityByState,
-  addClientCommercial,
-  getAllClient
+  getAllCityByState
 }, dispatch);
 
-const AddFinancialCompanyMapped = connect(
+const AddExternalSupplierMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AddFinancialCompany);
+)(AddExternalSupplier);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <AddFinancialCompanyMapped changeTheme={changeTheme} classes={classes} />;
+  return <AddExternalSupplierMapped changeTheme={changeTheme} classes={classes} />;
 };

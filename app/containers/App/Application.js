@@ -35,6 +35,8 @@ import {
   People,
   AddWorkers,
   Staff,
+  SupplierType,
+  AddSupplierType,
   AddStaff,
   Operations,
   OperationsAssignment,
@@ -45,6 +47,8 @@ import {
   AddFinancialCompany,
   FinancialContract,
   AddContract,
+  ExternalSupplier,
+  AddExternalSupplier,
   ClientContact,
   City,
   State,
@@ -454,6 +458,26 @@ function Application(props) {
         />
         <Route
           exact
+          path="/app/gestion-financial/Suppliers-Type"
+          component={SupplierType}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-Suppliers"
+          component={AddSupplierType}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/External-Suppliers"
+          component={ExternalSupplier}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-External Suppliers"
+          component={AddExternalSupplier}
+        />
+        <Route
+          exact
           path="/app/gestion-financial/Staff Economic Management"
           component={EconomicStaff}
         />
@@ -487,7 +511,6 @@ function Application(props) {
           path="/app/gestion-financial/travel-management"
           component={TravelManagement}
         />
-
         <Route
           exact
           path="/app/operative-system/staff-assignment"
@@ -508,7 +531,6 @@ function Application(props) {
           path="/app/operative-system/configurations/weekly-report"
           component={WeeklyReportConfig}
         />
-
         <Route
           exact
           path="/app/data/administration/users"

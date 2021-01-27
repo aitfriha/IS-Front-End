@@ -361,7 +361,22 @@ export const RoleAbility = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleAbility'),
   loading: Loading
 });
-
+export const SupplierType = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersType'),
+  loading: Loading
+});
+export const AddSupplierType = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersType/addSuppliersType'),
+  loading: Loading
+});
+export const ExternalSupplier = Loadable({
+  loader: () => import('./Pages/FinancialSystem/ExternalSuppliers'),
+  loading: Loading
+});
+export const AddExternalSupplier = Loadable({
+  loader: () => import('./Pages/FinancialSystem/ExternalSuppliers/addExternalSupplier'),
+  loading: Loading
+});
 export const ExpensesRecord = Loadable({
   loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesRecord'),
   loading: Loading
