@@ -616,8 +616,8 @@ class ExternalSuppliersBlock extends React.Component {
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
-            url="/app/gestion-financial/Add-Suppliers"
-            tooltip="Add New Supplier Type"
+            url="/app/gestion-financial/Add-External Suppliers"
+            tooltip="Add New External Supplier"
           />
         )
       };

@@ -116,7 +116,7 @@ class AddFinancialCompany extends React.Component {
     render() {
       const {
         // eslint-disable-next-line react/prop-types
-        allCountrys, allStateCountrys, allCitys
+        allCountrys, allStateCountrys, allCitys, classes
       } = this.props;
       console.log(this.state);
       const title = brand.name + ' - Companies';
@@ -133,7 +133,6 @@ class AddFinancialCompany extends React.Component {
         postCode,
         fullAddress
       } = this.state;
-      const { classes } = this.props;
       return (
         <div>
           <Helmet>

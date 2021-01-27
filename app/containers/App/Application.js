@@ -47,6 +47,8 @@ import {
   AddFinancialCompany,
   FinancialContract,
   AddContract,
+  ExternalSupplier,
+  AddExternalSupplier,
   ClientContact,
   City,
   State,
@@ -463,6 +465,16 @@ function Application(props) {
           exact
           path="/app/gestion-financial/Add-Suppliers"
           component={AddSupplierType}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/External-Suppliers"
+          component={ExternalSupplier}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-External Suppliers"
+          component={AddExternalSupplier}
         />
         <Route
           exact

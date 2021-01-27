@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
-import {
-  FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography
-} from '@material-ui/core';
+import { Grid, TextField } from '@material-ui/core';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,13 +8,18 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { connect } from 'react-redux';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
+import Chip from '@material-ui/core/Chip';
+import Avatar from '@material-ui/core/Avatar';
+import Divider from '@material-ui/core/Divider';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import history from '../../../../utils/history';
 import SuppliersTypeService from '../../../Services/SuppliersTypeService';
-import CommercialOperationService from '../../../Services/CommercialOperationService';
-import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
+import { getAllCountry } from '../../../../redux/country/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
 
 const useStyles = makeStyles();
 
@@ -25,7 +28,6 @@ class AddExternalSupplier extends React.Component {
     super(props);
     this.state = {
       code: '',
-      name: '',
       companyName: '',
       firstName: '',
       fatherFamilyName: '',
@@ -36,29 +38,35 @@ class AddExternalSupplier extends React.Component {
       fullAddress: '',
       taxNumber: '',
       URL: '',
-      open: false,
-      open2: false,
     };
   }
 
   componentDidMount() {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCountry } = this.props;
+    getAllCountry();
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
     } = this.props;
     changeTheme('greyTheme');
-    // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllClient } = this.props;
-    getAllClient();
-    CommercialOperationService.getCommercialOperation().then(result => {
-      console.log(result.data.payload);
-      this.setState({ operations: result.data.payload });
-    });
-    FinancialCompanyService.getCompany().then(result => {
-      console.log(result);
-      this.setState({ companies: result.data });
-    });
   }
+
+  handleChangeCountry = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllStateByCountry } = this.props;
+    getAllStateByCountry(value.countryId);
+  };
+
+  handleChangeState = (ev, value) => {
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { getAllCityByState } = this.props;
+    getAllCityByState(value.stateCountryId);
+  };
+
+  handleChangeCity = (ev, value) => {
+    this.setState({ currentCity: value.cityId });
+  };
 
     handleSubmit = () => {
       const {
@@ -85,9 +93,14 @@ class AddExternalSupplier extends React.Component {
       console.log(this.state);
       const title = brand.name + ' - Add New External Supplier';
       const { desc } = brand;
+      const {
+        // eslint-disable-next-line react/prop-types
+        allCountrys, allStateCountrys, allCitys, classes
+      } = this.props;
       // eslint-disable-next-line react/prop-types
       const {
-        name, description, operationAssociated, internalOrder, open, open2, operationId, operations, companies, companyId
+        code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
+        postCode, fullAddress, taxNumber, URL
       } = this.state;
       return (
         <div>
@@ -112,144 +125,241 @@ class AddExternalSupplier extends React.Component {
                 </IconButton>
               </Grid>
             </Grid>
-            <br />
-            <Typography variant="subtitle2" component="h2" color="primary" align="center" />
-            <br />
             <Grid
               container
-              spacing={6}
+              spacing={10}
               alignItems="flex-start"
               direction="row"
               justify="center"
             >
-              <Grid item xs={10} md={6}>
+              <Grid item xs={12} md={4}>
+                <Chip label="General Information" avatar={<Avatar>G</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <TextField
-                  id="outlined-name"
-                  label="Supplier Name"
+                  label="External Supplier Code"
                   variant="outlined"
-                  name="name"
-                  value={name}
+                  name="code"
+                  value={code}
                   required
                   fullWidth
                   onChange={this.handleChange}
+                  className={classes.textField}
                 />
-              </Grid>
-              <Grid item xs={10} md={6}>
+                <br />
+                <br />
                 <TextField
-                  id="outlined-description"
-                  label="Description"
+                  label="Company Name"
                   variant="outlined"
-                  name="description"
-                  value={description}
+                  name="companyName"
+                  value={companyName}
                   required
                   fullWidth
                   onChange={this.handleChange}
+                  className={classes.textField}
                 />
+                <br />
+                <br />
+                <TextField
+                  label="Responsible's First Name"
+                  variant="outlined"
+                  name="firstName"
+                  value={firstName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Father Family Name"
+                  variant="outlined"
+                  name="fatherFamilyName"
+                  value={fatherFamilyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Mother Family Name"
+                  variant="outlined"
+                  name="motherFamilyName"
+                  value={motherFamilyName}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Email"
+                  variant="outlined"
+                  name="email"
+                  value={email}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  id="outlined-basic"
+                  label="Tax Number (NIF)"
+                  variant="outlined"
+                  name="taxNumber"
+                  value={taxNumber}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+                <br />
+                <br />
+                <TextField
+                  label="Company URL"
+                  variant="outlined"
+                  name="URL"
+                  value={URL}
+                  required
+                  fullWidth
+                  onChange={this.handleChange}
+                  className={classes.textField}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Chip label="Supplier Address" avatar={<Avatar>S</Avatar>} color="primary" />
+                <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCountrys}
+                  getOptionLabel={option => option.countryName}
+                  onChange={this.handleChangeCountry}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the country"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allStateCountrys}
+                  getOptionLabel={option => option.stateName}
+                  onChange={this.handleChangeState}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the state"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={allCitys}
+                  getOptionLabel={option => option.cityName}
+                  onChange={this.handleChangeCity}
+                  style={{ marginTop: 15 }}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Choose the city"
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <br />
+                <TextField
+                  id="fullAddress"
+                  label="Name of address"
+                  variant="outlined"
+                  name="fullAddress"
+                  value={fullAddress}
+                  fullWidth
+                  required
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+                <br />
+                <br />
+                <TextField
+                  id="outlined-basic"
+                  label="Post Code"
+                  variant="outlined"
+                  fullWidth
+                  value={postCode}
+                  required
+                  name="postCode"
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={7}
+                style={{ display: 'flex', justifyContent: 'center' }}
+              >
+                <Button
+                  size="small"
+                  color="inherit"
+                  onClick={this.handleGoBack}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  size="medium"
+                  onClick={this.handleSubmit}
+                >
+                  Save Company
+                </Button>
               </Grid>
             </Grid>
-            <Grid
-              container
-              spacing={6}
-              alignItems="flex-start"
-              direction="row"
-              justify="center"
-            >
-              <Grid item xs={10} md={6}>
-                <FormControlLabel
-                  id="operationAssociated"
-                  name="operationAssociated"
-                  value={operationAssociated}
-                  control={<Checkbox color="primary" onChange={this.handleCheck} />}
-                  label="● Associate with Commercial Operation "
-                  labelPlacement="start"
-                />
-                {open === false ? (
-                  <div />
-                ) : (
-                  <Grid
-                    container
-                    spacing={6}
-                    alignItems="flex-start"
-                    direction="row"
-                    justify="center"
-                  >
-                    <Grid item xs={8}>
-                      <FormControl fullWidth required>
-                        <InputLabel>Select Operation</InputLabel>
-                        <Select
-                          name="operationId"
-                          value={operationId}
-                          onChange={this.handleChange}
-                        >
-                          {
-                            operations.map((clt) => (
-                              <MenuItem key={clt.commercialOperationId} value={clt.commercialOperationId}>
-                                {clt.name}
-                              </MenuItem>
-                            ))
-                          }
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-                ) }
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <FormControlLabel
-                  id="internalOrder"
-                  name="internalOrder"
-                  value={internalOrder}
-                  control={<Checkbox color="primary" onChange={this.handleCheck2} />}
-                  label="● Add Internal Order "
-                  labelPlacement="start"
-                />
-                {open2 === false ? (
-                  <div />
-                ) : (
-                  <Grid
-                    container
-                    spacing={6}
-                    alignItems="flex-start"
-                    direction="row"
-                    justify="center"
-                  >
-                    <Grid item xs={8}>
-                      <FormControl fullWidth required>
-                        <InputLabel>Select Company</InputLabel>
-                        <Select
-                          name="companyId"
-                          value={companyId}
-                          onChange={this.handleChange}
-                        >
-                          {
-                            companies.map((clt) => (
-                              <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
-                                {clt.name}
-                              </MenuItem>
-                            ))
-                          }
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-                ) }
-              </Grid>
-            </Grid>
-            <div align="center">
-              <br />
-              <br />
-              <Button size="small" color="inherit" onClick={this.handleGoBack}>Cancel</Button>
-              <Button variant="contained" color="primary" type="button" onClick={this.handleSubmit}>
-                            Save
-              </Button>
-            </div>
           </PapperBlock>
         </div>
       );
     }
 }
+AddExternalSupplier.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+const mapStateToProps = state => ({
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
+});
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllCountry,
+  getAllStateByCountry,
+  getAllCityByState
+}, dispatch);
 
 const AddExternalSupplierMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
 )(AddExternalSupplier);
 
 export default () => {
