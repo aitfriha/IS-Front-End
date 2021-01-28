@@ -160,7 +160,7 @@ class AddExternalSupplier extends React.Component {
                 <br />
                 <br />
                 <TextField
-                  label="Responsible's First Name"
+                  label="Responsible First Name"
                   variant="outlined"
                   name="firstName"
                   value={firstName}
