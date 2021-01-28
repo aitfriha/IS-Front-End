@@ -376,7 +376,7 @@ class User extends React.Component {
 
   render() {
     const {
-      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients
+      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients,logedUser
     } = this.props;
     const {
       columns, openPopUp, client, actif, companies, company, xclients, staff, userPassword,
@@ -388,7 +388,7 @@ class User extends React.Component {
       // Sent resolve to editing promises
     (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
     (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
-
+    console.log(JSON.parse(localStorage.getItem('user')));
     return (
       <div>
         <MaterialTable
@@ -648,6 +648,7 @@ const mapStateToProps = state => ({
   clientResponse: state.getIn(['clients']).clientResponse,
   isLoadingClient: state.getIn(['clients']).isLoading,
   errorsClient: state.getIn(['clients']).errors,
+  logedUser: localStorage.getItem('user'),
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

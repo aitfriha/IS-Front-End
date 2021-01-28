@@ -16,7 +16,10 @@ import {
   UPDATE_USER_SUCCESS,
   FORGETPASSWORD_USER,
   FORGETPASSWORD_USER_SUCCESS,
-  FORGETPASSWORD_USER_FAILURE
+  FORGETPASSWORD_USER_FAILURE,
+  GETBYEMAIL_USER,
+  GETBYEMAIL_USER_SUCCESS,
+  GETBYEMAIL_USER_FAILURE
 } from './constants';
 
 import ENDPOINTS from '../../../app/api/endpoints';
@@ -68,15 +71,37 @@ function* updateUser(action) {
   }
 }
 
+function* getUserByEmail(action) {
+  try {
+    const {
+      userEmail
+    } = action;
+
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.ADMINISTRATION.USER + '/byemail/' + userEmail,
+    });
+
+    yield put({
+      type: GETBYEMAIL_USER_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GETBYEMAIL_USER_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 function* forgetPasswordUser(action) {
   try {
     const {
       userEmail
     } = action;
-console.log(userEmail);
     const request = yield axios({
       method: 'get',
-      url: ENDPOINTS.ADMINISTRATION.USER + '/forgetPassword/'+userEmail,
+      url: ENDPOINTS.ADMINISTRATION.USER + '/forgetPassword/' + userEmail,
       data: userEmail
     });
 
@@ -137,6 +162,7 @@ function* getAllUsers() {
 
 export default function* usersSaga() {
   yield all([
+    takeLatest(GETBYEMAIL_USER, getUserByEmail),
     takeLatest(FORGETPASSWORD_USER, forgetPasswordUser),
     takeLatest(ADD_USER, addUser),
     takeLatest(UPDATE_USER, updateUser),

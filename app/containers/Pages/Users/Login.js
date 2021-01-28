@@ -8,10 +8,19 @@ import styles from 'dan-components/Forms/user-jss';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { isEmpty } from 'lodash';
+import { isEmpty, isString } from 'lodash';
 import { signIn } from '../../../../transversal-administration/redux/auth/actions';
 import notification from '../../../components/Notification/Notification';
+import { getUserByEmail } from '../../../../transversal-administration/redux/users/actions';
 class Login extends React.Component {
+  constructor(props) {
+    super(props);
+    this.editingPromiseResolve = () => {
+    };
+    this.editingPromiseResolve2 = () => {
+    };
+  }
+
   componentDidUpdate() {
     const {
       history, isLoading, errors, signInResponse
@@ -23,21 +32,41 @@ class Login extends React.Component {
 
   submitForm(values) {
     const {
-      signIn
+      signIn, getUserByEmail
     } = this.props;
 
     const authBody = {
       userEmail: values.get('email'),
       userPassword: values.get('password')
     };
-    signIn(authBody);
+    new Promise((resolve2) => {
+      getUserByEmail(values.get('email'));
+      this.editingPromiseResolve2 = resolve2;
+    }).then((result2) => {
+      //notification('success', result2);
+        delete result2.userPassword;
+      localStorage.setItem('user', JSON.stringify(result2));
+    });
+    new Promise((resolve) => {
+      signIn(authBody);
+      this.editingPromiseResolve = resolve;
+    }).then((result) => {
+
+    });
   }
 
 
   render() {
     const title = brand.name + ' - Login';
     const description = brand.desc;
-    const { classes } = this.props;
+    const {
+      classes, isLoading, signInResponse, errors, userResponse, userIsLoading, userErrors
+    } = this.props;
+    (!isLoading && signInResponse) && this.editingPromiseResolve(signInResponse);
+    (!isLoading && !signInResponse) && this.editingPromiseResolve(errors);
+
+    (!userIsLoading && userResponse) && this.editingPromiseResolve2(userResponse);
+    (!userIsLoading && !userResponse) && this.editingPromiseResolve2(userErrors);
 
     return (
       <div className={classes.root}>
@@ -71,11 +100,15 @@ Login.propTypes = {
 const mapStateToProps = state => ({
   signInResponse: state.getIn(['auth']).signInResponse,
   isLoading: state.getIn(['auth']).isLoading,
-  errors: state.getIn(['auth']).errors
+  errors: state.getIn(['auth']).errors,
+
+  userResponse: state.getIn(['user']).userResponse,
+  userIsLoading: state.getIn(['user']).isLoading,
+  userErrors: state.getIn(['user']).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  signIn
+  signIn, getUserByEmail
 }, dispatch);
 
 export default withStyles(styles)(connect(

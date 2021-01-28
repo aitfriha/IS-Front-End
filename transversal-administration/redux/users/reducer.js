@@ -13,7 +13,10 @@ import {
   UPDATE_USER_SUCCESS,
   FORGETPASSWORD_USER,
   FORGETPASSWORD_USER_SUCCESS,
-  FORGETPASSWORD_USER_FAILURE
+  FORGETPASSWORD_USER_FAILURE,
+  GETBYEMAIL_USER,
+  GETBYEMAIL_USER_SUCCESS,
+  GETBYEMAIL_USER_FAILURE
 } from './constants';
 
 const initialState = {
@@ -31,6 +34,7 @@ export default function usersReducer(state = initialState, action) {
     case UPDATE_USER:
     case DELETE_USER:
     case FORGETPASSWORD_USER:
+    case GETBYEMAIL_USER:
       return {
         ...state,
         isLoading: true
@@ -41,6 +45,7 @@ export default function usersReducer(state = initialState, action) {
     case UPDATE_USER_SUCCESS:
     case DELETE_USER_SUCCESS:
     case FORGETPASSWORD_USER_SUCCESS:
+    case GETBYEMAIL_USER_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -61,6 +66,7 @@ export default function usersReducer(state = initialState, action) {
     case UPDATE_USER_FAILURE:
     case DELETE_USER_FAILURE:
     case FORGETPASSWORD_USER_FAILURE:
+    case GETBYEMAIL_USER_FAILURE:
       return {
         ...state,
         isLoading: false,

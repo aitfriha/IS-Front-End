@@ -3,7 +3,8 @@ import {
   DELETE_USER,
   GET_ALL_USERS,
   UPDATE_USER,
-  FORGETPASSWORD_USER
+  FORGETPASSWORD_USER,
+  GETBYEMAIL_USER
 } from './constants';
 
 export const addUser = (user) => ({
@@ -13,6 +14,11 @@ export const addUser = (user) => ({
 export const updateUser = (userWithId) => ({
   type: UPDATE_USER,
   userWithId
+});
+
+export const getUserByEmail = (userEmail) => ({
+  type: GETBYEMAIL_USER,
+  userEmail
 });
 
 export const forgetPasswordUser = (userEmail) => ({
