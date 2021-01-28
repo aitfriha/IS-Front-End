@@ -16,7 +16,7 @@ import Divider from '@material-ui/core/Divider';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
 import { ThemeContext } from '../../../App/ThemeWrapper';
-import FinancialCompanyService from '../../../Services/FinancialCompanyService';
+import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
@@ -222,7 +222,7 @@ class ExternalSuppliersBlock extends React.Component {
         },
         {
           label: 'Company URL',
-          name: 'URL',
+          name: 'url',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -418,6 +418,10 @@ class ExternalSuppliersBlock extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
+    ExternalSuppliersService.getExternalSuppliers().then(result => {
+      console.log(result);
+      this.setState({ datas: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -431,17 +435,18 @@ class ExternalSuppliersBlock extends React.Component {
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].externalSupplierId;
-    FinancialCompanyService.getCompanyById(id).then(result => {
+    ExternalSuppliersService.getExternalSuppliersById(id).then(result => {
       console.log(result.data);
       this.setState({
-        financialCompanyId: result.data._id,
-        name: result.data.name,
+        externalSupplierId: id,
+        companyName: result.data.companyName,
         code: result.data.code,
         taxNumber: result.data.taxNumber,
         email: result.data.email,
-        phone1: result.data.phone1,
-        phone2: result.data.phone2,
-        logo: result.data.logo,
+        firstName: result.data.firstName,
+        fatherFamilyName: result.data.fatherFamilyName,
+        motherFamilyName: result.data.motherFamilyName,
+        URL: result.data.url,
         address: result.data.address,
         addressId: result.data.address.addressId,
         postCode: result.data.address.postCode,
@@ -456,7 +461,7 @@ class ExternalSuppliersBlock extends React.Component {
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].externalSupplierId;
-    FinancialCompanyService.deleteCompany(id).then(result => {
+    ExternalSuppliersService.deleteExternalSuppliers(id).then(result => {
       console.log(result.data);
       this.setState({ datas: result.data });
     });
@@ -464,17 +469,16 @@ class ExternalSuppliersBlock extends React.Component {
 
   handleSave = () => {
     const {
-      financialCompanyId, name, code, taxNumber, email, phone1, phone2, logo, currentCity, postCode, fullAddress, addressId
+      externalSupplierId, code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
     } = this.state;
     const city = { _id: currentCity };
     const address = {
-      addressId, postCode, city, fullAddress
+      postCode, city, fullAddress
     };
-    const FinancialCompany = {
-      financialCompanyId, name, code, taxNumber, email, phone1, phone2, logo, address
+    const ExternalSupplier = {
+      externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
     };
-
-    FinancialCompanyService.updateCompany(FinancialCompany).then(result => {
+    ExternalSuppliersService.updateExternalSuppliers(ExternalSupplier).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
     });
   };
@@ -726,28 +730,6 @@ class ExternalSuppliersBlock extends React.Component {
                   className={classes.textField}
                   onChange={this.handleChange}
                 />
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                md={7}
-                style={{ display: 'flex', justifyContent: 'center' }}
-              >
-                <Button
-                  size="small"
-                  color="inherit"
-                  onClick={this.handleGoBack}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  size="medium"
-                  onClick={this.handleSubmit}
-                >
-                  Save
-                </Button>
               </Grid>
             </Grid>
           </DialogContent>

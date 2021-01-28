@@ -4,7 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography
+  Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
@@ -262,7 +262,7 @@ class SuppliersTypeBlock extends React.Component {
     render() {
       console.log(this.state);
       const {
-        columns, openPopUp, datas, openWarning,
+        columns, openPopUp, datas,
         name, description, operationAssociated, internalOrder
       } = this.state;
       const options = {
@@ -371,39 +371,6 @@ class SuppliersTypeBlock extends React.Component {
                 onClick={this.handleSave}
               >
                             save
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog
-            open={openWarning}
-            keepMounted
-            scroll="paper"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
-            fullWidth=""
-            maxWidth=""
-          >
-            <DialogTitle id="alert-dialog-slide-title"> Operation Denied </DialogTitle>
-            <DialogContent dividers>
-              <Typography
-                style={{
-                  color: '#000',
-                  fontFamily: 'sans-serif , Arial',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  opacity: 0.4,
-                  marginRight: 20,
-                  width: '100%'
-                }}
-              >
-                 This Currency is used in other module of this application
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button color="secondary" onClick={this.handleClose}>
-                Cancel
               </Button>
             </DialogActions>
           </Dialog>
