@@ -39,6 +39,7 @@ import {
   Operations,
   OperationsAssignment,
   CommercialOperation,
+  DocumentManager,
   CommercialAction,
   AddCommercialOperation,
   FinancialCompany,
@@ -170,6 +171,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/sectors/create-sector"
           component={AddSector}
+        />
+        <Route
+          exact
+          path="/app/gestion-commercial/document-manager"
+          component={DocumentManager}
         />
         <Route
           exact

@@ -47,6 +47,13 @@ module.exports = [
         ]
       },
       {
+        key: 'commercialDocumentManager',
+        name: 'commercial_document_manager',
+        icon: 'ios-newspaper-outline',
+        link: '/app/gestion-commercial/document-manager',
+        keyParent: 'commercial'
+      },
+      {
         key: 'commercial_basic_table',
         name: 'CommercialBasic Tables',
         icon: 'ios-newspaper-outline',
