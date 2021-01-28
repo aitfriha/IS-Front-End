@@ -2,14 +2,14 @@ import axios from 'axios';
 import { API } from '../../config/apiUrl';
 
 class SuppliersTypeService {
-    getSuppliersType = () => axios.get(`${API}/suppliersType/all`);
+    getSuppliersType = () => axios.get(`${API}/supplierType/all`);
 
-    getSuppliersTypeById = Id => axios.post(`${API}/suppliersType/row/${Id}`);
+    getSuppliersTypeById = Id => axios.post(`${API}/supplierType/row/${Id}`);
 
-    saveSuppliersType = SuppliersType => axios.post(`${API}/suppliersType/add`, SuppliersType);
+    saveSuppliersType = SuppliersType => axios.post(`${API}/supplierType/add`, SuppliersType);
 
-    updateSuppliersType = SuppliersType => axios.post(`${API}/suppliersType/update`, SuppliersType);
+    updateSuppliersType = SuppliersType => axios.post(`${API}/supplierType/update`, SuppliersType);
 
-    deleteSuppliersType = Id => axios.post(`${API}/suppliersType/delete/${Id}`);
+    deleteSuppliersType = Id => axios.post(`${API}/supplierType/delete/${Id}`);
 }
 export default new SuppliersTypeService();

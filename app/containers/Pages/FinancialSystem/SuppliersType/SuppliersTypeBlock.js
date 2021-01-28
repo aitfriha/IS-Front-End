@@ -8,8 +8,9 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
-import TypeOfCurrencylService from '../../../Services/TypeOfCurrencylService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import SuppliersTypeService from '../../../Services/SuppliersTypeService';
 
@@ -19,6 +20,11 @@ class SuppliersTypeBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      supplierTypeId: '',
+      name: '',
+      description: '',
+      operationAssociated: false,
+      internalOrder: false,
       datas: [],
       openPopUp: false,
       row: [],
@@ -79,267 +85,11 @@ class SuppliersTypeBlock extends React.Component {
           options: {
             filter: true,
             customBodyRender: (value) => (
-                <React.Fragment>
-                  {
-                    (value ? 'Yes' : 'No' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Client Name',
-          name: 'client',
-          options: {
-            filter: true,
-            customBodyRender: (client) => (
-                <React.Fragment>
-                  {
-                    (client.name ? client.name : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Client Code',
-          name: 'client',
-          options: {
-            filter: true,
-            customBodyRender: (client) => (
               <React.Fragment>
                 {
-                  (client.code ? client.code : '' )
+                  (value ? 'Yes' : 'No')
                 }
               </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Operation Name',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-                <React.Fragment>
-                  {
-                    (commercialOperation.name ? commercialOperation.name : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Operation Code',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-                <React.Fragment>
-                  {
-                    (commercialOperation.code ? commercialOperation.code : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Status',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-                <React.Fragment>
-                  {
-                    (commercialOperation.status ? commercialOperation.status : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Estimated Trade Volume',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-                <React.Fragment>
-                  {
-                    (commercialOperation.estimatedTradeVolume ? commercialOperation.estimatedTradeVolume : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Devise',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-                <React.Fragment>
-                  {
-                    (commercialOperation.devise ? commercialOperation.devise : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Estimated Trade Volume (€)',
-          name: 'commercialOperation',
-          options: {
-            filter: true,
-            customBodyRender: (commercialOperation) => (
-                <React.Fragment>
-                  {
-                    (commercialOperation.estimatedTradeVolumeInEuro ? commercialOperation.estimatedTradeVolumeInEuro : '' )
-                  }
-                </React.Fragment>
             ),
             setCellProps: () => ({
               style: {
@@ -367,107 +117,11 @@ class SuppliersTypeBlock extends React.Component {
           options: {
             filter: true,
             customBodyRender: (value) => (
-                <React.Fragment>
-                  {
-                   (value ? 'Yes' : 'No' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Company',
-          name: 'financialCompany',
-          options: {
-            filter: true,
-            customBodyRender: (financialCompany) => (
-                <React.Fragment>
-                  {
-                    financialCompany.name
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Company Code',
-          name: 'financialCompany',
-          options: {
-            filter: true,
-            customBodyRender: (financialCompany) => (
-                <React.Fragment>
-                  {
-                    (financialCompany.code ? financialCompany.code : '' )
-                  }
-                </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Tax Number',
-          name: 'financialCompany',
-          options: {
-            filter: true,
-            customBodyRender: (financialCompany) => (
-                <React.Fragment>
-                  {
-                    (financialCompany.taxNumber ? financialCompany.taxNumber : '' )
-                  }
-                </React.Fragment>
+              <React.Fragment>
+                {
+                  (value ? 'Yes' : 'No')
+                }
+              </React.Fragment>
             ),
             setCellProps: () => ({
               style: {
@@ -547,12 +201,15 @@ class SuppliersTypeBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].typeOfCurrencyId;
-      TypeOfCurrencylService.getTypeOfCurrencyById(id).then(result => {
+      const id = this.state.datas[index].supplierTypeId;
+      SuppliersTypeService.getSuppliersTypeById(id).then(result => {
+        console.log(result);
         this.setState({
-          typeOfCurrencyId: id,
-          currencyName: result.data.currencyName,
-          currencyCode: result.data.currencyCode,
+          supplierTypeId: id,
+          name: result.data.name,
+          description: result.data.description,
+          operationAssociated: result.data.operationAssociated,
+          internalOrder: result.data.internalOrder,
           openPopUp: true
         });
       });
@@ -561,39 +218,27 @@ class SuppliersTypeBlock extends React.Component {
     handleDelete = (tableMeta) => {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
-      let test = false;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].typeOfCurrencyId;
+      const id = this.state.datas[index].supplierTypeId;
       console.log(id);
       // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-      this.state.currencies.map(row => {
-        if ((row.typeOfCurrency._id) === (id)) test = true;
+      SuppliersTypeService.deleteSuppliersType(id).then(result => {
+        this.setState({ datas: result.data });
       });
-      if (test) this.setState({ openWarning: true });
-      else {
-        TypeOfCurrencylService.deleteTypeOfCurrency(id).then(result => {
-          this.setState({ datas: result.data });
-        });
-      }
     };
 
     handleClose = () => {
-      this.setState({ openPopUp: false, openWarning: false });
+      this.setState({ openPopUp: false });
     };
 
     handleSave = () => {
-      let {
-        currencyName, currencyCode
-      } = this.state;
       const {
-        typeOfCurrencyId
+        supplierTypeId, name, description, operationAssociated, internalOrder
       } = this.state;
-      currencyName = currencyName.toUpperCase();
-      currencyCode = currencyCode.toUpperCase();
-      const Currency = {
-        typeOfCurrencyId, currencyName, currencyCode
+      const SupplierType = {
+        supplierTypeId, name, description, operationAssociated, internalOrder
       };
-      TypeOfCurrencylService.updateTypeOfCurrency(Currency).then(result => {
+      SuppliersTypeService.updateSuppliersType(SupplierType).then(result => {
         this.setState({ datas: result.data, openPopUp: false });
       });
     };
@@ -602,10 +247,23 @@ class SuppliersTypeBlock extends React.Component {
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
+    handleCheck = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const ok = !this.state.operationAssociated;
+      this.setState({ operationAssociated: ok });
+    }
+
+    handleCheck2 = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const ok = !this.state.internalOrder;
+      this.setState({ internalOrder: ok });
+    }
+
     render() {
       console.log(this.state);
       const {
-        columns, openPopUp, datas, currencyName, currencyCode, openWarning
+        columns, openPopUp, datas, openWarning,
+        name, description, operationAssociated, internalOrder
       } = this.state;
       const options = {
         filter: true,
@@ -642,40 +300,66 @@ class SuppliersTypeBlock extends React.Component {
           >
             <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
             <DialogContent dividers>
-              <div>
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="flex-start"
-                  direction="row"
-                  justify="center"
-                >
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      id="currencyName"
-                      label="Currency Name"
-                      variant="outlined"
-                      name="currencyName"
-                      value={currencyName}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      id="currencyCode"
-                      label="Currency Code"
-                      variant="outlined"
-                      name="currencyCode"
-                      value={currencyCode}
-                      required
-                      fullWidth
-                      onChange={this.handleChange}
-                    />
-                  </Grid>
+              <Grid
+                container
+                spacing={6}
+                alignItems="flex-start"
+                direction="row"
+                justify="center"
+              >
+                <Grid item xs={10} md={6}>
+                  <TextField
+                    id="outlined-name"
+                    label="Supplier Name"
+                    variant="outlined"
+                    name="name"
+                    value={name}
+                    required
+                    fullWidth
+                    onChange={this.handleChange}
+                  />
                 </Grid>
-              </div>
+                <Grid item xs={10} md={6}>
+                  <TextField
+                    id="outlined-description"
+                    label="Description"
+                    variant="outlined"
+                    name="description"
+                    value={description}
+                    required
+                    fullWidth
+                    onChange={this.handleChange}
+                  />
+                </Grid>
+              </Grid>
+              <Grid
+                container
+                spacing={6}
+                alignItems="flex-start"
+                direction="row"
+                justify="center"
+              >
+                <Grid item xs={10} md={6}>
+                  <FormControlLabel
+                    id="operationAssociated"
+                    name="operationAssociated"
+                    value={operationAssociated}
+                    control={<Checkbox color="primary" checked={operationAssociated} onChange={this.handleCheck} />}
+                    label="● Associated with Commercial Operation "
+                    labelPlacement="start"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControlLabel
+                    id="internalOrder"
+                    name="internalOrder"
+                    value={internalOrder}
+                    control={<Checkbox color="primary" checked={internalOrder} onChange={this.handleCheck2} />}
+                    label="● Had an Internal Order "
+                    labelPlacement="start"
+                  />
+                </Grid>
+              </Grid>
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleClose}>
