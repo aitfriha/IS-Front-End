@@ -43,9 +43,9 @@ class Login extends React.Component {
       getUserByEmail(values.get('email'));
       this.editingPromiseResolve2 = resolve2;
     }).then((result2) => {
-      //notification('success', result2);
-        delete result2.userPassword;
-      localStorage.setItem('user', JSON.stringify(result2));
+      // notification('success', result2);
+      delete result2.userPassword;
+      localStorage.setItem('logedUser', JSON.stringify(result2));
     });
     new Promise((resolve) => {
       signIn(authBody);
