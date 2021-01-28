@@ -351,7 +351,6 @@ class User extends React.Component {
       userNationalId: '37',
       userPassportId: '37',
       userEmail: 'aitfriha.zaid@gmail.com',
-      userPassword,
       userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
       userMobileNumber: '3711111',
       userStatus: 'status',
@@ -581,11 +580,11 @@ class User extends React.Component {
                 />
               </FormControl>
             </div>
-            <div>
+            {/*<div>
               <FormControl component="fieldset">
                 <TextField id="standard-basic" label="password" onChange={this.handleChangePassword} value={userPassword} />
               </FormControl>
-            </div>
+            </div>*/}
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleCloseDelete}>
