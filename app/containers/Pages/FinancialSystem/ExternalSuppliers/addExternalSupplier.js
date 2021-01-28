@@ -15,7 +15,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import history from '../../../../utils/history';
-import SuppliersTypeService from '../../../Services/SuppliersTypeService';
+import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
@@ -70,12 +70,16 @@ class AddExternalSupplier extends React.Component {
 
     handleSubmit = () => {
       const {
-        currencyName, currencyCode
+        code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
       } = this.state;
-      const TypeOfCurrency = {
-        currencyName, currencyCode
+      const city = { _id: currentCity };
+      const address = {
+        postCode, city, fullAddress
       };
-      SuppliersTypeService.saveSuppliersType(TypeOfCurrency).then(result => {
+      const ExternalSupplier = {
+        companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
+      };
+      ExternalSuppliersService.saveExternalSuppliers(ExternalSupplier).then(result => {
         console.log(result);
         history.push('/app/gestion-financial/External-Suppliers');
       });
