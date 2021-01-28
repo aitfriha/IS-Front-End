@@ -20,6 +20,8 @@ import { bindActionCreators } from "redux";
 import { signIn } from "../../../transversal-administration/redux/auth/actions";
 import { withRouter } from 'react-router-dom';
 import { forgetPasswordUser } from "../../../transversal-administration/redux/users/actions";
+import { isString } from "lodash";
+import notification from "../Notification/Notification";
 // validation functions
 const required = value => (value == null ? 'Required' : undefined);
 const email = value => (
@@ -31,6 +33,8 @@ const email = value => (
 class ForgetForm extends React.Component {
   constructor(props) {
     super(props);
+    this.editingPromiseResolve = () => {
+    };
     this.state = {
       userEmail: ''
     };
@@ -43,7 +47,16 @@ class ForgetForm extends React.Component {
     handleClick = () => {
     const {forgetPasswordUser}= this.props;
       const { userEmail } = this.state;
-      forgetPasswordUser(userEmail);
+      new Promise((resolve) => {
+        forgetPasswordUser(userEmail);
+        this.editingPromiseResolve = resolve;
+      }).then((result) => {
+        if (isString(result)) {
+          notification('success', result);
+        } else {
+          notification('danger', result);
+        }
+      });
     }
 
     render() {
@@ -57,6 +70,12 @@ class ForgetForm extends React.Component {
       const {
         userEmail
       } = this.state;
+      const {
+        errors, isLoading, userResponse
+      } = this.props;
+      // Sent resolve to editing promises
+      (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
+      (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
 
       return (
         <Paper className={classNames(classes.paperWrap, classes.petal)}>
@@ -111,9 +130,9 @@ ForgetForm.propTypes = {
 
 };
 const mapStateToProps = state => ({
-  signInResponse: state.getIn(['auth']).signInResponse,
-  isLoading: state.getIn(['auth']).isLoading,
-  errors: state.getIn(['auth']).errors
+  userResponse: state.getIn(['user']).userResponse,
+  isLoading: state.getIn(['user']).isLoading,
+  errors: state.getIn(['user']).errors,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
