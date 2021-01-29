@@ -351,7 +351,6 @@ class User extends React.Component {
       userNationalId: '37',
       userPassportId: '37',
       userEmail: 'aitfriha.zaid@gmail.com',
-      userPassword,
       userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
       userMobileNumber: '3711111',
       userStatus: 'status',
@@ -377,7 +376,7 @@ class User extends React.Component {
 
   render() {
     const {
-      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients
+      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser
     } = this.props;
     const {
       columns, openPopUp, client, actif, companies, company, xclients, staff, userPassword,
@@ -389,7 +388,7 @@ class User extends React.Component {
       // Sent resolve to editing promises
     (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
     (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
-
+    console.log(JSON.parse(localStorage.getItem('logedUser')));
     return (
       <div>
         <MaterialTable
@@ -504,7 +503,7 @@ class User extends React.Component {
           <DialogContent dividers>
             <div>
               <FormControl fullWidth="false" required style={{ width: '50%' }}>
-                <InputLabel>Select Client Company Name</InputLabel>
+                <InputLabel>Select Company Name</InputLabel>
                 <Select
                   name="company"
                   value={company}
@@ -581,11 +580,11 @@ class User extends React.Component {
                 />
               </FormControl>
             </div>
-            <div>
+            {/* <div>
               <FormControl component="fieldset">
                 <TextField id="standard-basic" label="password" onChange={this.handleChangePassword} value={userPassword} />
               </FormControl>
-            </div>
+            </div> */}
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleCloseDelete}>
@@ -649,6 +648,7 @@ const mapStateToProps = state => ({
   clientResponse: state.getIn(['clients']).clientResponse,
   isLoadingClient: state.getIn(['clients']).isLoading,
   errorsClient: state.getIn(['clients']).errors,
+  logedUser: localStorage.getItem('logedUser'),
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

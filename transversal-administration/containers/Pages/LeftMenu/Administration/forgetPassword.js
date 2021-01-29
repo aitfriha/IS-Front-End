@@ -5,18 +5,30 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { ResetForm } from 'dan-components';
 // import styles from '../../../components/Forms/user-jss';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { withRouter } from 'react-router-dom';
+import { signIn } from '../../../../redux/auth/actions';
 import styles from '../../../../../app/components/Forms/user-jss';
-
+import { forgetPasswordUser } from '../../../../redux/users/actions';
 class ResetPassword extends React.Component {
   state = {
     valueForm: []
   }
 
-  submitForm(values) {
+  /*  submitForm(values) {
     setTimeout(() => {
       this.setState({ valueForm: values });
       console.log(`You submitted:\n\n${this.state.valueForm}`); // eslint-disable-line
     }, 500); // simulate server latency
+  } */
+  submitForm(values) {
+    console.log(`You submitted:\n\n${values.get('email')}`);
+    const {
+      forgetPasswordUser
+    } = this.props;
+
+    forgetPasswordUser(values.get('email'));
   }
 
   render() {
@@ -46,5 +58,17 @@ class ResetPassword extends React.Component {
 ResetPassword.propTypes = {
   classes: PropTypes.object.isRequired,
 };
+const mapStateToProps = state => ({
+  signInResponse: state.getIn(['auth']).signInResponse,
+  isLoading: state.getIn(['auth']).isLoading,
+  errors: state.getIn(['auth']).errors
+});
 
-export default withStyles(styles)(ResetPassword);
+const mapDispatchToProps = dispatch => bindActionCreators({
+  forgetPasswordUser
+}, dispatch);
+
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(ResetPassword)));

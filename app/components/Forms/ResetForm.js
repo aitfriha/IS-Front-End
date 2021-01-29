@@ -12,6 +12,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import brand from 'dan-api/dummy/brand';
 import logo from 'dan-images/logo.svg';
+import TextField from '@material-ui/core/TextField/TextField';
 import { TextFieldRedux } from './ReduxFormMUI';
 import styles from './user-jss';
 
@@ -38,27 +39,55 @@ class ResetForm extends React.Component {
           <NavLink to="/" className={classes.brand}>
             {/* <img src={logo} alt={brand.name} /> */}
             {' '}
-Internal Project
             {/* {brand.name} */}
           </NavLink>
         </div>
-        <Typography variant="h4" className={classes.title} gutterBottom>
-          Reset Password
+        <Typography variant="h4" className={classes.title} gutterBottom style={{ fontWeight: 'bold' }}>
+              Sistemas Internos
         </Typography>
         <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
-         change you password
+            Reset Password
         </Typography>
         <section className={classes.formWrap}>
           <form onSubmit={handleSubmit}>
             <div>
               <FormControl className={classes.formControl}>
-                <Field
-                  name="email"
-                  component={TextFieldRedux}
-                  placeholder="New password"
-                  label="new password"
+                <TextField
+                  name="userEmail"
+                  /* component={TextFieldRedux} */
+                  value=""
+                  placeholder="email"
+                  label="email"
                   required
-                  validate={[required, email]}
+                  /* validate={[required, email]} */
+                  className={classes.field}
+                  onChange={this.handleChange}
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="oldPassword"
+                  placeholder="Old password"
+                  label="Old password"
+                  required
+                  className={classes.field}
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="newPassword"
+                  placeholder="New password"
+                  label="New password"
+                  required
+                  className={classes.field}
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="confirmNewPassword"
+                  placeholder="Confirm New password"
+                  label="Confirm New password"
+                  required
                   className={classes.field}
                 />
               </FormControl>
