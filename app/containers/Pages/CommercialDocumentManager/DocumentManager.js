@@ -102,14 +102,14 @@ import { Notifications, Security, Public, PersonAdd, Group, FolderSpecial, MailO
 
 
 let usercheq = 'Administrator';
-var urlnuxeo= 'http://localhost:8180/nuxeo/';
+var urlnuxeo = 'http://localhost:8180/nuxeo/';
 let emailempresa = 'osmany0788@gmail.com';
 /* var dominio= '/default-domain';
 var nombredominio = 'default-domain'; */
-var dominio= '/dep-comercioelectronico';
+var dominio = '/dep-comercioelectronico';
 var nombredominio = 'dep-comercioelectronico';
 var workspace = '/UserWorkspaces/';
-if(nombredominio != 'default-domain'){
+if (nombredominio != 'default-domain') {
   workspace = '/workspaces/';
 }
 
@@ -130,7 +130,7 @@ var fs = require('fs');
 let user = 'osmany.cordero';
 //let emailempresa = 'osmany0788@gmail.com';
 let grupos = [];
-let administrador = false; 
+let administrador = false;
 
 /* let user = 'luis.rignack';
 let emailempresa = 'osmany0788@gmail.com';
@@ -140,9 +140,9 @@ let administrador = false; */
 var nuxeo = new Nuxeo({
   baseURL: urlnuxeo,
   auth: {
-  method: 'basic',
-  username: usercheq,
-  password: usercheq
+    method: 'basic',
+    username: usercheq,
+    password: usercheq
   }
 });
 
@@ -402,9 +402,9 @@ const styles = theme => ({
   },
   tbody: {
     height: '200px',
-    overflow:'auto',
-   /*  overflowy: 'auto',
-    overflowx: 'auto', */
+    overflow: 'auto',
+    /*  overflowy: 'auto',
+     overflowx: 'auto', */
   }
 
 });
@@ -479,18 +479,18 @@ class DocumentManager extends React.Component {
       showBackdrop: true,
       titulotoolbar: 'Archivo',
       iconvacio: 'Archivo',
-      visualizacion:{
-          mostrarimg: false,
-          images:[],
+      visualizacion: {
+        mostrarimg: false,
+        images: [],
       },
       notificacion: {
         variante: '',
         mensaje: ''
       },
-      confirmacion:{
+      confirmacion: {
         open: false,
         enunciado: 'Confirmar Eliminación',
-        texto:'',
+        texto: '',
       },
       ventadicionar: {
         opencrear: false,
@@ -629,11 +629,11 @@ class DocumentManager extends React.Component {
         fechadisable: 'none',
 
       },
-      publicar:{
-        listseciones:[],
+      publicar: {
+        listseciones: [],
         listpublicados: [],
         name: [],
-        btnpublicardisable:true, 
+        btnpublicardisable: true,
         deletepublicardisable: true,
       },
       subscripcion: {
@@ -672,48 +672,48 @@ class DocumentManager extends React.Component {
   }
 
   /// Mensaje de Confirmación eliminar grupos ///
-  handleCloseConfirmacion =()=>{
+  handleCloseConfirmacion = () => {
     let estado = this.state;
     estado.confirmacion.open = false;
     this.setState({
-        estado
+      estado
     });
   }
 
-  handleYesConfirmDelete =()=>{
+  handleYesConfirmDelete = () => {
     // console.log('Entro aqui')
-     let estado = this.state;
-     estado.showBackdrop = true;
-     estado.confirmacion.open = false;
-     this.setState({
-         estado
-     });
-     this.handlerecursiveDeleteGroup(this.state.tabla.selected, 1, this.state.tabla.selected.length)
+    let estado = this.state;
+    estado.showBackdrop = true;
+    estado.confirmacion.open = false;
+    this.setState({
+      estado
+    });
+    this.handlerecursiveDeleteGroup(this.state.tabla.selected, 1, this.state.tabla.selected.length)
   }
 
   handlerecursiveDeleteGroup(lista, cont, longt) {
     let msg = 'El grupo ' + lista[0] + ' fue eliminado satisfactoriamente'
     nuxeo.groups()
-    .delete(lista[0]).then(function(res) {
-      if (longt > cont) {
-        let newList = lista.splice(0, 1);
-        cont = cont + 1;
-        self.handlerecursiveDeleteGroup(lista, cont, longt);
-      } else {
-        if (longt > 1) {
-          msg = 'Los grupos fueron eliminados satisfactoriamente'
+      .delete(lista[0]).then(function (res) {
+        if (longt > cont) {
+          let newList = lista.splice(0, 1);
+          cont = cont + 1;
+          self.handlerecursiveDeleteGroup(lista, cont, longt);
+        } else {
+          if (longt > 1) {
+            msg = 'Los grupos fueron eliminados satisfactoriamente'
+          }
+          self.setState({
+            showBackdrop: false,
+            notificacion: {
+              variante: 'success',
+              mensaje: msg
+            },
+          })
+          self.listarArchivos('path', 'Grupos')
         }
-        self.setState({
-          showBackdrop: false,          
-          notificacion: {
-            variante: 'success',
-            mensaje: msg
-          },
-        })
-        self.listarArchivos('path', 'Grupos')
-      }
-    });
-   
+      });
+
   }
 
   //Expandir el acordion////
@@ -754,20 +754,21 @@ class DocumentManager extends React.Component {
       switch (this.state.iconvacio) {
         case 'Grupos': {
           nuxeo.operation('UserGroup.Suggestion')
-          //.input('/')
-          .params({searchType: 'GROUP_TYPE',
-                   searchTerm: this.state.textbuscar
-          })
-          .execute()
-          .then(function (res){
-            //console.log(res)
-            if (res.length > 0) {
-              listaresultado = res;
-              self.DevolverListaGruposFormateada(res);
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            } 
-          })
+            //.input('/')
+            .params({
+              searchType: 'GROUP_TYPE',
+              searchTerm: this.state.textbuscar
+            })
+            .execute()
+            .then(function (res) {
+              //console.log(res)
+              if (res.length > 0) {
+                listaresultado = res;
+                self.DevolverListaGruposFormateada(res);
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
           break;
         }
         case 'Espacio de Grupo de Trabajo': {
@@ -1290,7 +1291,7 @@ class DocumentManager extends React.Component {
         })
         break;
       }
-      case 5: { 
+      case 5: {
         this.setState({
           compartir: {
             usuariosshare: '',
@@ -1301,7 +1302,7 @@ class DocumentManager extends React.Component {
           permisos: {
             panel1expand: true,
             panel2expand: false,
-            panel3expand: false,    
+            panel3expand: false,
             listuserexternos: [],
             listcompartidos: [],
             listheredados: [],
@@ -1309,7 +1310,7 @@ class DocumentManager extends React.Component {
             btnpermisosdisable: true,
             deletepermisosdisable: true,
           },
-        })       
+        })
         this.listarACLSdocumentos(seleccionado.path, false);
         break;
       }
@@ -1397,11 +1398,11 @@ class DocumentManager extends React.Component {
   /// Menu seleccionado Detalle /// 
   toggleDrawer = (open) => {
     if (open) {
-      let tab =0;
-      if(this.state.menu.menuselect === 'Espacio de Grupo de Trabajo'){
+      let tab = 0;
+      if (this.state.menu.menuselect === 'Espacio de Grupo de Trabajo') {
         tab = 5;
       }
-      if(this.state.menu.menuselect === 'Grupos'){
+      if (this.state.menu.menuselect === 'Grupos') {
         tab = 7;
       }
       this.handleActionsMenuDetail();
@@ -1446,18 +1447,18 @@ class DocumentManager extends React.Component {
   handleActionsMenuDetail = () => {
     this.handleMenuActionsClose();
     let selected = this.obtenerseleccionado(this.state.tabla.selected[0]);
-    if(this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos'){
+    if (this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos') {
       this.listarActividad(selected.path);
     }
-    if(this.state.menu.menuselect === 'Espacio de Grupo de Trabajo'){
-    //  console.log('Entro Aquí');
+    if (this.state.menu.menuselect === 'Espacio de Grupo de Trabajo') {
+      //  console.log('Entro Aquí');
       this.listarACLSdocumentos(selected.path, false);
     }
-    if(this.state.menu.menuselect === 'Grupos'){
+    if (this.state.menu.menuselect === 'Grupos') {
 
     }
-    
-    
+
+
   }
 
   devolverAccion(accion) {
@@ -2029,8 +2030,8 @@ class DocumentManager extends React.Component {
         //console.log(docs);
         let versiones = [];
         for (var i = docs.entries.length - 1; i >= 0; i--) {
-             versiones.push(docs.entries[i]);
-        }        
+          versiones.push(docs.entries[i]);
+        }
         if (!todos) {
           let newList = versiones.slice(0, 4);
           versiones = newList;
@@ -2145,7 +2146,7 @@ class DocumentManager extends React.Component {
       });      
     })
   } */
-    
+
   /*     nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'tags'] })
     .input('/default-domain/sections/')
     .execute({ schemas: ['file', 'dublincore'] })
@@ -2207,13 +2208,13 @@ class DocumentManager extends React.Component {
         });
         self.listarArchivos(self.state.path, 'Archivo');
     }) */
-  
+
   /// Trabajo con los Grupos ///
-  handleActionsMenuEliminarGroup =()=>{
+  handleActionsMenuEliminarGroup = () => {
     //console.log(this.state.tabla.selected);
     this.handleMenuActionsClose();
-    let texto = 'Está seguro que desea eliminar el grupo '+ this.state.tabla.selected[0] + ' ?';
-    if(this.state.tabla.selected.length >1){
+    let texto = 'Está seguro que desea eliminar el grupo ' + this.state.tabla.selected[0] + ' ?';
+    if (this.state.tabla.selected.length > 1) {
       texto = 'Está seguro que desea eliminar los grupos seleccionados ?';
     }
     let estado = this.state;
@@ -2221,143 +2222,203 @@ class DocumentManager extends React.Component {
     estado.confirmacion.open = true;
     this.setState({
       estado
-    })  
+    })
 
   }
 
 
   /// Seleccion para publicar ////
-  handleChangeSelectSecion = (event)=> {
+  handleChangeSelectSecion = (event) => {
     let estado = this.state;
     estado.publicar.name = event.target.value;
-    if(event.target.value.length>0){
+    if (event.target.value.length > 0) {
       estado.publicar.btnpublicardisable = false;
-    }else{
+    } else {
       estado.publicar.btnpublicardisable = true;
     }
     this.setState({ estado });
   };
- 
-  
+
+
   /// Eliminar la publicación del documento de una seción ////
-  handleEliminarPublicacionSecion =(path)=>{
+  handleEliminarPublicacionSecion = (path) => {
     //console.log(path);
     nuxeo.repository()
-    .delete(path)
-    .then(function (res) {
-      self.listarDocPublicadoSecciones(seleccionado.id); 
-      self.setState({    
-       notificacion: {
-         variante: 'success',
-         mensaje: 'El documento ya no está publicado en la seción seleccionada',
-       },
-     })
-    })
-    
+      .delete(path)
+      .then(function (res) {
+        self.listarDocPublicadoSecciones(seleccionado.id);
+        self.setState({
+          notificacion: {
+            variante: 'success',
+            mensaje: 'El documento ya no está publicado en la seción seleccionada',
+          },
+        })
+      })
+
   }
-  
-  
+
+
   /// Eliminar todas las publicaciones del Documento ////
-  handleDeletePublicadosAll=(e)=>{
+  handleDeletePublicadosAll = (e) => {
     nuxeo.operation('Document.UnpublishAll')
-    .input(seleccionado.path)
-    .execute()
-    .then(function (resp) { 
-         nuxeo.operation('Document.FollowLifecycleTransition')
-         .input(seleccionado.path)
-         .params({value: 'backToProject'})
-         .execute()
-         .then(function (doc) { 
-             seleccionado.estado = 'proyecto';
-             self.listarDocPublicadoSecciones(seleccionado.id); 
-             self.setState({    
+      .input(seleccionado.path)
+      .execute()
+      .then(function (resp) {
+        nuxeo.operation('Document.FollowLifecycleTransition')
+          .input(seleccionado.path)
+          .params({ value: 'backToProject' })
+          .execute()
+          .then(function (doc) {
+            seleccionado.estado = 'proyecto';
+            self.listarDocPublicadoSecciones(seleccionado.id);
+            self.setState({
               notificacion: {
                 variante: 'success',
                 mensaje: 'El documento dejó de publicarse satisfactoriamente',
               },
             })
-         });
-        
-    });
+          });
+
+      });
   }
 
   //// Listar Seciones donde se ha publicado el documento ///
-  listarDocPublicadoSecciones=(id)=>{ 
+  listarDocPublicadoSecciones = (id) => {
     let listpub = [];
-    let list = [];  
-    self.ejecutarQueryRepo("SELECT * FROM Section", 2000).then(function (docs1) {                   
-      docs1.forEach(element => { 
+    let list = [];
+    self.ejecutarQueryRepo("SELECT * FROM Section", 2000).then(function (docs1) {
+      docs1.forEach(element => {
         //console.log(element); 
-        if( self.ChequearPermisosyFiltro(element, 'Espacio de Grupo de Trabajo')){
+        if (self.ChequearPermisosyFiltro(element, 'Espacio de Grupo de Trabajo')) {
           let esta = false;
           listpub.forEach(sec => {
-              if(sec.name === element.title){
-                  esta = true;
-              }
+            if (sec.name === element.title) {
+              esta = true;
+            }
           });
-          if(!esta){
+          if (!esta) {
             let descrip = element.properties['dc:description'];
-            if(descrip ==='' || descrip ===null){
-             descrip = element.title;
+            if (descrip === '' || descrip === null) {
+              descrip = element.title;
             }
             let cadena = element.path.split('/');
             let secion = cadena[3]
             let obj1 = {
-                  'name': element.title,
-                  'namepath': secion,
-                  'descripcion': descrip,
-                  'id': element.uid
+              'name': element.title,
+              'namepath': secion,
+              'descripcion': descrip,
+              'id': element.uid
             }
             list.push(obj1);
-          }   
-        }                  
+          }
+        }
       })
-     // console.log(list)
+      // console.log(list)
       self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:isTrashed = 0 AND ecm:isProxy = 1 AND ecm:proxyVersionableId = '" + id + "'", 2000000).then(function (docs) {
-        console.log(docs);       
+        console.log(docs);
         docs.forEach(element => {
           let cadena = element.path.split('/');
-          let secion = cadena[3] 
+          let secion = cadena[3]
           let fecha = null;
-          let name =  element.title;
-          list.forEach(sec =>{
-              if(secion === sec.namepath){
-                name = sec.name;
-              }
+          let name = element.title;
+          list.forEach(sec => {
+            if (secion === sec.namepath) {
+              name = sec.name;
+            }
           })
 
-          if(element.properties['dc:modified']){
-              fecha = moment(element.properties['dc:modified']).format('YYYY-MM-DD HH:mm:ss');
+          if (element.properties['dc:modified']) {
+            fecha = moment(element.properties['dc:modified']).format('YYYY-MM-DD HH:mm:ss');
           }
           let obj = {
-                      'publicado': element.properties['dc:lastContributor'],
-                      'fechapublic': fecha,
-                      'name': name,
-                      'path': element.path
+            'publicado': element.properties['dc:lastContributor'],
+            'fechapublic': fecha,
+            'name': name,
+            'path': element.path
           }
-          listpub.push(obj); 
+          listpub.push(obj);
           //console.log(listpub);      
-        });        
-        let disable =false
-        let filtro =[];
-        if(listpub.length>0){
+        });
+        let disable = false
+        let filtro = [];
+        if (listpub.length > 0) {
           seleccionado.estado = 'publicado';
           list.forEach(sec => {
-            let esta =false;
+            let esta = false;
             listpub.forEach(secpub => {
-                 if(sec.name === secpub.name){
-                    esta=true;
-                 }
+              if (sec.name === secpub.name) {
+                esta = true;
+              }
             });
-            if(!esta){
-                filtro.push(sec);
+            if (!esta) {
+              filtro.push(sec);
             }
           });
           list = filtro;
+        } else {
+          seleccionado.estado = 'proyecto';
+          disable = true;
+        }
+        let estado = self.state;
+        estado.publicar.btnpublicardisable = true;
+        estado.publicar.name = [];
+        estado.publicar.listseciones = list;
+        estado.publicar.listpublicados = listpub;
+        estado.publicar.deletepublicardisable = disable;
+        self.setState({
+          estado
+        });
+
+      })
+    })
+  }
+
+  /*   self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:isTrashed = 0 AND ecm:isProxy = 1 AND ecm:proxyVersionableId = '" + id + "'", 2000000).then(function (docs) {
+      console.log(docs);       
+      docs.forEach(element => {
+        let fecha = null;
+        if(element.properties['dc:modified']){
+            fecha = moment(element.properties['dc:modified']).format('YYYY-MM-DD HH:mm:ss');
+        }
+        let obj = {
+                    'publicado': element.properties['dc:lastContributor'],
+                    'fechapublic': fecha,
+                    'name': element.title,
+                    'path': element.path
+        }
+        listpub.push(obj); 
+        console.log(listpub);      
+      });        
+      self.ejecutarQueryRepo("SELECT * FROM Section", 2000).then(function (docs1) {                   
+        docs1.forEach(element => { 
+          if( self.ChequearPermisosyFiltro(element, 'Espacio de Grupo de Trabajo')){
+            let esta = false;
+            listpub.forEach(sec => {
+                if(sec.name === element.title){
+                    esta = true;
+                }
+            });
+            if(!esta){
+              let descrip = element.properties['dc:description'];
+              if(descrip ==='' || descrip ===null){
+               descrip = element.title;
+              }
+              let obj1 = {
+                    'name': element.title,
+                    'descripcion': descrip,
+                    'id': element.uid
+              }
+              list.push(obj1);
+            }   
+          }                  
+        })
+        let disable =false
+        if(listpub.length>0){
+          seleccionado.estado = 'publicado';
         }else{
           seleccionado.estado = 'proyecto';
           disable = true;
-        }        
+        }
         let estado = self.state;
         estado.publicar.btnpublicardisable= true;
         estado.publicar.name= [];
@@ -2366,121 +2427,63 @@ class DocumentManager extends React.Component {
         estado.publicar.deletepublicardisable = disable;
         self.setState({
           estado
-        }); 
-
+        });      
       })
-    })    
-  }
-
-/*   self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:isTrashed = 0 AND ecm:isProxy = 1 AND ecm:proxyVersionableId = '" + id + "'", 2000000).then(function (docs) {
-    console.log(docs);       
-    docs.forEach(element => {
-      let fecha = null;
-      if(element.properties['dc:modified']){
-          fecha = moment(element.properties['dc:modified']).format('YYYY-MM-DD HH:mm:ss');
-      }
-      let obj = {
-                  'publicado': element.properties['dc:lastContributor'],
-                  'fechapublic': fecha,
-                  'name': element.title,
-                  'path': element.path
-      }
-      listpub.push(obj); 
-      console.log(listpub);      
-    });        
-    self.ejecutarQueryRepo("SELECT * FROM Section", 2000).then(function (docs1) {                   
-      docs1.forEach(element => { 
-        if( self.ChequearPermisosyFiltro(element, 'Espacio de Grupo de Trabajo')){
-          let esta = false;
-          listpub.forEach(sec => {
-              if(sec.name === element.title){
-                  esta = true;
-              }
-          });
-          if(!esta){
-            let descrip = element.properties['dc:description'];
-            if(descrip ==='' || descrip ===null){
-             descrip = element.title;
-            }
-            let obj1 = {
-                  'name': element.title,
-                  'descripcion': descrip,
-                  'id': element.uid
-            }
-            list.push(obj1);
-          }   
-        }                  
-      })
-      let disable =false
-      if(listpub.length>0){
-        seleccionado.estado = 'publicado';
-      }else{
-        seleccionado.estado = 'proyecto';
-        disable = true;
-      }
-      let estado = self.state;
-      estado.publicar.btnpublicardisable= true;
-      estado.publicar.name= [];
-      estado.publicar.listseciones= list;
-      estado.publicar.listpublicados = listpub;
-      estado.publicar.deletepublicardisable = disable;
-      self.setState({
-        estado
-      });      
-    })
-}) */
+  }) */
 
   /// Cambiar Estado ///
-  cambiarEstadoDOC =(doc)=>{
+  cambiarEstadoDOC = (doc) => {
     let msg = 'El documento fue publicado satisfactoriamente'
-    if(doc.state === 'project'){
-     // console.log('entro aquí');
+    if (doc.state === 'project') {
+      // console.log('entro aquí');
       nuxeo.operation('Document.FollowLifecycleTransition')
-      .input(doc.path)
-      .params({value: 'approve'})
-      .execute()
-      .then(function (doc) { 
-        seleccionado.estado = 'publicado';              
-      });
+        .input(doc.path)
+        .params({ value: 'approve' })
+        .execute()
+        .then(function (doc) {
+          seleccionado.estado = 'publicado';
+        });
     }
     doc.set({
       'dc:publisher': moment(),
     });
     doc.save();
-    self.listarDocPublicadoSecciones(doc.uid);               
-    self.setState({    
-     notificacion: {
-       variante: 'success',
-       mensaje: msg
-     },
-   })
- 
-  } 
- 
+    self.listarDocPublicadoSecciones(doc.uid);
+    self.setState({
+      notificacion: {
+        variante: 'success',
+        mensaje: msg
+      },
+    })
+
+  }
+
   /// Publicar Documento ////
-  handleActionPublicar=(e)=>{
+  handleActionPublicar = (e) => {
     let seciones = [];
     this.state.publicar.name.forEach(element => {
-       this.state.publicar.listseciones.forEach(secion => {
-            if(element === secion.name){
-               seciones.push(secion.id);
-            }
-       });
-    });  
-   nuxeo.operation('Document.PublishToSections')
-    .input(seleccionado.path)
-    .params({target: seciones,
-             override: true})
-    .execute({ schemas: ['file', 'dublincore'] })
-    .then(function (docs) { 
-    /*   console.log('publico');
-      console.log(docs);    */
-      nuxeo.repository().fetch(seleccionado.path)
-      .then(function (doc) {
-           //console.log(doc);
-           self.cambiarEstadoDOC(doc);             
-      })      
-    }); 
+      this.state.publicar.listseciones.forEach(secion => {
+        if (element === secion.name) {
+          seciones.push(secion.id);
+        }
+      });
+    });
+    nuxeo.operation('Document.PublishToSections')
+      .input(seleccionado.path)
+      .params({
+        target: seciones,
+        override: true
+      })
+      .execute({ schemas: ['file', 'dublincore'] })
+      .then(function (docs) {
+        /*   console.log('publico');
+          console.log(docs);    */
+        nuxeo.repository().fetch(seleccionado.path)
+          .then(function (doc) {
+            //console.log(doc);
+            self.cambiarEstadoDOC(doc);
+          })
+      });
   }
 
   /// Mostrar formulario actualizar permiso ////
@@ -2847,17 +2850,17 @@ class DocumentManager extends React.Component {
   }
 
   /// Buscar Usuario para Compartir Documento ////
-  handleBuscarUsersGroups = (event) => {    
+  handleBuscarUsersGroups = (event) => {
     let denom = event.target.value;
-   // console.log(denom);
-    if (denom.length > 2){
-      const {currentTarget} = event;
+    // console.log(denom);
+    if (denom.length > 2) {
+      const { currentTarget } = event;
       nuxeo.operation('UserGroup.Suggestion')
         .params({
           searchTerm: denom
         })
         .execute()
-        .then(function(users){
+        .then(function (users) {
           //console.log(users);
           let usuarios = [];
           let usuariocomp = false;
@@ -2866,13 +2869,13 @@ class DocumentManager extends React.Component {
             if (element.id === user || element.id === seleccionado.creadopor) {
               encontrado = element.id;
             } else {
-                if(self.state.menu.menuselect ==='Espacio de Grupo de Trabajo'){
-                  encontrado = self.state.permisos.listuserexternos.find(fila => element.id === fila.username);
-                }else{
-                  encontrado = self.state.compartir.todosusuariosshare.find(fila => element.id === fila.username);
-                }     
+              if (self.state.menu.menuselect === 'Espacio de Grupo de Trabajo') {
+                encontrado = self.state.permisos.listuserexternos.find(fila => element.id === fila.username);
+              } else {
+                encontrado = self.state.compartir.todosusuariosshare.find(fila => element.id === fila.username);
+              }
             }
-            if (!encontrado){
+            if (!encontrado) {
               let repetido = true;
               let pos = 0;
               let avatar = '';
@@ -2922,7 +2925,7 @@ class DocumentManager extends React.Component {
             display = 'block';
 
           }
-         // console.log(usuarios);
+          // console.log(usuarios);
           let estado = self.state;
           estado.compartir.btnsharedisable = disable;
           estado.compartir.usuariosshare = denom;
@@ -2953,7 +2956,7 @@ class DocumentManager extends React.Component {
   }
 
   recursiveNotificarEmail = (listuser, cont, length) => {
-   // console.log(listuser[0].username);
+    // console.log(listuser[0].username);
     let msg = 'El documento dejó de compartirse de forma satisfactoria'
     let msgemail = 'Hoy ' + moment().format('YYYY-MM-DD HH:mm:ss') + ' el usuario ' + user + ' dejó de compartir el documento ' + seleccionado.name;
     nuxeo.operation('UserGroup.Suggestion')
@@ -2962,35 +2965,35 @@ class DocumentManager extends React.Component {
       })
       .execute()
       .then(function (users) {
-        if(users[0].type==='USER_TYPE'){
+        if (users[0].type === 'USER_TYPE') {
           nuxeo.operation('Document.Mail')
-          .input(seleccionado.path)
-          .params({
-            message: msgemail,
-            subject: 'Sistema de Aguas, Dejó de compartirse el documento',
-            from: emailempresa,
-            to: users[0].email,
-          })
-          .execute()
-          .then(function (doc) {
-            if (length > cont) {
-              let newList = listuser.splice(0, 1);
-              cont = cont + 1;
-              self.recursiveNotificarEmail(listuser, cont, length);
-            } else {
-              if (length > 1) {
-                msg = 'El documento dejó de compartirse de forma satisfactoria'
+            .input(seleccionado.path)
+            .params({
+              message: msgemail,
+              subject: 'Sistema de Aguas, Dejó de compartirse el documento',
+              from: emailempresa,
+              to: users[0].email,
+            })
+            .execute()
+            .then(function (doc) {
+              if (length > cont) {
+                let newList = listuser.splice(0, 1);
+                cont = cont + 1;
+                self.recursiveNotificarEmail(listuser, cont, length);
+              } else {
+                if (length > 1) {
+                  msg = 'El documento dejó de compartirse de forma satisfactoria'
+                }
+                self.listarACLShare(doc.path, self.state.compartir.btnlistartodos);
+                self.setState({
+                  notificacion: {
+                    variante: 'success',
+                    mensaje: msg
+                  },
+                })
               }
-              self.listarACLShare(doc.path, self.state.compartir.btnlistartodos);
-              self.setState({
-                notificacion: {
-                  variante: 'success',
-                  mensaje: msg
-                },
-              })
-            }
-          })
-        }else{
+            })
+        } else {
           if (length > cont) {
             let newList = listuser.splice(0, 1);
             cont = cont + 1;
@@ -3057,7 +3060,7 @@ class DocumentManager extends React.Component {
             variante: 'success',
             mensaje: 'Todos los permisos concedidos en la secció fueron eliminados'
           },
-        })        
+        })
       })
       .catch(function (error) {
         self.setState({
@@ -3087,7 +3090,7 @@ class DocumentManager extends React.Component {
             variante: 'success',
             mensaje: 'El permiso fue eliminado satisfactoriamente'
           }
-        })     
+        })
       })
       .catch(function (error) {
         self.setState({
@@ -3129,7 +3132,7 @@ class DocumentManager extends React.Component {
   }
 
   ///Dejar de compartir con un usuario////
-  handleDeleteShare = (obj, acl) => {    
+  handleDeleteShare = (obj, acl) => {
     let user = obj.displayusername;
     nuxeo.operation('Document.RemovePermission')
       .input(seleccionado.path)
@@ -3143,36 +3146,36 @@ class DocumentManager extends React.Component {
         let list = [];
         list.push(obj);
         nuxeo.operation('UserGroup.Suggestion')
-        .params({
-          searchTerm: obj.username,
-        })
-        .execute()
-        .then(function(users){
-          //console.log(users);
-          if(users[0].type ==='USER_TYPE'){
-            self.handleNotificarEmail(list, acl);
-          } 
-          else{
-            let estado = self.state;
-            if (acl === 'compartidos') {
-              self.listarACLShare(doc.path, self.state.compartir.btnlistartodos);
-              estado.compartir.btnsharedisable = true;
-              estado.compartir.usuariosshare = '';
-              estado.compartir.usuarioemail = '';
-            } else {
-              self.listarACLSdocumentos(doc.path, false);
-              estado.permisos.btnpermisosdisable = true;
-              estado.permisos.usuariospermisos = '';
-              estado.permisos.usuarioemail = '';
+          .params({
+            searchTerm: obj.username,
+          })
+          .execute()
+          .then(function (users) {
+            //console.log(users);
+            if (users[0].type === 'USER_TYPE') {
+              self.handleNotificarEmail(list, acl);
             }
-            estado.notificacion.variante = 'success';
-            estado.notificacion.mensaje = 'El documento dejó de com satisfactoriamente';
-            self.setState({
-              estado
-            });
-          }
-        })
-        
+            else {
+              let estado = self.state;
+              if (acl === 'compartidos') {
+                self.listarACLShare(doc.path, self.state.compartir.btnlistartodos);
+                estado.compartir.btnsharedisable = true;
+                estado.compartir.usuariosshare = '';
+                estado.compartir.usuarioemail = '';
+              } else {
+                self.listarACLSdocumentos(doc.path, false);
+                estado.permisos.btnpermisosdisable = true;
+                estado.permisos.usuariospermisos = '';
+                estado.permisos.usuarioemail = '';
+              }
+              estado.notificacion.variante = 'success';
+              estado.notificacion.mensaje = 'El documento dejó de com satisfactoriamente';
+              self.setState({
+                estado
+              });
+            }
+          })
+
       })
       .catch(function (error) {
         self.setState({
@@ -3213,10 +3216,10 @@ class DocumentManager extends React.Component {
       })
   }
 
-   /// Dar Permiso a la Seción ////
-   handleActionPermitirUser = (e) => {
-     //console.log('voy a compartir');
-     nuxeo.operation('Document.AddPermission')
+  /// Dar Permiso a la Seción ////
+  handleActionPermitirUser = (e) => {
+    //console.log('voy a compartir');
+    nuxeo.operation('Document.AddPermission')
       .enrichers({ document: ['favorites', 'breadcrumb', 'userVisiblePermissions', 'acls', 'publications', 'tags'] })
       .input(seleccionado.path)
       .params({
@@ -3237,17 +3240,17 @@ class DocumentManager extends React.Component {
         self.setState({
           estado
         });
-       /*  let aces = doc1.contextParameters.acls.find(fila => fila.name === 'local')
-        let id = '';
-        aces.aces.forEach(element => {
-          if (element.username === self.state.compartir.usuariosshare) {
-            id = element.id;
-          }
-        });
-        self.handleSendEmailForPermision(id, 'local'); */
+        /*  let aces = doc1.contextParameters.acls.find(fila => fila.name === 'local')
+         let id = '';
+         aces.aces.forEach(element => {
+           if (element.username === self.state.compartir.usuariosshare) {
+             id = element.id;
+           }
+         });
+         self.handleSendEmailForPermision(id, 'local'); */
       }).catch(function (error) {
         throw new Error(error);
-      }); 
+      });
   }
 
   /// Compartir Documento ////
@@ -3563,15 +3566,15 @@ class DocumentManager extends React.Component {
               }
             });
             let estado = self.state;
-            if(self.state.menu.menuselect ==='Espacio de Grupo de Trabajo'){
-              estado.permisos.listuserexternos = local;           
+            if (self.state.menu.menuselect === 'Espacio de Grupo de Trabajo') {
+              estado.permisos.listuserexternos = local;
               estado.compartir.deletesharedisable = local.length > 0 ? false : true;
-            }else{
-              estado.permisos.listuserexternos = local;           
+            } else {
+              estado.permisos.listuserexternos = local;
               estado.permisos.listcompartidos = compartidos;
               estado.permisos.listheredados = heredados;
               estado.permisos.deletepermisosdisable = local.length > 0 ? false : true;
-            }  
+            }
             self.setState({
               estado
             });
@@ -4116,9 +4119,9 @@ class DocumentManager extends React.Component {
 
   handlerecursiveEliminar(lista, cont, longt) {
     let msg = 'El achrivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
-    if(self.state.acciones.elimadmin){
+    if (self.state.acciones.elimadmin) {
       let msg = 'La seción ' + lista[0].name + ' fue eliminada satisfactoriamente'
-    }   
+    }
     if (lista[0].eliminado === false) {
       nuxeo.operation('Document.Trash')
         .input(lista[0].path)
@@ -4131,7 +4134,7 @@ class DocumentManager extends React.Component {
           } else {
             if (longt > 1) {
               msg = 'Los archivos fueron eliminados satisfactoriamente'
-              if(self.state.acciones.elimadmin){
+              if (self.state.acciones.elimadmin) {
                 msg = 'Las seciones fueron eliminadas satisfactoriamente'
               }
             }
@@ -4165,7 +4168,7 @@ class DocumentManager extends React.Component {
       } else {
         if (longt > 1) {
           msg = 'Los archivos fueron eliminados satisfactoriamente'
-          if(self.state.acciones.elimadmin){
+          if (self.state.acciones.elimadmin) {
             msg = 'Las seciones fueron eliminadas satisfactoriamente'
           }
         }
@@ -4411,15 +4414,15 @@ class DocumentManager extends React.Component {
 
   mostrarActualizar = () => {
     this.handleMenuActionsClose();
-    if(this.state.menu.menuselect === 'Grupos'){
+    if (this.state.menu.menuselect === 'Grupos') {
       //console.log('Grupos')
       let select = {}
-     // console.log(rows);
+      // console.log(rows);
       rows.forEach(grupo => {
-         if(grupo.name === this.state.tabla.selected[0]){
-         // console.log(grupo)
+        if (grupo.name === this.state.tabla.selected[0]) {
+          // console.log(grupo)
           select = grupo;
-         }
+        }
       });
       this.setState({
         ventadicionar: {
@@ -4436,14 +4439,14 @@ class DocumentManager extends React.Component {
           id: select.id,
         },
       })
-       
-    }else{
+
+    } else {
       let select = this.obtenerseleccionado(this.state.tabla.selected[0]);
-      var tipo= 'Default';
-      if(select.tipo==='Section'){
-         tipo = select.tipo;
+      var tipo = 'Default';
+      if (select.tipo === 'Section') {
+        tipo = select.tipo;
       }
-    // console.log(select.extension);
+      // console.log(select.extension);
       this.setState({
         ventadicionar: {
           opencrear: true,
@@ -4460,7 +4463,7 @@ class DocumentManager extends React.Component {
         },
       })
     }
-    
+
     this.handleMenuAddActionsClose();
   }
 
@@ -4642,9 +4645,7 @@ class DocumentManager extends React.Component {
       }
       default: {
         return;
-        break;;
       }
-        break;
     }
   }
 
@@ -4654,7 +4655,7 @@ class DocumentManager extends React.Component {
     let url = dominio + workspace + user + '/';
     switch (item) {
       case 'Grupos': {
-        url = dominio +'/sections/';
+        url = dominio + '/sections/';
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
         itemnew.showBackdrop = true;
@@ -5015,8 +5016,8 @@ class DocumentManager extends React.Component {
         }
       })
     });
-    if(newSelecteds.length > 0){
-      if (!this.state.acciones.papelera) {    
+    if (newSelecteds.length > 0) {
+      if (!this.state.acciones.papelera) {
         if (newSelecteds.length === permwrite) {
           vardel = true;
           varvisiblemenu = true;
@@ -5026,17 +5027,17 @@ class DocumentManager extends React.Component {
         }
         if (newSelecteds.length === permtodos) {
           vardel = true;
-          varmov = true;        
+          varmov = true;
           if (this.state.menu.menuselect === 'Búsqueda') {
             varmov = false;
           }
           varvisiblemenu = true;
         } else {
           vardel = false;
-          varmov = false;    
+          varmov = false;
           varvisiblemenu = false;
-        }    
-      } else {     
+        }
+      } else {
         if (newSelecteds.length === permwrite) {
           varelimperm = true;
           varvisiblemenu = true;
@@ -5045,13 +5046,13 @@ class DocumentManager extends React.Component {
           varvisiblemenu = false;
         }
         if (newSelecteds.length === permtodos) {
-          varelimperm=true;     
+          varelimperm = true;
           varvisiblemenu = true;
         } else {
-          varelimperm=false;  
+          varelimperm = false;
           varvisiblemenu = false;
         }
-  
+
       }
     }
     let itemnew = this.state;
@@ -5092,18 +5093,18 @@ class DocumentManager extends React.Component {
       newSelecteds = rows.map((n) => n.name);
     }
     let varvisiblemenu = true;
-    let vardelgroup = true; 
+    let vardelgroup = true;
     let mostrar = true;
     //console.log(rows);
     rows.forEach(element => {
       // console.log(element.sistema);
-       if(element.sistema === 'Sistema'){
-          mostrar = false;
-       }
+      if (element.sistema === 'Sistema') {
+        mostrar = false;
+      }
     });
-    if(!mostrar){
+    if (!mostrar) {
       varvisiblemenu = false;
-      vardelgroup = false; 
+      vardelgroup = false;
     }
     let itemnew = this.state;
     itemnew.tabla.numSelected = newSelecteds.length;
@@ -5115,11 +5116,11 @@ class DocumentManager extends React.Component {
     itemnew.acciones.menuvisible = varvisiblemenu;
     itemnew.acciones.download = false;
 
-    
-  
+
+
     this.setState({
-        itemnew
-    })   
+      itemnew
+    })
   };
 
   createSortHandler = property => event => {
@@ -5198,10 +5199,10 @@ class DocumentManager extends React.Component {
     var vargestusergroup = false;
     if (newSelected.length === 1 && !this.state.acciones.papelera) {
       let selected = this.obtenerseleccionado(newSelected[0]);
-     // console.log(selected.permisos);
-      if(selected.tipo ==='Section' || selected.tipo ==='Group'){
-        varcoment = false, 
-        vartag = false;
+      // console.log(selected.permisos);
+      if (selected.tipo === 'Section' || selected.tipo === 'Group') {
+        varcoment = false,
+          vartag = false;
         varunfav = false;
         varfav = false;
         varupload = false;
@@ -5215,18 +5216,18 @@ class DocumentManager extends React.Component {
         vardownload = false;
         vardetail = false;
         vardel = false;
-        varelimadmin = false;        
-        varedit=false;
+        varelimadmin = false;
+        varedit = false;
         varvisiblemenu = false;
-        if(this.state.menu.menuselect ==='Espacio de Grupo de Trabajo'){
+        if (this.state.menu.menuselect === 'Espacio de Grupo de Trabajo') {
           vardetail = true;
           varelimadmin = true;
-          varedit=true;
+          varedit = true;
           varvisiblemenu = true;
         }
 
       }
-      if(selected.tipo !=='Section' && selected.tipo !=='Group'){
+      if (selected.tipo !== 'Section' && selected.tipo !== 'Group') {
         if (selected.bloqueado) {
           if (selected.ownerbloq === user) {
             varcoment = true,
@@ -5246,7 +5247,7 @@ class DocumentManager extends React.Component {
               varupload = true;
               varcrear = true;
             } else {
-              if (selected.bloqueado){
+              if (selected.bloqueado) {
                 varunbloq = true;
                 varpublicar = false;
               } else {
@@ -5278,12 +5279,12 @@ class DocumentManager extends React.Component {
             }
             varfav = !varunfav;
           }
-  
+
         } else {
           selected.permisos.forEach(element => {
-            if (element === "Read"){
+            if (element === "Read") {
               varcoment = true,
-              vartag = true;
+                vartag = true;
               varpublicar = false;
               vardetail = true;
               if (selected.favorito) {
@@ -5295,7 +5296,7 @@ class DocumentManager extends React.Component {
             }
             if (element === "ReadWrite") {
               varcoment = true,
-              vartag = true;
+                vartag = true;
               vardetail = true;
               vardownload = true;
               varedit = true;
@@ -5310,17 +5311,17 @@ class DocumentManager extends React.Component {
                 varcrear = true;
               }
               vardel = true;
-              if(element.proxysecion){
+              if (element.proxysecion) {
                 varupload = false;
                 varpermisos = false;
                 varedit = false;
-                varcrear = false;   
-                vardel = false;            
-              }             
+                varcrear = false;
+                vardel = false;
+              }
             }
             if (element === 'Everything') {
               varcoment = true,
-              vartag = true;
+                vartag = true;
               vardetail = true;
               varpublicar = true;
               if (selected.favorito) {
@@ -5355,9 +5356,9 @@ class DocumentManager extends React.Component {
             }
           });
         }
-      } 
+      }
       //console.log('es proxy: ' + selected.proxysecion)
-      if(selected.proxysecion){
+      if (selected.proxysecion) {
         varmov = false;
         vardel = false;
         varedit = false;
@@ -5369,7 +5370,7 @@ class DocumentManager extends React.Component {
         varversion = false;
         varpermisos = false;
         varvisiblemenu = true;
-      }     
+      }
     } else if (newSelected.length > 1 && !this.state.acciones.papelera) {
       let permwrite = 0;
       let permtodos = 0;
@@ -5384,7 +5385,7 @@ class DocumentManager extends React.Component {
             permtodos = permtodos + 1;
           }
         })
-        if(selected.proxysecion){
+        if (selected.proxysecion) {
           publicsecion = true;
         }
       });
@@ -5397,27 +5398,27 @@ class DocumentManager extends React.Component {
       }
       if (newSelected.length === permtodos && !publicsecion) {
         vardel = true;
-        varmov = true;        
-        if (this.state.menu.menuselect === 'Búsqueda' && !publicsecion ) {
+        varmov = true;
+        if (this.state.menu.menuselect === 'Búsqueda' && !publicsecion) {
           varmov = false;
         }
         varvisiblemenu = true;
       } else {
         vardel = false;
-        varmov = false;  
+        varmov = false;
         varvisiblemenu = false;
       }
       //console.log(this.state.menu.menuselect)
-      if(this.state.menu.menuselect ==='Espacio de Grupo de Trabajo' || this.state.menu.menuselect ==='Grupos'){
-        vardownload=false;
+      if (this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' || this.state.menu.menuselect === 'Grupos') {
+        vardownload = false;
         varpublicar = false;
       }
-    }else if (newSelected.length > 1 && this.state.acciones.papelera) { 
-         varelimadmin = false;
-         vardetail = false;
-         varedit = false;
+    } else if (newSelected.length > 1 && this.state.acciones.papelera) {
+      varelimadmin = false;
+      vardetail = false;
+      varedit = false;
     }
-   
+
     let itemnew = this.state;
     itemnew.tabla.numSelected = newSelected.length;
     itemnew.tabla.order = this.state.tabla.order;
@@ -5450,16 +5451,16 @@ class DocumentManager extends React.Component {
     //console.log(this.state.acciones.mover);
   };
 
-  verificargruposistema =(lista)=>{
-      let sistema = false;
-      lista.forEach(select => {
-          rows.forEach(obj => {
-               if(select === obj.name && obj.sistema === 'Sistema'){
-                sistema = true;
-               }
-          });
+  verificargruposistema = (lista) => {
+    let sistema = false;
+    lista.forEach(select => {
+      rows.forEach(obj => {
+        if (select === obj.name && obj.sistema === 'Sistema') {
+          sistema = true;
+        }
       });
-      return sistema;
+    });
+    return sistema;
   }
 
   handleRowClickGroup = (event, name) => {
@@ -5501,22 +5502,22 @@ class DocumentManager extends React.Component {
     var varelimgroup = false;
     var varvisiblemenu = true;
     var vargestusergroup = false;
-    
-    if(newSelected.length === 1){        
-        vargestusergroup = true;
-        if(!this.verificargruposistema(newSelected)){
-          varelimgroup = true;
-          varedit = true;
-        }
-    }
-    if(newSelected.length > 1){
-      if(!this.verificargruposistema(newSelected)){
+
+    if (newSelected.length === 1) {
+      vargestusergroup = true;
+      if (!this.verificargruposistema(newSelected)) {
         varelimgroup = true;
-      }else{
+        varedit = true;
+      }
+    }
+    if (newSelected.length > 1) {
+      if (!this.verificargruposistema(newSelected)) {
+        varelimgroup = true;
+      } else {
         varvisiblemenu = false;
       }
     }
-    
+
     let itemnew = this.state;
     itemnew.tabla.numSelected = newSelected.length;
     itemnew.tabla.order = this.state.tabla.order;
@@ -5664,52 +5665,52 @@ class DocumentManager extends React.Component {
   }
 
 
-  visualizardoc(doc){
+  visualizardoc(doc) {
     return (
-       window.docEditor = new DocsAPI.DocEditor('placeholder',
-         {
-            document: {
-              fileType: 'docx',
-              key: "implementalsystem",
-              title: "Example Document Title.docx",
-              url: "https://example.com/url-to-example-document.docx"
-         },
+      window.docEditor = new DocsAPI.DocEditor('placeholder',
+        {
+          document: {
+            fileType: 'docx',
+            key: "implementalsystem",
+            title: "Example Document Title.docx",
+            url: "https://example.com/url-to-example-document.docx"
+          },
           documentType: "word",
           editorConfig: {
             "callbackUrl": "https://example.com/url-to-callback.ashx",
           },
           height: "100%",
           width: "100%"
-       })    
-      
-       
-        )
+        })
+
+
+    )
   }
 
 
 
-  visualizarimagen=(img)=>{
-      console.log(img);
-      let array = []
-      let objimg={
-        src: img.preview,
-       // dir: "http://localhost:8180/nuxeo/nxpicsfile/dep-comercioelectronico/fa47f719-ea28-4c85-a95c-6e01184fd909/Original:content/41ee5f8572922481744243f9ef495db0.jpg",
-        title: img.name,
-        description: img.descripcion
-      }
-      array.push(objimg);
-      let estado = this.state;
-      estado.visualizacion.images = array;
-      estado.visualizacion.mostrarimg = true;
-      this.setState({
-        estado
-      });
-      console.log(array);
+  visualizarimagen = (img) => {
+    console.log(img);
+    let array = []
+    let objimg = {
+      src: img.preview,
+      // dir: "http://localhost:8180/nuxeo/nxpicsfile/dep-comercioelectronico/fa47f719-ea28-4c85-a95c-6e01184fd909/Original:content/41ee5f8572922481744243f9ef495db0.jpg",
+      title: img.name,
+      description: img.descripcion
+    }
+    array.push(objimg);
+    let estado = this.state;
+    estado.visualizacion.images = array;
+    estado.visualizacion.mostrarimg = true;
+    this.setState({
+      estado
+    });
+    console.log(array);
 
- 
-         
 
-      
+
+
+
     /*   <Lightbox
             mainSrc={array[0].src}
             nextSrc={images[(photoIndex + 1) % images.length]}
@@ -5726,8 +5727,8 @@ class DocumentManager extends React.Component {
               })
             } 
           /> */
-          
-   
+
+
   }
 
   handleAbrirClick = (row) => {
@@ -5736,19 +5737,19 @@ class DocumentManager extends React.Component {
     let iconvacioantecesor = this.state.iconvacio;
     let subcarpeta = this.isSubcarpeta(row);
     let listacamino = this.state.antecesor.listpath;
-    listacamino[listacamino.length - 1].vinculo = true;    
+    listacamino[listacamino.length - 1].vinculo = true;
     if (listacamino[listacamino.length - 1].iconvacioantecesor !== 'null') {
       this.verificarPermisos(row);
       if (row.tipo === 'Folder' || row.tipo === 'Section') {
         let tipodoc = 'Folder';
-        if(row.tipo === 'Section'){
+        if (row.tipo === 'Section') {
           tipodoc = 'Espacio de Grupo de Trabajo';
         }
         listacamino.push({ iconvacioantecesor: tipodoc, path: row.path, vinculo: false, denom: row.name });
         let itemnew = this.state;
         itemnew.titulotoolbar = row.name;
         itemnew.path = path;
-        itemnew.iconvacio = tipodoc;       
+        itemnew.iconvacio = tipodoc;
         itemnew.mover.nosubcarpeta = subcarpeta;
         itemnew.antecesor.mostrarbtnatras = true;
         itemnew.antecesor.pathantecesor = pathantecesor;
@@ -5774,11 +5775,11 @@ class DocumentManager extends React.Component {
           this.setState({
             itemnew
           }) */
-          if(extension == '.gif' || extension == '.png' || extension == '.jpg' || extension == '.jpeg' || extension == '.pbm' || extension == '.bmp' || extension == '.ppm' || extension == '.fax' || extension == '.tiff' || extension == '.tif' || extension == '.svg' || extension == '.dpx' || extension == '.ai' || extension == '.psd' || extension == '.emf' || extension == '.vclmtf' || extension == '.srf'){
-               this.visualizarimagen(row);
-          }else{
-            this.visualizardoc(row);
-            console.log(row);
+        if (extension == '.gif' || extension == '.png' || extension == '.jpg' || extension == '.jpeg' || extension == '.pbm' || extension == '.bmp' || extension == '.ppm' || extension == '.fax' || extension == '.tiff' || extension == '.tif' || extension == '.svg' || extension == '.dpx' || extension == '.ai' || extension == '.psd' || extension == '.emf' || extension == '.vclmtf' || extension == '.srf') {
+          this.visualizarimagen(row);
+        } else {
+          this.visualizardoc(row);
+          console.log(row);
           /*   var docEditor = new DocsAPI.DocEditor("placeholder", config);
             let config = {
               "document": {
@@ -5792,52 +5793,52 @@ class DocumentManager extends React.Component {
                   "callbackUrl": "https://example.com/url-to-callback.ashx"
               }
           }; */
-           
-          }
+
+        }
 
 
-          /* switch (row.extension) {
-            case 'File': {
-              let array = row.name.split('.');
-              let extension = array[array.length - 1];
-              console.log(row.tipo);
-              console.log(extension);
-              if (extension == 'txt' || extension == 'html' || extension == 'xhtml' || extension == 'shtml' || extension == 'stx' || extension == 'rst' || extension == 'rest' || extension == 'restx' || extension == 'rest' || extension == 'py' || extension == 'java' || extension == 'md' || extension == 'mkd' || extension == 'markdown' || extension == 'eml' || extension == 'msg' || extension == 'xml' || extension == 'graffle' || extension == 'twb' || extension == 'sxi' || extension == 'sxw' || extension == 'stw' || extension == 'sti' || extension == 'sxc' || extension == 'stc' || extension == 'sxd' || extension == 'std' || extension == 'std' || extension == 'ps' || extension == 'eps') {
-                return <Note color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'doc' || extension == 'dot' || extension == 'dot' || extension == 'doc.xml' || extension == 'docb.xml' || extension == 'docb' || extension == 'ods' || extension == 'ots' || extension == 'odt' || extension == 'ott' || extension == 'odp' || extension == 'otp' || extension == 'odg' || extension == 'otg' || extension == 'docm' || extension == 'docx' || extension == 'dotm' || extension == 'dotx' || extension == 'dotx' || extension == 'pdf') {
-                return <DescriptionIcon color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'xls' || extension == 'xlt' || extension == 'xlt' || extension == 'xlsb' || extension == 'xlsm' || extension == 'xlsm' || extension == 'xlsx' || extension == 'xps' || extension == 'csv') {
-                return <ChromeReaderModeIcon color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'ppt' || extension == 'pot' || extension == 'pps' || extension == 'mpp' || extension == 'pub' || extension == 'pub' || extension == 'ppsm' || extension == 'ppsx' || extension == 'pptm' || extension == 'pptx' || extension == 'pptx' || extension == 'vsdx' || extension == 'vsd' || extension == 'vst') {
-                return <Dvr color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'zip' || extension == 'rar' || extension == '7zip' || extension == 'jar') {
-                return <AccountBalanceWallet color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'gif' || extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
-                return <Image color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax') {
-                return <Audiotrack color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf') {
-                return <Theaters color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              else{
-                return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-              }
-              break;
+        /* switch (row.extension) {
+          case 'File': {
+            let array = row.name.split('.');
+            let extension = array[array.length - 1];
+            console.log(row.tipo);
+            console.log(extension);
+            if (extension == 'txt' || extension == 'html' || extension == 'xhtml' || extension == 'shtml' || extension == 'stx' || extension == 'rst' || extension == 'rest' || extension == 'restx' || extension == 'rest' || extension == 'py' || extension == 'java' || extension == 'md' || extension == 'mkd' || extension == 'markdown' || extension == 'eml' || extension == 'msg' || extension == 'xml' || extension == 'graffle' || extension == 'twb' || extension == 'sxi' || extension == 'sxw' || extension == 'stw' || extension == 'sti' || extension == 'sxc' || extension == 'stc' || extension == 'sxd' || extension == 'std' || extension == 'std' || extension == 'ps' || extension == 'eps') {
+              return <Note color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
             }
+            if (extension == 'doc' || extension == 'dot' || extension == 'dot' || extension == 'doc.xml' || extension == 'docb.xml' || extension == 'docb' || extension == 'ods' || extension == 'ots' || extension == 'odt' || extension == 'ott' || extension == 'odp' || extension == 'otp' || extension == 'odg' || extension == 'otg' || extension == 'docm' || extension == 'docx' || extension == 'dotm' || extension == 'dotx' || extension == 'dotx' || extension == 'pdf') {
+              return <DescriptionIcon color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            if (extension == 'xls' || extension == 'xlt' || extension == 'xlt' || extension == 'xlsb' || extension == 'xlsm' || extension == 'xlsm' || extension == 'xlsx' || extension == 'xps' || extension == 'csv') {
+              return <ChromeReaderModeIcon color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            if (extension == 'ppt' || extension == 'pot' || extension == 'pps' || extension == 'mpp' || extension == 'pub' || extension == 'pub' || extension == 'ppsm' || extension == 'ppsx' || extension == 'pptm' || extension == 'pptx' || extension == 'pptx' || extension == 'vsdx' || extension == 'vsd' || extension == 'vst') {
+              return <Dvr color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            if (extension == 'zip' || extension == 'rar' || extension == '7zip' || extension == 'jar') {
+              return <AccountBalanceWallet color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            if (extension == 'gif' || extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
+              return <Image color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax') {
+              return <Audiotrack color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf') {
+              return <Theaters color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            else{
+              return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+            }
+            break;
+          }
+      
         
-          
-            default:
-              break;
-          } */
-         
-       
+          default:
+            break;
+        } */
+
+
       }
 
     }
@@ -5893,7 +5894,7 @@ class DocumentManager extends React.Component {
     //
   }
 
-  DevuelveIcons = (row) => {    
+  DevuelveIcons = (row) => {
     switch (row.tipo) {
       case 'Folder': {
         return <Folder color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
@@ -5901,9 +5902,9 @@ class DocumentManager extends React.Component {
       }
       case 'File': {
         let array = row.name.split('.');
-        let extension = array[array.length - 1];
-       /*  console.log(row.tipo);
-        console.log(extension); */
+        let extension = array[array.length - 1].toLowerCase();
+        /*  console.log(row.tipo);
+         console.log(extension); */
         if (extension == 'txt' || extension == 'html' || extension == 'xhtml' || extension == 'shtml' || extension == 'stx' || extension == 'rst' || extension == 'rest' || extension == 'restx' || extension == 'rest' || extension == 'py' || extension == 'java' || extension == 'md' || extension == 'mkd' || extension == 'markdown' || extension == 'eml' || extension == 'msg' || extension == 'xml' || extension == 'graffle' || extension == 'twb' || extension == 'sxi' || extension == 'sxw' || extension == 'stw' || extension == 'sti' || extension == 'sxc' || extension == 'stc' || extension == 'sxd' || extension == 'std' || extension == 'std' || extension == 'ps' || extension == 'eps') {
           return <Note color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
         }
@@ -5928,7 +5929,7 @@ class DocumentManager extends React.Component {
         if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf') {
           return <Theaters color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
         }
-        else{
+        else {
           return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
         }
         break;
@@ -5944,7 +5945,7 @@ class DocumentManager extends React.Component {
       default: {
         return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
       }
-      break;
+        break;
     }
   }
 
@@ -5957,7 +5958,7 @@ class DocumentManager extends React.Component {
       }
       case 'File': {
         let array = row.name.split('.');
-        let extension = array[array.length - 1];
+        let extension = array[array.length - 1].toLowerCase();
         if (extension == 'txt' || extension == 'html' || extension == 'xhtml' || extension == 'shtml' || extension == 'stx' || extension == 'rst' || extension == 'rest' || extension == 'restx' || extension == 'rest' || extension == 'py' || extension == 'java' || extension == 'md' || extension == 'mkd' || extension == 'markdown' || extension == 'eml' || extension == 'msg' || extension == 'xml' || extension == 'graffle' || extension == 'twb' || extension == 'sxi' || extension == 'sxw' || extension == 'stw' || extension == 'sti' || extension == 'sxc' || extension == 'stc' || extension == 'sxd' || extension == 'std' || extension == 'std' || extension == 'ps' || extension == 'eps') {
           return <Note color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
         }
@@ -5973,19 +5974,19 @@ class DocumentManager extends React.Component {
         if (extension == 'zip' || extension == 'rar' || extension == '7zip' || extension == 'jar') {
           return <AccountBalanceWallet color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
         }
-        if (extension == 'gif' || extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
+        if (extension == 'gif' || extension === 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
           return <Image color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
         }
         if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax' || extension == 'wax' || extension == 'wax') {
           return <Audiotrack color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
         }
-        if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf') { 
+        if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf') {
           return <Theaters color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
-        } 
-        else{
-          return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
         }
-        break;       
+        else {
+          return <Receipt color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} />;
+        }
+        break;
       }
       case 'Section': {
         return <FolderSpecial color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
@@ -6083,7 +6084,7 @@ class DocumentManager extends React.Component {
 
   // ejecutar consultas en el repositorio ///
   ejecutarQueryRepo(query, element) {
-    return nuxeo.operation('Repository.Query').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview','tags'] })
+    return nuxeo.operation('Repository.Query').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
       .params({
         language: "NXQL",
         query: query,
@@ -6103,7 +6104,7 @@ class DocumentManager extends React.Component {
     let array = denom.split('.');
     let extension = '';
     let i = 0;
-    if(array.length>1){
+    if (array.length > 1) {
       while (i < array.length - 1) {
         if (i > 0) {
           denom = denom + '.' + array[i];
@@ -6124,8 +6125,8 @@ class DocumentManager extends React.Component {
   /// verificar si el documento tiene a su padre en el resultado de la consulta ///
   Verificarpadre(doc) {
     let tienepadre = false;
-    listaresultado.forEach(element => {     
-      if (doc.parentRef === element.uid && element.tipo==='Folder') {
+    listaresultado.forEach(element => {
+      if (doc.parentRef === element.uid && element.tipo === 'Folder') {
         tienepadre = true;
       }
     });
@@ -6142,7 +6143,7 @@ class DocumentManager extends React.Component {
     let mineType = '';
     let state = 'proyecto';
     let src = '';
-    if (doc.properties.hasOwnProperty('file:content')){
+    if (doc.properties.hasOwnProperty('file:content')) {
       if (doc.properties['file:content']) {
         file = doc.properties['file:content']
         tamanno = self.obtenertamaño(file.length);
@@ -6165,10 +6166,10 @@ class DocumentManager extends React.Component {
     if (doc.properties['dc:expired'] !== null) {
       fechaexpira = moment(doc.properties['dc:expired'], 'YYYY-MM-DDTHH:mm:ss.SSSSZ').format('YYYY-MM-DD HH:mm:ss');
     }
-    if(doc.state ==='approved' && doc.contextParameters.publications.resultsCount>0){
-          state = 'publicado';
+    if (doc.state === 'approved' && doc.contextParameters.publications.resultsCount > 0) {
+      state = 'publicado';
     }
-    
+
     let objdocument = {
       id: doc.uid,
       tipo: doc.type,
@@ -6223,13 +6224,13 @@ class DocumentManager extends React.Component {
       for (var i = acls.length - 1; i >= 0; i--) {
         let aces = acls[i].aces;
         for (var j = aces.length - 1; j >= 0; j--) {
-          let pertenece = false;   
+          let pertenece = false;
           grupos.forEach(group => {
-            if(aces[j].username === group){
-              pertenece =true;
+            if (aces[j].username === group) {
+              pertenece = true;
             }
           });
-          if (aces[j].granted) {                    
+          if (aces[j].granted) {
             if (aces[j].username === "Everyone" || aces[j].username === user || pertenece) {
               permisos.push(aces[j].permission);
               tienepermiso = true;
@@ -6385,33 +6386,33 @@ class DocumentManager extends React.Component {
         // let newList = lista.splice(0, 1);        
         self.DevolverListaFormateada(lista, cont, long, filtro);
       } else if (long === cont) {
-       // console.log(loadData);
+        // console.log(loadData);
         self.cambiarEstadoVacio(loadData);
       }
     }
   }
 
   /// Listar grupos ////
-  DevolverListaGruposFormateada=(lista)=>{
-     lista.forEach(grupo => {
-      let cantidad = grupo.members.length; 
+  DevolverListaGruposFormateada = (lista) => {
+    lista.forEach(grupo => {
+      let cantidad = grupo.members.length;
       let sistema = 'Sistema';
-      if(grupo.groupname !=="administrators" && grupo.groupname !=="members" && grupo.groupname !=="powerusers"){
-            sistema = 'Usuarios'
-      }  
+      if (grupo.groupname !== "administrators" && grupo.groupname !== "members" && grupo.groupname !== "powerusers") {
+        sistema = 'Usuarios'
+      }
       let objgroup = {
         id: grupo.id,
-       // tipo: grupo.type,
+        // tipo: grupo.type,
         name: grupo.groupname,
-        displaylabel: grupo.displayLabel, 
-        descripcion: grupo.description,    
-        cantmiembros: cantidad, 
+        displaylabel: grupo.displayLabel,
+        descripcion: grupo.description,
+        cantmiembros: cantidad,
         sistema: sistema,
-        tipo: 'Grupos'      
+        tipo: 'Grupos'
       }
       loadData.push(objgroup);
-     });
-     self.cambiarEstadoVacio(loadData);
+    });
+    self.cambiarEstadoVacio(loadData);
   }
 
   ////listar archivos///
@@ -6426,18 +6427,18 @@ class DocumentManager extends React.Component {
     switch (tipo) {
       case 'Grupos': {
         nuxeo.operation('UserGroup.Suggestion')
-        //.input('/')
-        .params({searchType: 'GROUP_TYPE'})
-        .execute()
-        .then(function (res){
-          //console.log(res)
-          if (res.length > 0) {
-            listaresultado = res;
-            self.DevolverListaGruposFormateada(res);
-          } else {
-            self.cambiarEstadoVacio(loadData);
-          } 
-        })
+          //.input('/')
+          .params({ searchType: 'GROUP_TYPE' })
+          .execute()
+          .then(function (res) {
+            //console.log(res)
+            if (res.length > 0) {
+              listaresultado = res;
+              self.DevolverListaGruposFormateada(res);
+            } else {
+              self.cambiarEstadoVacio(loadData);
+            }
+          })
         break;
       }
       case 'Espacio de Grupo de Trabajo': {
@@ -6553,14 +6554,14 @@ class DocumentManager extends React.Component {
                 let esta = false;
                 documentos.forEach(doc => {
                   //console.log(doc);
-                    if(doc.uid === element.uid){
-                        esta=true
-                    }
-               }); 
-               if(!esta){
-                documentos.push(element);
-               }               
-                
+                  if (doc.uid === element.uid) {
+                    esta = true
+                  }
+                });
+                if (!esta) {
+                  documentos.push(element);
+                }
+
               });
               if (documentos.length > 0) {
                 self.DevolverListaFormateada(documentos, cont, documentos.length, 'Archivo');
@@ -6575,14 +6576,14 @@ class DocumentManager extends React.Component {
 
   }
 
-  
-  crearusuario = () =>{
+
+  crearusuario = () => {
     nuxeo = new Nuxeo({
       baseURL: urlnuxeo,
       auth: {
-      method: 'basic',
-      username: usercheq,
-      password: usercheq
+        method: 'basic',
+        username: usercheq,
+        password: usercheq
       }
     });
     var newUser = {
@@ -6594,209 +6595,214 @@ class DocumentManager extends React.Component {
         email: emailempresa,
       },
     };
-      nuxeo.users()
+    nuxeo.users()
       .create(newUser)
-      .then(function(users){
-       // console.log(users);
+      .then(function (users) {
+        // console.log(users);
         self.crearworkspaceuser();
       })
   }
 
 
-  creardominio=()=>{
+  creardominio = () => {
     nuxeo = new Nuxeo({
       baseURL: urlnuxeo,
       auth: {
-      method: 'basic',
-      username: usercheq,
-      password: usercheq
+        method: 'basic',
+        username: usercheq,
+        password: usercheq
       }
     });
-    
+
     nuxeo.operation('Document.Create')
-    .enrichers({ document: ['favorites', 'breadcrumb', 'acls', 'publications', 'tags'] })
-    .input('/')
-    .params({type: 'Domain',
-          name: nombredominio
-     })
-    .execute()
-    .then(function (doc){        
-       // console.log('Modif');
+      .enrichers({ document: ['favorites', 'breadcrumb', 'acls', 'publications', 'tags'] })
+      .input('/')
+      .params({
+        type: 'Domain',
+        name: nombredominio
+      })
+      .execute()
+      .then(function (doc) {
+        // console.log('Modif');
         self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:path STARTSWITH'" + dominio + "'", 5).then(function (docs) {
-            
-          if(docs.length===0){
+
+          if (docs.length === 0) {
             nuxeo.operation('Document.RemoveACL')
-            .input(docs[0].path)
-            .params({acl: "inherited",})
-            .execute()
-            .then(function (doc){
-               nuxeo.operation('Document.AddACE')
-               .input(doc.path)
-               .params({acl: "local",
-                        user: "Everyone",
-                        permission: "Everything",
-                        grant: false,
-                        overwrite: true
-                      })
-               .execute()
-               .then(function (doc){
-                 doc.set({
-                   'dc:title': user,
-                   'dc:type': 'UserWorkspacesRoot',
-     
-                  });
-                 doc.save(); 
-                 self.existeusuario();              
-                })
-            }) 
-           
-          }else{
-            self.existeusuario();   
+              .input(docs[0].path)
+              .params({ acl: "inherited", })
+              .execute()
+              .then(function (doc) {
+                nuxeo.operation('Document.AddACE')
+                  .input(doc.path)
+                  .params({
+                    acl: "local",
+                    user: "Everyone",
+                    permission: "Everything",
+                    grant: false,
+                    overwrite: true
+                  })
+                  .execute()
+                  .then(function (doc) {
+                    doc.set({
+                      'dc:title': user,
+                      'dc:type': 'UserWorkspacesRoot',
+
+                    });
+                    doc.save();
+                    self.existeusuario();
+                  })
+              })
+
+          } else {
+            self.existeusuario();
           }
-                    
+
         })
-    })
+      })
   }
 
-  existeusuario=()=>{
+  existeusuario = () => {
     nuxeo = new Nuxeo({
       baseURL: urlnuxeo,
       auth: {
-      method: 'basic',
-      username: usercheq,
-      password: usercheq
+        method: 'basic',
+        username: usercheq,
+        password: usercheq
       }
     });
     nuxeo.operation('UserGroup.Suggestion')
-        .params({searchType: 'USER_TYPE',
-             searchTerm: user
-        })
-        .execute()
-        .then(function (res){
-         // console.log(res)
-          if(res.length>0){
-            self.ejecutarQueryRepo("SELECT * FROM Workspace WHERE ecm:name='" + user + "' AND ecm:path STARTSWITH '" + dominio + workspace + "'", 5).then(function (docs) {
-             // console.log(docs);
-              if(docs.length===0){
-                self.crearworkspaceuser();
-              }else{
+      .params({
+        searchType: 'USER_TYPE',
+        searchTerm: user
+      })
+      .execute()
+      .then(function (res) {
+        // console.log(res)
+        if (res.length > 0) {
+          self.ejecutarQueryRepo("SELECT * FROM Workspace WHERE ecm:name='" + user + "' AND ecm:path STARTSWITH '" + dominio + workspace + "'", 5).then(function (docs) {
+            // console.log(docs);
+            if (docs.length === 0) {
+              self.crearworkspaceuser();
+            } else {
               /*   nuxeo.repository()
                 .delete(dominio+workspace+ user)
                 .then(function (res) {
                    console.log(res);
                 })  */
-                self.conectaranuxeo();
-              }
-            })
-          }else{
-            self.crearusuario();
-          }
-    })
+              self.conectaranuxeo();
+            }
+          })
+        } else {
+          self.crearusuario();
+        }
+      })
   }
 
-  crearworkspaceuser =()=>{
+  crearworkspaceuser = () => {
     nuxeo = new Nuxeo({
       baseURL: urlnuxeo,
       auth: {
-      method: 'basic',
-      username: usercheq,
-      password: usercheq
+        method: 'basic',
+        username: usercheq,
+        password: usercheq
       }
-    }); 
+    });
     nuxeo.operation('Document.Create')
-    .enrichers({ document: ['acls'] })
-    .input(dominio + workspace)
-    .params({type: 'Workspace',
-             name: user
-     })
-     .execute()
-     .then(function (doc){
+      .enrichers({ document: ['acls'] })
+      .input(dominio + workspace)
+      .params({
+        type: 'Workspace',
+        name: user
+      })
+      .execute()
+      .then(function (doc) {
         //console.log(doc);
         nuxeo.operation('Document.AddACE')
-        .enrichers({ document: ['acls'] })
-        .input(doc.path)
-        .params({acl: "local",
-                 user: user,
-                 permission: "Everything",
-                 grant: true,
-                 overwrite: true
-               })
-        .execute()
-        .then(function (doc1){
-         // console.log(doc1);
-          self.conectaranuxeo();
-        })
+          .enrichers({ document: ['acls'] })
+          .input(doc.path)
+          .params({
+            acl: "local",
+            user: user,
+            permission: "Everything",
+            grant: true,
+            overwrite: true
+          })
+          .execute()
+          .then(function (doc1) {
+            // console.log(doc1);
+            self.conectaranuxeo();
+          })
 
-       // 
-     })
+        // 
+      })
   }
 
-  conectaranuxeo=()=>{
+  conectaranuxeo = () => {
     nuxeo = new Nuxeo({
       baseURL: urlnuxeo,
       auth: {
-      method: 'basic',
-      username: user,
-      password: user
+        method: 'basic',
+        username: user,
+        password: user
       }
-    }); 
-    
+    });
+
     nuxeo.connect({
       baseURL: urlnuxeo,
       auth: {
-      method: 'basic',
-      username: user,
-      password: user
+        method: 'basic',
+        username: user,
+        password: user
       }
     })
-    .then(function (client) {
-      //console.log(client);
-      conexion = 1;
-      //let url = dominio + workspace + user + '/';
-      
-      administrador = client.user.isAdministrator;
-      grupos = client.user.properties.groups;
-      emailempresa= client.user.properties.email;
-      self.listarArchivos(self.state.path, 'Archivo');
-    }).catch(function (error) {
-      rows = [];
-      self.setState({
-        showBackdrop: false,
-        titulotoolbar: self.state.titulotoolbar,
-        iconvacio: self.state.iconvacio,
-        textbuscar: '',
-        notificacion: {
-          variante: 'error',
-          mensaje: 'Usuario no autorizado'
-        },
-        tabla: {
-          rowCount: 0,
-          order: 'asc',
-          selected: [],
-          orderBy: 'name',
-          numSelected: 0,
-        },
-        menu: {
-          menuselect: self.state.menu.menuselect,
-        },
-        comentario: {
-          listcoments: [],
-        }
+      .then(function (client) {
+        //console.log(client);
+        conexion = 1;
+        //let url = dominio + workspace + user + '/';
+
+        administrador = client.user.isAdministrator;
+        grupos = client.user.properties.groups;
+        emailempresa = client.user.properties.email;
+        self.listarArchivos(self.state.path, 'Archivo');
+      }).catch(function (error) {
+        rows = [];
+        self.setState({
+          showBackdrop: false,
+          titulotoolbar: self.state.titulotoolbar,
+          iconvacio: self.state.iconvacio,
+          textbuscar: '',
+          notificacion: {
+            variante: 'error',
+            mensaje: 'Usuario no autorizado'
+          },
+          tabla: {
+            rowCount: 0,
+            order: 'asc',
+            selected: [],
+            orderBy: 'name',
+            numSelected: 0,
+          },
+          menu: {
+            menuselect: self.state.menu.menuselect,
+          },
+          comentario: {
+            listcoments: [],
+          }
+        });
+        conexion = 2;
+        //throw error;
       });
-      conexion = 2;
-      //throw error;
-    });
   }
 
 
   conectarServer = () => {
     let variante = '';
-    let mensaje = '';     
+    let mensaje = '';
     self.ejecutarQueryRepo("SELECT * FROM Domain WHERE ecm:name='" + nombredominio + "'", 5).then(function (docs) {
       //console.log(docs);
-      if(docs.length===0){
+      if (docs.length === 0) {
         self.creardominio();
-      } else{
+      } else {
         self.existeusuario();
       }
     })
@@ -6811,94 +6817,95 @@ class DocumentManager extends React.Component {
 
   //// Crear documentos ///
   handleYesConfirmCrear = (datos) => {
-    if(this.state.ventadicionar.type === 'Grupo'){
-       let tipoadd = 'Folder'
-       let denomadd = datos.denominacion.trim();
+    if (this.state.ventadicionar.type === 'Grupo') {
+      let tipoadd = 'Folder'
+      let denomadd = datos.denominacion.trim();
       // console.log('listo para empezar');
-       nuxeo.operation('UserGroup.Suggestion')
-       .params({searchType: 'GROUP_TYPE',
-                searchTerm: denomadd
-       })
-       .execute()
-       .then(function (res){
-        // console.log(res)
-         let similitud = 0;
-         res.forEach(grupo => {
-            if(grupo.groupname === denomadd){
+      nuxeo.operation('UserGroup.Suggestion')
+        .params({
+          searchType: 'GROUP_TYPE',
+          searchTerm: denomadd
+        })
+        .execute()
+        .then(function (res) {
+          // console.log(res)
+          let similitud = 0;
+          res.forEach(grupo => {
+            if (grupo.groupname === denomadd) {
               similitud = similitud + 1;
             }
-         });
-         if( similitud === 0 || (similitud === 1 && self.state.ventadicionar.renombrar === true && grupo.id === self.state.ventadicionar.id)){
-            if(self.state.ventadicionar.renombrar){
+          });
+          if (similitud === 0 || (similitud === 1 && self.state.ventadicionar.renombrar === true && grupo.id === self.state.ventadicionar.id)) {
+            if (self.state.ventadicionar.renombrar) {
               nuxeo.groups()
-              .fetch(self.state.ventadicionar.denom)
-              .then(function(res){
+                .fetch(self.state.ventadicionar.denom)
+                .then(function (res) {
                /*  console.log(res);
                 console.log(denomadd) */;
-                nuxeo.group().update(res, {
-                  'entity-type': 'group',
-                  groupname: denomadd,
-                })
-                .then(function(group) {
-                 // console.log(group)
-                  self.listarArchivos('path', 'Grupos');
-                  self.setState({
-                    notificacion: {
-                      variante: 'success',
-                      mensaje: 'El grupo se modificó satisfactoriamente'
-                    }
+                  nuxeo.group().update(res, {
+                    'entity-type': 'group',
+                    groupname: denomadd,
                   })
-                })
-              }) 
-
-           /*  nuxeo.operation('Group.CreateOrUpdate')
-              .params({ 
-                         tenantId: self.state.ventadicionar.id, 
-                         groupname: denomadd,
-                         description: datos.descripcion,
-                         mode: 'createOrUpdate'
+                    .then(function (group) {
+                      // console.log(group)
+                      self.listarArchivos('path', 'Grupos');
+                      self.setState({
+                        notificacion: {
+                          variante: 'success',
+                          mensaje: 'El grupo se modificó satisfactoriamente'
+                        }
                       })
-              .execute()
-              .then(function (group) {
-                 console.log(group)
-              })  */
-             
-             /*  nuxeo.groups().fetch(self.state.ventadicionar.denom)
-              .then(function(group) {
-                    group.groupname = denomadd;
-                   //group.description = datos.descripcion;
-                    group.description = datos.descripcion;
-                    group.save();
-                    self.listarArchivos('path', 'Grupos');
-                    self.setState({
-                      notificacion: {
-                        variante: 'success',
-                        mensaje: 'El grupo se modificó satisfactoriamente'
-                      }
                     })
-              }); */
-            }else{
+                })
+
+              /*  nuxeo.operation('Group.CreateOrUpdate')
+                 .params({ 
+                            tenantId: self.state.ventadicionar.id, 
+                            groupname: denomadd,
+                            description: datos.descripcion,
+                            mode: 'createOrUpdate'
+                         })
+                 .execute()
+                 .then(function (group) {
+                    console.log(group)
+                 })  */
+
+              /*  nuxeo.groups().fetch(self.state.ventadicionar.denom)
+               .then(function(group) {
+                     group.groupname = denomadd;
+                    //group.description = datos.descripcion;
+                     group.description = datos.descripcion;
+                     group.save();
+                     self.listarArchivos('path', 'Grupos');
+                     self.setState({
+                       notificacion: {
+                         variante: 'success',
+                         mensaje: 'El grupo se modificó satisfactoriamente'
+                       }
+                     })
+               }); */
+            } else {
               //console.log(datos.descripcion);
-              
-              
-              
-             /*  {
-                groupname: denomadd,
-                description: datos.descripcion,
-              }; */
+
+
+
+              /*  {
+                 groupname: denomadd,
+                 description: datos.descripcion,
+               }; */
 
               var group = {
                 'entity-type': 'group',
                 groupname: 'prueba 1',
                 grouplabel: 'prueba sadasd',
                 memberUsers: ['osmany.cordero'],
-                properties:{
-                   description: 'csdad fdfsa'
+                properties: {
+                  description: 'csdad fdfsa'
                 }
               };
               nuxeo.groups()
                 .create(group)
-                .then(function(group) {
+                .then(function (group) {
                   self.listarArchivos('path', 'Grupos');
                   self.setState({
                     notificacion: {
@@ -6908,120 +6915,120 @@ class DocumentManager extends React.Component {
                   })
                 })
             }
-         }else{
-          self.setState({
-            ventadicionar: {
-              opencrear: true,
-              renombrar: self.state.ventadicionar.renombrar,
-              tipo: self.state.ventadicionar.tipo,
-              type: self.state.ventadicionar.type,
-              enunciado: self.state.ventadicionar.enunciado,
-              mimeType: self.state.ventadicionar.mimeType,
-              error: true,
-              denom: datos.denominacion,
-              descrip: datos.descripcion,
-              id: self.state.ventadicionar.id,
-              errorMessage: 'Cambiar valor, ya existe un grupo con esa denominación',
-            },
-          })
-         }
-       })
-    }else{
-    let tipoadd = 'Folder'
-    let denomadd = datos.denominacion.trim();
-    if (this.state.ventadicionar.type !== tipoadd) {
-      if(this.state.ventadicionar.type === 'Section'){
-        tipoadd = 'Section'
-        denomadd = datos.denominacion.trim();
-      }      
-      else{
-        tipoadd = 'File'
-        denomadd = datos.denominacion.trim() + this.state.ventadicionar.type;
-      }  
-    }
-    var exist = true;
-    nuxeo.operation('Document.FetchByProperty')
-      .params({ "property": "dc:title", "values": denomadd })
-      .execute()
-      .then(function (docs) {
-        //console.log(docs)
-        if (docs.entries.length == 0 || (self.state.ventadicionar.renombrar === true && docs.entries[0].uid === self.state.ventadicionar.id)) {
-          if (self.state.ventadicionar.renombrar) {
-            nuxeo.repository()
-              .fetch(seleccionado.path)
-              .then(function (doc) {
-                // doc.title !== 'foo'
-                doc.set({
+          } else {
+            self.setState({
+              ventadicionar: {
+                opencrear: true,
+                renombrar: self.state.ventadicionar.renombrar,
+                tipo: self.state.ventadicionar.tipo,
+                type: self.state.ventadicionar.type,
+                enunciado: self.state.ventadicionar.enunciado,
+                mimeType: self.state.ventadicionar.mimeType,
+                error: true,
+                denom: datos.denominacion,
+                descrip: datos.descripcion,
+                id: self.state.ventadicionar.id,
+                errorMessage: 'Cambiar valor, ya existe un grupo con esa denominación',
+              },
+            })
+          }
+        })
+    } else {
+      let tipoadd = 'Folder'
+      let denomadd = datos.denominacion.trim();
+      if (this.state.ventadicionar.type !== tipoadd) {
+        if (this.state.ventadicionar.type === 'Section') {
+          tipoadd = 'Section'
+          denomadd = datos.denominacion.trim();
+        }
+        else {
+          tipoadd = 'File'
+          denomadd = datos.denominacion.trim() + this.state.ventadicionar.type;
+        }
+      }
+      var exist = true;
+      nuxeo.operation('Document.FetchByProperty')
+        .params({ "property": "dc:title", "values": denomadd })
+        .execute()
+        .then(function (docs) {
+          //console.log(docs)
+          if (docs.entries.length == 0 || (self.state.ventadicionar.renombrar === true && docs.entries[0].uid === self.state.ventadicionar.id)) {
+            if (self.state.ventadicionar.renombrar) {
+              nuxeo.repository()
+                .fetch(seleccionado.path)
+                .then(function (doc) {
+                  // doc.title !== 'foo'
+                  doc.set({
+                    'dc:title': denomadd,
+                    'dc:description': datos.descripcion
+                  });
+                  doc.save();
+                  if (self.state.menu.menuselect === 'Búsqueda') {
+                    self.handleEjecutarQuery(self.state.busqueda.sql);
+                  } else {
+                    self.listarArchivos(self.state.path, self.state.iconvacio)
+                  }
+                  self.setState({
+                    notificacion: {
+                      variante: 'success',
+                      mensaje: 'El archivo se renombró satisfactoriamente'
+                    }
+                  })
+                })
+                .catch(function (error) {
+                  throw error;
+                });
+
+            } else {
+              var newDocument = {
+                'entity-type': 'document',
+                name: denomadd,
+                type: tipoadd,
+                properties: {
                   'dc:title': denomadd,
                   'dc:description': datos.descripcion
+                }
+              };
+              //console.log(self.state.path)
+              nuxeo.repository()
+                .create(self.state.path, newDocument)
+                .then(function (doc) {
+                  if (self.state.menu.menuselect === 'Búsqueda') {
+                    self.handleEjecutarQuery(self.state.busqueda.sql);
+                  } else {
+                    self.listarArchivos(self.state.path, self.state.iconvacio)
+                  }
+                  self.setState({
+                    notificacion: {
+                      variante: 'success',
+                      mensaje: 'El archivo se creó satisfactoriamente'
+                    }
+                  })
+                  //  }
+                })
+                .catch(function (error) {
+                  throw error;
                 });
-                doc.save();
-                if (self.state.menu.menuselect === 'Búsqueda') {
-                  self.handleEjecutarQuery(self.state.busqueda.sql);
-                } else {
-                  self.listarArchivos(self.state.path, self.state.iconvacio)
-                }
-                self.setState({
-                  notificacion: {
-                    variante: 'success',
-                    mensaje: 'El archivo se renombró satisfactoriamente'
-                  }
-                })
-              })
-              .catch(function (error) {
-                throw error;
-              });
-
+            }
           } else {
-            var newDocument = {
-              'entity-type': 'document',
-              name: denomadd,
-              type: tipoadd,
-              properties: {
-                'dc:title': denomadd,
-                'dc:description': datos.descripcion
-              }
-            };
-            //console.log(self.state.path)
-            nuxeo.repository()
-              .create(self.state.path, newDocument)
-              .then(function (doc) {
-                if (self.state.menu.menuselect === 'Búsqueda') {
-                  self.handleEjecutarQuery(self.state.busqueda.sql);
-                } else {
-                  self.listarArchivos(self.state.path, self.state.iconvacio)
-                }
-                self.setState({
-                  notificacion: {
-                    variante: 'success',
-                    mensaje: 'El archivo se creó satisfactoriamente'
-                  }
-                })
-                //  }
-              })
-              .catch(function (error) {
-                throw error;
-              });
+            // console.log('poner error')
+            self.setState({
+              ventadicionar: {
+                opencrear: true,
+                renombrar: self.state.ventadicionar.renombrar,
+                tipo: self.state.ventadicionar.tipo,
+                type: self.state.ventadicionar.type,
+                enunciado: self.state.ventadicionar.enunciado,
+                mimeType: self.state.ventadicionar.mimeType,
+                error: true,
+                denom: datos.denominacion,
+                descrip: datos.descripcion,
+                id: self.state.ventadicionar.id,
+                errorMessage: 'Cambiar valor, ya existe un archivo con esa denominación',
+              },
+            })
           }
-        } else {
-          // console.log('poner error')
-          self.setState({
-            ventadicionar: {
-              opencrear: true,
-              renombrar: self.state.ventadicionar.renombrar,
-              tipo: self.state.ventadicionar.tipo,
-              type: self.state.ventadicionar.type,
-              enunciado: self.state.ventadicionar.enunciado,
-              mimeType: self.state.ventadicionar.mimeType,
-              error: true,
-              denom: datos.denominacion,
-              descrip: datos.descripcion,
-              id: self.state.ventadicionar.id,
-              errorMessage: 'Cambiar valor, ya existe un archivo con esa denominación',
-            },
-          })
-        }
-      })
+        })
     }
   }
 
@@ -7208,7 +7215,7 @@ class DocumentManager extends React.Component {
       .params({ "property": "dc:title", "values": denomadd })
       .execute()
       .then(function (docs) {
-        if (docs.entries.length > 0){
+        if (docs.entries.length > 0) {
           let denom = lista[0].name.trim();
           let array = denom.split('.');
           let i = 0;
@@ -7231,7 +7238,7 @@ class DocumentManager extends React.Component {
           let msg = 'El achrivo ' + denomadd + ' fue importado satisfactoriamente'
           //console.log(lista[0]);    
           var blob = new Nuxeo.Blob({ content: lista[0], name: denomadd, mimeType: lista[0].type, size: lista[0].size })
-         // console.log(blob);
+          // console.log(blob);
           var newDocument = {
             'entity-type': 'document',
             name: denomadd,
@@ -7437,11 +7444,11 @@ class DocumentManager extends React.Component {
                           <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
                             {this.state.tabla.numSelected} archivos seleccionados</b>
                           </Typography>
-                        ):(
-                          <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
-                          {this.state.tabla.numSelected} grupos seleccionados</b>
-                          </Typography>
-                        )                       
+                        ) : (
+                            <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
+                              {this.state.tabla.numSelected} grupos seleccionados</b>
+                            </Typography>
+                          )
                       ) : (
                           // console.log(this.state.menu.menuselect),
                           <Typography className={classes.title} variant="h6" id="tableTitle" style={{ color: "#FFFFFF" }}>
@@ -7492,31 +7499,25 @@ class DocumentManager extends React.Component {
                                   keepMounted
                                   open={this.state.openmenu}
                                   onClose={this.handleMenuActionsClose}
-                                  PaperProps={{
-                                    style: {
-                                      maxHeight: ITEM_HEIGHT * 8,
-                                      width: '120px',
-                                    },
-                                  }}
                                 >
                                   {this.state.acciones.fav &&
                                     <Tooltip title="Añadir a favoritos">
-                                      <MenuItem key={'favorito'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuAddFavorite}>
-                                        < Grade color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'favorito'} onClick={this.handleActionsMenuAddFavorite}>
+                                        < Grade color='primary' style={{ marginRight: '5px' }} />
                                         Favoritos
                                             </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.unfav &&
                                     <Tooltip title="Quitar de favoritos">
-                                      <MenuItem key={'quitarfavorito'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuRemoveFavorite}>
-                                        <StarBorder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'quitarfavorito'} onClick={this.handleActionsMenuRemoveFavorite}>
+                                        <StarBorder color='primary' style={{ marginRight: '5px' }} />
                                         Quitar Fav.
                                                </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.bloq && <Tooltip title="Bloquear">
-                                    <MenuItem key={'bloquear'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuBloquear}
+                                    <MenuItem key={'bloquear'} onClick={this.handleActionsMenuBloquear}
                                     // onClick={this.handleActionsMenuDesbloquear}
                                     >
                                       < Lock color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
@@ -7525,68 +7526,68 @@ class DocumentManager extends React.Component {
                                   </Tooltip>
                                   }
                                   {this.state.acciones.unbloq && <Tooltip title="Desbloquear">
-                                    <MenuItem key={'desbloquear'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuDesbloquear}>
-                                      < LockOpen color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                    <MenuItem key={'desbloquear'} onClick={this.handleActionsMenuDesbloquear}>
+                                      < LockOpen color='primary' style={{ marginRight: '5px' }} />
                                       Desbloq.
                                            </MenuItem>
                                   </Tooltip>
                                   }
                                   {this.state.acciones.etiq &&
                                     <Tooltip title="Etiquetar">
-                                      <MenuItem key={'etiquetar'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.mostrarComment(true, false)}>
-                                        <LocalOffer color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'etiquetar'} onClick={(event) => this.mostrarComment(true, false)}>
+                                        <LocalOffer color='primary' style={{ marginRight: '5px' }} />
                                         Etiquetar
                                                </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.coment &&
                                     <Tooltip title="Comentar">
-                                      <MenuItem key={'comentar'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.mostrarComment(true, true)}>
-                                        <InsertComment color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'comentar'} onClick={(event) => this.mostrarComment(true, true)}>
+                                        <InsertComment color='primary' style={{ marginRight: '5px' }} />
                                         Comentar
                                              </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.edit &&
                                     <Tooltip title="Renombrar">
-                                      <MenuItem key={'renombrar'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.mostrarActualizar()}>
-                                        <Edit color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'renombrar'} onClick={(event) => this.mostrarActualizar()}>
+                                        <Edit color='primary' style={{ marginRight: '5px' }} />
                                         Renombrar
                                                </MenuItem>
                                     </Tooltip>
-                                  }                                
+                                  }
                                   {this.state.acciones.detall &&
                                     <Tooltip title="Metadatos del archivo">
-                                      <MenuItem key={'detalle'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.toggleDrawer(true)}>
-                                        < Info color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'detalle'} onClick={(event) => this.toggleDrawer(true)}>
+                                        < Info color='primary' style={{ marginRight: '5px' }} />
                                         Detalle
                                            </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.mover &&
                                     <Tooltip title="Mover archivo">
-                                      <MenuItem key={'mover'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.prepararMovimiento()}>
-                                        <MoveToInbox color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'mover'} onClick={(event) => this.prepararMovimiento()}>
+                                        <MoveToInbox color='primary' style={{ marginRight: '5px' }} />
                                         Mover
                                             </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.eliminar &&
                                     <Tooltip title="Eliminar archivo">
-                                      <MenuItem key={'eliminar'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuEliminar}>
-                                        <Delete color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'eliminar'} onClick={this.handleActionsMenuEliminar}>
+                                        <Delete color='primary' style={{ marginRight: '5px' }} />
                                         Eliminar
                                              </MenuItem>
                                     </Tooltip>
                                   }
                                   {this.state.acciones.elimadmin &&
                                     <Tooltip title="Eliminar">
-                                      <MenuItem key={'eliminaradmin'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuEliminar}>
-                                        <Delete color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'eliminaradmin'} onClick={this.handleActionsMenuEliminar}>
+                                        <Delete color='primary' style={{ marginRight: '5px' }} />
                                         Eliminar
                                              </MenuItem>
                                     </Tooltip>
-                                  }                                  
+                                  }
                                   {this.state.acciones.gestusergroup &&
                                     <Tooltip title="Gestionar Miembros">
                                       <MenuItem key={'gestusergroup'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuEliminarGroup}>
@@ -7597,8 +7598,8 @@ class DocumentManager extends React.Component {
                                   }
                                   {this.state.acciones.elimgroup &&
                                     <Tooltip title="Eliminar Grupos">
-                                      <MenuItem key={'eliminargroup'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuEliminarGroup}>
-                                        <Delete color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <MenuItem key={'eliminargroup'} onClick={this.handleActionsMenuEliminarGroup}>
+                                        <Delete color='primary' style={{ marginRight: '5px' }} />
                                         Eliminar
                                              </MenuItem>
                                     </Tooltip>
@@ -7606,14 +7607,14 @@ class DocumentManager extends React.Component {
                                   {this.state.acciones.papelera &&
                                     <React.Fragment>
                                       <Tooltip title="Recuperar archivo">
-                                        <MenuItem key={'recuperar'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuRecuperar}>
-                                          <Undo color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                        <MenuItem key={'recuperar'} onClick={this.handleActionsMenuRecuperar}>
+                                          <Undo color='primary' style={{ marginRight: '5px' }} />
                                           Recuperar
                                             </MenuItem>
                                       </Tooltip>
                                       <Tooltip title="Eliminar permanentemente">
-                                        <MenuItem key={'eliminarperm'} style={{ fontSize: '13px', height: '20px' }} onClick={this.handleActionsMenuEliminarPerm}>
-                                          <Delete color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                        <MenuItem key={'eliminarperm'} onClick={this.handleActionsMenuEliminarPerm}>
+                                          <Delete color='primary' style={{ marginRight: '5px' }} />
                                           Permanente
                                             </MenuItem>
                                       </Tooltip>
@@ -7640,134 +7641,134 @@ class DocumentManager extends React.Component {
                               }
                               {this.state.menu.hidebtnprincipales === false ? (
                                 <React.Fragment>
-                                  { this.state.acciones.crear ? ( 
+                                  { this.state.acciones.crear ? (
                                     this.state.menu.menuselect !== 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect !== 'Grupos' ? (
-                                    <React.Fragment>
-                                   <Tooltip title="Crear archivo">
-                                      <IconButton style={{ color: "#FFFFFF" }}
-                                        id='adddocument'
-                                        aria-label="acciones"
-                                        aria-controls="long-menu"
-                                        aria-haspopup="true"
-                                        onClick={this.handleClickAddMenuActions}
-                                      >
-                                        <Add />
-                                      </IconButton>
-                                    </Tooltip>
-                                     <Menu
-                                     id="long-menu"
-                                     anchorEl={this.state.anchoraddEl}
-                                     keepMounted
-                                     open={this.state.openaddmenu}
-                                     onClose={this.handleMenuAddActionsClose}
-                                   >
-                                     <Tooltip title="Crear Carpeta">
-                                       <MenuItem key={'folder'} onClick={(event) => this.handleActionsMenuadd(event, 'Folder')}>
-                                         <Folder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                      <React.Fragment>
+                                        <Tooltip title="Crear archivo">
+                                          <IconButton style={{ color: "#FFFFFF" }}
+                                            id='adddocument'
+                                            aria-label="acciones"
+                                            aria-controls="long-menu"
+                                            aria-haspopup="true"
+                                            onClick={this.handleClickAddMenuActions}
+                                          >
+                                            <Add />
+                                          </IconButton>
+                                        </Tooltip>
+                                        <Menu
+                                          id="long-menu"
+                                          anchorEl={this.state.anchoraddEl}
+                                          keepMounted
+                                          open={this.state.openaddmenu}
+                                          onClose={this.handleMenuAddActionsClose}
+                                        >
+                                          <Tooltip title="Crear Carpeta">
+                                            <MenuItem key={'folder'} onClick={(event) => this.handleActionsMenuadd(event, 'Folder')}>
+                                              <Folder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                          Carpeta
                                  </MenuItem>
-                                     </Tooltip>
-                                     <Tooltip title="Crear documento">
-                                       <MenuItem key={'documento'} onClick={(event) => this.handleActionsMenuadd(event, 'File')}>
-                                         <DescriptionIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                          </Tooltip>
+                                          <Tooltip title="Crear documento">
+                                            <MenuItem key={'documento'} onClick={(event) => this.handleActionsMenuadd(event, 'File')}>
+                                              <DescriptionIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                          Documento
                                  </MenuItem>
-                                     </Tooltip>
-                                     <Tooltip title="Crear nota">
-                                       <MenuItem key={'nota'} onClick={(event) => this.handleActionsMenuadd(event, 'Nota')}>
-                                         <InsertDriveFileIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                          </Tooltip>
+                                          <Tooltip title="Crear nota">
+                                            <MenuItem key={'nota'} onClick={(event) => this.handleActionsMenuadd(event, 'Nota')}>
+                                              <InsertDriveFileIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                          Nota
                                  </MenuItem>
-                                     </Tooltip>
-                                     <Tooltip title="Crear Hoja de Cálculo">
-                                       <MenuItem key={'hoja'} onClick={(event) => this.handleActionsMenuadd(event, 'Hoja')}>
-                                         <ChromeReaderModeIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                          </Tooltip>
+                                          <Tooltip title="Crear Hoja de Cálculo">
+                                            <MenuItem key={'hoja'} onClick={(event) => this.handleActionsMenuadd(event, 'Hoja')}>
+                                              <ChromeReaderModeIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                          Hoja de Cálculo
                                  </MenuItem>
-                                     </Tooltip>
-                                     <Tooltip title="Crear presentacion">
-                                       <MenuItem key={'presentacion'} onClick={(event) => this.handleActionsMenuadd(event, 'Presentacion')}>
-                                         <Dvr color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                          </Tooltip>
+                                          <Tooltip title="Crear presentacion">
+                                            <MenuItem key={'presentacion'} onClick={(event) => this.handleActionsMenuadd(event, 'Presentacion')}>
+                                              <Dvr color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                          Presentación
                                  </MenuItem>
-                                     </Tooltip>
-                                   </Menu>
-                                   </React.Fragment>
-                                   ) : (
-                                    this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' ? (
-                                    <React.Fragment>
-                                      <Tooltip title="Crear">
-                                        <IconButton style={{ color: "#FFFFFF" }}
-                                          id='adddocument'
-                                          aria-label="acciones"
-                                          aria-controls="long-menuadd"
-                                          aria-haspopup="true"
-                                          onClick={this.handleClickAddMenuActions}
-                                        >
-                                          <Add />
-                                        </IconButton>
-                                      </Tooltip>
-                                      <Menu
-                                         id="long-menuadd"
-                                         anchorEl={this.state.anchoraddEl}
-                                         keepMounted
-                                         open={this.state.openaddmenu}
-                                         onClose={this.handleMenuAddActionsClose}
-                                         PaperProps={{
-                                           style: {
-                                             maxHeight: ITEM_HEIGHT * 6,
-                                             width: '145px',
-                                           },
-                                         }}
-                                       >
-                                          <Tooltip title="Crear Espacio de GT">
-                                           <MenuItem key={'folder'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.handleActionsMenuadd(event, 'Secion')}>
-                                             <FolderSpecial color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                          </Tooltip>
+                                        </Menu>
+                                      </React.Fragment>
+                                    ) : (
+                                        this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' ? (
+                                          <React.Fragment>
+                                            <Tooltip title="Crear">
+                                              <IconButton style={{ color: "#FFFFFF" }}
+                                                id='adddocument'
+                                                aria-label="acciones"
+                                                aria-controls="long-menuadd"
+                                                aria-haspopup="true"
+                                                onClick={this.handleClickAddMenuActions}
+                                              >
+                                                <Add />
+                                              </IconButton>
+                                            </Tooltip>
+                                            <Menu
+                                              id="long-menuadd"
+                                              anchorEl={this.state.anchoraddEl}
+                                              keepMounted
+                                              open={this.state.openaddmenu}
+                                              onClose={this.handleMenuAddActionsClose}
+                                              PaperProps={{
+                                                style: {
+                                                  maxHeight: ITEM_HEIGHT * 6,
+                                                  width: '145px',
+                                                },
+                                              }}
+                                            >
+                                              <Tooltip title="Crear Espacio de GT">
+                                                <MenuItem key={'folder'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.handleActionsMenuadd(event, 'Secion')}>
+                                                  <FolderSpecial color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                              Espacio de GT
                                      </MenuItem>
-                                           </Tooltip>
-                                       </Menu>
-                                       </React.Fragment>
-                                      ):(
-                                        this.state.menu.menuselect === 'Grupos' ? (
-                                          <React.Fragment>
-                                          <Tooltip title="Crear">
-                                            <IconButton style={{ color: "#FFFFFF" }}
-                                              id='adddocument'
-                                              aria-label="acciones"
-                                              aria-controls="long-menuadd"
-                                              aria-haspopup="true"
-                                              onClick={this.handleClickAddMenuActions}
-                                            >
-                                              <Add />
-                                            </IconButton>
-                                          </Tooltip>
-                                          <Menu
-                                             id="long-menuadd"
-                                             anchorEl={this.state.anchoraddEl}
-                                             keepMounted
-                                             open={this.state.openaddmenu}
-                                             onClose={this.handleMenuAddActionsClose}
-                                             PaperProps={{
-                                               style: {
-                                                 maxHeight: ITEM_HEIGHT * 6,
-                                                 width: '145px',
-                                               },
-                                             }}
-                                           >
-                                              <Tooltip title="Crear Grupo">
-                                               <MenuItem key={'grupo'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.handleActionsMenuadd(event, 'Grupo')}>
-                                                 <Group color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                              </Tooltip>
+                                            </Menu>
+                                          </React.Fragment>
+                                        ) : (
+                                            this.state.menu.menuselect === 'Grupos' ? (
+                                              <React.Fragment>
+                                                <Tooltip title="Crear">
+                                                  <IconButton style={{ color: "#FFFFFF" }}
+                                                    id='adddocument'
+                                                    aria-label="acciones"
+                                                    aria-controls="long-menuadd"
+                                                    aria-haspopup="true"
+                                                    onClick={this.handleClickAddMenuActions}
+                                                  >
+                                                    <Add />
+                                                  </IconButton>
+                                                </Tooltip>
+                                                <Menu
+                                                  id="long-menuadd"
+                                                  anchorEl={this.state.anchoraddEl}
+                                                  keepMounted
+                                                  open={this.state.openaddmenu}
+                                                  onClose={this.handleMenuAddActionsClose}
+                                                  PaperProps={{
+                                                    style: {
+                                                      maxHeight: ITEM_HEIGHT * 6,
+                                                      width: '145px',
+                                                    },
+                                                  }}
+                                                >
+                                                  <Tooltip title="Crear Grupo">
+                                                    <MenuItem key={'grupo'} style={{ fontSize: '13px', height: '20px' }} onClick={(event) => this.handleActionsMenuadd(event, 'Grupo')}>
+                                                      <Group color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                  Grupo
                                                </MenuItem>
-                                               </Tooltip>
-                                             </Menu>
-                                           </React.Fragment>
-                                        ): (null)
-                                      ))
-                                ):(null)
-                                     
-                                }
+                                                  </Tooltip>
+                                                </Menu>
+                                              </React.Fragment>
+                                            ) : (null)
+                                          ))
+                                  ) : (null)
+
+                                  }
                                   <div className={classes.search} >
                                     <div className={classes.searchIcon}>
                                       <SearchIcon />
@@ -7821,17 +7822,17 @@ class DocumentManager extends React.Component {
                             <Grid container direction="row">
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
                                 <TextField id="titulo"
-                                    label="Denominación"
-                                    value={this.state.busqueda.denombuscar}
-                                    onChange={this.handleChangedenominacion}
-                                  />
+                                  label="Denominación"
+                                  value={this.state.busqueda.denombuscar}
+                                  onChange={this.handleChangedenominacion}
+                                />
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                  <TextField id="descripcion"
-                                    label="Descripción"
-                                    value={this.state.busqueda.descripbuscar}
-                                    onChange={this.handleChangedescripcion}
-                                  />
+                                <TextField id="descripcion"
+                                  label="Descripción"
+                                  value={this.state.busqueda.descripbuscar}
+                                  onChange={this.handleChangedescripcion}
+                                />
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "3px", minWidth: "170px" }} spacing={2}>
                                 <FormControl size='small' fullWidth={true} >
@@ -7855,12 +7856,12 @@ class DocumentManager extends React.Component {
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
                                 <TextField id="tamaño"
-                                    type="number"
-                                    label="Tamaño en MB"
-                                    value={this.state.busqueda.tamanno}
-                                    onChange={this.handleChangetamanno}
-                                    style={{}}
-                                  />
+                                  type="number"
+                                  label="Tamaño en MB"
+                                  value={this.state.busqueda.tamanno}
+                                  onChange={this.handleChangetamanno}
+                                  style={{}}
+                                />
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "3px", minWidth: "170px" }} spacing={2}>
                                 <FormControl size='small' fullWidth={true} >
@@ -7882,75 +7883,75 @@ class DocumentManager extends React.Component {
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "16px", minWidth: "170px" }} spacing={2}>
                                 <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                    <DatePicker
-                                      id='fechadesde'
-                                      disabled={this.state.busqueda.disablefechas}
-                                      keyboard
-                                      placeholder="Fecha Desde"
-                                      format={"YYYY/MM/DD"}
-                                      // handle clearing outside => pass plain array if you are not controlling value outside
-                                      mask={value =>
-                                        value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                          : []
-                                      }
-                                      maxDate={this.state.busqueda.fechahasta !== 'null' ? moment(this.state.busqueda.fechahasta) : moment()}
-                                      value={this.state.busqueda.fechadesde}
-                                      onChange={this.handleDateChangefechadesde}
-                                      disableOpenOnEnter
-                                      animateYearScrolling={false}
-                                      //autoOk={true}
-                                      //clearable
-                                      onInputChange={(e) => this.cambiarEstado(e)} />
-                                  </MuiPickersUtilsProvider>
+                                  <DatePicker
+                                    id='fechadesde'
+                                    disabled={this.state.busqueda.disablefechas}
+                                    keyboard
+                                    placeholder="Fecha Desde"
+                                    format={"YYYY/MM/DD"}
+                                    // handle clearing outside => pass plain array if you are not controlling value outside
+                                    mask={value =>
+                                      value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                        : []
+                                    }
+                                    maxDate={this.state.busqueda.fechahasta !== 'null' ? moment(this.state.busqueda.fechahasta) : moment()}
+                                    value={this.state.busqueda.fechadesde}
+                                    onChange={this.handleDateChangefechadesde}
+                                    disableOpenOnEnter
+                                    animateYearScrolling={false}
+                                    //autoOk={true}
+                                    //clearable
+                                    onInputChange={(e) => this.cambiarEstado(e)} />
+                                </MuiPickersUtilsProvider>
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "16px", minWidth: "170px" }} spacing={2}>
                                 <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                    <DatePicker
-                                      id='fechahasta'
-                                      disabled={this.state.busqueda.disablefechas}
-                                      keyboard
-                                      placeholder="Fecha Hasta"
-                                      format={"YYYY/MM/DD"}
-                                      // handle clearing outside => pass plain array if you are not controlling value outside
-                                      mask={value =>
-                                        value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                          : []
-                                      }
-                                      minDate={moment(this.state.busqueda.fechadesde).add(1, "day")}
-                                      maxDate={moment()}
-                                      value={this.state.busqueda.fechahasta}
-                                      onChange={this.handleDateChangefechahasta}
-                                      disableOpenOnEnter
-                                      animateYearScrolling={false}
-                                      //autoOk={true}
-                                      //clearable
-                                      onInputChange={(e) => this.cambiarEstadoHasta(e)}
-                                    />
-                                  </MuiPickersUtilsProvider>
+                                  <DatePicker
+                                    id='fechahasta'
+                                    disabled={this.state.busqueda.disablefechas}
+                                    keyboard
+                                    placeholder="Fecha Hasta"
+                                    format={"YYYY/MM/DD"}
+                                    // handle clearing outside => pass plain array if you are not controlling value outside
+                                    mask={value =>
+                                      value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                        : []
+                                    }
+                                    minDate={moment(this.state.busqueda.fechadesde).add(1, "day")}
+                                    maxDate={moment()}
+                                    value={this.state.busqueda.fechahasta}
+                                    onChange={this.handleDateChangefechahasta}
+                                    disableOpenOnEnter
+                                    animateYearScrolling={false}
+                                    //autoOk={true}
+                                    //clearable
+                                    onInputChange={(e) => this.cambiarEstadoHasta(e)}
+                                  />
+                                </MuiPickersUtilsProvider>
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
                                 <TextField id="ejecuto"
-                                    label="Ejecutó"
-                                    disabled={this.state.busqueda.disablefechas}
-                                    value={this.state.busqueda.ejecutobuscar}
-                                    onChange={this.handleChangeejecuto}
-                                  />
+                                  label="Ejecutó"
+                                  disabled={this.state.busqueda.disablefechas}
+                                  value={this.state.busqueda.ejecutobuscar}
+                                  onChange={this.handleChangeejecuto}
+                                />
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
                                 <TextField id="etiqueta"
-                                    type="search"
-                                    label="Etiquetas"
-                                    value={this.state.busqueda.etiquetas}
-                                    onChange={this.handleChangeEtiquetas}
-                                  />
+                                  type="search"
+                                  label="Etiquetas"
+                                  value={this.state.busqueda.etiquetas}
+                                  onChange={this.handleChangeEtiquetas}
+                                />
                               </Grid>
                               <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
                                 <TextField id="contribuyentes"
-                                    type="search"
-                                    label="Contribuyentes"
-                                    value={this.state.busqueda.contribuyentes}
-                                    onChange={this.handleChangeContribuyentes}
-                                  />
+                                  type="search"
+                                  label="Contribuyentes"
+                                  value={this.state.busqueda.contribuyentes}
+                                  onChange={this.handleChangeContribuyentes}
+                                />
                               </Grid>
                               <div style={{ marginLeft: '15px', marginTop: '5px' }}>
                                 <Tooltip title='Buscar'>
@@ -7967,239 +7968,239 @@ class DocumentManager extends React.Component {
                         </ExpansionPanel>
                       </div>
                     }
-                    <div style={{maxWidth: "100%" }}>
-                    <Table
-                      className={classes.root}
-                      aria-labelledby="tableTitle"
-                      aria-label="enhanced table"
+                    <div style={{ maxWidth: "100%" }}>
+                      <Table
+                        className={classes.root}
+                        aria-labelledby="tableTitle"
+                        aria-label="enhanced table"
                       //maxHeight = '100px'
                       //stickyHeader
-                     /*  style={{ position: 'sticky',
-                        top: 0}} */
-                    >
-                      {this.state.tabla.rowCount > 0 ? (
-                        this.state.menu.menuselect === 'Grupos'? (
-                          <React.Fragment> 
-                         <div style={{ maxHeight: '350px', overflow: 'auto',}}>                                 
-                          <TableHead>
-                            <TableRow>
-                              <TableCell padding="checkbox" style={{ width: '2%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10  }}>
-                                <Tooltip title='Seleccionar todos'>
-                                  <Checkbox
-                                    indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
-                                    checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
-                                    onChange={this.handleSelectAllClickGroup}
-                                    inputProps={{ 'aria-label': 'select all desserts' }}
-                                  />
-                                </Tooltip>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '35%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10  }}
-                                key='name'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'name'}
-                                  direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('name')}
-                                >
-                                  Denominación
-                              </TableSortLabel>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '40%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10  }}
-                                key='descripcion'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'descripcion'}
-                                  direction={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('descripcion')}
-                                >
-                                  Descripción
-                              </TableSortLabel>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '10%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10  }}
-                                key='sistema'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'sistema'}
-                                  direction={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('sistema')}
-                                >
-                                  Creado
-                            </TableSortLabel>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '15%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10  }}
-                                key='cantmiembros'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'cantmiembros'}
-                                  direction={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('cantmiembros')}
-                                >
-                                  Cant. Miembros
-                            </TableSortLabel>
-                              </TableCell>
-                            </TableRow>
-                          </TableHead>
-                          
-                          <TableBody style={{ maxHeight: '100px',  overflow: 'scroll'}}>
-                            {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy))
-                              .map((row, index) => {
-                                const isItemSelected = this.isSelected(row.name);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-                                return (
-                                  <TableRow
-                                    hover
-                                    aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    selected={isItemSelected}
-                                  >
-                                    <TableCell padding="checkbox">
-                                      <Tooltip title='Seleccione'>
-                                        <Checkbox id={'checkbox' + row.id}
-                                          checked={isItemSelected}
-                                          onClick={(event) => this.handleRowClickGroup(event, row.name)}
-                                          inputProps={{ 'aria-labelledby': labelId }}
+                      /*  style={{ position: 'sticky',
+                         top: 0}} */
+                      >
+                        {this.state.tabla.rowCount > 0 ? (
+                          this.state.menu.menuselect === 'Grupos' ? (
+                            <React.Fragment>
+                              <div style={{ maxHeight: '350px', overflow: 'auto', }}>
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell padding="checkbox" style={{ width: '2%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}>
+                                      <Tooltip title='Seleccionar todos'>
+                                        <Checkbox
+                                          indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
+                                          checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
+                                          onChange={this.handleSelectAllClickGroup}
+                                          inputProps={{ 'aria-label': 'select all desserts' }}
                                         />
                                       </Tooltip>
                                     </TableCell>
-                                    <TableCell component="th" id={labelId} scope="row" padding="none">
-                                      {this.Devuelveinfo(row)}
+                                    <TableCell
+                                      style={{ width: '35%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                      key='name'
+                                      align='center'
+                                      padding='default'
+                                      sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
+                                    >
+                                      <TableSortLabel
+                                        active={this.state.tabla.orderBy === 'name'}
+                                        direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
+                                        onClick={this.createSortHandler('name')}
+                                      >
+                                        Denominación
+                              </TableSortLabel>
                                     </TableCell>
-                                    <TableCell align="left">{row.descripcion}</TableCell>
-                                    <TableCell align="left">{row.sistema}</TableCell>
-                                    <TableCell align="center">{row.cantmiembros}</TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                          </TableBody>
-                          {this.state.showBackdrop && <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.showBackdrop}
-                          ><Loading color="primary" /></Modal>}
-                          </div>
-                        </React.Fragment>
-                        ): (
-                          <React.Fragment> 
-                          <div style={{ maxHeight: '350px', overflow: 'auto',}}>                                                    
-                          <TableHead>
-                            <TableRow >
-                              <TableCell padding="checkbox" style={{ width: '2%',backgroundColor: "#FFFFFF", position: "sticky", top: 0, zIndex: 10,}}>
-                                <Tooltip title='Seleccionar todos'>
-                                  <Checkbox
-                                    indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
-                                    checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
-                                    onChange={this.handleSelectAllClick}
-                                    inputProps={{ 'aria-label': 'select all desserts' }}
-                                    style={{ backgroundColor: "#FFFFFF", }}
-                                  />
-                                </Tooltip>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '68%',  position: "sticky", top: 0, backgroundColor: "#FFFFFF",zIndex: 10 }}
-                                key='name'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'name'}
-                                  direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('name')}
-                                >
-                                  Nombre
+                                    <TableCell
+                                      style={{ width: '40%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                      key='descripcion'
+                                      align='center'
+                                      padding='default'
+                                      sortDirection={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : false}
+                                    >
+                                      <TableSortLabel
+                                        active={this.state.tabla.orderBy === 'descripcion'}
+                                        direction={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : 'asc'}
+                                        onClick={this.createSortHandler('descripcion')}
+                                      >
+                                        Descripción
                               </TableSortLabel>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '15%',  position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
-                                key='tamanno'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'tamanno' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'tamanno'}
-                                  direction={this.state.tabla.orderBy === 'tamanno' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('tamanno')}
-                                >
-                                  Tamaño
-                              </TableSortLabel>
-                              </TableCell>
-                              <TableCell
-                                style={{ width: '15%',  position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10  }}
-                                key='modificado'
-                                align='center'
-                                padding='default'
-                                sortDirection={this.state.tabla.orderBy === 'modificado' ? this.state.tabla.order : false}
-                              >
-                                <TableSortLabel
-                                  active={this.state.tabla.orderBy === 'modificado'}
-                                  direction={this.state.tabla.orderBy === 'modificado' ? this.state.tabla.order : 'asc'}
-                                  onClick={this.createSortHandler('modificado')}
-                                >
-                                  Modificado
+                                    </TableCell>
+                                    <TableCell
+                                      style={{ width: '10%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                      key='sistema'
+                                      align='center'
+                                      padding='default'
+                                      sortDirection={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : false}
+                                    >
+                                      <TableSortLabel
+                                        active={this.state.tabla.orderBy === 'sistema'}
+                                        direction={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : 'asc'}
+                                        onClick={this.createSortHandler('sistema')}
+                                      >
+                                        Creado
                             </TableSortLabel>
-                              </TableCell>
-                            </TableRow>
-                          </TableHead>                                                
-                          <TableBody >                          
-                            {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy))
-                              .map((row, index) => {
-                                const isItemSelected = this.isSelected(row.name);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-                                return (
-                                  <TableRow
-                                    hover
-                                    aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    selected={isItemSelected}                                                                
-                                  >
-                                    <TableCell padding="checkbox" style={{ width: '2%'}}>
-                                      <Tooltip title='Seleccione'>
-                                        <Checkbox id={'checkbox' + row.id}
-                                          checked={isItemSelected}
-                                          onClick={(event) => this.handleRowClick(event, row.name)}
-                                          inputProps={{ 'aria-labelledby': labelId }}
-                                        />
-                                      </Tooltip>
                                     </TableCell>
-                                    <TableCell   style={{ width: '68%' }} component="th" id={labelId} scope="row" padding="none" onClick={(event) => this.handleAbrirClick(row)}>
-                                      {this.Devuelveinfo(row)}
+                                    <TableCell
+                                      style={{ width: '15%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                      key='cantmiembros'
+                                      align='center'
+                                      padding='default'
+                                      sortDirection={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : false}
+                                    >
+                                      <TableSortLabel
+                                        active={this.state.tabla.orderBy === 'cantmiembros'}
+                                        direction={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : 'asc'}
+                                        onClick={this.createSortHandler('cantmiembros')}
+                                      >
+                                        Cant. Miembros
+                            </TableSortLabel>
                                     </TableCell>
-                                    <TableCell align="right" style={{ width: '15%' }}>{row.tamanno}</TableCell>
-                                    <TableCell align="right" style={{ width: '15%' }}>{row.modificado}</TableCell>
                                   </TableRow>
-                                );
-                              })}                               
-                          </TableBody>                          
-                          {this.state.showBackdrop && <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.showBackdrop}
-                          ><Loading color="primary" /></Modal>} 
-                        </div>                                     
-                        </React.Fragment>
-                        )                       
-                      ) : (
-                          <div style={{ textAlign: 'center', marginTop: '12%' }} >
-                            {this.devuelveiconsitems()}
-                            {this.state.iconvacio !='Espacio de Grupo de Trabajo' && this.state.iconvacio !='Grupos' && <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '16px' }}><b>No hay archivos que mostrar...</b></Typography>}
-                            {this.state.iconvacio ==='Espacio de Grupo de Trabajo' && <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '16px' }}><b>No hay espacios de grupos de trabajo que mostrar...</b></Typography>}
-                            {this.state.iconvacio ==='Grupos' && <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '16px' }}><b>No hay grupos que mostrar...</b></Typography>}
-                          </div>
-                        )}
-                    </Table>
+                                </TableHead>
+
+                                <TableBody style={{ maxHeight: '100px', overflow: 'scroll' }}>
+                                  {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy))
+                                    .map((row, index) => {
+                                      const isItemSelected = this.isSelected(row.name);
+                                      const labelId = `enhanced-table-checkbox-${index}`;
+                                      return (
+                                        <TableRow
+                                          hover
+                                          aria-checked={isItemSelected}
+                                          tabIndex={-1}
+                                          key={row.id}
+                                          selected={isItemSelected}
+                                        >
+                                          <TableCell padding="checkbox">
+                                            <Tooltip title='Seleccione'>
+                                              <Checkbox id={'checkbox' + row.id}
+                                                checked={isItemSelected}
+                                                onClick={(event) => this.handleRowClickGroup(event, row.name)}
+                                                inputProps={{ 'aria-labelledby': labelId }}
+                                              />
+                                            </Tooltip>
+                                          </TableCell>
+                                          <TableCell component="th" id={labelId} scope="row" padding="none">
+                                            {this.Devuelveinfo(row)}
+                                          </TableCell>
+                                          <TableCell align="left">{row.descripcion}</TableCell>
+                                          <TableCell align="left">{row.sistema}</TableCell>
+                                          <TableCell align="center">{row.cantmiembros}</TableCell>
+                                        </TableRow>
+                                      );
+                                    })}
+                                </TableBody>
+                                {this.state.showBackdrop && <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.showBackdrop}
+                                ><Loading color="primary" /></Modal>}
+                              </div>
+                            </React.Fragment>
+                          ) : (
+                              <React.Fragment>
+                                <div style={{ maxHeight: '350px', overflow: 'auto', }}>
+                                  <TableHead>
+                                    <TableRow >
+                                      <TableCell padding="checkbox" style={{ width: '2%', backgroundColor: "#FFFFFF", position: "sticky", top: 0, zIndex: 10, }}>
+                                        <Tooltip title='Seleccionar todos'>
+                                          <Checkbox
+                                            indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
+                                            checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
+                                            onChange={this.handleSelectAllClick}
+                                            inputProps={{ 'aria-label': 'select all desserts' }}
+                                            style={{ backgroundColor: "#FFFFFF", }}
+                                          />
+                                        </Tooltip>
+                                      </TableCell>
+                                      <TableCell
+                                        style={{ width: '68%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                        key='name'
+                                        align='center'
+                                        padding='default'
+                                        sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
+                                      >
+                                        <TableSortLabel
+                                          active={this.state.tabla.orderBy === 'name'}
+                                          direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
+                                          onClick={this.createSortHandler('name')}
+                                        >
+                                          Nombre
+                              </TableSortLabel>
+                                      </TableCell>
+                                      <TableCell
+                                        style={{ width: '15%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                        key='tamanno'
+                                        align='center'
+                                        padding='default'
+                                        sortDirection={this.state.tabla.orderBy === 'tamanno' ? this.state.tabla.order : false}
+                                      >
+                                        <TableSortLabel
+                                          active={this.state.tabla.orderBy === 'tamanno'}
+                                          direction={this.state.tabla.orderBy === 'tamanno' ? this.state.tabla.order : 'asc'}
+                                          onClick={this.createSortHandler('tamanno')}
+                                        >
+                                          Tamaño
+                              </TableSortLabel>
+                                      </TableCell>
+                                      <TableCell
+                                        style={{ width: '15%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                        key='modificado'
+                                        align='center'
+                                        padding='default'
+                                        sortDirection={this.state.tabla.orderBy === 'modificado' ? this.state.tabla.order : false}
+                                      >
+                                        <TableSortLabel
+                                          active={this.state.tabla.orderBy === 'modificado'}
+                                          direction={this.state.tabla.orderBy === 'modificado' ? this.state.tabla.order : 'asc'}
+                                          onClick={this.createSortHandler('modificado')}
+                                        >
+                                          Modificado
+                            </TableSortLabel>
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody >
+                                    {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy))
+                                      .map((row, index) => {
+                                        const isItemSelected = this.isSelected(row.name);
+                                        const labelId = `enhanced-table-checkbox-${index}`;
+                                        return (
+                                          <TableRow
+                                            hover
+                                            aria-checked={isItemSelected}
+                                            tabIndex={-1}
+                                            key={row.id}
+                                            selected={isItemSelected}
+                                          >
+                                            <TableCell padding="checkbox" style={{ width: '2%' }}>
+                                              <Tooltip title='Seleccione'>
+                                                <Checkbox id={'checkbox' + row.id}
+                                                  checked={isItemSelected}
+                                                  onClick={(event) => this.handleRowClick(event, row.name)}
+                                                  inputProps={{ 'aria-labelledby': labelId }}
+                                                />
+                                              </Tooltip>
+                                            </TableCell>
+                                            <TableCell style={{ width: '68%' }} component="th" id={labelId} scope="row" padding="none" onClick={(event) => this.handleAbrirClick(row)}>
+                                              {this.Devuelveinfo(row)}
+                                            </TableCell>
+                                            <TableCell align="right" style={{ width: '15%' }}>{row.tamanno}</TableCell>
+                                            <TableCell align="right" style={{ width: '15%' }}>{row.modificado}</TableCell>
+                                          </TableRow>
+                                        );
+                                      })}
+                                  </TableBody>
+                                  {this.state.showBackdrop && <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.showBackdrop}
+                                  ><Loading color="primary" /></Modal>}
+                                </div>
+                              </React.Fragment>
+                            )
+                        ) : (
+                            <div style={{ textAlign: 'center', marginTop: '12%' }} >
+                              {this.devuelveiconsitems()}
+                              {this.state.iconvacio != 'Espacio de Grupo de Trabajo' && this.state.iconvacio != 'Grupos' && <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '16px' }}><b>No hay archivos que mostrar...</b></Typography>}
+                              {this.state.iconvacio === 'Espacio de Grupo de Trabajo' && <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '16px' }}><b>No hay espacios de grupos de trabajo que mostrar...</b></Typography>}
+                              {this.state.iconvacio === 'Grupos' && <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '16px' }}><b>No hay grupos que mostrar...</b></Typography>}
+                            </div>
+                          )}
+                      </Table>
                     </div>
                   </main>
                   <Drawer
@@ -8232,7 +8233,7 @@ class DocumentManager extends React.Component {
                           </div>
                         </Grid>
                         <Grid item sm={12} md={8} lg={7}>
-                          { this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetailprimero}><b> estado: </b><Chip size="small" label={seleccionado.estado}
+                          {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetailprimero}><b> estado: </b><Chip size="small" label={seleccionado.estado}
                             color="primary" style={{ marginLeft: '5px', height: '25px' }} /></div>}
                           <div className={classes.metadatadetail}><b> creado: </b><span className={classes.textspacenego}>{seleccionado.creado}</span></div>
                           <div className={classes.metadatadetail}><b> creado por: </b><span className={classes.textspacenego}>{seleccionado.creadopor}</span></div>
@@ -8258,15 +8259,15 @@ class DocumentManager extends React.Component {
                           <Tooltip title="Actividad"><Tab className={classes.tab} label='Actividad' /></Tooltip>
                           <Tooltip title="Publicar"><Tab className={classes.tab} label='Publicar' disabled={!this.state.acciones.share} /></Tooltip>
                           <Tooltip title="Compartir"><Tab className={classes.tab} label='Compartir' disabled={!this.state.acciones.share} /></Tooltip>
-                          <Tooltip title="Comentar"><Tab className={classes.tab} label='Comentar' disabled={!this.state.acciones.comentar}/></Tooltip>
-                          <Tooltip title="Etiquetar"><Tab className={classes.tab} label='Etiquetar' disabled={!this.state.acciones.comentar}/></Tooltip>
+                          <Tooltip title="Comentar"><Tab className={classes.tab} label='Comentar' disabled={!this.state.acciones.comentar} /></Tooltip>
+                          <Tooltip title="Etiquetar"><Tab className={classes.tab} label='Etiquetar' disabled={!this.state.acciones.comentar} /></Tooltip>
                           <Tooltip title="Permisos"><Tab className={classes.tab} label='Permisos' disabled={!this.state.acciones.permisos} /></Tooltip>
                           <Tooltip title="Versiones"><Tab className={classes.tab} label='Versiones' disabled={!this.state.acciones.version} /></Tooltip>
-                          <Tooltip title="Micelaneas"><Tab className={classes.tab} label='Micelaneas' disabled={!this.state.acciones.comentar}/></Tooltip>
+                          <Tooltip title="Micelaneas"><Tab className={classes.tab} label='Micelaneas' disabled={!this.state.acciones.comentar} /></Tooltip>
                         </Tabs>
                         {this.state.tabactivo === 0 &&
                           <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                            <div style={{ textAlign: 'center', height: '325px' }} >
+                            <div style={{ height: '325px' }} >
                               <React.Fragment>
                                 {this.state.historial.totalactividad > 0 ? (
                                   <Grid container>
@@ -8318,41 +8319,41 @@ class DocumentManager extends React.Component {
                               <div className={classes.margin}>
                                 <Grid container>
                                   <Grid item>
-                                    <Public style={{ verticalAlign: 'center', position: 'relative', marginTop: '20px', marginRight: '15px' }} color='primary' />
+                                    <Public style={{ verticalAlign: 'center', position: 'relative', marginTop: '17px', marginRight: '15px' }} color='primary' />
                                   </Grid>
-                                  <Grid item style={{ width: '280px' }}>                               
-                                    <FormControl variant="outlined" className={classes.formControl}>
-                                        <InputLabel ref={ref => { this.InputLabelRef = ref; }}
-                                         htmlFor="select-multiple-checkbox"
-                                        >Publicar en:</InputLabel>
-                                      <Select multiple value={this.state.publicar.name} 
+                                  <Grid item style={{ width: '280px' }}>
+                                    <FormControl size='small' variant="outlined" className={classes.formControl}>
+                                      <InputLabel ref={ref => { this.InputLabelRef = ref; }}
+                                        htmlFor="select-multiple-checkbox"
+                                      >Publicar en:</InputLabel>
+                                      <Select multiple value={this.state.publicar.name}
                                         onChange={this.handleChangeSelectSecion}
-                                        input={ <OutlinedInput name="age" labelWidth={80} id="select-multiple-checkbox" /> }
+                                        input={<OutlinedInput name="age" labelWidth={80} id="select-multiple-checkbox" />}
                                         renderValue={selected => selected.join(', ')}
                                         //onChange={(e)=>this.handleChangeMultipleSecion(e)}
                                         MenuProps={MenuProps}>
-                                            { this.state.publicar.listseciones ? (
-                                              this.state.publicar.listseciones.map(secion => (                                          
-                                                <MenuItem key={secion.name} value={secion.name} style={{ fontSize: '14px', height: '20px', display:'flex' }}>
-                                                  <Checkbox checked={this.state.publicar.name.indexOf(secion.name) > -1} />
-                                                  <Tooltip title={secion.descripcion}>
-                                                    <div>{secion.name}</div>
-                                                  </Tooltip>
-                                                </MenuItem>
-                                               ))
-                                              ):(  <MenuItem key='nulo' value='nulo' style={{ fontSize: '14px', height: '20px', display:'flex' }}>
-                                              <Tooltip title='No hay seciones donde publicar ó el documento ya fue publicado'>
-                                                <div>No hay seciones donde publicar </div>
+                                        {this.state.publicar.listseciones ? (
+                                          this.state.publicar.listseciones.map(secion => (
+                                            <MenuItem key={secion.name} value={secion.name} style={{ fontSize: '14px', height: '20px', display: 'flex' }}>
+                                              <Checkbox checked={this.state.publicar.name.indexOf(secion.name) > -1} />
+                                              <Tooltip title={secion.descripcion}>
+                                                <div>{secion.name}</div>
                                               </Tooltip>
-                                            </MenuItem> )
+                                            </MenuItem>
+                                          ))
+                                        ) : (<MenuItem key='nulo' value='nulo' style={{ fontSize: '14px', height: '20px', display: 'flex' }}>
+                                          <Tooltip title='No hay seciones donde publicar ó el documento ya fue publicado'>
+                                            <div>No hay secciones donde publicar </div>
+                                          </Tooltip>
+                                        </MenuItem>)
                                         }
-                                                
+
                                       </Select>
                                     </FormControl>
                                   </Grid>
                                   <Grid item>
                                     <Tooltip title="Publicar documento">
-                                      <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '8px', marginLeft: '5px' }} disabled={this.state.publicar.btnpublicardisable} onClick={(e) => this.handleActionPublicar(e)}>
+                                      <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '5px', marginLeft: '5px' }} disabled={this.state.publicar.btnpublicardisable} onClick={(e) => this.handleActionPublicar(e)}>
                                         <Done />
                                       </IconButton>
                                     </Tooltip>
@@ -8376,7 +8377,7 @@ class DocumentManager extends React.Component {
                                           <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
                                             <CardContent style={{ padding: '0px 12px 12px 12px' }}>
                                               <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>                                                
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
                                                   <FolderSpecial color='primary' />
                                                   <span style={{ marginLeft: '12px', fontSize: '16px' }}>{row.name}</span>
                                                 </div>
@@ -8386,7 +8387,7 @@ class DocumentManager extends React.Component {
                                                       <Delete color='primary'
                                                         style={{ fontSize: '18px' }}
                                                         onClick={(e) => this.handleEliminarPublicacionSecion(row.path)}
-                                                         />
+                                                      />
                                                     </IconButton>
                                                   </Tooltip>
                                                 </div>
@@ -8424,7 +8425,7 @@ class DocumentManager extends React.Component {
                               <div className={classes.margin}>
                                 <Grid container>
                                   <Grid item>
-                                    <Share style={{ verticalAlign: 'center', position: 'relative', marginTop: '24px', marginRight: '15px' }} color='primary' />
+                                    <Share style={{ verticalAlign: 'center', position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
                                   </Grid>
                                   <Grid item style={{ width: '280px' }}>
                                     <FormControl>
@@ -8463,7 +8464,7 @@ class DocumentManager extends React.Component {
                                   </Grid>
                                   <Grid item>
                                     <Tooltip title="Compartir documento">
-                                      <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '12px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionShare(e)}>
+                                      <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionShare(e)}>
                                         <Done />
                                       </IconButton>
                                     </Tooltip>
@@ -8633,7 +8634,7 @@ class DocumentManager extends React.Component {
                               <div className={classes.margin}>
                                 <Grid container>
                                   <Grid item>
-                                    <Comment style={{ verticalAlign: 'center', position: 'relative', marginTop: '24px', marginRight: '15px' }} color='primary' />
+                                    <Comment style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
                                   </Grid>
                                   <Grid item style={{ width: '280px' }}>
                                     <FormGroup>
@@ -8651,7 +8652,7 @@ class DocumentManager extends React.Component {
                                   </Grid>
                                   <Grid item>
                                     <Tooltip title="Insertar comentario">
-                                      <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '12px', marginLeft: '5px' }} disabled={this.state.comentario.btncomentdisable} onClick={(e) => this.handleActionAddComent(e, seleccionado.id)}>
+                                      <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.comentario.btncomentdisable} onClick={(e) => this.handleActionAddComent(e, seleccionado.id)}>
                                         <PlaylistAdd />
                                       </IconButton>
                                     </Tooltip>
@@ -8686,14 +8687,14 @@ class DocumentManager extends React.Component {
                                                       <Tooltip title='Actualizar Comentario'>
                                                         <IconButton aria-label="settings">
                                                           <Create color='primary'
-                                                            style={{ fontSize: '18px' }}
+                                                            //style={{ fontSize: '18px' }}
                                                             onClick={(e) => this.prepararActualizar(row.id, row.text)} />
                                                         </IconButton>
                                                       </Tooltip>
                                                       <Tooltip title='Eliminar Comentario'>
                                                         <IconButton aria-label="settings">
                                                           <Delete color='primary'
-                                                            style={{ fontSize: '18px' }}
+                                                            //style={{ fontSize: '18px' }}
                                                             onClick={(e) => this.handleClickDeleteComment(row.id)} />
                                                         </IconButton>
                                                       </Tooltip>
@@ -8703,7 +8704,7 @@ class DocumentManager extends React.Component {
                                                         <Tooltip title='Eliminar Comentario'>
                                                           <IconButton aria-label="settings">
                                                             <Delete color='primary'
-                                                              style={{ fontSize: '18px' }}
+                                                              //style={{ fontSize: '18px' }}
                                                               onClick={(e) => this.handleClickDeleteComment(row.id)} />
                                                           </IconButton>
                                                         </Tooltip></React.Fragment>
@@ -8712,7 +8713,7 @@ class DocumentManager extends React.Component {
                                                 </div>
                                               </div>
 
-                                              <div style={{ padding: '0px 25px 0px 35px' }}>
+                                              <div /*style={{ padding: '0px 25px 0px 35px' }}*/>
                                                 <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
                                                   <b>Comentó : </b> {row.text}
                                                 </Typography>
@@ -8751,7 +8752,7 @@ class DocumentManager extends React.Component {
                               <div className={classes.margin}>
                                 <Grid container>
                                   <Grid item>
-                                    <LocalOffer style={{ verticalAlign: 'center', position: 'relative', marginTop: '24px', marginRight: '15px' }} color='primary' />
+                                    <LocalOffer style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
                                   </Grid>
                                   <Grid item style={{ width: '280px' }}>
                                     <FormGroup>
@@ -8770,7 +8771,7 @@ class DocumentManager extends React.Component {
                                   </Grid>
                                   <Grid item>
                                     <Tooltip title="Etiquetar documento">
-                                      <IconButton color="primary" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '12px', marginLeft: '5px' }} disabled={this.state.etiquetar.btnetiquetardisable} onClick={(e) => this.handleActionEtiquetarDocumento()}>
+                                      <IconButton color="primary" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.etiquetar.btnetiquetardisable} onClick={(e) => this.handleActionEtiquetarDocumento()}>
                                         <AddIcon />
                                       </IconButton>
                                     </Tooltip>
@@ -8814,14 +8815,14 @@ class DocumentManager extends React.Component {
                           </TabContainer>
 
                         }
-                        {this.state.tabactivo === 5 &&                         
+                        {this.state.tabactivo === 5 &&
                           <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                            { this.state.menu.menuselect !='Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && seleccionado.tipo != 'Section' ? (
+                            {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && seleccionado.tipo != 'Section' ? (
                               <div style={{ textAlign: 'center', height: '325px' }} >
                                 <div className={classes.margin}>
                                   <Grid container>
                                     <Grid item>
-                                      <MailOutline style={{ verticalAlign: 'center', position: 'relative', marginTop: '24px', marginRight: '15px' }} color='primary' />
+                                      <MailOutline style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
                                     </Grid>
                                     <Grid item style={{ width: '280px' }}>
                                       <FormControl>
@@ -8838,7 +8839,7 @@ class DocumentManager extends React.Component {
                                     </Grid>
                                     <Grid item>
                                       <Tooltip title="Conceder permiso al usuario">
-                                        <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '12px', marginLeft: '5px' }} disabled={this.state.permisos.btnpermisosdisable} onClick={(e) => this.handleActionConcederPermisoExterno(e)}>
+                                        <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.permisos.btnpermisosdisable} onClick={(e) => this.handleActionConcederPermisoExterno(e)}>
                                           <Done />
                                         </IconButton>
                                       </Tooltip>
@@ -8885,7 +8886,7 @@ class DocumentManager extends React.Component {
                                                           </Tooltip>
                                                         )}
                                                       <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
-  
+
                                                     </div>
                                                     <div>
                                                       <Tooltip title='Editar Permiso'>
@@ -8992,7 +8993,7 @@ class DocumentManager extends React.Component {
                                           </div>
                                         )}
                                     </Collapse>
-  
+
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #FF0000' }}>
                                       <div style={{ display: 'flex', alignItems: 'center' }} >
                                         <Tooltip title="Expandir listado">
@@ -9026,7 +9027,7 @@ class DocumentManager extends React.Component {
                                                           </Tooltip>
                                                         )}
                                                       <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
-  
+
                                                     </div>
                                                     <Tooltip title="Detalle">
                                                       <IconButton color="primary" component="span" onClick={(e) => this.mostrarDetalle(index)}>
@@ -9067,7 +9068,7 @@ class DocumentManager extends React.Component {
                                             <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento...</b></Typography>
                                           </div>
                                         )}
-  
+
                                     </Collapse>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #FF0000' }}>
                                       <div style={{ display: 'flex', alignItems: 'center' }} >
@@ -9102,7 +9103,7 @@ class DocumentManager extends React.Component {
                                                           </Tooltip>
                                                         )}
                                                       <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
-  
+
                                                     </div>
                                                   </div>
                                                   <div style={{ padding: '0px 0px 0px 45px' }}>
@@ -9122,128 +9123,128 @@ class DocumentManager extends React.Component {
                                             <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han heredado permisos...</b></Typography>
                                           </div>
                                         )}
-  
+
                                     </Collapse>
                                   </div>
                                 </React.Fragment>
                               </div>
 
-                              ):( 
+                            ) : (
                                 <div style={{ textAlign: 'center', height: '325px' }} >
-                                <div className={classes.margin}>
-                                  <Grid container>
-                                    <Grid item>
-                                      <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '24px', marginRight: '15px' }} color='primary' />
-                                    </Grid>
-                                    <Grid item style={{ width: '280px' }}>
-                                      <FormControl>
-                                      <TextField
-                                        variant="outlined"
-                                        type='search'
-                                        value={this.state.compartir.usuariosshare}
-                                        style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
-                                        size="small"
-                                        label='Permitir a:'
-                                        onChange={(event) => this.handleBuscarUsersGroups(event)}
-                                      />
-                                        <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }}>
-                                          {({ TransitionProps }) => (
-                                            <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
-                                              <MenuList>
-                                                {this.state.usersygroups.listusersygrups.length > 0 ? (
-                                                  this.state.usersygroups.listusersygrups.map((row, index) => {
-                                                    return <MenuItem style={{ fontSize: '14px', height: '20px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
-                                                      <Tooltip title={row.name}>
-                                                        <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
-                                                          {row.avatar}
-                                                        </Avatar>
-                                                      </Tooltip>
-                                                      {row.username}
-                                                    </MenuItem>
-                                                  })
-                                                ) : (
-                                                    'vacio'
-                                                  )}
-                                              </MenuList>
-                                            </Paper>
-                                          )}
-                                        </Popper>
-                                      </FormControl>
-                                    </Grid>
-                                    <Grid item>
-                                      <Tooltip title="Otorgar permiso">
-                                        <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '12px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
-                                          <Done />
-                                        </IconButton>
-                                      </Tooltip>
-                                    </Grid>
-                                  </Grid>
-                                </div>
-                                <React.Fragment>
-                                  <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #FF0000' }}>
-                                      <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con permisos</b></Typography>
-                                      <Tooltip title="Quitar permiso">
-                                        <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeletePermisosUserAll('local')}>
-                                          <HighlightOff />
-                                        </IconButton>
-                                      </Tooltip>
-                                    </div>
-                                    {this.state.permisos.listuserexternos.length > 0 ? (
-                                      <Grid container>
-                                        {this.state.permisos.listuserexternos.map((row, index) => {
-                                          return (
-                                            <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                              <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    {row.status === 'Activo' ? (
-                                                      <Tooltip title={row.status}>
-                                                        <Avatar aria-label="recipe" className={classes.avatar}>
-                                                          {row.avatar}
-                                                        </Avatar>
-                                                      </Tooltip>
-                                                    ) : (
-                                                        <Tooltip title={row.status}>
-                                                          <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                  <div className={classes.margin}>
+                                    <Grid container>
+                                      <Grid item>
+                                        <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '24px', marginRight: '15px' }} color='primary' />
+                                      </Grid>
+                                      <Grid item style={{ width: '280px' }}>
+                                        <FormControl>
+                                          <TextField
+                                            variant="outlined"
+                                            type='search'
+                                            value={this.state.compartir.usuariosshare}
+                                            style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
+                                            size="small"
+                                            label='Permitir a:'
+                                            onChange={(event) => this.handleBuscarUsersGroups(event)}
+                                          />
+                                          <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }}>
+                                            {({ TransitionProps }) => (
+                                              <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
+                                                <MenuList>
+                                                  {this.state.usersygroups.listusersygrups.length > 0 ? (
+                                                    this.state.usersygroups.listusersygrups.map((row, index) => {
+                                                      return <MenuItem style={{ fontSize: '14px', height: '20px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
+                                                        <Tooltip title={row.name}>
+                                                          <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
                                                             {row.avatar}
                                                           </Avatar>
                                                         </Tooltip>
-                                                      )}
-                                                    <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
-  
+                                                        {row.username}
+                                                      </MenuItem>
+                                                    })
+                                                  ) : (
+                                                      'vacio'
+                                                    )}
+                                                </MenuList>
+                                              </Paper>
+                                            )}
+                                          </Popper>
+                                        </FormControl>
+                                      </Grid>
+                                      <Grid item>
+                                        <Tooltip title="Otorgar permiso">
+                                          <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '12px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
+                                            <Done />
+                                          </IconButton>
+                                        </Tooltip>
+                                      </Grid>
+                                    </Grid>
+                                  </div>
+                                  <React.Fragment>
+                                    <div>
+                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #FF0000' }}>
+                                        <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con permisos</b></Typography>
+                                        <Tooltip title="Quitar permiso">
+                                          <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeletePermisosUserAll('local')}>
+                                            <HighlightOff />
+                                          </IconButton>
+                                        </Tooltip>
+                                      </div>
+                                      {this.state.permisos.listuserexternos.length > 0 ? (
+                                        <Grid container>
+                                          {this.state.permisos.listuserexternos.map((row, index) => {
+                                            return (
+                                              <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                  <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                      {row.status === 'Activo' ? (
+                                                        <Tooltip title={row.status}>
+                                                          <Avatar aria-label="recipe" className={classes.avatar}>
+                                                            {row.avatar}
+                                                          </Avatar>
+                                                        </Tooltip>
+                                                      ) : (
+                                                          <Tooltip title={row.status}>
+                                                            <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                              {row.avatar}
+                                                            </Avatar>
+                                                          </Tooltip>
+                                                        )}
+                                                      <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
+
+                                                    </div>
+                                                    <div>
+                                                      <Tooltip title={'Eliminar permiso'}>
+                                                        <IconButton aria-label="settings">
+                                                          <Delete color='primary'
+                                                            style={{ fontSize: '18px' }}
+                                                            onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    </div>
                                                   </div>
-                                                  <div>
-                                                    <Tooltip title={'Eliminar permiso'}>
-                                                      <IconButton aria-label="settings">
-                                                        <Delete color='primary'
-                                                          style={{ fontSize: '18px' }}
-                                                          onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
-                                                      </IconButton>
-                                                    </Tooltip>
+
+                                                  <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                    <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
+                                                      color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                    </Typography>
+                                                    <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                      <b>Concedió: </b> {row.creator}
+                                                    </Typography>
+                                                    <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                      <b>Concedido: </b> {row.concedido}
+                                                    </Typography>
+                                                    <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                      <b>Duración: </b>  {row.duracion}
+                                                    </Typography>
                                                   </div>
-                                                </div>
-  
-                                                <div style={{ padding: '0px 0px 0px 35px' }}>
-                                                  <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
-                                                    color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                  </Typography>
-                                                  <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                    <b>Concedió: </b> {row.creator}
-                                                  </Typography>
-                                                  <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                    <b>Concedido: </b> {row.concedido}
-                                                  </Typography>
-                                                  <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                    <b>Duración: </b>  {row.duracion}
-                                                  </Typography>
-                                                </div>
-                                              </CardContent>                                            
-                                            </Card>
-                                          );
-                                        })
-                                        }
-                                      {/*   {this.state.permisos.listuserexternos.length >= 2 &&
+                                                </CardContent>
+                                              </Card>
+                                            );
+                                          })
+                                          }
+                                          {/*   {this.state.permisos.listuserexternos.length >= 2 &&
                                           <div style={{ marginLeft: '100px' }}>
                                             <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarShare()}>
                                               <Typography textAlign='center' style={{ fontSize: '10px', color: '#039BE5' }}>
@@ -9252,23 +9253,23 @@ class DocumentManager extends React.Component {
                                             </Button>
                                           </div>
                                         } */}
-                                      </Grid>
-                                    ) :
-                                      (
-                                        <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                          <Security style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                          <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha otorgado permiso a usuarios en el espacio de grupo de trabajo seleccionado...</b></Typography>
-                                        </div>
-                                      )}
-                                  </div>
-                                </React.Fragment>
-                              </div>
+                                        </Grid>
+                                      ) :
+                                        (
+                                          <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                            <Security style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                            <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha otorgado permiso a usuarios en el espacio de grupo de trabajo seleccionado...</b></Typography>
+                                          </div>
+                                        )}
+                                    </div>
+                                  </React.Fragment>
+                                </div>
                               )
 
                             }
-                           
-                        
-                          </TabContainer>                          
+
+
+                          </TabContainer>
                         }
                         {this.state.tabactivo === 6 && <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
                           {/*  <Tooltip title='Crear versión'>
@@ -9472,7 +9473,7 @@ class DocumentManager extends React.Component {
                   }}
                   handleYesConfirm={this.handleYesConfirmCrear}
                   handleNoConfirm={this.handleNoConfirmCrear} />
-                  <Confirmacion
+                <Confirmacion
                   openConfirm={this.state.confirmacion.open}
                   options={{
                     title: this.state.confirmacion.enunciado,
