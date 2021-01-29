@@ -211,7 +211,7 @@ module.exports = [
           {
             key: 'purchaseOrderAcceptance',
             name: 'Purchase Order Acceptance ',
-            link: '/app/gestion-financial/Purchase-Order',
+            link: '/app/gestion-financial/Purchase-Acceptance',
             icon: 'ios-cash-outline'
           },
           {
