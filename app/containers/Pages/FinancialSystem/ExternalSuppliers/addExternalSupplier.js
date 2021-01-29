@@ -37,7 +37,7 @@ class AddExternalSupplier extends React.Component {
       postCode: '',
       fullAddress: '',
       taxNumber: '',
-      URL: '',
+      url: '',
     };
   }
 
@@ -70,15 +70,16 @@ class AddExternalSupplier extends React.Component {
 
     handleSubmit = () => {
       const {
-        code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
+        code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, url
       } = this.state;
       const city = { _id: currentCity };
       const address = {
         postCode, city, fullAddress
       };
       const ExternalSupplier = {
-        companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
+        companyName, code, firstName, fatherFamilyName, motherFamilyName, url, taxNumber, email, address
       };
+      console.log(ExternalSupplier);
       ExternalSuppliersService.saveExternalSuppliers(ExternalSupplier).then(result => {
         console.log(result);
         history.push('/app/gestion-financial/External-Suppliers');
@@ -104,7 +105,7 @@ class AddExternalSupplier extends React.Component {
       // eslint-disable-next-line react/prop-types
       const {
         code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
-        postCode, fullAddress, taxNumber, URL
+        postCode, fullAddress, taxNumber, url
       } = this.state;
       return (
         <div>
@@ -227,8 +228,8 @@ class AddExternalSupplier extends React.Component {
                 <TextField
                   label="Company URL"
                   variant="outlined"
-                  name="URL"
-                  value={URL}
+                  name="url"
+                  value={url}
                   required
                   fullWidth
                   onChange={this.handleChange}
