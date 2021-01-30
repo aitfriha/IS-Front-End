@@ -41,7 +41,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
-import Notification from "../../../components/Notification/Notification";
+import notification from "../../../components/Notification/Notification";
 import Loading from "../../../components/Loading/index";
 import Modal from '@material-ui/core/Modal';
 import moment from 'moment';
@@ -703,13 +703,14 @@ class DocumentManager extends React.Component {
           if (longt > 1) {
             msg = 'Los grupos fueron eliminados satisfactoriamente'
           }
-          self.setState({
+          notification('success', msg);
+          /* self.setState({
             showBackdrop: false,
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
           self.listarArchivos('path', 'Grupos')
         }
       });
@@ -1568,10 +1569,10 @@ class DocumentManager extends React.Component {
               historial = newList;
             }
             self.setState({
-              notificacion: {
+              /* notificacion: {
                 variante: '',
                 mensaje: ''
-              },
+              }, */
               historial: {
                 listactividad: historial,
                 totalactividad: res.entries.length,
@@ -1736,11 +1737,12 @@ class DocumentManager extends React.Component {
       var request = nuxeo.request("id/" + id + "/@comment")
         .post(options)
         .then(function (res) {
+          notification('success', 'El comentario fue adicionado satisfactoriamente');
           self.setState({
-            notificacion: {
+            /* notificacion: {
               variante: 'success',
               mensaje: 'El comentario fue adicionado satisfactoriamente'
-            },
+            }, */
             comentario: {
               btncomentdisable: true,
               insertcomentvalue: '',
@@ -1756,13 +1758,13 @@ class DocumentManager extends React.Component {
           self.listarComment(seleccionado.path, false);
         })
         .catch(function (error) {
-          self.setState({
+          notification('danger', 'Error al adicionar el comentario')
+          /* self.setState({
             notificacion: {
               variante: 'error',
               mensaje: 'Error al adicionar el comentario'
             },
-          })
-          // throw new Error(error);
+          }) */
         });
     } else {
       const options = {
@@ -1780,11 +1782,12 @@ class DocumentManager extends React.Component {
       var request = nuxeo.request("id/" + seleccionado.id + "/@comment/" + this.state.comentario.idactualizar)
         .put(options)
         .then(function (res) {
+          notification('success', 'El comentario fue actualizado satisfactoriamente');
           self.setState({
-            notificacion: {
+            /* notificacion: {
               variante: 'success',
               mensaje: 'El comentario fue actualizado satisfactoriamente'
-            },
+            }, */
             comentario: {
               btncomentdisable: true,
               insertcomentvalue: '',
@@ -1799,13 +1802,14 @@ class DocumentManager extends React.Component {
           self.listarComment(seleccionado.path, false);
         })
         .catch(function (error) {
-          self.setState({
+          notification('danger', 'Error al actualizar el comentario');
+          /* self.setState({
             notificacion: {
               variante: 'error',
               mensaje: 'Error al actualizar el comentario'
             },
-          })
-          throw new Error(error);
+          }) */
+          //throw new Error(error);
         });
     }
   }
@@ -1818,11 +1822,12 @@ class DocumentManager extends React.Component {
     var request = nuxeo.request("id/" + seleccionado.id + "/@comment/" + id)
       .delete(options)
       .then(function (res) {
+        notification('success', 'El comentario fue eliminado satisfactoriamente')
         self.setState({
-          notificacion: {
-            variante: 'success',
-            mensaje: 'El comentario fue eliminado satisfactoriamente'
-          },
+          /*  notificacion: {
+             variante: 'success',
+             mensaje: 'El comentario fue eliminado satisfactoriamente'
+           }, */
           comentario: {
             btncomentdisable: true,
             insertcomentvalue: '',
@@ -1839,12 +1844,13 @@ class DocumentManager extends React.Component {
         self.listarComment(seleccionado.path, false);
       })
       .catch(function (error) {
-        self.setState({
+        notificacion('danger', 'Error al eliminar el comentario');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al eliminar el comentario'
           },
-        })
+        }) */
         // throw new Error(error);
       });;
   };
@@ -1883,6 +1889,7 @@ class DocumentManager extends React.Component {
           seleccionado.comentado = false;
           encontrado.comentado = false;
         }
+        notification('success', 'El documento fue etiquetado satisfactoriamente');
         self.setState({
           etiquetar: {
             btnetiquetardisable: true,
@@ -1891,20 +1898,21 @@ class DocumentManager extends React.Component {
             listetiquetas: doc.contextParameters.tags,
             addetiquetabtn: self.state.etiquetar.addetiquetabtn,
             deletedisable: false,
-          },
-          notificacion: {
+          }
+          /* notificacion: {
             variante: 'success',
             mensaje: 'El documento fue etiquetado satisfactoriamente'
-          },
+          }, */
         })
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al etiquetar el documento');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al etiquetar el documento'
           },
-        })
+        }) */
       });
   }
 
@@ -1928,6 +1936,7 @@ class DocumentManager extends React.Component {
           encontrado.etiquetado = false;
           seleccionado.etiquetas = [];
         }
+        notification('success', 'La etiqueta fue removida satisfactoriamente');
         self.setState({
           etiquetar: {
             btnetiquetardisable: self.state.etiquetar.btnetiquetardisable,
@@ -1936,20 +1945,21 @@ class DocumentManager extends React.Component {
             listetiquetas: doc.contextParameters.tags,
             addetiquetabtn: self.state.etiquetar.addetiquetabtn,
             deletedisable: disable,
-          },
-          notificacion: {
+          }
+          /* notificacion: {
             variante: 'success',
             mensaje: 'La etiqueta fue removida satisfactoriamente'
-          },
+          }, */
         })
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al remover la etiqueta del documento');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al remover la etiqueta del documento'
           },
-        })
+        }) */
       });
   }
 
@@ -1965,6 +1975,8 @@ class DocumentManager extends React.Component {
         seleccionado.etiquetado = false;
         encontrado.etiquetado = false;
         encontrado.etiquetas = [];
+
+        notification('success', 'Las etiquetas fueron removidas satisfactoriamente');
         self.setState({
           etiquetar: {
             btnetiquetardisable: self.state.etiquetar.btnetiquetardisable,
@@ -1973,20 +1985,21 @@ class DocumentManager extends React.Component {
             listetiquetas: [],
             addetiquetabtn: self.state.etiquetar.addetiquetabtn,
             deletedisable: true,
-          },
-          notificacion: {
+          }
+          /* notificacion: {
             variante: 'success',
             mensaje: 'Las etiquetas fueron removidas satisfactoriamente'
-          },
+          }, */
         })
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al remover la etiqueta del documento');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al remover la etiqueta del documento'
           },
-        })
+        }) */
       });
   }
 
@@ -2091,11 +2104,12 @@ class DocumentManager extends React.Component {
     var request = nuxeo.request("id/" + id + "/@op/Document.RestoreVersion")
       .post(options)
       .then(function (res) {
+        notification('success', 'El documento fue restaurado satisfactoriamente');
         self.setState({
-          notificacion: {
+          /* notificacion: {
             variante: 'success',
             mensaje: 'El documento fue restaurado satisfactoriamente',
-          },
+          }, */
           versiones: {
             listversiones: self.state.versiones.listversiones,
             totalversiones: self.state.versiones.totalversiones,
@@ -2106,12 +2120,13 @@ class DocumentManager extends React.Component {
         self.listarVersiones(seleccionado.path, false)
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al restaurar el documento');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al restaurar'
           },
-        })
+        }) */
       });
   }
 
@@ -2247,12 +2262,13 @@ class DocumentManager extends React.Component {
       .delete(path)
       .then(function (res) {
         self.listarDocPublicadoSecciones(seleccionado.id);
-        self.setState({
+        notification('success', 'El documento ya no está publicado en la seción seleccionada');
+        /* self.setState({
           notificacion: {
             variante: 'success',
             mensaje: 'El documento ya no está publicado en la seción seleccionada',
           },
-        })
+        }) */
       })
 
   }
@@ -2271,12 +2287,13 @@ class DocumentManager extends React.Component {
           .then(function (doc) {
             seleccionado.estado = 'proyecto';
             self.listarDocPublicadoSecciones(seleccionado.id);
-            self.setState({
+            notification('success', 'El documento dejó de publicarse satisfactoriamente');
+            /* self.setState({
               notificacion: {
                 variante: 'success',
                 mensaje: 'El documento dejó de publicarse satisfactoriamente',
               },
-            })
+            }) */
           });
 
       });
@@ -2449,13 +2466,13 @@ class DocumentManager extends React.Component {
     });
     doc.save();
     self.listarDocPublicadoSecciones(doc.uid);
-    self.setState({
+    notification('success', msg);
+    /* self.setState({
       notificacion: {
         variante: 'success',
         mensaje: msg
       },
-    })
-
+    }) */
   }
 
   /// Publicar Documento ////
@@ -2970,7 +2987,7 @@ class DocumentManager extends React.Component {
             .input(seleccionado.path)
             .params({
               message: msgemail,
-              subject: 'Sistema de Aguas, Dejó de compartirse el documento',
+              subject: 'Sistemas Internos, dejó de compartirse el documento',
               from: emailempresa,
               to: users[0].email,
             })
@@ -2985,12 +3002,13 @@ class DocumentManager extends React.Component {
                   msg = 'El documento dejó de compartirse de forma satisfactoria'
                 }
                 self.listarACLShare(doc.path, self.state.compartir.btnlistartodos);
-                self.setState({
+                notification('success', msg)
+                /* self.setState({
                   notificacion: {
                     variante: 'success',
                     mensaje: msg
                   },
-                })
+                }) */
               }
             })
         } else {
@@ -3003,12 +3021,13 @@ class DocumentManager extends React.Component {
               msg = 'El documento dejó de compartirse de forma satisfactoria'
             }
             self.listarACLShare(seleccionado.path, self.state.compartir.btnlistartodos);
-            self.setState({
+            notification('success', msg);
+            /* self.setState({
               notificacion: {
                 variante: 'success',
                 mensaje: msg
               },
-            })
+            }) */
           }
         }
 
@@ -3037,12 +3056,13 @@ class DocumentManager extends React.Component {
             msg = 'El documento ya no está disponible para los usuarios externos'
           }
           self.listarACLSdocumentos(doc.path, false);
-          self.setState({
+          notification('success', msg)
+          /* self.setState({
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
         }
       })
   }
@@ -3055,20 +3075,22 @@ class DocumentManager extends React.Component {
       .execute()
       .then(function (doc) {
         self.listarACLSdocumentos(doc.path, false);
-        self.setState({
+        notification('success', 'Todos los permisos concedidos en la secció fueron eliminados');
+        /* self.setState({
           notificacion: {
             variante: 'success',
             mensaje: 'Todos los permisos concedidos en la secció fueron eliminados'
           },
-        })
+        }) */
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al eliminar los permisos concedidos');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al eliminar los permisos concedidos'
           },
-        })
+        }) */
       });
   }
 
@@ -3085,20 +3107,22 @@ class DocumentManager extends React.Component {
       .execute()
       .then(function (doc) {
         self.listarACLSdocumentos(doc.path, false);
-        self.setState({
+        notification('success', 'El permiso fue eliminado satisfactoriamente');
+        /* self.setState({
           notificacion: {
             variante: 'success',
             mensaje: 'El permiso fue eliminado satisfactoriamente'
           }
-        })
+        }) */
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al eliminar el permiso concedido');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al eliminar el permiso concedido'
           },
-        })
+        }) */
       });
   }
 
@@ -3122,12 +3146,13 @@ class DocumentManager extends React.Component {
         }
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al dejar de compartir el documento');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al dejar de compartir el documento'
           },
-        })
+        }) */
       });
   }
 
@@ -3168,22 +3193,24 @@ class DocumentManager extends React.Component {
                 estado.permisos.usuariospermisos = '';
                 estado.permisos.usuarioemail = '';
               }
-              estado.notificacion.variante = 'success';
+              notification('success', 'El documento dejó de com satisfactoriamente');
+              /* estado.notificacion.variante = 'success';
               estado.notificacion.mensaje = 'El documento dejó de com satisfactoriamente';
               self.setState({
                 estado
-              });
+              }); */
             }
           })
 
       })
       .catch(function (error) {
-        self.setState({
+        notification('danger', 'Error al dejar de compartir el documento');
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: 'Error al dejar de compartir el documento'
           },
-        })
+        }) */
       });
   }
 
@@ -3235,11 +3262,13 @@ class DocumentManager extends React.Component {
         estado.compartir.btnsharedisable = true;
         estado.compartir.usuariosshare = '';
         estado.compartir.usuarioemail = '';
-        estado.notificacion.variante = 'success';
+
+        notification('success', 'El permiso fue otorgado satisfactoriamente');
+        /* estado.notificacion.variante = 'success';
         estado.notificacion.mensaje = 'El permiso fue otorgado satisfactoriamente';
         self.setState({
           estado
-        });
+        }); */
         /*  let aces = doc1.contextParameters.acls.find(fila => fila.name === 'local')
          let id = '';
          aces.aces.forEach(element => {
@@ -3249,7 +3278,8 @@ class DocumentManager extends React.Component {
          });
          self.handleSendEmailForPermision(id, 'local'); */
       }).catch(function (error) {
-        throw new Error(error);
+        notification('danger', 'Error al otorgar el permiso');
+        //throw new Error(error);
       });
   }
 
@@ -3394,16 +3424,19 @@ class DocumentManager extends React.Component {
         estado.permisos.btnpermisosdisable = true;
         estado.permisos.usuariospermisos = '';
         estado.permisos.direcemail = '';
-        estado.notificacion.variante = 'success';
+
+        notification('success', 'Permiso concedido y el usuario fue notificado satisfactoriamente');
+        /* estado.notificacion.variante = 'success';
         estado.notificacion.mensaje = 'Permiso concedido y el usuario fue notificado satisfactoriamente';
         self.setState({
           estado
-        });
+        }); */
 
         //console.log(doc);
 
       }).catch(function (error) {
-        throw new Error(error);
+        notification('danger', 'Error al conceder el permiso y notificar al usuario');
+        //throw new Error(error);
       });
   }
 
@@ -3642,13 +3675,14 @@ class DocumentManager extends React.Component {
     estado.subscripcion.notifmodificar = modif;
     estado.subscripcion.notifcomment = comment;
     if (mostrarnotif) {
-      estado.notificacion.variante = 'success',
-        estado.notificacion.mensaje = msg
+      notification('success', msg);
+      /* estado.notificacion.variante = 'success',
+      estado.notificacion.mensaje = msg */
     }
     estado.subscripcion.expandir = self.state.subscripcion.expandir;
-    self.setState({
+    /* self.setState({
       estado
-    })
+    }) */
   }
 
   //Expandir el opciones de subscripcion////
@@ -3679,12 +3713,13 @@ class DocumentManager extends React.Component {
         self.verificarsubscripcion(doc, true, true);
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -3704,12 +3739,13 @@ class DocumentManager extends React.Component {
         self.verificarsubscripcion(doc, true, false);
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -3745,8 +3781,9 @@ class DocumentManager extends React.Component {
         //console.log(doc);
         let objstate = self.state;
         objstate.expiracion.fechaexpiracion = fecha;
-        objstate.notificacion.variante = 'success'
-        objstate.notificacion.mensaje = 'El documento expirará el ' + fecha
+        notification('success', 'El documento expirará el ' + fecha);
+        /* objstate.notificacion.variante = 'success'
+        objstate.notificacion.mensaje = 'El documento expirará el ' + fecha */
         self.setState({
           objstate
         });
@@ -3865,21 +3902,23 @@ class DocumentManager extends React.Component {
           } else {
             self.listarArchivos(self.state.path, self.state.iconvacio);
           }
-          self.setState({
+          notification('success', msg);
+          /* self.setState({
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
         }
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -3915,21 +3954,23 @@ class DocumentManager extends React.Component {
           } else {
             self.listarArchivos(self.state.path, self.state.iconvacio);
           }
-          self.setState({
+          notification('success', msg);
+          /* self.setState({
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
         }
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -3948,20 +3989,22 @@ class DocumentManager extends React.Component {
         } else {
           self.listarArchivos(self.state.path, self.state.iconvacio);
         }
-        self.setState({
+        notification('success', 'El archivo ' + seleccionado[0].name + ' fue bloqueado satisfactoriamente');
+        /* self.setState({
           notificacion: {
             variante: 'success',
             mensaje: 'El archivo ' + seleccionado[0].name + ' fue bloqueado satisfactoriamente'
           },
-        })
+        }) */
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
 
   }
@@ -3980,20 +4023,22 @@ class DocumentManager extends React.Component {
         } else {
           self.listarArchivos(self.state.path, self.state.iconvacio);
         }
-        self.setState({
+        notification('success', 'El archivo ' + seleccionado[0].name + ' fue desbloqueado satisfactoriamente');
+        /* self.setState({
           notificacion: {
             variante: 'success',
             mensaje: 'El archivo ' + seleccionado[0].name + ' fue desbloqueado satisfactoriamente'
           },
-        })
+        }) */
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -4068,20 +4113,22 @@ class DocumentManager extends React.Component {
           item.mover.btnaceptarmovimiento = false;
           item.mover.nosubcarpeta = false;
           item.mover.pathmovorigen = [];
-          item.notificacion.variante = 'success';
-          item.notificacion.mensaje = msg;
+          notification('success', msg);
+          /* item.notificacion.variante = 'success';
+          item.notificacion.mensaje = msg; */
           self.setState({
             item
           })
         }
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -4144,21 +4191,23 @@ class DocumentManager extends React.Component {
               //self.cargarArchivos()
               self.listarArchivos(self.state.path, self.state.iconvacio);
             }
-            self.setState({
+            notification('success', msg);
+            /* self.setState({
               notificacion: {
                 variante: 'success',
                 mensaje: msg
               },
-            })
+            }) */
           }
         }).catch(function (error) {
           // throw error;
-          self.setState({
-            notificacion: {
-              variante: 'error',
-              mensaje: error
-            },
-          })
+          notification('danger', error);
+          /*  self.setState({
+             notificacion: {
+               variante: 'error',
+               mensaje: error
+             },
+           }) */
         });
     } else {
       if (longt > cont) {
@@ -4178,12 +4227,13 @@ class DocumentManager extends React.Component {
           //self.cargarArchivos()
           self.listarArchivos(self.state.path, self.state.iconvacio);
         }
-        self.setState({
+        notification('success', msg);
+        /* self.setState({
           notificacion: {
             variante: 'success',
             mensaje: msg
           },
-        })
+        }) */
       }
     }
   }
@@ -4211,24 +4261,26 @@ class DocumentManager extends React.Component {
           if (longt > 1) {
             msg = 'Los archivos fueron recuperados satisfactoriamente'
           }
-          self.setState({
+          notification('success', msg);
+          /* self.setState({
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
           self.listarArchivos(self.state.path, 'Eliminados')
         }
       }).then(response => {
 
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -4254,22 +4306,24 @@ class DocumentManager extends React.Component {
           if (longt > 1) {
             msg = 'Los archivos fueron eliminados satisfactoriamente.'
           }
-          self.setState({
+          notification('success', msg);
+          /* self.setState({
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
           self.listarArchivos(self.state.path, 'Eliminados')
         }
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -4294,21 +4348,23 @@ class DocumentManager extends React.Component {
             msg = 'Los archivos fueron eliminados satisfactoriamente.'
           }
           self.listarArchivos(self.state.path, 'Eliminados')
-          self.setState({
+          notification('success', msg);
+          /* self.setState({
             notificacion: {
               variante: 'success',
               mensaje: msg
             },
-          })
+          }) */
         }
       }).catch(function (error) {
         // throw error;
-        self.setState({
+        notification('danger', error);
+        /* self.setState({
           notificacion: {
             variante: 'error',
             mensaje: error
           },
-        })
+        }) */
       });
   }
 
@@ -6766,15 +6822,16 @@ class DocumentManager extends React.Component {
         self.listarArchivos(self.state.path, 'Archivo');
       }).catch(function (error) {
         rows = [];
+        notification('danger', 'Usuario no autorizado');
         self.setState({
           showBackdrop: false,
           titulotoolbar: self.state.titulotoolbar,
           iconvacio: self.state.iconvacio,
           textbuscar: '',
-          notificacion: {
+          /* notificacion: {
             variante: 'error',
             mensaje: 'Usuario no autorizado'
-          },
+          }, */
           tabla: {
             rowCount: 0,
             order: 'asc',
@@ -6849,12 +6906,13 @@ class DocumentManager extends React.Component {
                     .then(function (group) {
                       // console.log(group)
                       self.listarArchivos('path', 'Grupos');
-                      self.setState({
+                      notification('success', 'El grupo se modificó satisfactoriamente');
+                      /* self.setState({
                         notificacion: {
                           variante: 'success',
                           mensaje: 'El grupo se modificó satisfactoriamente'
                         }
-                      })
+                      }) */
                     })
                 })
 
@@ -6907,12 +6965,13 @@ class DocumentManager extends React.Component {
                 .create(group)
                 .then(function (group) {
                   self.listarArchivos('path', 'Grupos');
-                  self.setState({
+                  notification('success', 'El grupo fue creado satisfactoriamente');
+                  /* self.setState({
                     notificacion: {
                       variante: 'success',
                       mensaje: 'El grupo fue creado satisfactoriamente'
                     }
-                  })
+                  }) */
                 })
             }
           } else {
@@ -6968,12 +7027,13 @@ class DocumentManager extends React.Component {
                   } else {
                     self.listarArchivos(self.state.path, self.state.iconvacio)
                   }
-                  self.setState({
+                  notification('success', 'El archivo se renombró satisfactoriamente');
+                  /* self.setState({
                     notificacion: {
                       variante: 'success',
                       mensaje: 'El archivo se renombró satisfactoriamente'
                     }
-                  })
+                  }) */
                 })
                 .catch(function (error) {
                   throw error;
@@ -6998,16 +7058,18 @@ class DocumentManager extends React.Component {
                   } else {
                     self.listarArchivos(self.state.path, self.state.iconvacio)
                   }
-                  self.setState({
+                  notification('success', 'El archivo se creó satisfactoriamente');
+                  /* self.setState({
                     notificacion: {
                       variante: 'success',
                       mensaje: 'El archivo se creó satisfactoriamente'
                     }
-                  })
+                  }) */
                   //  }
                 })
                 .catch(function (error) {
-                  throw error;
+                  notification('danger', error);
+                  //throw error;
                 });
             }
           } else {
@@ -7096,12 +7158,13 @@ class DocumentManager extends React.Component {
               if (longt > 1) {
                 msg = 'Los archivos fueron descargados satisfactoriamente'
               }
+              notification('success', msg);
               self.setState({
                 showBackdrop: false,
-                notificacion: {
+                /* notificacion: {
                   variante: 'success',
                   mensaje: msg
-                },
+                }, */
                 tabla: {
                   rowCount: self.state.tabla.rowCount,
                   order: 'asc',
@@ -7113,11 +7176,12 @@ class DocumentManager extends React.Component {
             }
           }).catch(function (error) {
             // throw error;
+            notification('danger', 'Error al descargar el archivo');
             self.setState({
-              notificacion: {
+              /* notificacion: {
                 variante: 'error',
                 mensaje: 'Error al descargar.'
-              },
+              }, */
               tabla: {
                 rowCount: self.state.tabla.rowCount,
                 order: 'asc',
@@ -7149,12 +7213,13 @@ class DocumentManager extends React.Component {
               if (longt > 1) {
                 msg = 'Los archivos fueron descargados satisfactoriamente'
               }
+              notification('success', msg);
               self.setState({
                 showBackdrop: false,
-                notificacion: {
+                /* notificacion: {
                   variante: 'success',
                   mensaje: msg
-                },
+                }, */
                 tabla: {
                   rowCount: self.state.tabla.rowCount,
                   order: 'asc',
@@ -7166,11 +7231,12 @@ class DocumentManager extends React.Component {
             }
           }).catch(function (error) {
             // throw error;
+            notification('danger', 'Error al descargar el archivo');
             self.setState({
-              notificacion: {
+              /* notificacion: {
                 variante: 'error',
                 mensaje: 'Error al descargar.'
-              },
+              }, */
               tabla: {
                 rowCount: self.state.tabla.rowCount,
                 order: 'asc',
@@ -7196,13 +7262,14 @@ class DocumentManager extends React.Component {
     if (files.length > 0) {
       this.handlerecursiveuploadFiles(files, 0, contador, files.length);
     } else {
-      self.setState({
+      notification('danger', 'Debe seleccionar al menos un archivo');
+      /* self.setState({
         showBackdrop: false,
         notificacion: {
           variante: 'error',
           mensaje: 'Debe seleccionar al menos un archivo'
         },
-      })
+      }) */
     }
 
     //console.log('cargando');
@@ -7271,14 +7338,15 @@ class DocumentManager extends React.Component {
                     }
                     // self.cargarArchivos();
                     self.listarArchivos(self.state.path, self.state.iconvacio);
+                    notification('success', msg);
                     self.setState({
                       showBackdrop: false,
                       titulotoolbar: self.state.titulotoolbar,
                       iconvacio: self.state.iconvacio,
-                      notificacion: {
+                      /* notificacion: {
                         variante: 'success',
                         mensaje: msg
-                      },
+                      }, */
                     })
                   }
                 })
@@ -7286,21 +7354,23 @@ class DocumentManager extends React.Component {
 
                 })
                 .catch(function (error) {
-                  self.setState({
+                  notification('danger', error);
+                  /* self.setState({
                     notificacion: {
                       variante: 'error',
                       mensaje: error
                     },
-                  })
+                  }) */
                 });
             })
             .catch(function (error) {
-              self.setState({
+              notification('danger', error);
+              /* self.setState({
                 notificacion: {
                   variante: 'error',
                   mensaje: error
                 },
-              })
+              }) */
             });
         }
       });
@@ -7330,7 +7400,7 @@ class DocumentManager extends React.Component {
           <Grid container
             direction="row"
           >
-            <Grid item sm={12} md={4} lg={3} align="left">
+            <Grid item sm={12} md={3} lg={3} align="left">
               <List
                 component="nav"
                 aria-labelledby="nested-list-subheader"
@@ -7390,12 +7460,12 @@ class DocumentManager extends React.Component {
                   </ListItemIcon>
                   <ListItemText primary="Eliminados" />
                 </ListItem>
-                <ListItem button onClick={(e) => this.handleActionsListItem('Notificaciones')} selected={'Notificaciones' === this.state.menu.menuselect ? true : false} >
+                {/* <ListItem button onClick={(e) => this.handleActionsListItem('Notificaciones')} selected={'Notificaciones' === this.state.menu.menuselect ? true : false} >
                   <ListItemIcon>
                     <Notifications />
                   </ListItemIcon>
                   <ListItemText primary="Notificaciones" />
-                </ListItem>
+                </ListItem> */}
                 <ListItem button onClick={(e) => this.handleActionsListItem('Espacio de Grupo de Trabajo')} selected={'Espacio de Grupo de Trabajo' === this.state.menu.menuselect ? true : false} style={{ display: administrador ? '' : 'none' }}>
                   <ListItemIcon>
                     <FolderSpecial />
@@ -7411,7 +7481,7 @@ class DocumentManager extends React.Component {
               </List>
             </Grid>
 
-            <Grid item sm={12} md={8} lg={9} style={{ borderLeft: '2px solid #FF0000' }}>
+            <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid #FF0000' }}>
               <Grid item sm={12} md={12} lg={12}>
                 <div style={{ marginLeft: '10px', marginTop: '15px', color: '#FF0000', display: 'flex', alignItems: 'center' }}>
                   {this.state.antecesor.listpath.map((row, index) => {
@@ -9500,7 +9570,7 @@ class DocumentManager extends React.Component {
             </Grid>
           </Grid>
         </PapperBlock>
-        {this.state.notificacion.mensaje && <Notification variant={this.state.notificacion.variante} message={this.state.notificacion.mensaje} />}
+        {/*{this.state.notificacion.mensaje && <Notification variant={this.state.notificacion.variante} message={this.state.notificacion.mensaje} />}*/}
         {/* {this.state.visualizacion.mostrarimg && <div><Lightbox images={this.state.visualizacion.images} /> </div>} */}
         <div id="placeholder"></div>
         <div>

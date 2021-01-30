@@ -596,11 +596,11 @@ class WeeklyReport extends React.Component {
               options={{
                 actionsColumnIndex: -1,
                 grouping: true,
-              /* actionsCellStyle: {
-                paddingLeft: 5,
-                minWidth: 50,
-                width: 50
-              } */
+                /* actionsCellStyle: {
+                  paddingLeft: 5,
+                  minWidth: 50,
+                  width: 50
+                } */
               }}
             />
           )
@@ -635,10 +635,10 @@ class WeeklyReport extends React.Component {
                 }}
               >
                 <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
-                Export as CSV
+                  Export as CSV
                 </MenuItem>
                 <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
-                Export as PDF
+                  Export as PDF
                 </MenuItem>
               </Menu>
             </React.Fragment>
