@@ -498,7 +498,7 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/gestion-financial/Purchase-Acceptance"
+          path="/app/gestion-financial/Purchase-Order"
           component={PurchaseOrderAcceptance}
         />
         <Route
@@ -583,7 +583,6 @@ function Application(props) {
           path="/app/translation/translation-sentences"
           component={TranslationSentence}
         />
-
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>

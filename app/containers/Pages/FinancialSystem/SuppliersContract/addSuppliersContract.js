@@ -19,7 +19,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import history from '../../../../utils/history';
 import { ThemeContext } from '../../../App/ThemeWrapper';
-import PurchaseOrderService from '../../../Services/PurchaseOrderService';
+import PurchaseOrderAcceptanceService from '../../../Services/PurchaseOrderAcceptanceService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 
@@ -84,7 +84,7 @@ class AddSuppliersContract extends React.Component {
       const PurchaseOrderAcceptance = {
         generatedPurchase, adminAcceptance, operationalAcceptance
       };
-      PurchaseOrderService.savePurchaseOrder(PurchaseOrderAcceptance).then(result => {
+      PurchaseOrderAcceptanceService.savePurchaseOrder(PurchaseOrderAcceptance).then(result => {
         console.log(result);
         history.push('/app/gestion-financial/Suppliers Contract');
       });
