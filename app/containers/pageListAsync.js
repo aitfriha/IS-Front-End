@@ -377,6 +377,14 @@ export const AddExternalSupplier = Loadable({
   loader: () => import('./Pages/FinancialSystem/ExternalSuppliers/addExternalSupplier'),
   loading: Loading
 });
+export const SuppliersContract = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersContract'),
+  loading: Loading
+});
+export const AddSuppliersContract = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersContract/addSuppliersContract'),
+  loading: Loading
+});
 export const PurchaseOrderAcceptance = Loadable({
   loader: () => import('./Pages/FinancialSystem/PurchaseOrderAcceptance'),
   loading: Loading
