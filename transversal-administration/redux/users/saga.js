@@ -30,7 +30,7 @@ function* addUser(action) {
 
     const request = yield axios({
       method: 'post',
-      url: ENDPOINTS.ADMINISTRATION.USER + '/add',
+      url: ENDPOINTS.STAFF + '/user/add',
       data: user
     });
 
@@ -101,7 +101,7 @@ function* forgetPasswordUser(action) {
     } = action;
     const request = yield axios({
       method: 'get',
-      url: ENDPOINTS.ADMINISTRATION.USER + '/forgetPassword/' + userEmail,
+      url: ENDPOINTS.STAFF + '/user/forgetPassword/' + userEmail,
       data: userEmail
     });
 

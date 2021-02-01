@@ -259,7 +259,7 @@ class AddFinancialCompany extends React.Component {
                   ) : (<div />)
                 }
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={3}>
                 <Chip label="Company Address" avatar={<Avatar>S</Avatar>} color="primary" />
                 <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
                 <Autocomplete

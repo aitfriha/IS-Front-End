@@ -30,7 +30,6 @@ class ExternalSuppliersBlock extends React.Component {
     super(props);
     this.state = {
       externalSupplierId: '',
-      addressId: '',
       code: '',
       companyName: '',
       firstName: '',
@@ -41,8 +40,9 @@ class ExternalSuppliersBlock extends React.Component {
       postCode: '',
       fullAddress: '',
       taxNumber: '',
-      url: '',
+      URL: '',
       openPopUp: false,
+      addressId: '',
       datas: [],
       columns: [
         {
@@ -446,7 +446,7 @@ class ExternalSuppliersBlock extends React.Component {
         firstName: result.data.firstName,
         fatherFamilyName: result.data.fatherFamilyName,
         motherFamilyName: result.data.motherFamilyName,
-        url: result.data.url,
+        URL: result.data.url,
         address: result.data.address,
         addressId: result.data.address.addressId,
         postCode: result.data.address.postCode,
@@ -469,14 +469,14 @@ class ExternalSuppliersBlock extends React.Component {
 
   handleSave = () => {
     const {
-      externalSupplierId, code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, url, addressId
+      externalSupplierId, code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
     } = this.state;
     const city = { _id: currentCity };
     const address = {
-      addressId, postCode, city, fullAddress
+      postCode, city, fullAddress
     };
     const ExternalSupplier = {
-      externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, url, taxNumber, email, address
+      externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
     };
     ExternalSuppliersService.updateExternalSuppliers(ExternalSupplier).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
@@ -516,7 +516,7 @@ class ExternalSuppliersBlock extends React.Component {
     const {
       datas, columns, openPopUp,
       code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
-      postCode, fullAddress, taxNumber, url
+      postCode, fullAddress, taxNumber, URL
     } = this.state;
     const options = {
       filter: true,
@@ -544,7 +544,6 @@ class ExternalSuppliersBlock extends React.Component {
         <Dialog
           open={openPopUp}
           keepMounted
-          scroll="body"
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
@@ -651,8 +650,8 @@ class ExternalSuppliersBlock extends React.Component {
                 <TextField
                   label="Company URL"
                   variant="outlined"
-                  name="url"
-                  value={url}
+                  name="URL"
+                  value={URL}
                   required
                   fullWidth
                   onChange={this.handleChange}
