@@ -106,7 +106,7 @@ import {
   WeeklyReport,
   WeeklyReportConfig,
   DefaultSentence,
-  TranslationSentence,
+  TranslationSentence,Action
 
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -553,6 +553,11 @@ function Application(props) {
           exact
           path="/app/data/administration/users"
           component={User}
+        />
+        <Route
+            exact
+            path="/app/data/administration/actions"
+            component={Action}
         />
         <Route
           exact
