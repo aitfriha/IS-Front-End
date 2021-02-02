@@ -48,6 +48,8 @@ import {
   AddFinancialCompany,
   FinancialContract,
   AddContract,
+  SuppliersContract,
+  AddSuppliersContract,
   ExternalSupplier,
   AddExternalSupplier,
   PurchaseOrderAcceptance,
@@ -486,7 +488,17 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/gestion-financial/Purchase-Acceptance"
+          path="/app/gestion-financial/Suppliers Contract"
+          component={SuppliersContract}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-Suppliers-Contract"
+          component={AddSuppliersContract}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Purchase-Order"
           component={PurchaseOrderAcceptance}
         />
         <Route
@@ -576,7 +588,6 @@ function Application(props) {
           path="/app/translation/translation-sentences"
           component={TranslationSentence}
         />
-
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>

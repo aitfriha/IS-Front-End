@@ -154,9 +154,21 @@ module.exports = [
             icon: 'ios-cash-outline'
           },
           {
+            key: 'suppliersContract',
+            name: 'Suppliers Contract',
+            link: '/app/gestion-financial/Suppliers Contract',
+            icon: 'ios-cash-outline'
+          },
+          {
             key: 'suppliersPayment',
             name: 'Suppliers Payment',
             link: '/app/gestion-financial/Suppliers Payment',
+            icon: 'ios-cash-outline'
+          },
+          {
+            key: 'purchaseOrderManagement',
+            name: 'Purchase Order Management',
+            link: '/app/gestion-financial/Purchase-Order Management',
             icon: 'ios-cash-outline'
           }
         ]

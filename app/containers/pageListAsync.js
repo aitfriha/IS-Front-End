@@ -245,14 +245,11 @@ export const AddCommercialOperation = Loadable({
   loader: () => import('./Pages/CommercialOperation/addCommercialOperation'),
   loading: Loading
 });
-
-//Add by Miguel
+// Add by Miguel
 export const DocumentManager = Loadable({
   loader: () => import('./Pages/CommercialDocumentManager/DocumentManager'),
   loading: Loading
 });
-
-
 export const FinancialCompany = Loadable({
   loader: () => import('./Pages/FinancialSystem/Company'),
   loading: Loading
@@ -370,110 +367,138 @@ export const RoleAbility = Loadable({
   loading: Loading
 });
 
-
-//Add by Miguel
+export const SupplierType = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersType'),
+  loading: Loading
+});
+export const AddSupplierType = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersType/addSuppliersType'),
+  loading: Loading
+});
+export const ExternalSupplier = Loadable({
+  loader: () => import('./Pages/FinancialSystem/ExternalSuppliers'),
+  loading: Loading
+});
+export const AddExternalSupplier = Loadable({
+  loader: () => import('./Pages/FinancialSystem/ExternalSuppliers/addExternalSupplier'),
+  loading: Loading
+});
+export const SuppliersContract = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersContract'),
+  loading: Loading
+});
+export const AddSuppliersContract = Loadable({
+  loader: () => import('./Pages/FinancialSystem/SuppliersContract/addSuppliersContract'),
+  loading: Loading
+});
+export const PurchaseOrderAcceptance = Loadable({
+  loader: () => import('./Pages/FinancialSystem/PurchaseOrderAcceptance'),
+  loading: Loading
+});
+export const AddPurchaseOrderAcceptance = Loadable({
+  loader: () => import('./Pages/FinancialSystem/PurchaseOrderAcceptance/addPurchaseOrder'),
+  loading: Loading
+});
 export const ExpensesRecord = Loadable({
   loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesRecord'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const ExpensesManagement = Loadable({
   loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesManagement'),
   loading: Loading
 });
-
-//Add by Miguel
+// Add by Miguel
 export const TravelRequest = Loadable({
   loader: () => import('./Pages/FinancialSystem/Travels/TravelRequest'),
   loading: Loading
 });
-
-//Add by Miguel
+// Add by Miguel
 export const TravelManagement = Loadable({
   loader: () => import('./Pages/FinancialSystem/Travels/TravelManagement'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const BusinessExpenseTypes = Loadable({
   loader: () => import('./Pages/FinancialSystem/BusinessExpenseType/BusinessExpenseTypes'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const RequestStatus = Loadable({
   loader: () => import('./Pages/FinancialSystem/RequestStatus/RequestStatus'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const TravelRequestEmailAddress = Loadable({
   loader: () => import('./Pages/FinancialSystem/TravelRequestEmailAddress/TravelRequestEmailAddress'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const StaffExpenseTypes = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffExpenseType/StaffExpenseTypes'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const PersonTypes = Loadable({
   loader: () => import('./Pages/FinancialSystem/PersonTypes/PersonTypes'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const VoucherTypes = Loadable({
   loader: () => import('./Pages/FinancialSystem/VoucherTypes/VoucherTypes'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const ExpenseStatus = Loadable({
   loader: () => import('./Pages/FinancialSystem/ExpenseStatus/ExpenseStatus'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const ExpenseEmailAddress = Loadable({
   loader: () => import('./Pages/FinancialSystem/ExpenseEmailAddress/ExpenseEmailAddress'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const StaffAssignment = Loadable({
   loader: () => import('./Pages/OperativeSystem/StaffAssignment/StaffAssignment'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const WeeklyReport = Loadable({
   loader: () => import('./Pages/OperativeSystem/WeeklyReport/WeeklyReport'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const AssignmentTypes = Loadable({
   loader: () => import('./Pages/OperativeSystem/BasicTables/AssignmentTypes'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const WeeklyReportConfig = Loadable({
   loader: () => import('./Pages/OperativeSystem/Configurations/WeeklyReportConfig'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const DefaultSentence = Loadable({
   loader: () => import('../../transversal-translation/containers/Pages/LeftMenu/Translation/DefaultSentence'),
   loading: Loading
 });
 
-//Add by Miguel
+// Add by Miguel
 export const TranslationSentence = Loadable({
   loader: () => import('../../transversal-translation/containers/Pages/LeftMenu/Translation/TranslationSentence'),
   loading: Loading
