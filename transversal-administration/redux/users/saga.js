@@ -19,7 +19,10 @@ import {
   FORGETPASSWORD_USER_FAILURE,
   GETBYEMAIL_USER,
   GETBYEMAIL_USER_SUCCESS,
-  GETBYEMAIL_USER_FAILURE
+  GETBYEMAIL_USER_FAILURE,
+  CHANGEPASSWORD_USER,
+  CHANGEPASSWORD_USER_SUCCESS,
+  CHANGEPASSWORD_USER_FAILURE,
 } from './constants';
 
 import ENDPOINTS from '../../../app/api/endpoints';
@@ -30,7 +33,7 @@ function* addUser(action) {
 
     const request = yield axios({
       method: 'post',
-      url: ENDPOINTS.ADMINISTRATION.USER + '/add',
+      url: ENDPOINTS.STAFF + '/user/add',
       data: user
     });
 
@@ -101,7 +104,7 @@ function* forgetPasswordUser(action) {
     } = action;
     const request = yield axios({
       method: 'get',
-      url: ENDPOINTS.ADMINISTRATION.USER + '/forgetPassword/' + userEmail,
+      url: ENDPOINTS.STAFF + '/user/forgetPassword/' + userEmail,
       data: userEmail
     });
 
@@ -112,6 +115,29 @@ function* forgetPasswordUser(action) {
   } catch (errors) {
     yield put({
       type: FORGETPASSWORD_USER_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+function* changePasswordUser(action) {
+  try {
+    const {
+      data
+    } = action;
+    const request = yield axios({
+      method: 'post',
+      url: ENDPOINTS.ADMINISTRATION.USER + '/changePassword',
+      data,
+
+    });
+
+    yield put({
+      type: CHANGEPASSWORD_USER_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: CHANGEPASSWORD_USER_FAILURE,
       errors: errors.response.data.errors
     });
   }
@@ -162,6 +188,7 @@ function* getAllUsers() {
 
 export default function* usersSaga() {
   yield all([
+    takeLatest(CHANGEPASSWORD_USER, changePasswordUser),
     takeLatest(GETBYEMAIL_USER, getUserByEmail),
     takeLatest(FORGETPASSWORD_USER, forgetPasswordUser),
     takeLatest(ADD_USER, addUser),

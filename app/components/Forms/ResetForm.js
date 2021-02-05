@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import { NavLink, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form/immutable';
 import Button from '@material-ui/core/Button';
@@ -13,8 +13,12 @@ import Typography from '@material-ui/core/Typography';
 import brand from 'dan-api/dummy/brand';
 import logo from 'dan-images/logo.svg';
 import TextField from '@material-ui/core/TextField/TextField';
+import { isString } from 'lodash';
+import { bindActionCreators } from 'redux';
 import { TextFieldRedux } from './ReduxFormMUI';
 import styles from './user-jss';
+import notification from '../Notification/Notification';
+import { changePasswordUser, forgetPasswordUser } from '../../../transversal-administration/redux/users/actions';
 
 // validation functions
 const required = value => (value == null ? 'Required' : undefined);
@@ -25,84 +29,126 @@ const email = value => (
 );
 
 class ResetForm extends React.Component {
-  render() {
-    const {
-      classes,
-      handleSubmit,
-      pristine,
-      submitting,
-      deco,
-    } = this.props;
-    return (
-      <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
-        <div className={classes.topBar}>
-          <NavLink to="/" className={classes.brand}>
-            {/* <img src={logo} alt={brand.name} /> */}
-            {' '}
-            {/* {brand.name} */}
-          </NavLink>
-        </div>
-        <Typography variant="h4" className={classes.title} gutterBottom style={{ fontWeight: 'bold' }}>
-              Sistemas Internos
-        </Typography>
-        <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
-            Reset Password
-        </Typography>
-        <section className={classes.formWrap}>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <FormControl className={classes.formControl}>
-                <TextField
-                  name="userEmail"
-                  /* component={TextFieldRedux} */
-                  value=""
-                  placeholder="email"
-                  label="email"
-                  required
-                  /* validate={[required, email]} */
-                  className={classes.field}
-                  onChange={this.handleChange}
-                />
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <TextField
-                  name="oldPassword"
-                  placeholder="Old password"
-                  label="Old password"
-                  required
-                  className={classes.field}
-                />
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <TextField
-                  name="newPassword"
-                  placeholder="New password"
-                  label="New password"
-                  required
-                  className={classes.field}
-                />
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <TextField
-                  name="confirmNewPassword"
-                  placeholder="Confirm New password"
-                  label="Confirm New password"
-                  required
-                  className={classes.field}
-                />
-              </FormControl>
-            </div>
-            <div className={classes.btnArea}>
-              <Button variant="contained" color="primary" type="submit">
-                Send
-                <ArrowForward className={classNames(classes.rightIcon, classes.iconSmall)} disabled={submitting || pristine} />
-              </Button>
-            </div>
-          </form>
-        </section>
-      </Paper>
-    );
+  constructor(props) {
+    super(props);
+    this.editingPromiseResolve = () => {
+    };
+    this.state = {
+      newPassword: '',
+      confirmNewPassword: '',
+      error: false,
+      disabled: false
+    };
   }
+
+    handleChange = (event) => {
+      this.setState({ [event.target.name]: event.target.value });
+    }
+
+    handleChangeConfirm = (event) => {
+      const { newPassword } = this.state;
+      this.setState({ [event.target.name]: event.target.value });
+      if (newPassword !== event.target.value) {
+        this.setState({ error: true });
+        this.setState({ disabled: true });
+      } else {
+        this.setState({ error: false });
+        this.setState({ disabled: false });
+      }
+    }
+
+    resetPassword = () => {
+      const token = (new URLSearchParams(window.location.search)).get('token');
+      console.log(token);
+      const { newPassword } = this.state;
+      const data = {
+        token,
+        password: newPassword
+      };
+      const { changePasswordUser } = this.props;
+      new Promise((resolve) => {
+        changePasswordUser(data);
+        this.editingPromiseResolve = resolve;
+      }).then((result) => {
+        if (isString(result)) {
+          notification('success', result);
+        } else {
+          notification('danger', result);
+        }
+      });
+    }
+
+    render() {
+      const {
+        newPassword, confirmNewPassword, error, disabled
+      } = this.state;
+      const {
+        classes,
+        handleSubmit,
+        pristine,
+        submitting,
+        deco,
+      } = this.props;
+      const {
+        errors, isLoading, userResponse
+      } = this.props;
+        // Sent resolve to editing promises
+      (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
+      (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
+      return (
+        <Paper className={classNames(classes.paperWrap, deco && classes.petal)}>
+          <div className={classes.topBar}>
+            <NavLink to="/" className={classes.brand}>
+              {/* <img src={logo} alt={brand.name} /> */}
+              {' '}
+              {/* {brand.name} */}
+            </NavLink>
+          </div>
+          <Typography variant="h4" className={classes.title} gutterBottom style={{ fontWeight: 'bold' }}>
+              Sistemas Internos
+          </Typography>
+          <Typography variant="caption" className={classes.subtitle} gutterBottom align="center">
+            Reset Password
+          </Typography>
+          <section className={classes.formWrap}>
+            <form>
+              <div>
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    name="newPassword"
+                    placeholder="New password"
+                    label="New password"
+                    type="password"
+                    onChange={this.handleChange}
+                    required
+                    value={newPassword}
+                    className={classes.field}
+                  />
+                </FormControl>
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    name="confirmNewPassword"
+                    placeholder="Confirm New password"
+                    label="Confirm New password"
+                    type="password"
+                    value={confirmNewPassword}
+                    onChange={this.handleChangeConfirm}
+                    required
+                    error={error}
+                    className={classes.field}
+                  />
+                </FormControl>
+              </div>
+              <div className={classes.btnArea}>
+                <Button variant="contained" color="primary" onClick={this.resetPassword} disabled={disabled}>
+                Send
+                </Button>
+              </div>
+            </form>
+          </section>
+        </Paper>
+      );
+    }
 }
 
 ResetForm.propTypes = {
@@ -113,17 +159,16 @@ ResetForm.propTypes = {
   deco: PropTypes.bool.isRequired,
 };
 
-const ResetFormReduxed = reduxForm({
-  form: 'immutableEResetFrm',
-  enableReinitialize: true,
-})(ResetForm);
+const mapStateToProps = state => ({
+  userResponse: state.getIn(['user']).userResponse,
+  isLoading: state.getIn(['user']).isLoading,
+  errors: state.getIn(['user']).errors,
+});
 
-const reducer = 'ui';
-const RegisterFormMapped = connect(
-  state => ({
-    force: state,
-    deco: state.getIn([reducer, 'decoration'])
-  }),
-)(ResetFormReduxed);
-
-export default withStyles(styles)(RegisterFormMapped);
+const mapDispatchToProps = dispatch => bindActionCreators({
+  forgetPasswordUser, changePasswordUser
+}, dispatch);
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(ResetForm)));

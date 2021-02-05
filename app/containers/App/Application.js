@@ -48,6 +48,8 @@ import {
   AddFinancialCompany,
   FinancialContract,
   AddContract,
+  SuppliersContract,
+  AddSuppliersContract,
   ExternalSupplier,
   AddExternalSupplier,
   PurchaseOrderAcceptance,
@@ -106,7 +108,7 @@ import {
   WeeklyReport,
   WeeklyReportConfig,
   DefaultSentence,
-  TranslationSentence,
+  TranslationSentence,Action
 
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -486,7 +488,17 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/gestion-financial/Purchase-Acceptance"
+          path="/app/gestion-financial/Suppliers Contract"
+          component={SuppliersContract}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add-Suppliers-Contract"
+          component={AddSuppliersContract}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Purchase-Order"
           component={PurchaseOrderAcceptance}
         />
         <Route
@@ -555,6 +567,11 @@ function Application(props) {
           component={User}
         />
         <Route
+            exact
+            path="/app/data/administration/actions"
+            component={Action}
+        />
+        <Route
           exact
           path="/app/data/administration/roles_abilities"
           component={RoleAbility}
@@ -571,7 +588,6 @@ function Application(props) {
           path="/app/translation/translation-sentences"
           component={TranslationSentence}
         />
-
         <Route exact component={NotFound} />
       </Switch>
     </Dashboard>
