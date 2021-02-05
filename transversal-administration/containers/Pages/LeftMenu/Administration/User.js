@@ -62,11 +62,11 @@ class User extends React.Component {
       openPopUp: false,
       client: '',
       staff: '',
+      role: [],
       companies: [],
       xclients: [],
       actif: false,
       company: '',
-      userPassword: '',
       columns: [
         {
           title: 'full name *',
@@ -315,6 +315,8 @@ class User extends React.Component {
 
     handleChangeActif = (event) => {
       const { actif } = this.state;
+      console.log(!actif);
+      console.log(React.version);
       this.setState({ actif: !actif });
     };
 
@@ -342,21 +344,27 @@ class User extends React.Component {
       }
     }
 
+  handleChangeRoles= (ev) => {
+    const { xclients } = this.state;
+    console.log(ev.target.value);
+    this.setState({ [ev.target.name]: ev.target.value });
+  }
+
   addUser = () => {
     const {
-      userEmail, userPassword, firstName, fatherFamilyName, motherFamilyName
+      userEmail, firstName, fatherFamilyName, motherFamilyName, actif,role
     } = this.state;
     const newData = {
       userCompanyId: '37',
       userNationalId: '37',
       userPassportId: '37',
-      userEmail: 'aitfriha.zaid@gmail.com',
+      userEmail: userEmail,
       userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
       userMobileNumber: '3711111',
       userStatus: 'status',
       userCountryLanguage: 'en',
-      userIsActive: false,
-      userRolesIds: ['ADMIN'],
+      userIsActive: actif,
+      userRolesIds: role,
       userDepartment: '5f0c320c8ebd876a33b2a66e'
     };
     const { addUser, getAllUsers } = this.props;
@@ -372,18 +380,19 @@ class User extends React.Component {
         notification('danger', result);
       }
     });
+    this.setState({ openPopUp: false });
   }
 
   render() {
     const {
-      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser
+      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
     } = this.props;
     const {
-      columns, openPopUp, client, actif, companies, company, xclients, staff, userPassword,
+      columns, openPopUp, client, actif, companies, company, xclients, staff,
       firstName,
       fatherFamilyName,
       motherFamilyName,
-      userEmail,
+      userEmail, role
     } = this.state;
       // Sent resolve to editing promises
     (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
@@ -537,6 +546,26 @@ class User extends React.Component {
                 </Select>
               </FormControl>
             </div>
+            <div>
+              <FormControl fullWidth="false" required style={{ width: '50%' }}>
+                <InputLabel>Select the Role</InputLabel>
+                <Select
+                  name="role"
+                  multiple
+                  value={role}
+                  input={<Input />}
+                  onChange={this.handleChangeRoles}
+                >
+                  {
+                    allRoles.map((rol) => (
+                      <MenuItem key={rol.roleId} value={rol.roleName} staff={rol}>
+                        {rol.roleName}
+                      </MenuItem>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </div>
             <Chip
               style={{ marginTop: '9px' }}
               label="Additional information"
@@ -580,11 +609,6 @@ class User extends React.Component {
                 />
               </FormControl>
             </div>
-            {/* <div>
-              <FormControl component="fieldset">
-                <TextField id="standard-basic" label="password" onChange={this.handleChangePassword} value={userPassword} />
-              </FormControl>
-            </div> */}
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleCloseDelete}>

@@ -16,7 +16,10 @@ import {
   FORGETPASSWORD_USER_FAILURE,
   GETBYEMAIL_USER,
   GETBYEMAIL_USER_SUCCESS,
-  GETBYEMAIL_USER_FAILURE
+  GETBYEMAIL_USER_FAILURE,
+  CHANGEPASSWORD_USER,
+  CHANGEPASSWORD_USER_SUCCESS,
+  CHANGEPASSWORD_USER_FAILURE,
 } from './constants';
 
 const initialState = {
@@ -35,6 +38,7 @@ export default function usersReducer(state = initialState, action) {
     case DELETE_USER:
     case FORGETPASSWORD_USER:
     case GETBYEMAIL_USER:
+    case CHANGEPASSWORD_USER:
       return {
         ...state,
         isLoading: true
@@ -46,6 +50,7 @@ export default function usersReducer(state = initialState, action) {
     case DELETE_USER_SUCCESS:
     case FORGETPASSWORD_USER_SUCCESS:
     case GETBYEMAIL_USER_SUCCESS:
+    case CHANGEPASSWORD_USER_SUCCESS:
       return {
         ...state,
         isLoading: false,
@@ -67,6 +72,7 @@ export default function usersReducer(state = initialState, action) {
     case DELETE_USER_FAILURE:
     case FORGETPASSWORD_USER_FAILURE:
     case GETBYEMAIL_USER_FAILURE:
+    case CHANGEPASSWORD_USER_FAILURE:
       return {
         ...state,
         isLoading: false,
