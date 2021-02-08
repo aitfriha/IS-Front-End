@@ -19,7 +19,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import history from '../../../../utils/history';
 import { ThemeContext } from '../../../App/ThemeWrapper';
-import PurchaseOrderAcceptanceService from '../../../Services/PurchaseOrderAcceptanceService';
+import SuppliersContractService from '../../../Services/SuppliersContractService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 
@@ -39,8 +39,8 @@ class AddSuppliersContract extends React.Component {
       externalSupplierId: '',
       financialCompanyId: '',
       type: '',
-      openExternal: false,
-      openEnternal: false
+      haveExternal: false,
+      haveInternal: false
     };
   }
 
@@ -67,24 +67,29 @@ class AddSuppliersContract extends React.Component {
       const reader = new FileReader();
       console.log(e.target.files);
       reader.onload = function (ev) {
-        this.setState({ logo: ev.target.result });
+        this.setState({ document: ev.target.result });
       }.bind(this);
       reader.readAsDataURL(e.target.files[0]);
     }
   }
 
-  handleChangeLogo = e => {
-    this.readURI(e);
-  };
+    handleChangeLogo = e => {
+      this.readURI(e);
+    };
 
     handleSubmit = () => {
       const {
-        generatedPurchase, adminAcceptance, operationalAcceptance
+        name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type
       } = this.state;
-      const PurchaseOrderAcceptance = {
-        generatedPurchase, adminAcceptance, operationalAcceptance
+      let financialCompany = { _id: '' };
+      let externalSupplier = { _id: '' };
+      if (financialCompanyId !== '') financialCompany = { _id: financialCompanyId };
+      if (externalSupplierId !== '') externalSupplier = { _id: externalSupplierId };
+      const SuppliersContract = {
+        name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type
       };
-      PurchaseOrderAcceptanceService.savePurchaseOrder(PurchaseOrderAcceptance).then(result => {
+      console.log(SuppliersContract);
+      SuppliersContractService.saveSuppliersContract(SuppliersContract).then(result => {
         console.log(result);
         history.push('/app/gestion-financial/Suppliers Contract');
       });
@@ -96,19 +101,19 @@ class AddSuppliersContract extends React.Component {
 
     handleChange = (ev) => {
       if (ev.target.name === 'type') {
-        if (ev.target.value === 'external') this.setState({ openExternal: true, openInternal: false });
-        else this.setState({ openInternal: true, openExternal: false });
+        if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
+        else this.setState({ haveInternal: true, haveExternal: false });
       }
       if (ev.target.name === 'externalSupplierId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.externalSuppliers.map(row => {
-          if (row.externalSupplierId === ev.target.value) this.setState({ codeSupplier: row.code });
+          if (row.externalSupplierId === ev.target.value) this.setState({ codeSupplier: row.code, codeContract: row.code, financialCompanyId: '' });
         });
       }
       if (ev.target.name === 'financialCompanyId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.companies.map(row => {
-          if (row.financialCompanyId === ev.target.value) this.setState({ codeSupplier: row.code });
+          if (row.financialCompanyId === ev.target.value) this.setState({ codeSupplier: row.code, codeContract: row.code, externalSupplierId: '' });
         });
       }
       this.setState({ [ev.target.name]: ev.target.value });
@@ -120,8 +125,8 @@ class AddSuppliersContract extends React.Component {
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        name, codeContract, codeSupplier, commercialOperationInfo, companies, externalSuppliers, type, document,
-        openExternal, openInternal, externalSupplierId, financialCompanyId
+        name, codeSupplier, companies, externalSuppliers, type, document,
+        haveExternal, haveInternal, externalSupplierId, financialCompanyId
       } = this.state;
       return (
         <div>
@@ -188,7 +193,7 @@ class AddSuppliersContract extends React.Component {
                 </FormControl>
                 <br />
                 <br />
-                {openExternal ? (
+                {haveExternal ? (
                   <Grid
                     container
                     spacing={2}
@@ -230,7 +235,7 @@ class AddSuppliersContract extends React.Component {
                     </Grid>
                   </Grid>
                 ) : (<div />)}
-                {openInternal ? (
+                {haveInternal ? (
                   <Grid
                     container
                     spacing={2}
@@ -292,6 +297,8 @@ class AddSuppliersContract extends React.Component {
                     </Button>
                   </FormLabel>
                 </FormControl>
+                <br />
+                <br />
                 {
                   document ? (
                     <Avatar alt="User Name" src={document} />

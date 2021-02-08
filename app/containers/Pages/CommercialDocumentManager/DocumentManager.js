@@ -103,8 +103,6 @@ import { Confirmacion } from './Confirmacion';
 import { CreateDocumentDialog } from './CreateDocumentDialog';
 import Loading from '../../../components/Loading/index';
 import notification from '../../../components/Notification/Notification';
-import DocWindows from './DocWindows';
-
 
 // / tabla actividad
 const columns = [
