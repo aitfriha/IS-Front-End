@@ -2,7 +2,7 @@ import React from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import MaterialTable from 'material-table';
 import { PropTypes } from 'prop-types';
-import { FormattedMessage, injectIntl } from 'react-intl';
+
 import { bindActionCreators } from 'redux';
 import { isString } from 'lodash';
 import { connect } from 'react-redux';
@@ -41,21 +41,12 @@ class Action extends React.Component {
           title: 'concerns',
           field: 'actionConcerns',
           lookup: {
-            module: <FormattedMessage
-              id="modules"
-            />,
-            'sub-module': <FormattedMessage
-              id="sub-modules"
-            />,
-            form: <FormattedMessage
-              id="forms"
-            />,
-            table: <FormattedMessage
-              id="tables"
-            />,
-            field: <FormattedMessage
-              id="fields"
-            />
+            Access: 'Access',
+            Create: 'Create',
+            Update: 'Update',
+            Delete: 'Delete',
+            Export: 'Export',
+            Import: 'Import'
           },
           cellStyle: {
             width: 140,
@@ -117,7 +108,7 @@ class Action extends React.Component {
 
   render() {
     const {
-      location, intl, allActions, addAction, errors, isLoading, actionResponse, getAllActions, updateAction, deleteAction
+      location, allActions, addAction, errors, isLoading, actionResponse, getAllActions, updateAction, deleteAction
     } = this.props;
     const { columns } = this.state;
     // Sent resolve to editing promises
@@ -131,7 +122,7 @@ class Action extends React.Component {
           columns={columns}
           data={allActions && allActions}
           options={{
-            exportFileName: intl.formatMessage({ id: 'water_contracts' }),
+            exportFileName: 'water_contracts',
             filtering: true,
             grouping: true,
             exportButton: true,
@@ -195,8 +186,6 @@ class Action extends React.Component {
 Action.propTypes = {
   /** Location */
   location: PropTypes.object.isRequired,
-  /** intl */
-  intl: PropTypes.object.isRequired,
   /** Errors */
   errors: PropTypes.object.isRequired,
   /** isLoading */
@@ -233,4 +222,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(Action)));
+)(Action));
