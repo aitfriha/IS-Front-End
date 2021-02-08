@@ -41,11 +41,6 @@ import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
 
-import { CsvBuilder } from 'filefy';
-
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
