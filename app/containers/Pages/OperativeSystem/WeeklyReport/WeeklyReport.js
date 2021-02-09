@@ -62,13 +62,18 @@ import {
 } from '../../../../redux/assignmentType/actions';
 
 
+import {
+  getStaffByCompanyEmail
+} from '../../../../redux/staff/actions';
+
+
 let self = null;
 
 const styles = {};
 
-const employeeId = '5f7e29b1d33ad5b25ef1ce54';
-const fullName = 'Juan Francisco Escalante Suarez';
-const companyEmail = 'jfescalante@implementalsystems.com';
+let logedUser = localStorage.getItem('logedUser');
+
+let employeeId = '';
 
 const ITEM_HEIGHT = 40;
 
@@ -294,11 +299,15 @@ class WeeklyReport extends React.Component {
 
 
   componentDidMount() {
-    const {
-      getSummarizedWeeklyReport, getExtendedWeeklyReport, getAllCustomerContractsByEmployee, getWeeklyReportConfig, getAllAssignmentTypes
-    } = this.props;
+    const { getSummarizedWeeklyReport, getExtendedWeeklyReport, getAllCustomerContractsByEmployee, getWeeklyReportConfig, getAllAssignmentTypes, getStaffByCompanyEmail, staff } = this.props;
+
+    let logedUserData = JSON.parse(logedUser);
+    getStaffByCompanyEmail(logedUserData.userEmail);
+  
+    employeeId = staff.staffId;
+
     const data = {
-      employeeId,
+      employeeId: employeeId,
       period: 'month',
       startDate: null,
       endDate: null
@@ -308,10 +317,11 @@ class WeeklyReport extends React.Component {
     getAllAssignmentTypes();
 
     const params = {
-      employeeId: data.employeeId
+      employeeId: employeeId
     };
     getExtendedWeeklyReport(params);
-    getAllCustomerContractsByEmployee(params.employeeId);
+    getAllCustomerContractsByEmployee(employeeId);
+
   }
 
   componentWillUnmount() {
@@ -673,7 +683,9 @@ const mapStateToProps = state => ({
   // staffAssignmentResponse: state.getIn(['staffAssignment']).staffAssignmentResponse,
 
   assignmentTypes: state.getIn(['assignmentType']).assignmentTypes,
-  // assignmentTypeResponse: state.getIn(['assignmentType']).assignmentTypeResponse,
+
+  staff: state.getIn(['staffs']).staff
+
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -683,7 +695,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getWeeklyReportConfig,
   getAllCustomerContractsByEmployee,
   getAllOperationsByEmployeeAndCustomer,
-  getAllAssignmentTypes
+  getAllAssignmentTypes,
+  getStaffByCompanyEmail
 }, dispatch);
 
 export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReport)));

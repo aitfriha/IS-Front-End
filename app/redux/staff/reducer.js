@@ -15,7 +15,10 @@ import {
   SET_EDIT,
   GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS,
   GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_SUCCESS,
-  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_FAILURE
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS_FAILURE,
+  GET_STAFF_BY_COMPANY_EMAIL,
+  GET_STAFF_BY_COMPANY_EMAIL_SUCCESS,
+  GET_STAFF_BY_COMPANY_EMAIL_FAILURE
 } from './constants';
 
 const initialState = {
@@ -24,7 +27,8 @@ const initialState = {
   staffResponse: '',
   allStaff: [],
   selectedStaff: {},
-  isEditStaff: false
+  isEditStaff: false,
+  staff: {}
 };
 
 export default function staffReducer(state = initialState, action) {
@@ -47,6 +51,7 @@ export default function staffReducer(state = initialState, action) {
     case ADD_STAFF:
     case UPDATE_STAFF:
     case DELETE_STAFF:
+    case GET_STAFF_BY_COMPANY_EMAIL:
       return {
         ...state,
         isLoading: true,
@@ -72,6 +77,13 @@ export default function staffReducer(state = initialState, action) {
         allStaff: action.payload,
         staffResponse: ''
       };
+    case GET_STAFF_BY_COMPANY_EMAIL_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        staff: action.payload,
+        staffResponse: ''
+      }
 
     // FAILURE ACTIONS
     case GET_ALL_STAFFS_FAILURE:
@@ -79,6 +91,7 @@ export default function staffReducer(state = initialState, action) {
     case ADD_STAFF_FAILURE:
     case UPDATE_STAFF_FAILURE:
     case DELETE_STAFF_FAILURE:
+    case GET_STAFF_BY_COMPANY_EMAIL_FAILURE:
       return {
         ...state,
         isLoading: false,

@@ -5,7 +5,8 @@ import {
   UPDATE_STAFF,
   SET_STAFF,
   SET_EDIT,
-  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS
+  GET_ALL_ASSIGNED_FUNCTIONAL_LEVEL_STAFFS,
+  GET_STAFF_BY_COMPANY_EMAIL
 } from './constants';
 
 export const saveStaff = staff => ({
@@ -39,4 +40,9 @@ export const setStaff = staff => ({
 export const setEdit = isEdit => ({
   type: SET_EDIT,
   isEdit
+});
+
+export const getStaffByCompanyEmail = (data) => ({
+  type: GET_STAFF_BY_COMPANY_EMAIL,
+  data
 });
