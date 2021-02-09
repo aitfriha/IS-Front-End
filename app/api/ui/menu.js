@@ -555,7 +555,7 @@ module.exports = [
       {
         key: 'roles_abilities',
         name: 'Roles Management',
-        link: '/app/data/administration/roles_abilities'
+        link: '/app/data/administration/roles-abilities'
       } /* ,
     {
         key: 'machines',

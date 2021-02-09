@@ -64,7 +64,7 @@ function MenuProfile(props) {
             className={classNames(classes.avatar, classes.bigAvatar)}
           />
           <div className={classes.name}>
-            <h5>{dummy.user.name}</h5>
+            <h5>{dummy.user.name} zaid</h5>
             <i className={classNames(classes.dotStatus, changeStatus(status))} />
             {status}
           </div>
