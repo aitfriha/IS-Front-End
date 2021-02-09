@@ -399,6 +399,14 @@ export const AddPurchaseOrderAcceptance = Loadable({
   loader: () => import('./Pages/FinancialSystem/PurchaseOrderAcceptance/addPurchaseOrder'),
   loading: Loading
 });
+export const PurchaseOrder = Loadable({
+  loader: () => import('./Pages/FinancialSystem/PurchaseOrderManagement'),
+  loading: Loading
+});
+export const AddPurchaseOrder = Loadable({
+  loader: () => import('./Pages/FinancialSystem/PurchaseOrderManagement/addPurchaseOrder'),
+  loading: Loading
+});
 export const ExpensesRecord = Loadable({
   loader: () => import('./Pages/FinancialSystem/Expenses/ExpensesRecord'),
   loading: Loading

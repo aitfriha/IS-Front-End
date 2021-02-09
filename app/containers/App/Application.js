@@ -54,6 +54,8 @@ import {
   AddExternalSupplier,
   PurchaseOrderAcceptance,
   AddPurchaseOrderAcceptance,
+  PurchaseOrder,
+  AddPurchaseOrder,
   ClientContact,
   City,
   State,
@@ -108,7 +110,7 @@ import {
   WeeklyReport,
   WeeklyReportConfig,
   DefaultSentence,
-  TranslationSentence,Action
+  TranslationSentence, Action
 
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -508,6 +510,16 @@ function Application(props) {
         />
         <Route
           exact
+          path="/app/gestion-financial/Purchase-Order Management"
+          component={PurchaseOrder}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add Purchase-Order"
+          component={AddPurchaseOrder}
+        />
+        <Route
+          exact
           path="/app/gestion-financial/Staff Economic Management"
           component={EconomicStaff}
         />
@@ -567,9 +579,9 @@ function Application(props) {
           component={User}
         />
         <Route
-            exact
-            path="/app/data/administration/actions"
-            component={Action}
+          exact
+          path="/app/data/administration/actions"
+          component={Action}
         />
         <Route
           exact
