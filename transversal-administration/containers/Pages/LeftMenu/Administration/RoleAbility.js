@@ -1,23 +1,25 @@
 import React from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
-import MaterialTable from 'material-table';
+import MaterialTable, { MTableEditField } from 'material-table';
 import { PropTypes } from 'prop-types';
 import { bindActionCreators } from 'redux';
 import {
-  isString, uniq, map, find, capitalize, isBoolean, pickBy
+  isString, isEmpty, uniq, map, find, capitalize, isBoolean, pickBy
 } from 'lodash';
 import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import Chip from '@material-ui/core/Chip';
 import Icon from '@material-ui/core/Icon';
 import { red, teal } from '@material-ui/core/colors';
+import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
 import {
   addRole, deleteRole, getAllRoles, updateRole, addRoleAbilities
 } from '../../../../redux/rolesAbilities/actions';
 import notification from '../../../../../app/components/Notification/Notification';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
 import { getAllActions } from '../../../../redux/actions/actions';
-
 const styles = (theme) => ({
   gridItemMargin: {
     marginRight: theme.spacing(3),
@@ -42,6 +44,18 @@ class RoleAbility extends React.Component {
           title: 'role*',
           field: 'roleName'
         }, {
+          title: 'actions',
+          field: 'roleActionsIds',
+          render: rowData => rowData && rowData.roleActionsIds.join(', '),
+          cellStyle: {
+            width: 140,
+            maxWidth: 140
+          },
+          headerStyle: {
+            width: 200,
+            maxWidth: 200
+          }
+        }, {
           title: 'description',
           field: 'roleDescription'
         },
@@ -55,6 +69,24 @@ class RoleAbility extends React.Component {
     getAllRoles();
     getAllSubjects();
     getAllActions();
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const subjectColumnLookupAdapterRole = (allActions) => {
+      const lookupRole = {};
+      allActions.forEach(m => {
+        lookupRole[m.actionConcerns] = m.actionConcerns;
+      });
+
+      return lookupRole;
+    };
+
+    if (!isEmpty(props.allRoles)) {
+      state.columns.find(e => e.field === 'roleActionsIds').lookup = subjectColumnLookupAdapterRole(props.allActions);
+      return state.columns;
+    }
+
+    return null;
   }
 
     /**
@@ -154,6 +186,31 @@ class RoleAbility extends React.Component {
       return (
         <div>
           <MaterialTable
+            components={{
+              EditField: fieldProps => {
+                const {
+                  columnDef: { lookup },
+                } = fieldProps;
+                if (lookup && fieldProps.columnDef.field === 'roleActionsIds') {
+                  return (
+                    <Select
+                      multiple
+                      value={fieldProps.value ? fieldProps.value : []}
+                      onChange={e => fieldProps.onChange(e.target.value)}
+                      input={<Input />}
+                      renderValue={(selected) => selected.join(', ')}
+                    >
+                      {Object.values(fieldProps.columnDef.lookup).map((name) => (
+                        <MenuItem key={name} value={name}>
+                          {name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  );
+                }
+                return <MTableEditField {...{ ...fieldProps, value: fieldProps.value || '' }} />;
+              },
+            }}
             title=""
             columns={columns}
             data={allRoles && allRoles}
@@ -214,7 +271,7 @@ class RoleAbility extends React.Component {
                 }
               }),
             }}
-            detailPanel={rowData => (
+            /*      detailPanel={rowData => (
 
               <Grid container direction="column">
                 <Grid className={classes.gridItemMargin} item xs>
@@ -247,10 +304,10 @@ class RoleAbility extends React.Component {
 
                         let abilityRequest = { };
                         if (!newData.abilityId) {
-                          /*
+                          /!*
                                                 looping on the newData ability actions
                                                 get from each ability the action code & the subject code from their values
-                                                */
+                                                *!/
                           abilityRequest = {
                             ...{ roleId: rowData.roleId },
                             roleAbilities: map(pickBy(newData, isBoolean), (value, key) => ({ actionCode: key, actionCodeValue: value })).filter(action => find(allActions, {
@@ -286,7 +343,7 @@ class RoleAbility extends React.Component {
               </Grid>
 
             )
-            }
+            } */
           />
         </div>
       );
