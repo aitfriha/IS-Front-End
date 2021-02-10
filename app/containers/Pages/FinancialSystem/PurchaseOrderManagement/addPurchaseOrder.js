@@ -39,6 +39,7 @@ class AddPurchaseOrder extends React.Component {
       externalSuppliers: [],
       companies: [],
       currencies: [],
+      ivasCountries: [],
       ivas: [],
       ivaStates: [],
       nbrConcepts: ['1'],
@@ -48,7 +49,7 @@ class AddPurchaseOrder extends React.Component {
       description: [],
       unityValue: [],
       unity: [],
-      valor: [],
+      valor: [0],
       unityNumber: [],
       givingDate: [],
       paymentDate: [],
@@ -56,6 +57,7 @@ class AddPurchaseOrder extends React.Component {
       termTitle: [],
       termDescription: [],
       totalValue: 0,
+      factor: 0,
       ivaRetentions: '',
       totalAmountRetentions: '',
       totalIvaRetention: '',
@@ -65,19 +67,17 @@ class AddPurchaseOrder extends React.Component {
 
   componentDidMount() {
     FinancialCompanyService.getCompany().then(result => {
-      console.log(result);
       this.setState({ companies: result.data });
     });
     ExternalSuppliersService.getExternalSuppliers().then(result => {
-      console.log(result);
       this.setState({ externalSuppliers: result.data });
     });
     CurrencyService.getFilteredCurrency().then(result => {
       this.setState({ currencies: result.data });
     });
-    IvaService.getIva().then(result => {
-      console.log(result);
-      this.setState({ ivas: result.data });
+    IvaService.getIvaCountries().then(result => {
+      console.log(result.data);
+      this.setState({ ivasCountries: result.data });
     });
     const {
       // eslint-disable-next-line react/prop-types
@@ -174,15 +174,17 @@ class AddPurchaseOrder extends React.Component {
       }
       if (ev.target.name === 'ivaCountry') {
         const country = ev.target.value;
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const ivaStates = this.state.ivas.filter(row => row.stateCountry.country.countryName === country);
-        this.setState({ ivaStates });
+        console.log(country);
+        IvaService.getIvaStates(country).then(result => {
+          console.log(result.data);
+          this.setState({ ivaStates: result.data });
+        });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
   handleConcept = (event, row) => {
-    let totalUSD = 0;
+    let total = 0;
     if (event.target.name === 'description') {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const tab = this.state.description;
@@ -206,10 +208,13 @@ class AddPurchaseOrder extends React.Component {
     }
     if (event.target.name === 'unityNumber') {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const tab = this.state.unityNumber;
+      const tab = this.state.unityNumber; const value = this.state.unityValue; const val = this.state.valor;
       tab[0] = 0;
       tab[row] = event.target.value;
-      this.setState({ unityNumber: tab });
+      val[row] = event.target.value * value[row];
+      // eslint-disable-next-line array-callback-return,no-shadow
+      val.map(row => { total += row; });
+      this.setState({ unityNumber: tab, valor: val, totalLocal: total });
     }
     if (event.target.name === 'givingDate') {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -238,14 +243,6 @@ class AddPurchaseOrder extends React.Component {
       tab[0] = 0;
       tab[row] = event.target.value;
       this.setState({ unityValue: tab });
-    }
-    if (event.target.name === 'valor') {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const tab = this.state.unityValue; tab[0] = 0;
-      tab[row] = event.target.value;
-      // eslint-disable-next-line array-callback-return,no-shadow
-      tab.map(row => { totalUSD += Number(row); });
-      this.setState({ unityValue: tab, totalLocal: totalUSD });
     }
   }
 
@@ -345,7 +342,7 @@ class AddPurchaseOrder extends React.Component {
       const {
         companyDataEmit, companyLogo, companyNIF, companyAddress,
         receptionSupplier, supplierNIF, supplierResponsible, supplierAddress, supplierContractCode,
-        externalSuppliers, companies, currencies, ivas,
+        externalSuppliers, companies, currencies, ivasCountries,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
         termsListe, termDescription, termTitle,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
@@ -525,6 +522,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={3}>
@@ -538,6 +538,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={2}>
@@ -550,6 +553,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -561,6 +567,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -572,6 +581,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={2}>
@@ -583,6 +595,9 @@ class AddPurchaseOrder extends React.Component {
                     fullWidth
                     InputProps={{
                       readOnly: true,
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
                     }}
                   />
                 </Grid>
@@ -691,6 +706,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -705,6 +723,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -726,9 +747,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      ivas.map((clt) => (
-                        <MenuItem key={clt.stateCountry.country.countryName} value={clt.stateCountry.country.countryName}>
-                          {clt.stateCountry.country.countryName}
+                      ivasCountries.map((clt) => (
+                        <MenuItem key={clt} value={clt}>
+                          {clt}
                         </MenuItem>
                       ))
                     }
@@ -762,6 +783,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -776,6 +800,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -797,6 +824,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -811,6 +841,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -821,6 +854,7 @@ class AddPurchaseOrder extends React.Component {
             <Typography variant="subtitle2" component="h2" color="primary">
               ►   I.V.A Retentions
             </Typography>
+            <br />
             <Grid
               container
               spacing={6}

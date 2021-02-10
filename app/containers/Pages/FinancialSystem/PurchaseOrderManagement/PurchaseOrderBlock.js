@@ -16,7 +16,7 @@ import Divider from '@material-ui/core/Divider';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
 import { ThemeContext } from '../../../App/ThemeWrapper';
-import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
+import PurchaseOrderService from '../../../Services/PurchaseOrderService';
 import { getAllCountry } from '../../../../redux/country/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
@@ -418,7 +418,7 @@ class PurchaseOrderBlock extends React.Component {
     // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCountry } = this.props;
     getAllCountry();
-    ExternalSuppliersService.getExternalSuppliers().then(result => {
+    PurchaseOrderService.getPurchaseOrder().then(result => {
       console.log(result);
       this.setState({ datas: result.data });
     });
@@ -435,7 +435,7 @@ class PurchaseOrderBlock extends React.Component {
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].externalSupplierId;
-    ExternalSuppliersService.getExternalSuppliersById(id).then(result => {
+    PurchaseOrderService.getPurchaseOrderById(id).then(result => {
       console.log(result.data);
       this.setState({
         externalSupplierId: id,
@@ -461,7 +461,7 @@ class PurchaseOrderBlock extends React.Component {
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].externalSupplierId;
-    ExternalSuppliersService.deleteExternalSuppliers(id).then(result => {
+    PurchaseOrderService.deletePurchaseOrder(id).then(result => {
       console.log(result.data);
       this.setState({ datas: result.data });
     });
@@ -478,7 +478,7 @@ class PurchaseOrderBlock extends React.Component {
     const ExternalSupplier = {
       externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
     };
-    ExternalSuppliersService.updateExternalSuppliers(ExternalSupplier).then(result => {
+    PurchaseOrderService.updatePurchaseOrder(ExternalSupplier).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
     });
   };

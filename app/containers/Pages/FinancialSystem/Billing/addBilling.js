@@ -51,6 +51,7 @@ class AddBilling extends React.Component {
       ivaStates: [],
       contracts: [],
       ivas: [],
+      ivasCountries: [],
       financialContractId: '',
       clientContractSigned: '',
       commercialOperationId: '',
@@ -98,6 +99,10 @@ class AddBilling extends React.Component {
     });
     IvaService.getIva().then(result => {
       this.setState({ ivas: result.data });
+    });
+    IvaService.getIvaCountries().then(result => {
+      console.log(result.data);
+      this.setState({ ivasCountries: result.data });
     });
     ContractService.getContract().then(result => {
       this.setState({ contracts: result.data });
@@ -162,9 +167,11 @@ class AddBilling extends React.Component {
       }
       if (ev.target.name === 'ivaCountry') {
         const country = ev.target.value;
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const ivaStates = this.state.ivas.filter(row => row.stateCountry.country.countryName === country);
-        this.setState({ ivaStates });
+        console.log(country);
+        IvaService.getIvaStates(country).then(result => {
+          console.log(result.data);
+          this.setState({ ivaStates: result.data });
+        });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
@@ -288,7 +295,7 @@ class AddBilling extends React.Component {
           label: '2',
         }];
       const {
-        code, invoiceDate, contractor, clients, companies, operations, currencies, ivas, ivaStates, contracts,
+        code, invoiceDate, contractor, clients, companies, operations, currencies, ivasCountries, ivaStates, contracts,
         clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDone, reelPaymentDay,
         totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
@@ -606,9 +613,9 @@ class AddBilling extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      ivas.map((clt) => (
-                        <MenuItem key={clt.stateCountry.country.countryName} value={clt.stateCountry.country.countryName}>
-                          {clt.stateCountry.country.countryName}
+                      ivasCountries.map((clt) => (
+                        <MenuItem key={clt} value={clt}>
+                          {clt}
                         </MenuItem>
                       ))
                     }
