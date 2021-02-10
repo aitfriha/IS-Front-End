@@ -1,7 +1,7 @@
 module.exports = {
-  name: 'Dandelion Pro',
-  desc: 'Dandelion Pro - React Website Template',
-  prefix: 'dandelion',
-  footerText: 'Dandelion Pro All Rights Reserved 2018',
-  logoText: 'Dandelion Pro',
+  name: 'Internal systems',
+  desc: 'Internal systems - React Website Template',
+  prefix: 'Internal systems',
+  footerText: 'Internal systems Pro All Rights Reserved 2018',
+  logoText: 'Internal systems',
 };
