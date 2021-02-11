@@ -13,6 +13,10 @@ import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Avatar from '@material-ui/core/Avatar';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
 import history from '../../../../utils/history';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
@@ -29,9 +33,11 @@ class AddPurchaseOrder extends React.Component {
     this.state = {
       companyDataEmit: '',
       companyLogo: '',
+      internLogo: '',
       companyNIF: '',
       companyAddress: '',
       receptionSupplier: '',
+      receptionSupplierType: '',
       supplierNIF: '',
       supplierResponsible: '',
       supplierAddress: '',
@@ -137,16 +143,31 @@ class AddPurchaseOrder extends React.Component {
         });
       }
       if (ev.target.name === 'receptionSupplier') {
-        // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-        this.state.externalSuppliers.map(row => {
-          if (row.externalSupplierId === ev.target.value) {
-            this.setState({
-              supplierResponsible: row.firstName.concat(' ' + row.fatherFamilyName.concat(' ' + row.motherFamilyName)),
-              supplierNIF: row.taxNumber,
-              supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
-            });
-          }
-        });
+        // eslint-disable-next-line react/destructuring-assignment
+        const type = this.state.receptionSupplierType;
+        if (type === 'external') {
+          // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+          this.state.externalSuppliers.map(row => {
+            if (row.externalSupplierId === ev.target.value) {
+              this.setState({
+                supplierResponsible: row.firstName.concat(' ' + row.fatherFamilyName.concat(' ' + row.motherFamilyName)),
+                supplierNIF: row.taxNumber,
+                supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
+              });
+            }
+          });
+        } else {
+          // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+          this.state.companies.map(row => {
+            if (row.financialCompanyId === ev.target.value) {
+              this.setState({
+                internLogo: row.logo,
+                supplierNIF: row.taxNumber,
+                supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
+              });
+            }
+          });
+        }
       }
       if (ev.target.name === 'ivaState') {
         const id = ev.target.value;
@@ -154,11 +175,11 @@ class AddPurchaseOrder extends React.Component {
         const local = this.state.totalLocal; const { factor } = this.state;
         let iva = 0;
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
-        this.state.ivas.map(row => {
+        this.state.ivaStates.map(row => {
           if (row.ivaId === id) iva = row.value;
         });
         this.setState({
-          valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local - ((iva * local) / 100), totalAmountEuro: (local - ((iva * local) / 100)) * factor
+          valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local + ((iva * local) / 100), totalAmountEuro: (local + ((iva * local) / 100)) * factor
         });
       }
       if (ev.target.name === 'localCurrency') {
@@ -340,9 +361,9 @@ class AddPurchaseOrder extends React.Component {
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        companyDataEmit, companyLogo, companyNIF, companyAddress,
+        companyDataEmit, companyLogo, companyNIF, companyAddress, receptionSupplierType,
         receptionSupplier, supplierNIF, supplierResponsible, supplierAddress, supplierContractCode,
-        externalSuppliers, companies, currencies, ivasCountries,
+        externalSuppliers, companies, currencies, ivasCountries, internLogo,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
         termsListe, termDescription, termTitle,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
@@ -400,7 +421,7 @@ class AddPurchaseOrder extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
+              <Grid item xs={12} md={2} sm={3}>
                 <TextField
                   id="companyNIF"
                   label="Company NIF"
@@ -426,7 +447,7 @@ class AddPurchaseOrder extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
+              <Grid item xs={12} md={1} sm={3}>
                 {
                   companyLogo ? (
                     <Avatar alt="Company Logo" src={companyLogo} className={classes.large} />
@@ -434,62 +455,154 @@ class AddPurchaseOrder extends React.Component {
                 }
               </Grid>
               <Grid item xs={12} md={3} sm={3}>
-                <FormControl fullWidth required>
-                  <InputLabel> Reception Supplier Data </InputLabel>
-                  <Select
-                    name="receptionSupplier"
-                    value={receptionSupplier}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      externalSuppliers.map((clt) => (
-                        <MenuItem key={clt.externalSupplierId} value={clt.externalSupplierId}>
-                          {clt.companyName}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend">Reception Supplier Type</FormLabel>
+                  <RadioGroup row aria-label="position" name="receptionSupplierType" value={receptionSupplierType} onChange={this.handleChange}>
+                    <FormControlLabel
+                      value="external"
+                      control={<Radio color="primary" />}
+                      label="External"
+                      labelPlacement="end"
+                    />
+                    <FormControlLabel
+                      value="internal"
+                      control={<Radio color="primary" />}
+                      label="Internal"
+                      labelPlacement="end"
+                    />
+                  </RadioGroup>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="supplierNIF"
-                  label="Supplier NIF"
-                  name="supplierNIF"
-                  value={supplierNIF}
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="supplierAddress"
-                  label="Address"
-                  name="supplierAddress"
-                  value={supplierAddress}
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="supplierResponsible"
-                  label="Supplier's Responsible"
-                  name="supplierResponsible"
-                  value={supplierResponsible}
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
+              {
+                receptionSupplierType === 'external' ? (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                  >
+                    <Grid item xs={12} md={3} sm={3}>
+                      <FormControl fullWidth required>
+                        <InputLabel> Reception Supplier Data </InputLabel>
+                        <Select
+                          name="receptionSupplier"
+                          value={receptionSupplier}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            externalSuppliers.map((clt) => (
+                              <MenuItem key={clt.externalSupplierId} value={clt.externalSupplierId}>
+                                {clt.companyName}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={2} sm={3}>
+                      <TextField
+                        id="supplierNIF"
+                        label="Supplier NIF"
+                        name="supplierNIF"
+                        value={supplierNIF}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      <TextField
+                        id="supplierAddress"
+                        label="Address"
+                        name="supplierAddress"
+                        value={supplierAddress}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      <TextField
+                        id="supplierResponsible"
+                        label="Supplier's Responsible"
+                        name="supplierResponsible"
+                        value={supplierResponsible}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                ) : (<div />)
+              }
+              {
+                receptionSupplierType === 'internal' ? (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                  >
+                    <Grid item xs={12} md={3} sm={3}>
+                      <FormControl fullWidth required>
+                        <InputLabel> Reception Supplier Data </InputLabel>
+                        <Select
+                          name="receptionSupplier"
+                          value={receptionSupplier}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            companies.map((clt) => (
+                              <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                                {clt.name}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={2} sm={3}>
+                      <TextField
+                        id="supplierNIF"
+                        label="Supplier NIF"
+                        name="supplierNIF"
+                        value={supplierNIF}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      <TextField
+                        id="supplierAddress"
+                        label="Address"
+                        name="supplierAddress"
+                        value={supplierAddress}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      {
+                        internLogo ? (
+                          <Avatar alt="Company Logo" src={internLogo} className={classes.large} />
+                        ) : (<div />)
+                      }
+                    </Grid>
+                  </Grid>
+                ) : (<div />)
+              }
             </Grid>
             <br />
             <Typography variant="subtitle2" component="h2" color="primary">
