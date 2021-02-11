@@ -36,7 +36,8 @@ class AddPurchaseOrder extends React.Component {
       internLogo: '',
       companyNIF: '',
       companyAddress: '',
-      receptionSupplier: '',
+      receptionSupplierExternal: '',
+      receptionSupplierInternal: '',
       receptionSupplierType: '',
       supplierNIF: '',
       supplierResponsible: '',
@@ -46,11 +47,10 @@ class AddPurchaseOrder extends React.Component {
       companies: [],
       currencies: [],
       ivasCountries: [],
-      ivas: [],
       ivaStates: [],
+      ivaState: '',
       nbrConcepts: ['1'],
       termsListe: ['1'],
-      items: [],
       itemNames: [],
       description: [],
       unityValue: [],
@@ -62,12 +62,18 @@ class AddPurchaseOrder extends React.Component {
       billingDate: [],
       termTitle: [],
       termDescription: [],
-      totalValue: 0,
+      totalEuro: 0,
+      totalLocal: 0,
+      valueIVAEuro: 0,
+      valueIVALocal: 0,
+      totalAmountEuro: 0,
+      totalAmountLocal: 0,
       factor: 0,
       ivaRetentions: '',
       totalAmountRetentions: '',
       totalIvaRetention: '',
-      paymentMethod: ''
+      paymentMethod: '',
+      localCurrency: ''
     };
   }
 
@@ -110,16 +116,58 @@ class AddPurchaseOrder extends React.Component {
 
     handleSubmit = () => {
       const {
-        code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
+        companyDataEmit, companyLogo, companyNIF, companyAddress,
+        receptionSupplierType, receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress, internLogo,
+        nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
+        termsListe, termDescription, termTitle, factor,
+        paymentMethod, ivaRetentions, totalAmountRetentions, totalIvaRetention,
+        localCurrency, totalLocal, totalEuro, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
       } = this.state;
-      const city = { _id: currentCity };
-      const address = {
-        postCode, city, fullAddress
+      const companyEmit = { _id: companyDataEmit };
+      const externalSupplierReception = { _id: receptionSupplierExternal };
+      const internalSupplierReception = { _id: receptionSupplierInternal };
+      const currency = { _id: localCurrency };
+      const iva = { _id: ivaState };
+      const PurchaseOrder = {
+        iva,
+        currency,
+        factor,
+        companyEmit,
+        companyLogo,
+        companyNIF,
+        companyAddress,
+        receptionSupplierType,
+        externalSupplierReception,
+        internalSupplierReception,
+        internLogo,
+        supplierNIF,
+        supplierResponsible,
+        supplierAddress,
+        termDescription,
+        termTitle,
+        termsListe,
+        totalEuro,
+        totalLocal,
+        valueIVAEuro,
+        valueIVALocal,
+        totalAmountEuro,
+        totalAmountLocal,
+        nbrConcepts,
+        itemNames,
+        description,
+        unity,
+        unityNumber,
+        unityValue,
+        valor,
+        paymentDate,
+        givingDate,
+        billingDate,
+        ivaRetentions,
+        totalAmountRetentions,
+        totalIvaRetention,
+        paymentMethod,
       };
-      const ExternalSupplier = {
-        companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
-      };
-      PurchaseOrderService.savePurchaseOrder(ExternalSupplier).then(result => {
+      PurchaseOrderService.savePurchaseOrder(PurchaseOrder).then(result => {
         console.log(result);
         history.push('/app/gestion-financial/Purchase-Order Management');
       });
@@ -142,32 +190,31 @@ class AddPurchaseOrder extends React.Component {
           }
         });
       }
-      if (ev.target.name === 'receptionSupplier') {
-        // eslint-disable-next-line react/destructuring-assignment
-        const type = this.state.receptionSupplierType;
-        if (type === 'external') {
-          // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-          this.state.externalSuppliers.map(row => {
-            if (row.externalSupplierId === ev.target.value) {
-              this.setState({
-                supplierResponsible: row.firstName.concat(' ' + row.fatherFamilyName.concat(' ' + row.motherFamilyName)),
-                supplierNIF: row.taxNumber,
-                supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
-              });
-            }
-          });
-        } else {
-          // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-          this.state.companies.map(row => {
-            if (row.financialCompanyId === ev.target.value) {
-              this.setState({
-                internLogo: row.logo,
-                supplierNIF: row.taxNumber,
-                supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
-              });
-            }
-          });
-        }
+      if (ev.target.name === 'receptionSupplierExternal') {
+        // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+        this.state.externalSuppliers.map(row => {
+          if (row.externalSupplierId === ev.target.value) {
+            this.setState({
+              receptionSupplierInternal: '',
+              supplierResponsible: row.firstName.concat(' ' + row.fatherFamilyName.concat(' ' + row.motherFamilyName)),
+              supplierNIF: row.taxNumber,
+              supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
+            });
+          }
+        });
+      }
+      if (ev.target.name === 'receptionSupplierInternal') {
+        // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+        this.state.companies.map(row => {
+          if (row.financialCompanyId === ev.target.value) {
+            this.setState({
+              receptionSupplierExternal: '',
+              internLogo: row.logo,
+              supplierNIF: row.taxNumber,
+              supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
+            });
+          }
+        });
       }
       if (ev.target.name === 'ivaState') {
         const id = ev.target.value;
@@ -362,7 +409,7 @@ class AddPurchaseOrder extends React.Component {
       // eslint-disable-next-line react/prop-types
       const {
         companyDataEmit, companyLogo, companyNIF, companyAddress, receptionSupplierType,
-        receptionSupplier, supplierNIF, supplierResponsible, supplierAddress, supplierContractCode,
+        receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress,
         externalSuppliers, companies, currencies, ivasCountries, internLogo,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
         termsListe, termDescription, termTitle,
@@ -485,8 +532,8 @@ class AddPurchaseOrder extends React.Component {
                       <FormControl fullWidth required>
                         <InputLabel> Reception Supplier Data </InputLabel>
                         <Select
-                          name="receptionSupplier"
-                          value={receptionSupplier}
+                          name="receptionSupplierExternal"
+                          value={receptionSupplierExternal}
                           onChange={this.handleChange}
                         >
                           {
@@ -553,8 +600,8 @@ class AddPurchaseOrder extends React.Component {
                       <FormControl fullWidth required>
                         <InputLabel> Reception Supplier Data </InputLabel>
                         <Select
-                          name="receptionSupplier"
-                          value={receptionSupplier}
+                          name="receptionSupplierInternal"
+                          value={receptionSupplierInternal}
                           onChange={this.handleChange}
                         >
                           {
