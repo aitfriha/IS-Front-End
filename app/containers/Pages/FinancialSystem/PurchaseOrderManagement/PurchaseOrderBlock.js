@@ -6,12 +6,28 @@ import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Avatar from '@material-ui/core/Avatar';
 import { makeStyles } from '@material-ui/core/styles';
 import { toUpper } from 'lodash/string';
+import FormLabel from '@material-ui/core/FormLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import AddIcon from '@material-ui/icons/Add';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
@@ -606,19 +622,45 @@ class PurchaseOrderBlock extends React.Component {
     PurchaseOrderService.getPurchaseOrderById(id).then(result => {
       console.log(result.data);
       this.setState({
-        externalSupplierId: id,
-        companyName: result.data.companyName,
-        code: result.data.code,
-        taxNumber: result.data.taxNumber,
-        email: result.data.email,
-        firstName: result.data.firstName,
-        fatherFamilyName: result.data.fatherFamilyName,
-        motherFamilyName: result.data.motherFamilyName,
-        URL: result.data.url,
-        address: result.data.address,
-        addressId: result.data.address.addressId,
-        postCode: result.data.address.postCode,
-        fullAddress: result.data.address.fullAddress,
+        purchaseOrderId: id,
+        companyDataEmit: result.data.companyEmit._id,
+        companyLogo: result.data.companyLogo,
+        internLogo: result.data.internLogo,
+        companyNIF: result.data.companyNIF,
+        companyAddress: result.data.companyAddress,
+        receptionSupplierExternal: result.data.externalSupplierReception ? result.data.externalSupplierReception._id : '',
+        receptionSupplierInternal: result.data.internalSupplierReception ? result.data.internalSupplierReception._id : '',
+        receptionSupplierType: result.data.receptionSupplierType,
+        supplierNIF: result.data.supplierNIF,
+        supplierResponsible: result.data.supplierResponsible,
+        supplierAddress: result.data.supplierAddress,
+        ivaState: result.data.iva._id,
+        ivaCountry: result.data.iva.stateCountry.country.countryName,
+        nbrConcepts: result.data.nbrConcepts,
+        termsListe: result.data.termsListe,
+        itemNames: result.data.itemNames,
+        description: result.data.description,
+        unityValue: result.data.unityValue,
+        unity: result.data.unity,
+        valor: result.data.valor,
+        unityNumber: result.data.unityNumber,
+        givingDate: result.data.givingDate,
+        paymentDate: result.data.paymentDate,
+        billingDate: result.data.billingDate,
+        termTitle: result.data.termTitle,
+        termDescription: result.data.termDescription,
+        totalEuro: result.data.totalEuro,
+        totalLocal: result.data.totalLocal,
+        valueIVAEuro: result.data.valueIVAEuro,
+        valueIVALocal: result.data.valueIVALocal,
+        totalAmountEuro: result.data.totalAmountEuro,
+        totalAmountLocal: result.data.totalAmountLocal,
+        factor: result.data.factor,
+        ivaRetentions: result.data.ivaRetentions,
+        totalAmountRetentions: result.data.totalAmountRetentions,
+        totalIvaRetention: result.data.totalIvaRetention,
+        paymentMethod: result.data.paymentMethod,
+        localCurrency: result.data.currency._id,
         openPopUp: true
       });
     });
@@ -637,16 +679,59 @@ class PurchaseOrderBlock extends React.Component {
 
   handleSave = () => {
     const {
-      externalSupplierId, code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
+      purchaseOrderId, companyDataEmit, companyLogo, companyNIF, companyAddress,
+      receptionSupplierType, receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress, internLogo,
+      nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
+      termsListe, termDescription, termTitle, factor,
+      paymentMethod, ivaRetentions, totalAmountRetentions, totalIvaRetention,
+      localCurrency, totalLocal, totalEuro, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
     } = this.state;
-    const city = { _id: currentCity };
-    const address = {
-      postCode, city, fullAddress
+    const companyEmit = { _id: companyDataEmit };
+    const externalSupplierReception = { _id: receptionSupplierExternal };
+    const internalSupplierReception = { _id: receptionSupplierInternal };
+    const currency = { _id: localCurrency };
+    const iva = { _id: ivaState };
+    const PurchaseOrder = {
+      purchaseOrderId,
+      iva,
+      currency,
+      factor,
+      companyEmit,
+      companyLogo,
+      companyNIF,
+      companyAddress,
+      receptionSupplierType,
+      externalSupplierReception,
+      internalSupplierReception,
+      internLogo,
+      supplierNIF,
+      supplierResponsible,
+      supplierAddress,
+      termDescription,
+      termTitle,
+      termsListe,
+      totalEuro,
+      totalLocal,
+      valueIVAEuro,
+      valueIVALocal,
+      totalAmountEuro,
+      totalAmountLocal,
+      nbrConcepts,
+      itemNames,
+      description,
+      unity,
+      unityNumber,
+      unityValue,
+      valor,
+      paymentDate,
+      givingDate,
+      billingDate,
+      ivaRetentions,
+      totalAmountRetentions,
+      totalIvaRetention,
+      paymentMethod,
     };
-    const ExternalSupplier = {
-      externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
-    };
-    PurchaseOrderService.updatePurchaseOrder(ExternalSupplier).then(result => {
+    PurchaseOrderService.updatePurchaseOrder(PurchaseOrder).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
     });
   };
@@ -759,8 +844,8 @@ class PurchaseOrderBlock extends React.Component {
         tab[row] = event.target.value;
         val[row] = event.target.value * value[row];
         // eslint-disable-next-line array-callback-return,no-shadow
-        val.map(row => { total += row; });
-        this.setState({ unityNumber: tab, valor: val, totalLocal: total });
+        val.map(row => { total += Number(row); });
+        this.setState({ unityNumber: tab, valor: val, totalLocal: Number(total) });
       }
       if (event.target.name === 'givingDate') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -883,6 +968,13 @@ class PurchaseOrderBlock extends React.Component {
       const { classes } = this.props;
       const {
         datas, columns, openPopUp,
+        companyDataEmit, companyLogo, companyNIF, companyAddress, receptionSupplierType,
+        receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress,
+        externalSuppliers, companies, currencies, ivasCountries, internLogo,
+        nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
+        termsListe, termDescription, termTitle,
+        paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
+        localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
       } = this.state;
       const options = {
         filter: true,
@@ -910,15 +1002,704 @@ class PurchaseOrderBlock extends React.Component {
           <Dialog
             open={openPopUp}
             keepMounted
+            scroll="body"
             onClose={this.handleClose}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
-            fullWidth="md"
-            maxWidth="md"
+            fullWidth=""
+            maxWidth=""
           >
             <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
             <DialogContent dividers>
-              tt
+              <Typography variant="subtitle2" component="h2" color="primary">
+                ►   General Purchase Order Informations
+              </Typography>
+              <br />
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+                justify="center"
+              >
+                <Grid item xs={12} md={3} sm={3}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Company Data Emit</InputLabel>
+                    <Select
+                      name="companyDataEmit"
+                      value={companyDataEmit}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        companies.map((clt) => (
+                          <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                            {clt.name}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={2} sm={3}>
+                  <TextField
+                    id="companyNIF"
+                    label="Company NIF"
+                    name="companyNIF"
+                    value={companyNIF}
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={3} sm={3}>
+                  <TextField
+                    id="companyAddress"
+                    label="Address"
+                    name="companyAddress"
+                    value={companyAddress}
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={1} sm={3}>
+                  {
+                    companyLogo ? (
+                      <Avatar alt="Company Logo" src={companyLogo} className={classes.small} />
+                    ) : (<div />)
+                  }
+                </Grid>
+                <Grid item xs={12} md={3} sm={3}>
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Reception Supplier Type</FormLabel>
+                    <RadioGroup row aria-label="position" name="receptionSupplierType" value={receptionSupplierType} onChange={this.handleChange}>
+                      <FormControlLabel
+                        value="external"
+                        control={<Radio color="primary" />}
+                        label="External"
+                        labelPlacement="end"
+                      />
+                      <FormControlLabel
+                        value="internal"
+                        control={<Radio color="primary" />}
+                        label="Internal"
+                        labelPlacement="end"
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
+                {
+                  receptionSupplierType === 'external' ? (
+                    <Grid
+                      container
+                      spacing={2}
+                      alignItems="flex-start"
+                      direction="row"
+                    >
+                      <Grid item xs={12} md={3} sm={3}>
+                        <FormControl fullWidth required>
+                          <InputLabel> Reception Supplier Data </InputLabel>
+                          <Select
+                            name="receptionSupplierExternal"
+                            value={receptionSupplierExternal}
+                            onChange={this.handleChange}
+                          >
+                            {
+                              externalSuppliers.map((clt) => (
+                                <MenuItem key={clt.externalSupplierId} value={clt.externalSupplierId}>
+                                  {clt.companyName}
+                                </MenuItem>
+                              ))
+                            }
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} md={2} sm={3}>
+                        <TextField
+                          id="supplierNIF"
+                          label="Supplier NIF"
+                          name="supplierNIF"
+                          value={supplierNIF}
+                          onChange={this.handleChange}
+                          fullWidth
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={3} sm={3}>
+                        <TextField
+                          id="supplierAddress"
+                          label="Address"
+                          name="supplierAddress"
+                          value={supplierAddress}
+                          onChange={this.handleChange}
+                          fullWidth
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={3} sm={3}>
+                        <TextField
+                          id="supplierResponsible"
+                          label="Supplier's Responsible"
+                          name="supplierResponsible"
+                          value={supplierResponsible}
+                          onChange={this.handleChange}
+                          fullWidth
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  ) : (<div />)
+                }
+                {
+                  receptionSupplierType === 'internal' ? (
+                    <Grid
+                      container
+                      spacing={2}
+                      alignItems="flex-start"
+                      direction="row"
+                    >
+                      <Grid item xs={12} md={3} sm={3}>
+                        <FormControl fullWidth required>
+                          <InputLabel> Reception Supplier Data </InputLabel>
+                          <Select
+                            name="receptionSupplierInternal"
+                            value={receptionSupplierInternal}
+                            onChange={this.handleChange}
+                          >
+                            {
+                              companies.map((clt) => (
+                                <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                                  {clt.name}
+                                </MenuItem>
+                              ))
+                            }
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} md={2} sm={3}>
+                        <TextField
+                          id="supplierNIF"
+                          label="Supplier NIF"
+                          name="supplierNIF"
+                          value={supplierNIF}
+                          onChange={this.handleChange}
+                          fullWidth
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={3} sm={3}>
+                        <TextField
+                          id="supplierAddress"
+                          label="Address"
+                          name="supplierAddress"
+                          value={supplierAddress}
+                          onChange={this.handleChange}
+                          fullWidth
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={3} sm={3}>
+                        {
+                          internLogo ? (
+                            <Avatar alt="Company Logo" src={internLogo} className={classes.medium} />
+                          ) : (<div />)
+                        }
+                      </Grid>
+                    </Grid>
+                  ) : (<div />)
+                }
+              </Grid>
+              <br />
+              <Typography variant="subtitle2" component="h2" color="primary">
+                ►   Concepts
+              </Typography>
+              <br />
+              {nbrConcepts.map((row) => (
+                <Grid
+                  container
+                  spacing={2}
+                  alignItems="flex-start"
+                  direction="row"
+                >
+                  <Grid item xs={1} align="center">
+                    <Typography variant="subtitle2" component="h3" color="grey">
+                      <br />
+                        Item
+                      {' '}
+                      { row }
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <TextField
+                      id="itemNames"
+                      label="Concept Name"
+                      name="itemNames"
+                      value={itemNames[row]}
+                      multiline
+                      rows={1}
+                      onChange={event => this.handleConcept(event, row)}
+                      fullWidth
+                      required
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <TextField
+                      id="description"
+                      label="Description"
+                      name="description"
+                      value={description[row]}
+                      multiline
+                      rows={1}
+                      onChange={event => this.handleConcept(event, row)}
+                      fullWidth
+                      required
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <TextField
+                      id="unityValue"
+                      label="Unity Value"
+                      name="unityValue"
+                      value={unityValue[row]}
+                      type="number"
+                      onChange={event => this.handleConcept(event, row)}
+                      fullWidth
+                      required
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={1}>
+                    <TextField
+                      id="unity"
+                      label="Unity"
+                      name="unity"
+                      value={unity[row]}
+                      onChange={event => this.handleConcept(event, row)}
+                      fullWidth
+                      required
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={1}>
+                    <TextField
+                      id="unityNumber"
+                      label="N° of Unity"
+                      name="unityNumber"
+                      value={unityNumber[row]}
+                      onChange={event => this.handleConcept(event, row)}
+                      fullWidth
+                      required
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <TextField
+                      id="valor"
+                      label="Value"
+                      name="valor"
+                      value={valor[row]}
+                      fullWidth
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={1} />
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="givingDate"
+                      label="Giving Date"
+                      name="givingDate"
+                      value={givingDate[row]}
+                      type="date"
+                      onChange={event => this.handleConcept(event, row)}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="billingDate"
+                      label="Billing Date"
+                      name="billingDate"
+                      value={billingDate[row]}
+                      type="date"
+                      onChange={event => this.handleConcept(event, row)}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="paymentDate"
+                      label="Payment  Date"
+                      name="paymentDate"
+                      value={paymentDate[row]}
+                      type="date"
+                      onChange={event => this.handleConcept(event, row)}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={1} />
+                  <Grid xs={1}>
+                    <br />
+                    <IconButton size="small" color="primary" onClick={() => this.handleOpenConcept()}>
+                      <AddIcon />
+                    </IconButton>
+                    <IconButton size="small" color="primary" onClick={() => this.handleDeleteConcept(row)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
+              <br />
+              <Typography variant="subtitle2" component="h2" color="primary">
+                ►   Economic Value
+              </Typography>
+              <br />
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+                justify="space-around"
+              >
+                <Grid item md={0} />
+                <Grid item xs={12} md={6}>
+                  <br />
+                  <Typography variant="subtitle2" component="h2" color="primary">
+                    ● Total Amount Net
+                  </Typography>
+                </Grid>
+                <Grid item md={3} />
+                <Grid item xs={12} md={4} sm={4}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select Local Currency </InputLabel>
+                    <Select
+                      name="localCurrency"
+                      value={localCurrency}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        currencies.map((clt) => (
+                          <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                            {clt.typeOfCurrency.currencyName}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={4} sm={4}>
+                  <TextField
+                    id="totalLocal"
+                    label="Total in Local Currency"
+                    name="totalLocal"
+                    value={totalLocal}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sm={4}>
+                  <TextField
+                    id="totalEuro"
+                    label="Total in EURO"
+                    name="totalEuro"
+                    value={totalEuro}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item md={0} />
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" component="h2" color="primary">
+                    ● I.V.A Taxes
+                  </Typography>
+                </Grid>
+                <Grid item md={3} />
+                <Grid item xs={12} md={3} sm={3}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select I.V.A Country</InputLabel>
+                    <Select
+                      name="ivaCountry"
+                      value={ivaCountry}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        ivasCountries.map((clt) => (
+                          <MenuItem key={clt} value={clt}>
+                            {clt}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={3} sm={3}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select State</InputLabel>
+                    <Select
+                      name="ivaState"
+                      value={ivaState}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        ivaStates.map((clt) => (
+                          <MenuItem key={clt.ivaId} value={clt.ivaId}>
+                            {clt.stateCountry.stateName}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={3} sm={3}>
+                  <TextField
+                    id="totalIVALocal"
+                    label="I.V.A Value in Local Currency"
+                    name="totalIVALocal"
+                    value={valueIVALocal}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={3} sm={3}>
+                  <TextField
+                    id="totalIVAEuro"
+                    label="I.V.A Value in EURO"
+                    name="totalIVAEuro"
+                    value={valueIVAEuro}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item md={0} />
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" component="h2" color="primary">
+                    ● Total Amount
+                  </Typography>
+                </Grid>
+                <Grid item md={3} />
+                <Grid item xs={12} md={5} sm={5}>
+                  <TextField
+                    id="totalAmountLocal"
+                    label="Total Amount in Local Currency"
+                    name="totalAmountLocal"
+                    value={totalAmountLocal}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={5} sm={5}>
+                  <TextField
+                    id="totalAmountEuro"
+                    label="Total Amount in EURO"
+                    name="totalAmountEuro"
+                    value={totalAmountEuro}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <br />
+              <Typography variant="subtitle2" component="h2" color="primary">
+                ►   I.V.A Retentions
+              </Typography>
+              <br />
+              <Grid
+                container
+                spacing={6}
+                alignItems="flex-start"
+                direction="row"
+                justify="space-around"
+              >
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    id="ivaRetentions"
+                    label="I.V.A Retentions %"
+                    name="ivaRetentions"
+                    value={ivaRetentions}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    id="totalAmountRetentions"
+                    label="Total Amount Retentions %"
+                    name="totalAmountRetentions"
+                    value={totalAmountRetentions}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    id="totalIvaRetention"
+                    label="Total Retentions + I.V.A %"
+                    name="totalIvaRetention"
+                    value={totalIvaRetention}
+                    type="number"
+                    onChange={this.handleChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid />
+                <Grid
+                  container
+                  spacing={3}
+                  alignItems="flex-start"
+                  direction="row"
+                  justify="space-around"
+                >
+                  <Grid item xs={4}>
+                    <TextField
+                      id="paymentMethod"
+                      label="Method of Payment"
+                      name="paymentMethod"
+                      value={paymentMethod}
+                      onChange={this.handleChange}
+                      fullWidth
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <br />
+              <Typography variant="subtitle2" component="h2" color="primary">
+                ►   Terms And Conditions
+              </Typography>
+              <Grid container spacing={4}>
+                <Grid item xs={12} />
+                {
+                  termsListe.map((row) => (
+                    <Grid container spacing={2}>
+                      <Grid item xs={2} />
+                      <Grid item xs={3}>
+                        <TextField
+                          label="Term Title"
+                          name="termTitle"
+                          value={termTitle[row]}
+                          onChange={event => this.handleTerms(event, row)}
+                          fullWidth
+                          required
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <TextField
+                          label="Term Description"
+                          name="termDescription"
+                          value={termDescription[row]}
+                          onChange={event => this.handleTerms(event, row)}
+                          fullWidth
+                          multiline
+                          required
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={3}>
+                        <br />
+                        <IconButton size="small" color="primary" onClick={() => this.handleAddTerms()}>
+                          <AddIcon />
+                        </IconButton>
+                        <IconButton size="small" color="primary" onClick={() => this.handleDeleteTerms(row)}>
+                          <DeleteIcon />
+                        </IconButton>
+                        <br />
+                        <br />
+                      </Grid>
+                    </Grid>
+                  ))
+                }
+              </Grid>
+              <br />
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleClose}>

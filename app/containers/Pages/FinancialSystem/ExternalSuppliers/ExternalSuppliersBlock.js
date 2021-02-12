@@ -544,6 +544,7 @@ class ExternalSuppliersBlock extends React.Component {
         <Dialog
           open={openPopUp}
           keepMounted
+          scroll="body"
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
