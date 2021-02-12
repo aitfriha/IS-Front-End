@@ -98,22 +98,6 @@ class AddPurchaseOrder extends React.Component {
     changeTheme('greyTheme');
   }
 
-    handleChangeCountry = (ev, value) => {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllStateByCountry } = this.props;
-      getAllStateByCountry(value.countryId);
-    };
-
-    handleChangeState = (ev, value) => {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllCityByState } = this.props;
-      getAllCityByState(value.stateCountryId);
-    };
-
-    handleChangeCity = (ev, value) => {
-      this.setState({ currentCity: value.cityId });
-    };
-
     handleSubmit = () => {
       const {
         companyDataEmit, companyLogo, companyNIF, companyAddress,
@@ -198,6 +182,7 @@ class AddPurchaseOrder extends React.Component {
               receptionSupplierInternal: '',
               supplierResponsible: row.firstName.concat(' ' + row.fatherFamilyName.concat(' ' + row.motherFamilyName)),
               supplierNIF: row.taxNumber,
+              internLogo: '',
               supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
             });
           }
@@ -209,6 +194,7 @@ class AddPurchaseOrder extends React.Component {
           if (row.financialCompanyId === ev.target.value) {
             this.setState({
               receptionSupplierExternal: '',
+              supplierResponsible: '',
               internLogo: row.logo,
               supplierNIF: row.taxNumber,
               supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
