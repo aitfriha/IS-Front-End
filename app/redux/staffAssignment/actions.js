@@ -5,6 +5,7 @@ import {
   UPDATE_OPERATION_ASSIGNMENT,
   FILTER_STAFF_BY_EMAIL,
   GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE,
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL,
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER,
   EXPORT_STAFF_ASSIGNMENT
 } from './constants';
@@ -35,6 +36,11 @@ export const getStaffAssignedByOperation = (data) => ({
 
 export const getAllCustomerContractsByEmployee = (data) => ({
   type: GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE,
+  data
+});
+
+export const getAllCustomerContractsByCompanyEmail = (data) => ({
+  type: GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL,
   data
 });
 

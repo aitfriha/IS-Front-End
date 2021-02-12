@@ -19,6 +19,10 @@ import {
   GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE_FAILURE,
   GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE_SUCCESS,
 
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL,
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_FAILURE,
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_SUCCESS,
+
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER,
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER_FAILURE,
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER_SUCCESS,
@@ -53,12 +57,13 @@ export default function staffAssignmentReducer(state = initialState, action) {
     case GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE:
     case GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER:
     case EXPORT_STAFF_ASSIGNMENT:
+    case GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL:
       return {
         ...state,
         isLoading: true
       };
 
-      // SUCCESS ACTIONS
+    // SUCCESS ACTIONS
     case UPDATE_OPERATION_ASSIGNMENT_SUCCESS:
       return {
         ...state,
@@ -102,6 +107,14 @@ export default function staffAssignmentReducer(state = initialState, action) {
         errors: {}
       };
 
+    case GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        customerContracts: action.payload,
+        errors: {}
+      };
+
     case GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER_SUCCESS:
       return {
         ...state,
@@ -116,13 +129,14 @@ export default function staffAssignmentReducer(state = initialState, action) {
         staffAssignmentResponse: action.payload,
       };
 
-      // FAILURE ACTIONS
+    // FAILURE ACTIONS
     case UPDATE_OPERATION_ASSIGNMENT_FAILURE:
     case GET_TREE_DATA_FAILURE:
     case GET_ELIGIBLE_STAFF_FAILURE:
     case GET_STAFF_ASSIGNED_BY_OPERATION_FAILURE:
     case FILTER_STAFF_BY_EMAIL_FAILURE:
     case GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE_FAILURE:
+    case GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_FAILURE:
     case GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER_FAILURE:
     case EXPORT_STAFF_ASSIGNMENT_FAILURE:
       return {
