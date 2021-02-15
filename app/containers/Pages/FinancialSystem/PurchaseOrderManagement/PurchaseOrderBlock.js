@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
+import PrintIcon from '@material-ui/icons/Print';
 import {
   Button,
   Dialog,
@@ -575,10 +576,13 @@ class PurchaseOrderBlock extends React.Component {
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
+                  <DetailsIcon color="primary" />
+                </IconButton>
+                <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                  <PrintIcon color="primary" />
                 </IconButton>
                 <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
+                  <DeleteIcon color="secondary" />
                 </IconButton>
               </React.Fragment>
             )

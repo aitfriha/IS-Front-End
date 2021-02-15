@@ -19,6 +19,7 @@ import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import SuppliersContractService from '../../../Services/SuppliersContractService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
+import CurrencyService from '../../../Services/CurrencyService';
 
 const useStyles = makeStyles();
 
@@ -30,6 +31,11 @@ class SuppliersContractBlock extends React.Component {
       name: '',
       codeContract: '',
       codeSupplier: '',
+      changeFactor: 1,
+      currencies: [],
+      currencyId: '',
+      contractTradeVolume: 0,
+      contractTradeVolumeEuro: 0,
       document: '',
       companies: [],
       externalSuppliers: [],
@@ -271,6 +277,88 @@ class SuppliersContractBlock extends React.Component {
           }
         },
         {
+          label: 'Contract Trade Volume',
+          name: 'contractTradeVolume',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          label: 'Currency',
+          name: 'currency',
+          options: {
+            filter: true,
+            customBodyRender: (currency) => (
+              <React.Fragment>
+                {
+                  currency ? currency.typeOfCurrency.currencyCode : ''
+                }
+              </React.Fragment>
+            ),
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          label: 'contractTradeVolume (€) ',
+          name: 'contractTradeVolumeEuro',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
           label: 'Signed Contract Doc',
           name: 'document',
           options: {
@@ -356,6 +444,9 @@ class SuppliersContractBlock extends React.Component {
       console.log(result);
       this.setState({ externalSuppliers: result.data });
     });
+    CurrencyService.getFilteredCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -376,6 +467,10 @@ class SuppliersContractBlock extends React.Component {
           name: result.data.name,
           codeContract: result.data.codeContract,
           codeSupplier: result.data.codeSupplier,
+          changeFactor: result.data.changeFactor,
+          currencyId: result.data.currency._id,
+          contractTradeVolume: result.data.contractTradeVolume,
+          contractTradeVolumeEuro: result.data.contractTradeVolumeEuro,
           document: result.data.document,
           externalSupplierId: result.data.type === 'external' ? result.data.externalSupplier._id : '',
           financialCompanyId: result.data.type === 'internal' ? result.data.financialCompany._id : '',
@@ -421,14 +516,16 @@ class SuppliersContractBlock extends React.Component {
 
     handleSave = () => {
       const {
-        supplierContractId, name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type
+        supplierContractId, name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, changeFactor
       } = this.state;
+      const currency = { _id: currencyId };
       let financialCompany = { _id: '' };
       let externalSupplier = { _id: '' };
       if (financialCompanyId !== '') financialCompany = { _id: financialCompanyId };
       if (externalSupplierId !== '') externalSupplier = { _id: externalSupplierId };
       const SuppliersContract = {
-        supplierContractId, name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type
+        supplierContractId, name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type, currency, contractTradeVolume, contractTradeVolumeEuro, changeFactor
       };
       console.log(SuppliersContract);
       SuppliersContractService.updateSuppliersContract(SuppliersContract).then(result => {
@@ -437,20 +534,34 @@ class SuppliersContractBlock extends React.Component {
     };
 
     handleChange = (ev) => {
+      let changeFactor;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tradeValue = this.state.contractTradeVolume;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          // eslint-disable-next-line prefer-destructuring
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor;
+          }
+        });
+        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
+      }
       if (ev.target.name === 'type') {
-        if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
-        else this.setState({ haveInternal: true, haveExternal: false });
+        if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false, financialCompanyId: '' });
+        else this.setState({ haveInternal: true, haveExternal: false, externalSupplierId: '' });
       }
       if (ev.target.name === 'externalSupplierId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.externalSuppliers.map(row => {
-          if (row.externalSupplierId === ev.target.value) this.setState({ codeSupplier: row.code, codeContract: row.code, financialCompanyId: '' });
+          if (row.externalSupplierId === ev.target.value) this.setState({ codeSupplier: row.code, financialCompanyId: '' });
         });
       }
       if (ev.target.name === 'financialCompanyId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.companies.map(row => {
-          if (row.financialCompanyId === ev.target.value) this.setState({ codeSupplier: row.code, codeContract: row.code, externalSupplierId: '' });
+          if (row.financialCompanyId === ev.target.value) this.setState({ codeSupplier: row.code, externalSupplierId: '' });
         });
       }
       this.setState({ [ev.target.name]: ev.target.value });
@@ -461,6 +572,7 @@ class SuppliersContractBlock extends React.Component {
       const {
         columns, openPopUp, datas,
         name, codeSupplier, companies, externalSuppliers, type, document,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, currencies,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId
       } = this.state;
       const options = {
@@ -516,6 +628,60 @@ class SuppliersContractBlock extends React.Component {
                     fullWidth
                     onChange={this.handleChange}
                   />
+                  <br />
+                  <br />
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                  >
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        id="Contract Trade Volume"
+                        label="Contract Trade Volume"
+                        type="number"
+                        name="contractTradeVolume"
+                        value={contractTradeVolume}
+                        onChange={this.handleChange}
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={5}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Select Currency</InputLabel>
+                        <Select
+                          name="currencyId"
+                          value={currencyId}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            currencies.map((clt) => (
+                              <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                                {clt.typeOfCurrency.currencyName}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                      <TextField
+                        id="contractTradeVolumeEuro"
+                        label="Trade Value (Euro)"
+                        type="number"
+                        name="contractTradeVolumeEuro"
+                        value={contractTradeVolumeEuro}
+                        onChange={this.handleChange}
+                        fullWidth
+                        required
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
                   <br />
                   <br />
                   <FormControl component="fieldset">
