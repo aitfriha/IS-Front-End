@@ -13,6 +13,10 @@ import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Avatar from '@material-ui/core/Avatar';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
 import history from '../../../../utils/history';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
@@ -29,9 +33,12 @@ class AddPurchaseOrder extends React.Component {
     this.state = {
       companyDataEmit: '',
       companyLogo: '',
+      internLogo: '',
       companyNIF: '',
       companyAddress: '',
-      receptionSupplier: '',
+      receptionSupplierExternal: '',
+      receptionSupplierInternal: '',
+      receptionSupplierType: '',
       supplierNIF: '',
       supplierResponsible: '',
       supplierAddress: '',
@@ -39,45 +46,50 @@ class AddPurchaseOrder extends React.Component {
       externalSuppliers: [],
       companies: [],
       currencies: [],
-      ivas: [],
+      ivasCountries: [],
       ivaStates: [],
+      ivaState: '',
       nbrConcepts: ['1'],
       termsListe: ['1'],
-      items: [],
       itemNames: [],
       description: [],
       unityValue: [],
       unity: [],
-      valor: [],
+      valor: [0],
       unityNumber: [],
       givingDate: [],
       paymentDate: [],
       billingDate: [],
       termTitle: [],
       termDescription: [],
-      totalValue: 0,
+      totalEuro: 0,
+      totalLocal: 0,
+      valueIVAEuro: 0,
+      valueIVALocal: 0,
+      totalAmountEuro: 0,
+      totalAmountLocal: 0,
+      factor: 0,
       ivaRetentions: '',
       totalAmountRetentions: '',
       totalIvaRetention: '',
-      paymentMethod: ''
+      paymentMethod: '',
+      localCurrency: ''
     };
   }
 
   componentDidMount() {
     FinancialCompanyService.getCompany().then(result => {
-      console.log(result);
       this.setState({ companies: result.data });
     });
     ExternalSuppliersService.getExternalSuppliers().then(result => {
-      console.log(result);
       this.setState({ externalSuppliers: result.data });
     });
     CurrencyService.getFilteredCurrency().then(result => {
       this.setState({ currencies: result.data });
     });
-    IvaService.getIva().then(result => {
-      console.log(result);
-      this.setState({ ivas: result.data });
+    IvaService.getIvaCountries().then(result => {
+      console.log(result.data);
+      this.setState({ ivasCountries: result.data });
     });
     const {
       // eslint-disable-next-line react/prop-types
@@ -86,34 +98,60 @@ class AddPurchaseOrder extends React.Component {
     changeTheme('greyTheme');
   }
 
-    handleChangeCountry = (ev, value) => {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllStateByCountry } = this.props;
-      getAllStateByCountry(value.countryId);
-    };
-
-    handleChangeState = (ev, value) => {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllCityByState } = this.props;
-      getAllCityByState(value.stateCountryId);
-    };
-
-    handleChangeCity = (ev, value) => {
-      this.setState({ currentCity: value.cityId });
-    };
-
     handleSubmit = () => {
       const {
-        code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
+        companyDataEmit, companyLogo, companyNIF, companyAddress,
+        receptionSupplierType, receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress, internLogo,
+        nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
+        termsListe, termDescription, termTitle, factor,
+        paymentMethod, ivaRetentions, totalAmountRetentions, totalIvaRetention,
+        localCurrency, totalLocal, totalEuro, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
       } = this.state;
-      const city = { _id: currentCity };
-      const address = {
-        postCode, city, fullAddress
+      const companyEmit = { _id: companyDataEmit };
+      const externalSupplierReception = { _id: receptionSupplierExternal };
+      const internalSupplierReception = { _id: receptionSupplierInternal };
+      const currency = { _id: localCurrency };
+      const iva = { _id: ivaState };
+      const PurchaseOrder = {
+        iva,
+        currency,
+        factor,
+        companyEmit,
+        companyLogo,
+        companyNIF,
+        companyAddress,
+        receptionSupplierType,
+        externalSupplierReception,
+        internalSupplierReception,
+        internLogo,
+        supplierNIF,
+        supplierResponsible,
+        supplierAddress,
+        termDescription,
+        termTitle,
+        termsListe,
+        totalEuro,
+        totalLocal,
+        valueIVAEuro,
+        valueIVALocal,
+        totalAmountEuro,
+        totalAmountLocal,
+        nbrConcepts,
+        itemNames,
+        description,
+        unity,
+        unityNumber,
+        unityValue,
+        valor,
+        paymentDate,
+        givingDate,
+        billingDate,
+        ivaRetentions,
+        totalAmountRetentions,
+        totalIvaRetention,
+        paymentMethod,
       };
-      const ExternalSupplier = {
-        companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
-      };
-      PurchaseOrderService.savePurchaseOrder(ExternalSupplier).then(result => {
+      PurchaseOrderService.savePurchaseOrder(PurchaseOrder).then(result => {
         console.log(result);
         history.push('/app/gestion-financial/Purchase-Order Management');
       });
@@ -136,12 +174,28 @@ class AddPurchaseOrder extends React.Component {
           }
         });
       }
-      if (ev.target.name === 'receptionSupplier') {
+      if (ev.target.name === 'receptionSupplierExternal') {
         // eslint-disable-next-line array-callback-return,react/destructuring-assignment
         this.state.externalSuppliers.map(row => {
           if (row.externalSupplierId === ev.target.value) {
             this.setState({
+              receptionSupplierInternal: '',
               supplierResponsible: row.firstName.concat(' ' + row.fatherFamilyName.concat(' ' + row.motherFamilyName)),
+              supplierNIF: row.taxNumber,
+              internLogo: '',
+              supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
+            });
+          }
+        });
+      }
+      if (ev.target.name === 'receptionSupplierInternal') {
+        // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+        this.state.companies.map(row => {
+          if (row.financialCompanyId === ev.target.value) {
+            this.setState({
+              receptionSupplierExternal: '',
+              supplierResponsible: '',
+              internLogo: row.logo,
               supplierNIF: row.taxNumber,
               supplierAddress: row.address.fullAddress.concat(' ' + row.address.city.cityName).concat(' ' + row.address.city.stateCountry.country.countryName)
             });
@@ -154,11 +208,11 @@ class AddPurchaseOrder extends React.Component {
         const local = this.state.totalLocal; const { factor } = this.state;
         let iva = 0;
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
-        this.state.ivas.map(row => {
+        this.state.ivaStates.map(row => {
           if (row.ivaId === id) iva = row.value;
         });
         this.setState({
-          valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local - ((iva * local) / 100), totalAmountEuro: (local - ((iva * local) / 100)) * factor
+          valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local + ((iva * local) / 100), totalAmountEuro: (local + ((iva * local) / 100)) * factor
         });
       }
       if (ev.target.name === 'localCurrency') {
@@ -174,15 +228,17 @@ class AddPurchaseOrder extends React.Component {
       }
       if (ev.target.name === 'ivaCountry') {
         const country = ev.target.value;
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const ivaStates = this.state.ivas.filter(row => row.stateCountry.country.countryName === country);
-        this.setState({ ivaStates });
+        console.log(country);
+        IvaService.getIvaStates(country).then(result => {
+          console.log(result.data);
+          this.setState({ ivaStates: result.data });
+        });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
 
   handleConcept = (event, row) => {
-    let totalUSD = 0;
+    let total = 0;
     if (event.target.name === 'description') {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const tab = this.state.description;
@@ -206,10 +262,13 @@ class AddPurchaseOrder extends React.Component {
     }
     if (event.target.name === 'unityNumber') {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const tab = this.state.unityNumber;
+      const tab = this.state.unityNumber; const value = this.state.unityValue; const val = this.state.valor;
       tab[0] = 0;
       tab[row] = event.target.value;
-      this.setState({ unityNumber: tab });
+      val[row] = event.target.value * value[row];
+      // eslint-disable-next-line array-callback-return,no-shadow
+      val.map(row => { total += row; });
+      this.setState({ unityNumber: tab, valor: val, totalLocal: total });
     }
     if (event.target.name === 'givingDate') {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -238,14 +297,6 @@ class AddPurchaseOrder extends React.Component {
       tab[0] = 0;
       tab[row] = event.target.value;
       this.setState({ unityValue: tab });
-    }
-    if (event.target.name === 'valor') {
-      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const tab = this.state.unityValue; tab[0] = 0;
-      tab[row] = event.target.value;
-      // eslint-disable-next-line array-callback-return,no-shadow
-      tab.map(row => { totalUSD += Number(row); });
-      this.setState({ unityValue: tab, totalLocal: totalUSD });
     }
   }
 
@@ -343,9 +394,9 @@ class AddPurchaseOrder extends React.Component {
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        companyDataEmit, companyLogo, companyNIF, companyAddress,
-        receptionSupplier, supplierNIF, supplierResponsible, supplierAddress, supplierContractCode,
-        externalSuppliers, companies, currencies, ivas,
+        companyDataEmit, companyLogo, companyNIF, companyAddress, receptionSupplierType,
+        receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress,
+        externalSuppliers, companies, currencies, ivasCountries, internLogo,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
         termsListe, termDescription, termTitle,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
@@ -403,7 +454,7 @@ class AddPurchaseOrder extends React.Component {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
+              <Grid item xs={12} md={2} sm={3}>
                 <TextField
                   id="companyNIF"
                   label="Company NIF"
@@ -429,7 +480,7 @@ class AddPurchaseOrder extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
+              <Grid item xs={12} md={1} sm={3}>
                 {
                   companyLogo ? (
                     <Avatar alt="Company Logo" src={companyLogo} className={classes.large} />
@@ -437,62 +488,154 @@ class AddPurchaseOrder extends React.Component {
                 }
               </Grid>
               <Grid item xs={12} md={3} sm={3}>
-                <FormControl fullWidth required>
-                  <InputLabel> Reception Supplier Data </InputLabel>
-                  <Select
-                    name="receptionSupplier"
-                    value={receptionSupplier}
-                    onChange={this.handleChange}
-                  >
-                    {
-                      externalSuppliers.map((clt) => (
-                        <MenuItem key={clt.externalSupplierId} value={clt.externalSupplierId}>
-                          {clt.companyName}
-                        </MenuItem>
-                      ))
-                    }
-                  </Select>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend">Reception Supplier Type</FormLabel>
+                  <RadioGroup row aria-label="position" name="receptionSupplierType" value={receptionSupplierType} onChange={this.handleChange}>
+                    <FormControlLabel
+                      value="external"
+                      control={<Radio color="primary" />}
+                      label="External"
+                      labelPlacement="end"
+                    />
+                    <FormControlLabel
+                      value="internal"
+                      control={<Radio color="primary" />}
+                      label="Internal"
+                      labelPlacement="end"
+                    />
+                  </RadioGroup>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="supplierNIF"
-                  label="Supplier NIF"
-                  name="supplierNIF"
-                  value={supplierNIF}
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="supplierAddress"
-                  label="Address"
-                  name="supplierAddress"
-                  value={supplierAddress}
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={3} sm={3}>
-                <TextField
-                  id="supplierResponsible"
-                  label="Supplier's Responsible"
-                  name="supplierResponsible"
-                  value={supplierResponsible}
-                  onChange={this.handleChange}
-                  fullWidth
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
+              {
+                receptionSupplierType === 'external' ? (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                  >
+                    <Grid item xs={12} md={3} sm={3}>
+                      <FormControl fullWidth required>
+                        <InputLabel> Reception Supplier Data </InputLabel>
+                        <Select
+                          name="receptionSupplierExternal"
+                          value={receptionSupplierExternal}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            externalSuppliers.map((clt) => (
+                              <MenuItem key={clt.externalSupplierId} value={clt.externalSupplierId}>
+                                {clt.companyName}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={2} sm={3}>
+                      <TextField
+                        id="supplierNIF"
+                        label="Supplier NIF"
+                        name="supplierNIF"
+                        value={supplierNIF}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      <TextField
+                        id="supplierAddress"
+                        label="Address"
+                        name="supplierAddress"
+                        value={supplierAddress}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      <TextField
+                        id="supplierResponsible"
+                        label="Supplier's Responsible"
+                        name="supplierResponsible"
+                        value={supplierResponsible}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                ) : (<div />)
+              }
+              {
+                receptionSupplierType === 'internal' ? (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                  >
+                    <Grid item xs={12} md={3} sm={3}>
+                      <FormControl fullWidth required>
+                        <InputLabel> Reception Supplier Data </InputLabel>
+                        <Select
+                          name="receptionSupplierInternal"
+                          value={receptionSupplierInternal}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            companies.map((clt) => (
+                              <MenuItem key={clt.financialCompanyId} value={clt.financialCompanyId}>
+                                {clt.name}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={2} sm={3}>
+                      <TextField
+                        id="supplierNIF"
+                        label="Supplier NIF"
+                        name="supplierNIF"
+                        value={supplierNIF}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      <TextField
+                        id="supplierAddress"
+                        label="Address"
+                        name="supplierAddress"
+                        value={supplierAddress}
+                        onChange={this.handleChange}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={3} sm={3}>
+                      {
+                        internLogo ? (
+                          <Avatar alt="Company Logo" src={internLogo} className={classes.large} />
+                        ) : (<div />)
+                      }
+                    </Grid>
+                  </Grid>
+                ) : (<div />)
+              }
             </Grid>
             <br />
             <Typography variant="subtitle2" component="h2" color="primary">
@@ -525,6 +668,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={3}>
@@ -538,6 +684,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={2}>
@@ -550,6 +699,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -561,6 +713,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -572,6 +727,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={event => this.handleConcept(event, row)}
                     fullWidth
                     required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={2}>
@@ -583,6 +741,9 @@ class AddPurchaseOrder extends React.Component {
                     fullWidth
                     InputProps={{
                       readOnly: true,
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
                     }}
                   />
                 </Grid>
@@ -691,6 +852,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -705,6 +869,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -726,9 +893,9 @@ class AddPurchaseOrder extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      ivas.map((clt) => (
-                        <MenuItem key={clt.stateCountry.country.countryName} value={clt.stateCountry.country.countryName}>
-                          {clt.stateCountry.country.countryName}
+                      ivasCountries.map((clt) => (
+                        <MenuItem key={clt} value={clt}>
+                          {clt}
                         </MenuItem>
                       ))
                     }
@@ -762,6 +929,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -776,6 +946,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -797,6 +970,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -811,6 +987,9 @@ class AddPurchaseOrder extends React.Component {
                   type="number"
                   onChange={this.handleChange}
                   fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -821,6 +1000,7 @@ class AddPurchaseOrder extends React.Component {
             <Typography variant="subtitle2" component="h2" color="primary">
               ►   I.V.A Retentions
             </Typography>
+            <br />
             <Grid
               container
               spacing={6}

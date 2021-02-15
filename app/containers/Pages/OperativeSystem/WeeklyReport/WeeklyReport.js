@@ -49,7 +49,7 @@ import {
 } from '../../../../redux/weeklyReport/actions';
 
 import {
-  getAllCustomerContractsByEmployee,
+  getAllCustomerContractsByCompanyEmail,
   getAllOperationsByEmployeeAndCustomer
 } from '../../../../redux/staffAssignment/actions';
 
@@ -66,9 +66,8 @@ let self = null;
 
 const styles = {};
 
-const employeeId = '5f7e29b1d33ad5b25ef1ce54';
-const fullName = 'Juan Francisco Escalante Suarez';
-const companyEmail = 'jfescalante@implementalsystems.com';
+let logedUser = localStorage.getItem('logedUser');
+let logedUserData = JSON.parse(logedUser);
 
 const ITEM_HEIGHT = 40;
 
@@ -294,11 +293,12 @@ class WeeklyReport extends React.Component {
 
 
   componentDidMount() {
-    const {
-      getSummarizedWeeklyReport, getExtendedWeeklyReport, getAllCustomerContractsByEmployee, getWeeklyReportConfig, getAllAssignmentTypes
-    } = this.props;
+    const { getSummarizedWeeklyReport, getWeeklyReportConfig, getAllAssignmentTypes } = this.props;
+
+    let companyEmail = logedUserData.userEmail;
+
     const data = {
-      employeeId,
+      companyEmail: companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
@@ -306,12 +306,6 @@ class WeeklyReport extends React.Component {
     getSummarizedWeeklyReport(data);
     getWeeklyReportConfig();
     getAllAssignmentTypes();
-
-    const params = {
-      employeeId: data.employeeId
-    };
-    getExtendedWeeklyReport(params);
-    getAllCustomerContractsByEmployee(params.employeeId);
   }
 
   componentWillUnmount() {
@@ -384,16 +378,16 @@ class WeeklyReport extends React.Component {
   }
 
   handleWeeklyReport = (e, rowData) => {
-    const { getExtendedWeeklyReport, getAllCustomerContractsByEmployee } = this.props;
+    const { getExtendedWeeklyReport, getAllCustomerContractsByCompanyEmail } = this.props;
     const currentDate = new Date();
+
     const params = {
-      employeeId: rowData ? rowData.employeeId : employeeId,
+      companyEmail: rowData ? rowData.companyEmail : logedUserData.userEmail,
       year: rowData ? rowData.year : currentDate.getFullYear(),
       week: rowData ? rowData.week : this.getWeekOfYear(currentDate)
     };
-    getAllCustomerContractsByEmployee(params.employeeId);
     getExtendedWeeklyReport(params);
-
+    getAllCustomerContractsByCompanyEmail(params.companyEmail);
     this.setState({
       openDialog: true,
       dataDialog: params
@@ -561,7 +555,7 @@ class WeeklyReport extends React.Component {
 
   render() {
     const {
-      location, intl, isLoading, errors, summarizedWeeklyReport, customerContracts, getExtendedWeeklyReport, extendedWeeklyReport, assignmentTypes, saveWeeklyReport, getSummarizedWeeklyReport, weeklyReportResponse
+      location, intl, isLoading, errors, summarizedWeeklyReport, customerContracts, extendedWeeklyReport, assignmentTypes, saveWeeklyReport, getSummarizedWeeklyReport, getExtendedWeeklyReport, getAllCustomerContractsByEmployee, weeklyReportResponse
     } = this.props;
     const { columns } = this.state;
 
@@ -672,8 +666,8 @@ const mapStateToProps = state => ({
   operations: state.getIn(['staffAssignment']).operations,
   // staffAssignmentResponse: state.getIn(['staffAssignment']).staffAssignmentResponse,
 
-  assignmentTypes: state.getIn(['assignmentType']).assignmentTypes,
-  // assignmentTypeResponse: state.getIn(['assignmentType']).assignmentTypeResponse,
+  assignmentTypes: state.getIn(['assignmentType']).assignmentTypes
+
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -681,7 +675,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getSummarizedWeeklyReport,
   getExtendedWeeklyReport,
   getWeeklyReportConfig,
-  getAllCustomerContractsByEmployee,
+  getAllCustomerContractsByCompanyEmail,
   getAllOperationsByEmployeeAndCustomer,
   getAllAssignmentTypes
 }, dispatch);
