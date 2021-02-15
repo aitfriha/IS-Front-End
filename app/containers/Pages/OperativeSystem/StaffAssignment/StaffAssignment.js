@@ -1,10 +1,9 @@
-import React from 'react';
-import axios from 'axios';
+import React, { useContext } from 'react';
 import MaterialTable, { MTableToolbar } from 'material-table';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import {
-  Grid, IconButton, Avatar, Chip, Fab, Tooltip, Collapse, Box
+  Grid, IconButton, Chip, Fab, Tooltip, Collapse, Box
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
@@ -24,18 +23,14 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
-import { CsvBuilder } from 'filefy';
-
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
 import { AssignStaff } from './AssignStaff';
 import avatarApi from '../../../../api/images/avatars';
-import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import {
   updateOperationAssignment,
   getTreeData,
@@ -43,6 +38,8 @@ import {
   getStaffAssignedByOperation,
   exportStaffAssignment
 } from '../../../../redux/staffAssignment/actions';
+
+import { ThemeContext } from '../../../App/ThemeWrapper';
 
 
 let self = null;
@@ -167,6 +164,12 @@ StyledTreeItem.propTypes = {
   labelInfo: PropTypes.string,
   labelText: PropTypes.string.isRequired,
 };
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Weekly Report';
+const description = brand.desc;
 
 class StaffAssignment extends React.Component {
   constructor(props) {
@@ -454,7 +457,15 @@ class StaffAssignment extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent height="100%">
             <Grid container direction="row" spacing={1}>
@@ -536,10 +547,10 @@ class StaffAssignment extends React.Component {
                 }}
               >
                 <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
-                Export as CSV
+                  Export as CSV
                 </MenuItem>
                 <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
-                Export as PDF
+                  Export as PDF
                 </MenuItem>
               </Menu>
             </React.Fragment>
@@ -603,4 +614,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   exportStaffAssignment
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(StaffAssignment)));
+const StaffAssignmentMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(StaffAssignment));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StaffAssignmentMapped changeTheme={changeTheme} classes={classes} />;
+};
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(StaffAssignment)));

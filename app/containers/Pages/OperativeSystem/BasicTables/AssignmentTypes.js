@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MaterialTable from 'material-table';
 
 import { PropTypes } from 'prop-types';
@@ -7,9 +7,13 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
 import withStyles from '@material-ui/core/styles/withStyles';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
 import notification from '../../../../components/Notification/Notification';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
+
 
 import {
   addAssignmentType,
@@ -18,7 +22,16 @@ import {
   getAllAssignmentTypes
 } from '../../../../redux/assignmentType/actions';
 
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+
 const styles = {};
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Weekly Report';
+const description = brand.desc;
 
 class AssignmentType extends React.Component {
   constructor(props) {
@@ -61,6 +74,9 @@ class AssignmentType extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greenTheme');
+
     const { getAllAssignmentTypes } = this.props;
     getAllAssignmentTypes();
   }
@@ -84,7 +100,15 @@ class AssignmentType extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <MaterialTable
           title="Assignment type list"
           columns={columns}
@@ -167,4 +191,12 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteAssignmentType
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(AssignmentType)));
+const AssignmentTypeMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(AssignmentType));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <AssignmentTypeMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(AssignmentType)));

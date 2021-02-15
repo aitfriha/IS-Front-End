@@ -15,6 +15,13 @@ const darkPalette = {
       },
     },
   },
+  greenTheme: {
+    palette: {
+      type: 'dark',
+      primary: { main: '#239B56' },
+      secondary: { main: '#82E0AA' }
+    }
+  },
   greenOrangeTheme: {
     palette: {
       primary: {

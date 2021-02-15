@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -9,18 +9,18 @@ import {
   Grid,
   FormControl,
   InputLabel,
-  OutlinedInput,
   Fab,
   Tooltip,
   Select,
   Menu,
   IconButton,
-  MenuItem,
-  Button
+  MenuItem
 } from '@material-ui/core';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
+// import withStyles from '@material-ui/core/styles/withStyles';
 
 import { CsvBuilder } from 'filefy';
 
@@ -36,11 +36,11 @@ import {
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { isString } from 'lodash';
-import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+import { makeStyles } from '@material-ui/core/styles';
 import { WeeklyReportDetail } from './WeeklyReportDetail';
-import notification from '../../../../components/Notification/Notification';
+
+import { ThemeContext } from '../../../App/ThemeWrapper';
 
 import {
   saveWeeklyReport,
@@ -64,15 +64,19 @@ import {
 
 let self = null;
 
-const styles = {};
-
-let logedUser = localStorage.getItem('logedUser');
-let logedUserData = JSON.parse(logedUser);
+const logedUser = localStorage.getItem('logedUser');
+const logedUserData = JSON.parse(logedUser);
 
 const ITEM_HEIGHT = 40;
 
 const today = new Date();
 const minimunDate = new Date('1990-01-01');
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Weekly Report';
+const description = brand.desc;
 
 class WeeklyReport extends React.Component {
   constructor(props) {
@@ -293,12 +297,15 @@ class WeeklyReport extends React.Component {
 
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greenTheme');
+
     const { getSummarizedWeeklyReport, getWeeklyReportConfig, getAllAssignmentTypes } = this.props;
 
-    let companyEmail = logedUserData.userEmail;
+    const companyEmail = logedUserData.userEmail;
 
     const data = {
-      companyEmail: companyEmail,
+      companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
@@ -559,9 +566,18 @@ class WeeklyReport extends React.Component {
     } = this.props;
     const { columns } = this.state;
 
+
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         {!this.state.openDialog
           ? (
             <MaterialTable
@@ -645,7 +661,7 @@ class WeeklyReport extends React.Component {
 }
 
 WeeklyReport.propTypes = {
-  location: PropTypes.object.isRequired,
+  // location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   weeklyReportResponse: PropTypes.string.isRequired,
@@ -680,4 +696,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllAssignmentTypes
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReport)));
+
+const WeeklyReportMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReport));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <WeeklyReportMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReport)));
