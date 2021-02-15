@@ -23,6 +23,10 @@ import {
   GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE_FAILURE,
   GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE_SUCCESS,
 
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL,
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_FAILURE,
+  GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_SUCCESS,
+
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER,
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER_FAILURE,
   GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER_SUCCESS,
@@ -148,6 +152,29 @@ function* getStaffAssignedByOperation(action) {
   }
 }
 
+function* getAllCustomerContractsByCompanyEmail(action) {
+  try {
+    const {
+      data
+    } = action;
+
+    const request = yield axios({
+      method: 'get',
+      url: ENDPOINTS.STAFF_ASSIGNMENT + '/allCustomerContractsByCompanyEmail/' + data
+    });
+
+    yield put({
+      type: GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_SUCCESS,
+      payload: request.data.payload
+    });
+  } catch (errors) {
+    yield put({
+      type: GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL_FAILURE,
+      errors: errors.response.data.errors
+    });
+  }
+}
+
 function* getAllCustomerContractsByEmployee(action) {
   try {
     const {
@@ -224,6 +251,7 @@ export default function* staffAssignmentSaga() {
     takeLatest(GET_STAFF_ASSIGNED_BY_OPERATION, getStaffAssignedByOperation),
     takeLatest(FILTER_STAFF_BY_EMAIL, filterStaffByEmail),
     takeLatest(GET_CUSTOMER_CONTRACTS_BY_EMPLOYEE, getAllCustomerContractsByEmployee),
+    takeLatest(GET_CUSTOMER_CONTRACTS_BY_COMPANY_EMAIL, getAllCustomerContractsByCompanyEmail),
     takeLatest(GET_OPERATIONS_BY_EMPLOYEE_AND_CUSTOMER, getAllOperationsByEmployeeAndCustomer),
     takeLatest(EXPORT_STAFF_ASSIGNMENT, exportStaffAssignment)
   ]);
