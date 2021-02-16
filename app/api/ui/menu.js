@@ -532,21 +532,6 @@ module.exports = [
         name: 'actions',
         link: '/app/data/administration/actions'
       },
-      /*  {
-          key: 'departments',
-          name: 'departments',
-          link: '/app/data/administration/departments'
-        },
-        {
-          key: 'subjects',
-          name: 'subjects',
-          link: '/app/data/administration/subjects'
-        }, */
-      // {
-      //     key: 'fields',
-      //     name: 'fields',
-      //     link: '/app/data/administration/fields'
-      // },
       {
         key: 'users',
         name: 'Users Management',
@@ -554,8 +539,8 @@ module.exports = [
       },
       {
         key: 'roles_abilities',
-        name: 'Roles Management',
-        link: '/app/data/administration/roles-abilities'
+        name: 'Actions Management',
+        link: '/app/data/administration/role-actions'
       } /* ,
     {
         key: 'machines',

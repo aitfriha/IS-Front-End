@@ -585,7 +585,7 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/data/administration/roles-abilities"
+          path="/app/data/administration/role-actions"
           component={RoleAbility}
         />
 
