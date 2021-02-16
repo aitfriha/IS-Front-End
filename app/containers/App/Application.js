@@ -91,7 +91,7 @@ import {
   EconomicStaff,
   EconomicStaffsPayment,
   User,
-  RoleAbility,
+  RoleActions,
   AddEconomicStaff,
   ExpensesRecord,
   ExpensesManagement,
@@ -110,7 +110,7 @@ import {
   WeeklyReport,
   WeeklyReportConfig,
   DefaultSentence,
-  TranslationSentence, Action
+  TranslationSentence, Role
 
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -580,13 +580,13 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/data/administration/actions"
-          component={Action}
+          path="/app/data/administration/roles"
+          component={Role}
         />
         <Route
           exact
-          path="/app/data/administration/roles-abilities"
-          component={RoleAbility}
+          path="/app/data/administration/role-actions"
+          component={RoleActions}
         />
 
         <Route

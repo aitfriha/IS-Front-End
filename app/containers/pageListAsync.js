@@ -342,8 +342,8 @@ export const EconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement'),
   loading: Loading
 });
-export const Action = Loadable({
-  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/Action'),
+export const Role = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/Role'),
   loading: Loading
 });
 /* export const ResetPassword = Loadable({
@@ -362,8 +362,8 @@ export const EconomicStaffsPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/EconomicStaffPayments'),
   loading: Loading
 });
-export const RoleAbility = Loadable({
-  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleAbility'),
+export const RoleActions = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleActions'),
   loading: Loading
 });
 

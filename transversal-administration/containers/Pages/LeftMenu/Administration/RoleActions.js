@@ -30,7 +30,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Button, InputLabel } from '@material-ui/core';
-import { getAllActions } from '../../../../redux/actions/actions';
+import { addAction, getAllActions } from '../../../../redux/actions/actions';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
 import notification from '../../../../../app/components/Notification/Notification';
 import {
@@ -50,11 +50,13 @@ const styles = (theme) => ({
 
 });
 
-class RoleAbility extends React.Component {
+class RoleActions extends React.Component {
   constructor(props) {
     super(props);
 
     this.editingPromiseResolve = () => {
+    };
+    this.editingPromiseResolveAction = () => {
     };
     this.state = {
       expanded: false,
@@ -439,115 +441,615 @@ class RoleAbility extends React.Component {
     getAllActions();
   }
 
-  static getDerivedStateFromProps(props, state) {
-    const subjectColumnLookupAdapterRole = (allActions) => {
-      const lookupRole = {};
-      allActions.forEach(m => {
-        lookupRole[m.actionConcerns] = m.actionConcerns;
-      });
-
-      return lookupRole;
-    };
-
-    if (!isEmpty(props.allRoles)) {
-      state.columns.find(e => e.field === 'roleActionsIds').lookup = subjectColumnLookupAdapterRole(props.allActions);
-      return state.columns;
-    }
-
-    return null;
-  }
-
-    /**
-     * Constructs abilities table columns
-     *
-     * @param actions
-     * @return {{field: string, readonly: boolean, editable: string, title: string, align: string}[]}
-     */
-    getTableColumnsFromActions = (actions) => [{
-      title: 'Subject',
-      field: 'subjectCode',
-      editable: 'never'
-    },
-    {
-      title: 'Subject Type',
-      field: 'subjectType',
-      editable: 'never',
-      render: rowData => <Chip label={rowData.subjectType} variant="outlined" />
-    },
-    {
-      title: 'Subject Description',
-      field: 'subjectDescription',
-      editable: 'never'
-    }
-    ].concat(uniq(map(actions, 'actionCode')).map(actionCode => ({
-      title: capitalize(actionCode),
-      field: actionCode,
-      type: 'boolean',
-      editable: (_, rowData) => this.doesThisActionConcernsThisSubject(actions, actionCode, rowData.subjectType),
-      render: rowData => (this.doesThisActionConcernsThisSubject(actions, actionCode, rowData.subjectType) ? rowData[actionCode] ? <Icon style={{ color: teal[500] }}>check</Icon> : <Icon style={{ color: red[500] }}>close</Icon> : '')
-
-    })));
-
-    /**
-     * Checks if an action concerns a subject
-     *
-     * @param actions
-     * @param actionCode
-     * @param subjectType
-     * @return {boolean}
-     */
-    doesThisActionConcernsThisSubject = (actions, actionCode, subjectType) => !!find(actions, {
-      actionConcerns: subjectType,
-      actionCode
-    });
-
-
-    /**
-     * Construct abilities table rows
-     *
-     * @param subjects
-     * @return {*}
-     */
-    getTableRowsFromSubjectsAndActions = (subjects) => subjects.map(subject => ({
-      subjectId: subject.subjectId,
-      subjectCode: subject.subjectCode,
-      subjectParentId: subject.subjectParent && subject.subjectParent.subjectId,
-      subjectType: subject.subjectType,
-      subjectDescription: subject.subjectDescription,
-      read: false,
-      update: false,
-      access: false,
-      export: false
-    }));
-
-
-    /**
-     * Get color based on suject type
-     *
-     * @param param
-     * @return {string}
-     */
-    getSubjectTypeRowColor = (param) => {
-      switch (param) {
-        case 'module':
-          return '#4fc3f7';
-        case 'sub-module':
-          return '#81d4fa';
-        case 'form':
-          return '#b3e5fc';
-        case 'table':
-          return '#b3e5fc';
-        default:
-          return '#e1f5fe';
-      }
-    };
-
      handleChange = (event) => {
        this.setState({ [event.target.name]: event.target.checked });
      };
 
   handleChangeRole = (event) => {
     this.setState({ [event.target.name]: event.target.value });
+    console.log(event.target.value);
+  };
+
+  handleSubmit = () => {
+    const { addAction } = this.props;
+    const {
+      role,
+      admin_user_Management_access,
+      admin_user_Management_create,
+      admin_user_Management_modify,
+      admin_user_Management_delete,
+      admin_user_Management_export,
+      admin_roles_management_access,
+      admin_roles_management_create,
+      admin_roles_management_modify,
+      admin_roles_management_delete,
+      admin_roles_management_export,
+      commercial_customers_access,
+      commercial_customers_create,
+      commercial_customers_modify,
+      commercial_customers_delete,
+      commercial_customers_export,
+      commercial_commercialAssignments_access,
+      commercial_commercialAssignments_create,
+      commercial_commercialAssignments_modify,
+      commercial_commercialAssignments_delete,
+      commercial_commercialAssignments_export,
+      commercial_clientContact_access,
+      commercial_clientContact_create,
+      commercial_clientContact_modify,
+      commercial_clientContact_delete,
+      commercial_clientContact_export,
+      commercial_commercialOperation_access,
+      commercial_commercialOperation_create,
+      commercial_commercialOperation_modify,
+      commercial_commercialOperation_delete,
+      commercial_commercialOperation_export,
+      commercial_commercialAction_access,
+      commercial_commercialAction_create,
+      commercial_commercialAction_modify,
+      commercial_commercialAction_delete,
+      commercial_commercialAction_export,
+      commercial_countriesStatesCities_access,
+      commercial_countriesStatesCities_create,
+      commercial_countriesStatesCities_modify,
+      commercial_countriesStatesCities_delete,
+      commercial_countriesStatesCities_export,
+      commercial_StateOfCommercialOperation_access,
+      commercial_StateOfCommercialOperation_create,
+      commercial_StateOfCommercialOperation_modify,
+      commercial_StateOfCommercialOperation_delete,
+      commercial_StateOfCommercialOperation_export,
+      commercial_contactByOperationStatus_access,
+      commercial_contactByOperationStatus_create,
+      commercial_contactByOperationStatus_modify,
+      commercial_contactByOperationStatus_delete,
+      commercial_contactByOperationStatus_export,
+      commercial_serviceType_access,
+      commercial_serviceType_create,
+      commercial_serviceType_modify,
+      commercial_serviceType_delete,
+      commercial_serviceType_export,
+      commercial_sectorsCompany_access,
+      commercial_sectorsCompany_create,
+      commercial_sectorsCompany_modify,
+      commercial_sectorsCompany_delete,
+      commercial_sectorsCompany_export,
+      commercial_titleType_access,
+      commercial_titleType_create,
+      commercial_titleType_modify,
+      commercial_titleType_delete,
+      commercial_titleType_export,
+      hh_administrativeStructureDefinition_access,
+      hh_administrativeStructureDefinition_create,
+      hh_administrativeStructureDefinition_modify,
+      hh_administrativeStructureDefinition_delete,
+      hh_administrativeStructureDefinition_export,
+      hh_administrativeStructureAssignation_access,
+      hh_administrativeStructureAssignation_modify,
+      hh_functionalStructureDefinition_access,
+      hh_functionalStructureDefinition_create,
+      hh_functionalStructureDefinition_modify,
+      hh_functionalStructureDefinition_delete,
+      hh_functionalStructureDefinition_export,
+      hh_functionalStructureAssignation_access,
+      hh_functionalStructureAssignation_modify,
+      hh_staff_personalInformationManagement_access,
+      hh_staff_personalInformationManagement_create,
+      hh_staff_personalInformationManagement_modify,
+      hh_staff_personalInformationManagement_delete,
+      hh_staff_personalInformationManagement_export,
+      hh_staff_contractInformationManagement_access,
+      hh_staff_contractInformationManagement_create,
+      hh_staff_contractInformationManagement_modify,
+      hh_staff_contractInformationManagement_delete,
+      hh_staff_contractInformationManagement_export,
+      hh_staff_economicObjectiveManagement_access,
+      hh_staff_economicObjectiveManagement_create,
+      hh_staff_economicObjectiveManagement_modify,
+      hh_staff_economicObjectiveManagement_delete,
+      hh_staff_economicObjectiveManagement_export,
+      hh_absenceRequest_access,
+      hh_absenceRequest_create,
+      hh_absenceRequest_modify,
+      hh_absenceRequest_delete,
+      hh_absenceRequest_export,
+      hh_absenceConsult_access,
+      hh_absenceConsult_modify,
+      hh_absenceConsult_export,
+      hh_selectionProcessInformation_access,
+      hh_selectionProcessInformation_create,
+      hh_selectionProcessInformation_modify,
+      hh_selectionProcessInformation_delete,
+      hh_selectionProcessInformation_export,
+      hh_typesOfLegalCategory_access,
+      hh_typesOfLegalCategory_create,
+      hh_typesOfLegalCategory_modify,
+      hh_typesOfLegalCategory_delete,
+      hh_typesOfLegalCategory_export,
+      hh_typesOfContracts_access,
+      hh_typesOfContracts_create,
+      hh_typesOfContracts_modify,
+      hh_typesOfContracts_delete,
+      hh_typesOfContracts_export,
+      hh_typesOfAbsences_access,
+      hh_typesOfAbsences_create,
+      hh_typesOfAbsences_modify,
+      hh_typesOfAbsences_delete,
+      hh_typesOfAbsences_export,
+      hh_contractModels_access,
+      hh_contractModels_create,
+      hh_contractModels_modify,
+      hh_contractModels_delete,
+      hh_contractModels_export,
+      hh_localBankHolidays_access,
+      hh_localBankHolidays_create,
+      hh_localBankHolidays_modify,
+      hh_localBankHolidays_delete,
+      hh_localBankHolidays_export,
+      hh_selectionTypesEvaluation_access,
+      hh_selectionTypesEvaluation_create,
+      hh_selectionTypesEvaluation_modify,
+      hh_selectionTypesEvaluation_delete,
+      hh_selectionTypesEvaluation_export,
+      operativeModule_staffAssignments_access,
+      operativeModule_staffAssignments_create,
+      operativeModule_staffAssignments_modify,
+      operativeModule_staffAssignments_delete,
+      operativeModule_staffAssignments_export,
+      operativeModule_workParts_access,
+      operativeModule_workParts_create,
+      operativeModule_workParts_modify,
+      operativeModule_workParts_delete,
+      operativeModule_workParts_export,
+      operativeModule_AssignmentType_access,
+      operativeModule_AssignmentType_create,
+      operativeModule_AssignmentType_modify,
+      operativeModule_AssignmentType_delete,
+      operativeModule_AssignmentType_export,
+      operativeModule_workPartsConfig_access,
+      operativeModule_workPartsConfig_modify,
+      operativeModule_workPartsConfig_export,
+      financialModule_contacts_access,
+      financialModule_contacts_create,
+      financialModule_contacts_modify,
+      financialModule_contacts_delete,
+      financialModule_contacts_export,
+      financialModule_billingManagement_access,
+      financialModule_billingManagement_create,
+      financialModule_billingManagement_modify,
+      financialModule_billingManagement_delete,
+      financialModule_billingManagement_export,
+      financialModule_staffEconomicManagement_access,
+      financialModule_staffEconomicManagement_create,
+      financialModule_staffEconomicManagement_modify,
+      financialModule_staffEconomicManagement_delete,
+      financialModule_staffEconomicManagement_export,
+      financialModule_staffEconomicPayments_access,
+      financialModule_staffEconomicPayments_create,
+      financialModule_staffEconomicPayments_modify,
+      financialModule_staffEconomicPayments_delete,
+      financialModule_staffEconomicPayments_export,
+      financialModule_suppliersPayments_access,
+      financialModule_suppliersPayments_create,
+      financialModule_suppliersPayments_modify,
+      financialModule_suppliersPayments_delete,
+      financialModule_suppliersPayments_export,
+      financialModule_purchaseOrderManagement_access,
+      financialModule_purchaseOrderManagement_create,
+      financialModule_purchaseOrderManagement_modify,
+      financialModule_purchaseOrderManagement_delete,
+      financialModule_purchaseOrderManagement_export,
+      financialModule_travelRequest_access,
+      financialModule_travelRequest_create,
+      financialModule_travelRequest_modify,
+      financialModule_travelRequest_delete,
+      financialModule_travelRequest_cancel,
+      financialModule_travelRequest_export,
+      financialModule_travelManagement_access,
+      financialModule_travelManagement_modify,
+      financialModule_travelManagement_export,
+      financialModule_expenseRecord_access,
+      financialModule_expenseRecord_create,
+      financialModule_expenseRecord_modify,
+      financialModule_expenseRecord_download,
+      financialModule_expenseRecord_export,
+      financialModule_expensesManagement_access,
+      financialModule_expensesManagement_create,
+      financialModule_expensesManagement_modify,
+      financialModule_expensesManagement_download,
+      financialModule_expensesManagement_export,
+      financialModule_companies_access,
+      financialModule_companies_create,
+      financialModule_companies_modify,
+      financialModule_companies_delete,
+      financialModule_companies_export,
+      financialModule_typeOfCurrency_access,
+      financialModule_typeOfCurrency_create,
+      financialModule_typeOfCurrency_modify,
+      financialModule_typeOfCurrency_delete,
+      financialModule_typeOfCurrency_export,
+      financialModule_currencyManagement_access,
+      financialModule_currencyManagement_create,
+      financialModule_currencyManagement_modify,
+      financialModule_currencyManagement_delete,
+      financialModule_currencyManagement_export,
+      financialModule_contractStatus_access,
+      financialModule_contractStatus_create,
+      financialModule_contractStatus_modify,
+      financialModule_contractStatus_delete,
+      financialModule_contractStatus_export,
+      financialModule_iva_access,
+      financialModule_iva_create,
+      financialModule_iva_modify,
+      financialModule_iva_delete,
+      financialModule_iva_export,
+      financialModule_typeOfRententions_access,
+      financialModule_typeOfRententions_create,
+      financialModule_typeOfRententions_modify,
+      financialModule_typeOfRententions_delete,
+      financialModule_typeOfRententions_export,
+      financialModule_suppliersTypes_access,
+      financialModule_suppliersTypes_create,
+      financialModule_suppliersTypes_modify,
+      financialModule_suppliersTypes_delete,
+      financialModule_suppliersTypes_export,
+      financialModule_externalSuppliers_access,
+      financialModule_externalSuppliers_create,
+      financialModule_externalSuppliers_modify,
+      financialModule_externalSuppliers_delete,
+      financialModule_externalSuppliers_export,
+      financialModule_purchaseOrderAcceptance_access,
+      financialModule_purchaseOrderAcceptance_create,
+      financialModule_purchaseOrderAcceptance_modify,
+      financialModule_purchaseOrderAcceptance_delete,
+      financialModule_purchaseOrderAcceptance_export,
+      financialModule_businessExpenseTypes_access,
+      financialModule_businessExpenseTypes_create,
+      financialModule_businessExpenseTypes_modify,
+      financialModule_businessExpenseTypes_delete,
+      financialModule_businessExpenseTypes_export,
+      financialModule_requestStatus_access,
+      financialModule_requestStatus_create,
+      financialModule_requestStatus_modify,
+      financialModule_requestStatus_delete,
+      financialModule_requestStatus_export,
+      financialModule_travelRequestEmailAddress_access,
+      financialModule_travelRequestEmailAddress_create,
+      financialModule_travelRequestEmailAddress_modify,
+      financialModule_travelRequestEmailAddress_delete,
+      financialModule_travelRequestEmailAddress_export,
+      financialModule_staffExpensesTypes_access,
+      financialModule_staffExpensesTypes_create,
+      financialModule_staffExpensesTypes_modify,
+      financialModule_staffExpensesTypes_delete,
+      financialModule_staffExpensesTypes_export,
+      financialModule_personsTypes_access,
+      financialModule_personsTypes_create,
+      financialModule_personsTypes_modify,
+      financialModule_personsTypes_delete,
+      financialModule_personsTypes_export,
+      financialModule_voucherType_access,
+      financialModule_voucherType_create,
+      financialModule_voucherType_modify,
+      financialModule_voucherType_delete,
+      financialModule_voucherType_export,
+      financialModule_expensesStatus_access,
+      financialModule_expensesStatus_create,
+      financialModule_expensesStatus_modify,
+      financialModule_expensesStatus_delete,
+      financialModule_expensesStatus_export,
+      financialModule_expensesEmailAddress_access,
+      financialModule_expensesEmailAddress_create,
+      financialModule_expensesEmailAddress_modify,
+      financialModule_expensesEmailAddress_delete,
+      financialModule_expensesEmailAddress_export,
+    } = this.state;
+    const action = {
+      roleId: role,
+      actionsNames: {
+        admin_user_Management_access,
+        admin_user_Management_create,
+        admin_user_Management_modify,
+        admin_user_Management_delete,
+        admin_user_Management_export,
+        admin_roles_management_access,
+        admin_roles_management_create,
+        admin_roles_management_modify,
+        admin_roles_management_delete,
+        admin_roles_management_export,
+        commercial_customers_access,
+        commercial_customers_create,
+        commercial_customers_modify,
+        commercial_customers_delete,
+        commercial_customers_export,
+        commercial_commercialAssignments_access,
+        commercial_commercialAssignments_create,
+        commercial_commercialAssignments_modify,
+        commercial_commercialAssignments_delete,
+        commercial_commercialAssignments_export,
+        commercial_clientContact_access,
+        commercial_clientContact_create,
+        commercial_clientContact_modify,
+        commercial_clientContact_delete,
+        commercial_clientContact_export,
+        commercial_commercialOperation_access,
+        commercial_commercialOperation_create,
+        commercial_commercialOperation_modify,
+        commercial_commercialOperation_delete,
+        commercial_commercialOperation_export,
+        commercial_commercialAction_access,
+        commercial_commercialAction_create,
+        commercial_commercialAction_modify,
+        commercial_commercialAction_delete,
+        commercial_commercialAction_export,
+        commercial_countriesStatesCities_access,
+        commercial_countriesStatesCities_create,
+        commercial_countriesStatesCities_modify,
+        commercial_countriesStatesCities_delete,
+        commercial_countriesStatesCities_export,
+        commercial_StateOfCommercialOperation_access,
+        commercial_StateOfCommercialOperation_create,
+        commercial_StateOfCommercialOperation_modify,
+        commercial_StateOfCommercialOperation_delete,
+        commercial_StateOfCommercialOperation_export,
+        commercial_contactByOperationStatus_access,
+        commercial_contactByOperationStatus_create,
+        commercial_contactByOperationStatus_modify,
+        commercial_contactByOperationStatus_delete,
+        commercial_contactByOperationStatus_export,
+        commercial_serviceType_access,
+        commercial_serviceType_create,
+        commercial_serviceType_modify,
+        commercial_serviceType_delete,
+        commercial_serviceType_export,
+        commercial_sectorsCompany_access,
+        commercial_sectorsCompany_create,
+        commercial_sectorsCompany_modify,
+        commercial_sectorsCompany_delete,
+        commercial_sectorsCompany_export,
+        commercial_titleType_access,
+        commercial_titleType_create,
+        commercial_titleType_modify,
+        commercial_titleType_delete,
+        commercial_titleType_export,
+        hh_administrativeStructureDefinition_access,
+        hh_administrativeStructureDefinition_create,
+        hh_administrativeStructureDefinition_modify,
+        hh_administrativeStructureDefinition_delete,
+        hh_administrativeStructureDefinition_export,
+        hh_administrativeStructureAssignation_access,
+        hh_administrativeStructureAssignation_modify,
+        hh_functionalStructureDefinition_access,
+        hh_functionalStructureDefinition_create,
+        hh_functionalStructureDefinition_modify,
+        hh_functionalStructureDefinition_delete,
+        hh_functionalStructureDefinition_export,
+        hh_functionalStructureAssignation_access,
+        hh_functionalStructureAssignation_modify,
+        hh_staff_personalInformationManagement_access,
+        hh_staff_personalInformationManagement_create,
+        hh_staff_personalInformationManagement_modify,
+        hh_staff_personalInformationManagement_delete,
+        hh_staff_personalInformationManagement_export,
+        hh_staff_contractInformationManagement_access,
+        hh_staff_contractInformationManagement_create,
+        hh_staff_contractInformationManagement_modify,
+        hh_staff_contractInformationManagement_delete,
+        hh_staff_contractInformationManagement_export,
+        hh_staff_economicObjectiveManagement_access,
+        hh_staff_economicObjectiveManagement_create,
+        hh_staff_economicObjectiveManagement_modify,
+        hh_staff_economicObjectiveManagement_delete,
+        hh_staff_economicObjectiveManagement_export,
+        hh_absenceRequest_access,
+        hh_absenceRequest_create,
+        hh_absenceRequest_modify,
+        hh_absenceRequest_delete,
+        hh_absenceRequest_export,
+        hh_absenceConsult_access,
+        hh_absenceConsult_modify,
+        hh_absenceConsult_export,
+        hh_selectionProcessInformation_access,
+        hh_selectionProcessInformation_create,
+        hh_selectionProcessInformation_modify,
+        hh_selectionProcessInformation_delete,
+        hh_selectionProcessInformation_export,
+        hh_typesOfLegalCategory_access,
+        hh_typesOfLegalCategory_create,
+        hh_typesOfLegalCategory_modify,
+        hh_typesOfLegalCategory_delete,
+        hh_typesOfLegalCategory_export,
+        hh_typesOfContracts_access,
+        hh_typesOfContracts_create,
+        hh_typesOfContracts_modify,
+        hh_typesOfContracts_delete,
+        hh_typesOfContracts_export,
+        hh_typesOfAbsences_access,
+        hh_typesOfAbsences_create,
+        hh_typesOfAbsences_modify,
+        hh_typesOfAbsences_delete,
+        hh_typesOfAbsences_export,
+        hh_contractModels_access,
+        hh_contractModels_create,
+        hh_contractModels_modify,
+        hh_contractModels_delete,
+        hh_contractModels_export,
+        hh_localBankHolidays_access,
+        hh_localBankHolidays_create,
+        hh_localBankHolidays_modify,
+        hh_localBankHolidays_delete,
+        hh_localBankHolidays_export,
+        hh_selectionTypesEvaluation_access,
+        hh_selectionTypesEvaluation_create,
+        hh_selectionTypesEvaluation_modify,
+        hh_selectionTypesEvaluation_delete,
+        hh_selectionTypesEvaluation_export,
+        operativeModule_staffAssignments_access,
+        operativeModule_staffAssignments_create,
+        operativeModule_staffAssignments_modify,
+        operativeModule_staffAssignments_delete,
+        operativeModule_staffAssignments_export,
+        operativeModule_workParts_access,
+        operativeModule_workParts_create,
+        operativeModule_workParts_modify,
+        operativeModule_workParts_delete,
+        operativeModule_workParts_export,
+        operativeModule_AssignmentType_access,
+        operativeModule_AssignmentType_create,
+        operativeModule_AssignmentType_modify,
+        operativeModule_AssignmentType_delete,
+        operativeModule_AssignmentType_export,
+        operativeModule_workPartsConfig_access,
+        operativeModule_workPartsConfig_modify,
+        operativeModule_workPartsConfig_export,
+        financialModule_contacts_access,
+        financialModule_contacts_create,
+        financialModule_contacts_modify,
+        financialModule_contacts_delete,
+        financialModule_contacts_export,
+        financialModule_billingManagement_access,
+        financialModule_billingManagement_create,
+        financialModule_billingManagement_modify,
+        financialModule_billingManagement_delete,
+        financialModule_billingManagement_export,
+        financialModule_staffEconomicManagement_access,
+        financialModule_staffEconomicManagement_create,
+        financialModule_staffEconomicManagement_modify,
+        financialModule_staffEconomicManagement_delete,
+        financialModule_staffEconomicManagement_export,
+        financialModule_staffEconomicPayments_access,
+        financialModule_staffEconomicPayments_create,
+        financialModule_staffEconomicPayments_modify,
+        financialModule_staffEconomicPayments_delete,
+        financialModule_staffEconomicPayments_export,
+        financialModule_suppliersPayments_access,
+        financialModule_suppliersPayments_create,
+        financialModule_suppliersPayments_modify,
+        financialModule_suppliersPayments_delete,
+        financialModule_suppliersPayments_export,
+        financialModule_purchaseOrderManagement_access,
+        financialModule_purchaseOrderManagement_create,
+        financialModule_purchaseOrderManagement_modify,
+        financialModule_purchaseOrderManagement_delete,
+        financialModule_purchaseOrderManagement_export,
+        financialModule_travelRequest_access,
+        financialModule_travelRequest_create,
+        financialModule_travelRequest_modify,
+        financialModule_travelRequest_delete,
+        financialModule_travelRequest_cancel,
+        financialModule_travelRequest_export,
+        financialModule_travelManagement_access,
+        financialModule_travelManagement_modify,
+        financialModule_travelManagement_export,
+        financialModule_expenseRecord_access,
+        financialModule_expenseRecord_create,
+        financialModule_expenseRecord_modify,
+        financialModule_expenseRecord_download,
+        financialModule_expenseRecord_export,
+        financialModule_expensesManagement_access,
+        financialModule_expensesManagement_create,
+        financialModule_expensesManagement_modify,
+        financialModule_expensesManagement_download,
+        financialModule_expensesManagement_export,
+        financialModule_companies_access,
+        financialModule_companies_create,
+        financialModule_companies_modify,
+        financialModule_companies_delete,
+        financialModule_companies_export,
+        financialModule_typeOfCurrency_access,
+        financialModule_typeOfCurrency_create,
+        financialModule_typeOfCurrency_modify,
+        financialModule_typeOfCurrency_delete,
+        financialModule_typeOfCurrency_export,
+        financialModule_currencyManagement_access,
+        financialModule_currencyManagement_create,
+        financialModule_currencyManagement_modify,
+        financialModule_currencyManagement_delete,
+        financialModule_currencyManagement_export,
+        financialModule_contractStatus_access,
+        financialModule_contractStatus_create,
+        financialModule_contractStatus_modify,
+        financialModule_contractStatus_delete,
+        financialModule_contractStatus_export,
+        financialModule_iva_access,
+        financialModule_iva_create,
+        financialModule_iva_modify,
+        financialModule_iva_delete,
+        financialModule_iva_export,
+        financialModule_typeOfRententions_access,
+        financialModule_typeOfRententions_create,
+        financialModule_typeOfRententions_modify,
+        financialModule_typeOfRententions_delete,
+        financialModule_typeOfRententions_export,
+        financialModule_suppliersTypes_access,
+        financialModule_suppliersTypes_create,
+        financialModule_suppliersTypes_modify,
+        financialModule_suppliersTypes_delete,
+        financialModule_suppliersTypes_export,
+        financialModule_externalSuppliers_access,
+        financialModule_externalSuppliers_create,
+        financialModule_externalSuppliers_modify,
+        financialModule_externalSuppliers_delete,
+        financialModule_externalSuppliers_export,
+        financialModule_purchaseOrderAcceptance_access,
+        financialModule_purchaseOrderAcceptance_create,
+        financialModule_purchaseOrderAcceptance_modify,
+        financialModule_purchaseOrderAcceptance_delete,
+        financialModule_purchaseOrderAcceptance_export,
+        financialModule_businessExpenseTypes_access,
+        financialModule_businessExpenseTypes_create,
+        financialModule_businessExpenseTypes_modify,
+        financialModule_businessExpenseTypes_delete,
+        financialModule_businessExpenseTypes_export,
+        financialModule_requestStatus_access,
+        financialModule_requestStatus_create,
+        financialModule_requestStatus_modify,
+        financialModule_requestStatus_delete,
+        financialModule_requestStatus_export,
+        financialModule_travelRequestEmailAddress_access,
+        financialModule_travelRequestEmailAddress_create,
+        financialModule_travelRequestEmailAddress_modify,
+        financialModule_travelRequestEmailAddress_delete,
+        financialModule_travelRequestEmailAddress_export,
+        financialModule_staffExpensesTypes_access,
+        financialModule_staffExpensesTypes_create,
+        financialModule_staffExpensesTypes_modify,
+        financialModule_staffExpensesTypes_delete,
+        financialModule_staffExpensesTypes_export,
+        financialModule_personsTypes_access,
+        financialModule_personsTypes_create,
+        financialModule_personsTypes_modify,
+        financialModule_personsTypes_delete,
+        financialModule_personsTypes_export,
+        financialModule_voucherType_access,
+        financialModule_voucherType_create,
+        financialModule_voucherType_modify,
+        financialModule_voucherType_delete,
+        financialModule_voucherType_export,
+        financialModule_expensesStatus_access,
+        financialModule_expensesStatus_create,
+        financialModule_expensesStatus_modify,
+        financialModule_expensesStatus_delete,
+        financialModule_expensesStatus_export,
+        financialModule_expensesEmailAddress_access,
+        financialModule_expensesEmailAddress_create,
+        financialModule_expensesEmailAddress_modify,
+        financialModule_expensesEmailAddress_delete,
+        financialModule_expensesEmailAddress_export
+      }
+    };
+    console.log(action);
+    const promise = new Promise((resolve) => {
+      addAction(action);
+      this.editingPromiseResolveAction = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+      } else {
+        notification('danger', result);
+      }
+    });
   };
 
     handleChangePanel = (panel) => (event, isExpanded) => {
@@ -857,10 +1359,13 @@ class RoleAbility extends React.Component {
         financialModule_expensesEmailAddress_export,
       } = this.state;
       const {
-        classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
+        classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities,
+        isLoadingAction, actionResponse, errorsAction
       } = this.props;
 
       const { columns } = this.state;
+      (!isLoadingAction && actionResponse) && this.editingPromiseResolveAction(actionResponse);
+      (!isLoadingAction && !actionResponse) && this.editingPromiseResolveAction(errorsAction);
       // Sent resolve to editing promises
       (!isLoading && roleResponse) && this.editingPromiseResolve(roleResponse);
       (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
@@ -2755,19 +3260,19 @@ class RoleAbility extends React.Component {
                       label="Access"
                     />
                     <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_create}  onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_create" />}
+                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_create} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_create" />}
                       label="Create"
                     />
                     <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_modify}  onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_modify" />}
+                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_modify} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_modify" />}
                       label="Modify"
                     />
                     <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_delete}  onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_delete" />}
+                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_delete} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_delete" />}
                       label="Delete"
                     />
                     <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_export}  onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_export" />}
+                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_export} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_export" />}
                       label="Export"
                     />
                   </FormGroup>
@@ -2946,7 +3451,7 @@ class RoleAbility extends React.Component {
                 color="primary"
                 variant="contained"
                 size="medium"
-                onClick={this.handleSubmitSector}
+                onClick={this.handleSubmit}
               >
                 Save
               </Button>
@@ -2958,7 +3463,7 @@ class RoleAbility extends React.Component {
 }
 
 
-RoleAbility.propTypes = {
+RoleActions.propTypes = {
   /** Classes */
   classes: PropTypes.object.isRequired,
   /** Location */
@@ -2996,7 +3501,12 @@ const mapStateToProps = state => ({
   allRoles: state.getIn(['roles']).allRoles,
   roleResponse: state.getIn(['roles']).roleResponse,
   isLoading: state.getIn(['roles']).isLoading,
-  errors: state.getIn(['roles']).errors
+  errors: state.getIn(['roles']).errors,
+
+
+  actionResponse: state.getIn(['action']).actionResponse,
+  isLoadingAction: state.getIn(['action']).isLoading,
+  errorsAction: state.getIn(['action']).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -3006,10 +3516,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllRoles,
   updateRole,
   getAllSubjects,
-  getAllActions
+  getAllActions,
+  addAction
 }, dispatch);
 
 export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(RoleAbility));
+)(RoleActions));
