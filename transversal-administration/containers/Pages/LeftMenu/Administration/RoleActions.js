@@ -50,7 +50,7 @@ const styles = (theme) => ({
 
 });
 
-class RoleAbility extends React.Component {
+class RoleActions extends React.Component {
   constructor(props) {
     super(props);
 
@@ -3545,7 +3545,7 @@ class RoleAbility extends React.Component {
 }
 
 
-RoleAbility.propTypes = {
+RoleActions.propTypes = {
   /** Classes */
   classes: PropTypes.object.isRequired,
   /** Location */
@@ -3599,4 +3599,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(RoleAbility));
+)(RoleActions));
