@@ -30,7 +30,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Button, InputLabel } from '@material-ui/core';
-import { getAllActions } from '../../../../redux/actions/actions';
+import { addAction, getAllActions } from '../../../../redux/actions/actions';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
 import notification from '../../../../../app/components/Notification/Notification';
 import {
@@ -55,6 +55,8 @@ class RoleActions extends React.Component {
     super(props);
 
     this.editingPromiseResolve = () => {
+    };
+    this.editingPromiseResolveAction = () => {
     };
     this.state = {
       expanded: false,
@@ -439,109 +441,6 @@ class RoleActions extends React.Component {
     getAllActions();
   }
 
-  static getDerivedStateFromProps(props, state) {
-    const subjectColumnLookupAdapterRole = (allActions) => {
-      const lookupRole = {};
-      allActions.forEach(m => {
-        lookupRole[m.actionConcerns] = m.actionConcerns;
-      });
-
-      return lookupRole;
-    };
-
-    if (!isEmpty(props.allRoles)) {
-      state.columns.find(e => e.field === 'roleActionsIds').lookup = subjectColumnLookupAdapterRole(props.allActions);
-      return state.columns;
-    }
-
-    return null;
-  }
-
-    /**
-     * Constructs abilities table columns
-     *
-     * @param actions
-     * @return {{field: string, readonly: boolean, editable: string, title: string, align: string}[]}
-     */
-    getTableColumnsFromActions = (actions) => [{
-      title: 'Subject',
-      field: 'subjectCode',
-      editable: 'never'
-    },
-    {
-      title: 'Subject Type',
-      field: 'subjectType',
-      editable: 'never',
-      render: rowData => <Chip label={rowData.subjectType} variant="outlined" />
-    },
-    {
-      title: 'Subject Description',
-      field: 'subjectDescription',
-      editable: 'never'
-    }
-    ].concat(uniq(map(actions, 'actionCode')).map(actionCode => ({
-      title: capitalize(actionCode),
-      field: actionCode,
-      type: 'boolean',
-      editable: (_, rowData) => this.doesThisActionConcernsThisSubject(actions, actionCode, rowData.subjectType),
-      render: rowData => (this.doesThisActionConcernsThisSubject(actions, actionCode, rowData.subjectType) ? rowData[actionCode] ? <Icon style={{ color: teal[500] }}>check</Icon> : <Icon style={{ color: red[500] }}>close</Icon> : '')
-
-    })));
-
-    /**
-     * Checks if an action concerns a subject
-     *
-     * @param actions
-     * @param actionCode
-     * @param subjectType
-     * @return {boolean}
-     */
-    doesThisActionConcernsThisSubject = (actions, actionCode, subjectType) => !!find(actions, {
-      actionConcerns: subjectType,
-      actionCode
-    });
-
-
-    /**
-     * Construct abilities table rows
-     *
-     * @param subjects
-     * @return {*}
-     */
-    getTableRowsFromSubjectsAndActions = (subjects) => subjects.map(subject => ({
-      subjectId: subject.subjectId,
-      subjectCode: subject.subjectCode,
-      subjectParentId: subject.subjectParent && subject.subjectParent.subjectId,
-      subjectType: subject.subjectType,
-      subjectDescription: subject.subjectDescription,
-      read: false,
-      update: false,
-      access: false,
-      export: false
-    }));
-
-
-    /**
-     * Get color based on suject type
-     *
-     * @param param
-     * @return {string}
-     */
-    getSubjectTypeRowColor = (param) => {
-      switch (param) {
-        case 'module':
-          return '#4fc3f7';
-        case 'sub-module':
-          return '#81d4fa';
-        case 'form':
-          return '#b3e5fc';
-        case 'table':
-          return '#b3e5fc';
-        default:
-          return '#e1f5fe';
-      }
-    };
-
      handleChange = (event) => {
        this.setState({ [event.target.name]: event.target.checked });
      };
@@ -552,6 +451,7 @@ class RoleActions extends React.Component {
   };
 
   handleSubmit = () => {
+    const { addAction } = this.props;
     const {
       role,
       admin_user_Management_access,
@@ -1139,7 +1039,17 @@ class RoleActions extends React.Component {
       }
     };
     console.log(action);
-    console.log('eeeeeeeeeeeeee');
+    const promise = new Promise((resolve) => {
+      addAction(action);
+      this.editingPromiseResolveAction = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+      } else {
+        notification('danger', result);
+      }
+    });
   };
 
     handleChangePanel = (panel) => (event, isExpanded) => {
@@ -1449,10 +1359,13 @@ class RoleActions extends React.Component {
         financialModule_expensesEmailAddress_export,
       } = this.state;
       const {
-        classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
+        classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities,
+        isLoadingAction, actionResponse, errorsAction
       } = this.props;
 
       const { columns } = this.state;
+      (!isLoadingAction && actionResponse) && this.editingPromiseResolveAction(actionResponse);
+      (!isLoadingAction && !actionResponse) && this.editingPromiseResolveAction(errorsAction);
       // Sent resolve to editing promises
       (!isLoading && roleResponse) && this.editingPromiseResolve(roleResponse);
       (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
@@ -3588,7 +3501,12 @@ const mapStateToProps = state => ({
   allRoles: state.getIn(['roles']).allRoles,
   roleResponse: state.getIn(['roles']).roleResponse,
   isLoading: state.getIn(['roles']).isLoading,
-  errors: state.getIn(['roles']).errors
+  errors: state.getIn(['roles']).errors,
+
+
+  actionResponse: state.getIn(['action']).actionResponse,
+  isLoadingAction: state.getIn(['action']).isLoading,
+  errorsAction: state.getIn(['action']).errors
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -3598,7 +3516,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllRoles,
   updateRole,
   getAllSubjects,
-  getAllActions
+  getAllActions,
+  addAction
 }, dispatch);
 
 export default withStyles(styles)(connect(
