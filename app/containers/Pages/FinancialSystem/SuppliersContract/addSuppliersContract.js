@@ -22,6 +22,7 @@ import { ThemeContext } from '../../../App/ThemeWrapper';
 import SuppliersContractService from '../../../Services/SuppliersContractService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
+import CurrencyService from '../../../Services/CurrencyService';
 
 const useStyles = makeStyles();
 
@@ -32,6 +33,11 @@ class AddSuppliersContract extends React.Component {
       name: '',
       codeContract: '',
       codeSupplier: '',
+      changeFactor: 1,
+      currencies: [],
+      currencyId: '',
+      contractTradeVolume: 0,
+      contractTradeVolumeEuro: 0,
       commercialOperationInfo: [],
       document: '',
       companies: [],
@@ -58,6 +64,9 @@ class AddSuppliersContract extends React.Component {
       console.log(result);
       this.setState({ externalSuppliers: result.data });
     });
+    CurrencyService.getFilteredCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
   }
 
 
@@ -79,14 +88,16 @@ class AddSuppliersContract extends React.Component {
 
     handleSubmit = () => {
       const {
-        name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type
+        name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, changeFactor
       } = this.state;
+      const currency = { _id: currencyId };
       let financialCompany = { _id: '' };
       let externalSupplier = { _id: '' };
       if (financialCompanyId !== '') financialCompany = { _id: financialCompanyId };
       if (externalSupplierId !== '') externalSupplier = { _id: externalSupplierId };
       const SuppliersContract = {
-        name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type
+        name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type, currency, contractTradeVolume, contractTradeVolumeEuro, changeFactor
       };
       console.log(SuppliersContract);
       SuppliersContractService.saveSuppliersContract(SuppliersContract).then(result => {
@@ -100,6 +111,20 @@ class AddSuppliersContract extends React.Component {
     }
 
     handleChange = (ev) => {
+      let changeFactor;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tradeValue = this.state.contractTradeVolume;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          // eslint-disable-next-line prefer-destructuring
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor;
+          }
+        });
+        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
+      }
       if (ev.target.name === 'type') {
         if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
         else this.setState({ haveInternal: true, haveExternal: false });
@@ -126,6 +151,7 @@ class AddSuppliersContract extends React.Component {
       // eslint-disable-next-line react/prop-types
       const {
         name, codeSupplier, companies, externalSuppliers, type, document,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, currencies,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId
       } = this.state;
       return (
@@ -172,6 +198,60 @@ class AddSuppliersContract extends React.Component {
                   fullWidth
                   onChange={this.handleChange}
                 />
+                <br />
+                <br />
+                <Grid
+                  container
+                  spacing={2}
+                  alignItems="flex-start"
+                  direction="row"
+                >
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      id="Contract Trade Volume"
+                      label="Contract Trade Volume"
+                      type="number"
+                      name="contractTradeVolume"
+                      value={contractTradeVolume}
+                      onChange={this.handleChange}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={5}>
+                    <FormControl fullWidth required>
+                      <InputLabel>Select Currency</InputLabel>
+                      <Select
+                        name="currencyId"
+                        value={currencyId}
+                        onChange={this.handleChange}
+                      >
+                        {
+                          currencies.map((clt) => (
+                            <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                              {clt.typeOfCurrency.currencyName}
+                            </MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="contractTradeVolumeEuro"
+                      label="Trade Value (Euro)"
+                      type="number"
+                      name="contractTradeVolumeEuro"
+                      value={contractTradeVolumeEuro}
+                      onChange={this.handleChange}
+                      fullWidth
+                      required
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
                 <br />
                 <br />
                 <FormControl component="fieldset">
@@ -277,7 +357,6 @@ class AddSuppliersContract extends React.Component {
                     </Grid>
                   </Grid>
                 ) : (<div />)}
-                <br />
                 <br />
                 <FormControl>
                   <input

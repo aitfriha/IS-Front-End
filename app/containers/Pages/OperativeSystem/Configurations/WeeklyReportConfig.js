@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Grid,
   Card,
@@ -28,7 +28,12 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
 import notification from '../../../../components/Notification/Notification';
+
+
 import {
   updateWeeklyReportConfig,
   getWeeklyReportConfig,
@@ -39,8 +44,15 @@ import {
   filterStaffByEmail
 } from '../../../../redux/staffAssignment/actions';
 
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
 const styles = {};
 
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Weekly Report Config';
+const description = brand.desc;
 
 class WeeklyReportConfig extends React.Component {
   constructor(props) {
@@ -58,6 +70,9 @@ class WeeklyReportConfig extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greenTheme');
+
     const { getWeeklyReportConfig, weeklyReportConfig } = this.props;
     getWeeklyReportConfig();
 
@@ -71,6 +86,7 @@ class WeeklyReportConfig extends React.Component {
     });
   }
 
+
   componentWillUnmount() {
     this.state = {
       numberOfDays: 1,
@@ -82,8 +98,8 @@ class WeeklyReportConfig extends React.Component {
     };
   }
 
-
   //----------------------------------------------------------------------------------------------
+
 
   // HANDLE ACTIONS
 
@@ -132,18 +148,14 @@ class WeeklyReportConfig extends React.Component {
     const indexToDelete = newEmployeesList.findIndex(obj => obj === email);
     newEmployeesList.splice(indexToDelete, 1);
     this.setState({
-      data: {
-        numberOfDays: this.state.numberOfDays,
-        employees: newEmployeesList
-      }
+      numberOfDays: this.state.numberOfDays,
+      employees: newEmployeesList
     });
   }
 
 
   handleSaveConfiguration(e) {
-    const {
-      weeklyReportConfig, getWeeklyReportConfigById, updateWeeklyReportConfig, weeklyReportConfigResponse
-    } = this.props;
+    const { weeklyReportConfig, getWeeklyReportConfigById, updateWeeklyReportConfig } = this.props;
     const configurationId = weeklyReportConfig ? weeklyReportConfig.id : '';
     const data = {
       id: configurationId,
@@ -157,8 +169,7 @@ class WeeklyReportConfig extends React.Component {
       self.editingPromiseResolve = resolve;
     });
     promise.then((result) => {
-      console.log(result);
-      if (isString(weeklyReportConfigResponse)) {
+      if (isString(result)) {
         getWeeklyReportConfigById(configurationId);
         notification('success', result);
       } else {
@@ -170,7 +181,7 @@ class WeeklyReportConfig extends React.Component {
 
   render() {
     const {
-      location, intl, errors, isLoading, weeklyReportConfigResponse
+      location, intl, errors, isLoading, weeklyReportConfigResponse, weeklyReportConfig
     } = this.props;
 
     const { numberOfDays, employees } = this.state;
@@ -179,9 +190,16 @@ class WeeklyReportConfig extends React.Component {
     (!isLoading && weeklyReportConfigResponse) && this.editingPromiseResolve(weeklyReportConfigResponse);
     (!isLoading && !weeklyReportConfigResponse) && this.editingPromiseResolve(errors);
 
-
     return (
       <div>
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent>
             <Grid style={{ marginTop: '10px' }}>
@@ -283,7 +301,6 @@ class WeeklyReportConfig extends React.Component {
 }
 
 WeeklyReportConfig.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
 
@@ -313,4 +330,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   filterStaffByEmail
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReportConfig)));
+
+const WeeklyReportConfigMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReportConfig));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <WeeklyReportConfigMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(WeeklyReportConfig)));

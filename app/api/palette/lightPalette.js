@@ -127,6 +127,13 @@ const lightPalette = {
       },
     },
   },
+  greenTheme: {
+    palette: {
+      type: 'light',
+      primary: { main: '#239B56' },
+      secondary: { main: '#82E0AA' }
+    }
+  },
   skyBlueTheme: {
     palette: {
       primary: {

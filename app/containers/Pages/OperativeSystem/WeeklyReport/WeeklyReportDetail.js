@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Grid,
   Chip,
@@ -14,25 +14,14 @@ import {
   MenuItem,
   Button
 } from '@material-ui/core';
-import MaterialTable, { MTableEditRow, MTableToolbar } from 'material-table';
+import MaterialTable from 'material-table';
 import CachedIcon from '@material-ui/icons/Cached';
 
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { isString } from 'lodash';
-import { injectIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
+
 import notification from '../../../../components/Notification/Notification';
 
-/* import {
-    getAllAssignmentTypes
-} from '../../../../redux/assignmentType/actions'; */
-
-
 let self = null;
-
-const styles = {};
 
 
 export class WeeklyReportDetail extends React.Component {
@@ -55,8 +44,6 @@ export class WeeklyReportDetail extends React.Component {
         operation: [],
         assignmentType: []
       },
-
-      weekOfYear: '',
 
       workTable: {
         columns: [
@@ -404,351 +391,348 @@ export class WeeklyReportDetail extends React.Component {
 
   // HANDLE ACTIONS
 
-    changeValue = (event) => {
-      const { value } = event.target;
-      const customerId = event.target.name === 'customer' ? value : this.state.selected.customer;
-      const operationId = event.target.name === 'operation' ? value : customerId !== 'none' ? this.state.selected.operation : 'none';
-      const selectedList = this.state.updatedSelectFields;
+  changeValue = (event) => {
+    const { value } = event.target;
+    const customerId = event.target.name === 'customer' ? value : this.state.selected.customer;
+    const operationId = event.target.name === 'operation' ? value : customerId !== 'none' ? this.state.selected.operation : 'none';
+    const selectedList = this.state.updatedSelectFields;
 
-      if (!selectedList.includes(event.target.name)) {
-        selectedList.push(event.target.name);
+    if (!selectedList.includes(event.target.name)) {
+      selectedList.push(event.target.name);
+    }
+
+    const operationList = this.getOperationOptions(customerId);
+
+    this.setState({
+      updatedSelectFields: selectedList,
+      selected: {
+        customer: customerId,
+        operation: operationId,
+        assignmentType: event.target.name === 'assignmentType' ? value : this.state.selected.assignmentType
+      },
+      options: {
+        customer: this.state.options.customer,
+        operation: operationList,
+        assignmentType: this.state.options.assignmentType
       }
+    });
+  }
 
-      const operationList = this.getOperationOptions(customerId);
-
-      this.setState({
-        updatedSelectFields: selectedList,
-        selected: {
-          customer: customerId,
-          operation: operationId,
-          assignmentType: event.target.name === 'assignmentType' ? value : this.state.selected.assignmentType
-        },
-        options: {
-          customer: this.state.options.customer,
-          operation: operationList,
-          assignmentType: this.state.options.assignmentType
-        }
-      });
-    }
-
-    getOperationOptions(customerId) {
-      const { customerContracts } = this.props;
-      const operationList = [];
-      customerContracts.forEach(c => {
-        if (customerId && c.customerId === customerId) {
-          operationList.push({
-            id: c.operationId,
-            code: c.operationCode,
-            name: c.operationName
-          });
-        }
-      });
-      return operationList;
-    }
-
-    reloadState() {
-      this.setState({
-        updatedSelectFields: [],
-        selected: {
-          customer: '',
-          operation: '',
-          assignmentType: ''
-        },
-        options: {
-          customer: this.state.options.customer,
-          operation: [],
-          assignmentType: this.state.options.assignmentType
-        }
-      });
-    }
-
-    validateRowData(newData) {
-      let valid = true;
-      if ((!newData.hasOwnProperty('customerId') || newData.customerId === '')
-            || (!newData.hasOwnProperty('operationId') || newData.operationId === '')
-            || (!newData.hasOwnProperty('assignmentTypeId') || newData.assignmentTypeId === '')
-            || (!newData.hasOwnProperty('deliverable') || newData.deliverable === '')
-            || (newData.monday === '' || parseInt(newData.monday) < 0 || parseInt(newData.monday) > 1)
-            || (newData.tuesday === '' || parseInt(newData.tuesday) < 0 || parseInt(newData.tuesday) > 1)
-            || (newData.wednesday === '' || parseInt(newData.wednesday) < 0 || parseInt(newData.wednesday) > 1)
-            || (newData.thursday === '' || parseInt(newData.thursday) < 0 || parseInt(newData.thursday) > 1)
-            || (newData.friday === '' || parseInt(newData.friday) < 0 || parseInt(newData.friday) > 1)) {
-        valid = false;
+  getOperationOptions(customerId) {
+    const { customerContracts } = this.props;
+    const operationList = [];
+    customerContracts.forEach(c => {
+      if (customerId && c.customerId === customerId) {
+        operationList.push({
+          id: c.operationId,
+          code: c.operationCode,
+          name: c.operationName
+        });
       }
-      return valid;
+    });
+    return operationList;
+  }
+
+  reloadState() {
+    this.setState({
+      updatedSelectFields: [],
+      selected: {
+        customer: '',
+        operation: '',
+        assignmentType: ''
+      },
+      options: {
+        customer: this.state.options.customer,
+        operation: [],
+        assignmentType: this.state.options.assignmentType
+      }
+    });
+  }
+
+  validateRowData(newData) {
+    let valid = true;
+    if ((!newData.hasOwnProperty('customerId') || newData.customerId === '')
+      || (!newData.hasOwnProperty('operationId') || newData.operationId === '')
+      || (!newData.hasOwnProperty('assignmentTypeId') || newData.assignmentTypeId === '')
+      || (!newData.hasOwnProperty('deliverable') || newData.deliverable === '')
+      || (newData.monday === '' || parseInt(newData.monday) < 0 || parseInt(newData.monday) > 1)
+      || (newData.tuesday === '' || parseInt(newData.tuesday) < 0 || parseInt(newData.tuesday) > 1)
+      || (newData.wednesday === '' || parseInt(newData.wednesday) < 0 || parseInt(newData.wednesday) > 1)
+      || (newData.thursday === '' || parseInt(newData.thursday) < 0 || parseInt(newData.thursday) > 1)
+      || (newData.friday === '' || parseInt(newData.friday) < 0 || parseInt(newData.friday) > 1)) {
+      valid = false;
     }
+    return valid;
+  }
 
-    handleSave(e) {
-      const {
-        handleClose, saveWeeklyReport, getSummarizedWeeklyReport, obj
-      } = self.props;
+  handleSave(e) {
+    const {
+      handleClose, saveWeeklyReport, getSummarizedWeeklyReport, obj
+    } = self.props;
 
-      const promise = new Promise((resolve) => {
-        const data = {
-          year: obj.year,
-          week: obj.week,
+    const promise = new Promise((resolve) => {
+      const data = {
+        year: obj.year,
+        week: obj.week,
+        employeeId: obj.employeeId,
+        works: self.state.workTable.data
+      };
+      saveWeeklyReport(data);
+      self.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        const params = {
           employeeId: obj.employeeId,
-          works: self.state.workTable.data
+          period: 'month',
+          startDate: null,
+          endDate: null
         };
-        saveWeeklyReport(data);
-        self.editingPromiseResolve = resolve;
-      });
-      promise.then((result) => {
-        if (isString(result)) {
-          const params = {
-            employeeId: obj.employeeId,
-            period: 'month',
-            startDate: null,
-            endDate: null
-          };
-          handleClose(true);
-          getSummarizedWeeklyReport(params);
-          notification('success', result);
-        } else {
-          notification('danger', result);
-        }
-      });
-    }
+        handleClose(true);
+        getSummarizedWeeklyReport(params);
+        notification('success', result);
+      } else {
+        notification('danger', result);
+      }
+    });
+  }
 
-    render() {
-      const {
-        isLoading, errors, weeklyReportResponse, extendedWeeklyReport
-      } = this.props;
+  render() {
+    const {
+      isLoading, errors, weeklyReportResponse, extendedWeeklyReport
+    } = this.props;
 
-      (!isLoading && weeklyReportResponse) && this.editingPromiseResolve(weeklyReportResponse);
-      (!isLoading && !weeklyReportResponse) && this.editingPromiseResolve(errors);
+    (!isLoading && weeklyReportResponse) && this.editingPromiseResolve(weeklyReportResponse);
+    (!isLoading && !weeklyReportResponse) && this.editingPromiseResolve(errors);
 
-      return (
-        <div>
-          <Card>
-            <CardContent>
-              <div id="employee-info">
-                <Chip label="Employee information" color="secondary" style={{ marginTop: '10px', marginBottom: '10px' }} />
-                <Grid item>
-                  <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Personal Number:
-                  </Typography>
-                  <Typography component="span" color="textSecondary">
-                    {extendedWeeklyReport.personalNumber}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Name:
-                  </Typography>
-                  <Typography component="span" color="textSecondary">
-                    {extendedWeeklyReport.name}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Father Family Name:
-                  </Typography>
-                  <Typography component="span" color="textSecondary">
-                    {extendedWeeklyReport.fatherFamilyName}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Mother Family Name:
-                  </Typography>
-                  <Typography component="span" color="textSecondary">
-                    {extendedWeeklyReport.motherFamilyName}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Company Name:
-                  </Typography>
-                  <Typography component="span" color="textSecondary">
-                    {extendedWeeklyReport.company}
-                  </Typography>
-                </Grid>
-              </div>
-
-              <Divider style={{ marginTop: '5px', marginBottom: '15px' }} />
-              <div id="weekOfYear" style={{ textAlign: 'center' }}>
-                <Typography variant="h6" gutterBottom>
-                                Year/Week:
-                  {' '}
-                  {this.state.weekOfYear}
+    return (
+      <div>
+        <Card>
+          <CardContent>
+            <div id="employee-info">
+              <Chip label="Employee information" color="secondary" style={{ marginTop: '10px', marginBottom: '10px' }} />
+              <Grid item>
+                <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
+                  Personal Number:
                 </Typography>
-                <Tooltip title="Reload data">
-                  <Fab size="small" color="primary" aria-label="add" style={{ marginBottom: '20px' }}>
-                    <CachedIcon onClick={(e) => this.fillData()} />
-                  </Fab>
-                </Tooltip>
-              </div>
+                <Typography component="span" color="textSecondary">
+                  {extendedWeeklyReport.personalNumber}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
+                  Name:
+                </Typography>
+                <Typography component="span" color="textSecondary">
+                  {extendedWeeklyReport.name}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
+                  Father Family Name:
+                </Typography>
+                <Typography component="span" color="textSecondary">
+                  {extendedWeeklyReport.fatherFamilyName}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
+                  Mother Family Name:
+                </Typography>
+                <Typography component="span" color="textSecondary">
+                  {extendedWeeklyReport.motherFamilyName}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
+                  Company Name:
+                </Typography>
+                <Typography component="span" color="textSecondary">
+                  {extendedWeeklyReport.company}
+                </Typography>
+              </Grid>
+            </div>
 
-              <div id="works" style={{}}>
-                <Chip label="Worked up" color="secondary" style={{ marginBottom: '10px' }} />
-                <MaterialTable
-                  title=""
-                  columns={this.state.workTable.columns}
-                  data={this.state.workTable.data}
-                  options={{
-                    actionsColumnIndex: -1,
-                    actionsCellStyle: {
+            <Divider style={{ marginTop: '5px', marginBottom: '15px' }} />
+            <div id="weekOfYear" style={{ textAlign: 'center' }}>
+              <Typography variant="h6" gutterBottom>
+                Year/Week:
+                {' '}
+                {extendedWeeklyReport.weekOfYear}
+              </Typography>
+              <Tooltip title="Reload data">
+                <Fab size="small" color="primary" aria-label="add" style={{ marginBottom: '20px' }}>
+                  <CachedIcon onClick={(e) => this.fillData()} />
+                </Fab>
+              </Tooltip>
+            </div>
 
-                    }
-                  }}
-                  /* components={{
-                                    EditRow: props => {
-                                        return (
-                                            <MTableEditRow
-                                                {...props}
-                                                data={props.mode === 'add' ? {} : this.state.workTable.data[0]}
-                                            />
-                                        )
-                                    }
-                                }} */
-                  editable={{
-                    onRowAddCancelled: rowData => this.reloadState(),
-                    onRowUpdateCancelled: rowData => this.reloadState(),
-                    onRowAdd: newData => new Promise((resolve, reject) => {
-                      setTimeout(() => {
-                        const dataUpdate = [...this.state.workTable.data];
-                        console.log(this.state.updatedSelectFields);
-                        this.state.updatedSelectFields.forEach(el => {
-                          switch (el) {
-                            case 'customer': {
-                              const customerObject = this.state.options.customer[this.state.options.customer.findIndex(obj => obj.id === this.state.selected.customer)];
+            <div id="works" style={{}}>
+              <Chip label="Worked up" color="secondary" style={{ marginBottom: '10px' }} />
+              <MaterialTable
+                title=""
+                columns={this.state.workTable.columns}
+                data={this.state.workTable.data}
+                options={{
+                  actionsColumnIndex: -1
+                }}
+                /* components={{
+                                  EditRow: props => {
+                                      return (
+                                          <MTableEditRow
+                                              {...props}
+                                              data={props.mode === 'add' ? {} : this.state.workTable.data[0]}
+                                          />
+                                      )
+                                  }
+                              }} */
+                editable={{
+                  onRowAddCancelled: rowData => this.reloadState(),
+                  onRowUpdateCancelled: rowData => this.reloadState(),
+                  onRowAdd: newData => new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      const dataUpdate = [...this.state.workTable.data];
+                      console.log(this.state.updatedSelectFields);
+                      this.state.updatedSelectFields.forEach(el => {
+                        switch (el) {
+                          case 'customer': {
+                            const customerObject = this.state.options.customer[this.state.options.customer.findIndex(obj => obj.id === this.state.selected.customer)];
+                            newData.customerId = customerObject.id;
+                            newData.customerCode = customerObject.code;
+                            newData.customerName = customerObject.name;
+                            break;
+                          }
+                          case 'operation': {
+                            const operationObject = this.state.options.operation[this.state.options.operation.findIndex(obj => obj.id === this.state.selected.operation)];
+                            newData.operationId = operationObject.id;
+                            newData.operationCode = operationObject.code;
+                            newData.operationName = operationObject.name;
+                            break;
+                          }
+                          case 'assignmentType': {
+                            const assignmentTypeObject = this.state.options.assignmentType[this.state.options.assignmentType.findIndex(obj => obj.id === this.state.selected.assignmentType)];
+                            newData.assignmentTypeId = assignmentTypeObject.id;
+                            newData.assignmentTypeCode = assignmentTypeObject.code;
+                            newData.assignmentTypeName = assignmentTypeObject.name;
+                            break;
+                          }
+                          default: {
+                            break;
+                          }
+                        }
+                      });
+                      dataUpdate.push(newData);
+                      this.setState({
+                        workTable: {
+                          columns: this.state.workTable.columns,
+                          data: dataUpdate
+                        }
+                      });
+                      resolve();
+                    }, 1000);
+                  }),
+                  onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      const dataUpdate = [...this.state.workTable.data];
+                      const index = oldData.tableData.id;
+                      this.state.updatedSelectFields.forEach(el => {
+                        switch (el) {
+                          case 'customer': {
+                            const id = this.state.selected.customer ? this.state.selected.customer : oldData.customerId;
+                            const customerObject = this.state.options.customer[this.state.options.customer.findIndex(obj => obj.id === id)];
+                            if (customerObject) {
                               newData.customerId = customerObject.id;
                               newData.customerCode = customerObject.code;
                               newData.customerName = customerObject.name;
-                              break;
                             }
-                            case 'operation': {
-                              const operationObject = this.state.options.operation[this.state.options.operation.findIndex(obj => obj.id === this.state.selected.operation)];
+                            break;
+                          }
+                          case 'operation': {
+                            const id = this.state.selected.operation ? this.state.selected.operation : oldData.operationId;
+                            const operationObject = this.state.options.operation[this.state.options.operation.findIndex(obj => obj.id === id)];
+                            if (operationObject) {
                               newData.operationId = operationObject.id;
                               newData.operationCode = operationObject.code;
                               newData.operationName = operationObject.name;
-                              break;
                             }
-                            case 'assignmentType': {
-                              const assignmentTypeObject = this.state.options.assignmentType[this.state.options.assignmentType.findIndex(obj => obj.id === this.state.selected.assignmentType)];
+                            break;
+                          }
+                          case 'assignmentType': {
+                            const id = this.state.selected.assignmentType ? this.state.selected.assignmentType : oldData.assignmentTypeId;
+                            const assignmentTypeObject = this.state.options.assignmentType[this.state.options.assignmentType.findIndex(obj => obj.id === id)];
+                            if (assignmentTypeObject) {
                               newData.assignmentTypeId = assignmentTypeObject.id;
                               newData.assignmentTypeCode = assignmentTypeObject.code;
                               newData.assignmentTypeName = assignmentTypeObject.name;
-                              break;
                             }
-                            default: {
-                              break;
-                            }
+                            break;
                           }
-                        });
-                        dataUpdate.push(newData);
-                        this.setState({
-                          workTable: {
-                            columns: this.state.workTable.columns,
-                            data: dataUpdate
+                          default: {
+                            break;
                           }
-                        });
-                        resolve();
-                      }, 1000);
-                    }),
-                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                      setTimeout(() => {
-                        const dataUpdate = [...this.state.workTable.data];
-                        const index = oldData.tableData.id;
-                        this.state.updatedSelectFields.forEach(el => {
-                          switch (el) {
-                            case 'customer': {
-                              const id = this.state.selected.customer ? this.state.selected.customer : oldData.customerId;
-                              const customerObject = this.state.options.customer[this.state.options.customer.findIndex(obj => obj.id === id)];
-                              if (customerObject) {
-                                newData.customerId = customerObject.id;
-                                newData.customerCode = customerObject.code;
-                                newData.customerName = customerObject.name;
-                              }
-                              break;
-                            }
-                            case 'operation': {
-                              const id = this.state.selected.operation ? this.state.selected.operation : oldData.operationId;
-                              const operationObject = this.state.options.operation[this.state.options.operation.findIndex(obj => obj.id === id)];
-                              if (operationObject) {
-                                newData.operationId = operationObject.id;
-                                newData.operationCode = operationObject.code;
-                                newData.operationName = operationObject.name;
-                              }
-                              break;
-                            }
-                            case 'assignmentType': {
-                              const id = this.state.selected.assignmentType ? this.state.selected.assignmentType : oldData.assignmentTypeId;
-                              const assignmentTypeObject = this.state.options.assignmentType[this.state.options.assignmentType.findIndex(obj => obj.id === id)];
-                              if (assignmentTypeObject) {
-                                newData.assignmentTypeId = assignmentTypeObject.id;
-                                newData.assignmentTypeCode = assignmentTypeObject.code;
-                                newData.assignmentTypeName = assignmentTypeObject.name;
-                              }
-                              break;
-                            }
-                            default: {
-                              break;
-                            }
-                          }
-                        });
-                        dataUpdate[index] = newData;
-                        this.setState({
-                          workTable: {
-                            columns: this.state.workTable.columns,
-                            data: dataUpdate
-                          }
-                        });
-                        resolve();
-                      }, 1000);
-                    }),
-                    onRowDelete: oldData => new Promise((resolve, reject) => {
-                      setTimeout(() => {
-                        const dataDelete = [...this.state.workTable.data];
-                        const index = oldData.tableData.id;
-                        dataDelete.splice(index, 1);
-                        this.setState({
-                          workTable: {
-                            columns: this.state.workTable.columns,
-                            data: dataDelete
-                          }
-                        });
-                        resolve();
-                      }, 1000);
-                    }),
-                  }}
-                />
-              </div>
+                        }
+                      });
+                      dataUpdate[index] = newData;
+                      this.setState({
+                        workTable: {
+                          columns: this.state.workTable.columns,
+                          data: dataUpdate
+                        }
+                      });
+                      resolve();
+                    }, 1000);
+                  }),
+                  onRowDelete: oldData => new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      const dataDelete = [...this.state.workTable.data];
+                      const index = oldData.tableData.id;
+                      dataDelete.splice(index, 1);
+                      this.setState({
+                        workTable: {
+                          columns: this.state.workTable.columns,
+                          data: dataDelete
+                        }
+                      });
+                      resolve();
+                    }, 1000);
+                  }),
+                }}
+              />
+            </div>
 
-              <div id="other-data">
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Chip label="Absences" color="secondary" style={{ marginBottom: '10px' }} />
-                    <MaterialTable
-                      title=""
-                      columns={this.state.absencesTable.columns}
-                      data={this.state.absencesTable.data}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Chip label="Local bank holidays" color="secondary" style={{ marginBottom: '10px' }} />
-                    <MaterialTable
-                      title=""
-                      columns={this.state.localBankHolidaysTable.columns}
-                      data={this.state.localBankHolidaysTable.data}
-                    />
-                  </Grid>
+            <div id="other-data">
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Chip label="Absences" color="secondary" style={{ marginBottom: '10px' }} />
+                  <MaterialTable
+                    title=""
+                    columns={this.state.absencesTable.columns}
+                    data={this.state.absencesTable.data}
+                  />
                 </Grid>
-              </div>
-            </CardContent>
-            <CardActions style={{ marginLeft: '10px' }}>
-              <Button variant="contained" size="small" onClick={(e) => this.props.handleClose(false)} color="default">
-                            Cancel
-                {/* {intl.formatMessage({ id: 'connection.row.body.no' })} */}
-              </Button>
-              <Button variant="contained" size="small" disabled={this.state.workTable.data && this.state.workTable.data.length === 0} onClick={(e) => this.handleSave(e)} color="primary">
-                            Save Report
-                {/* } {intl.formatMessage({ id: 'connection.row.body.yes' })} */}
-              </Button>
-            </CardActions>
-          </Card>
-        </div>
-      );
-    }
+                <Grid item xs={12} md={6}>
+                  <Chip label="Local bank holidays" color="secondary" style={{ marginBottom: '10px' }} />
+                  <MaterialTable
+                    title=""
+                    columns={this.state.localBankHolidaysTable.columns}
+                    data={this.state.localBankHolidaysTable.data}
+                  />
+                </Grid>
+              </Grid>
+            </div>
+          </CardContent>
+          <CardActions style={{ marginLeft: '10px' }}>
+            <Button variant="contained" size="small" onClick={(e) => this.props.handleClose(false)} color="default">
+              Cancel
+              {/* {intl.formatMessage({ id: 'connection.row.body.no' })} */}
+            </Button>
+            <Button variant="contained" size="small" disabled={this.state.workTable.data && this.state.workTable.data.length === 0} onClick={(e) => this.handleSave(e)} color="primary">
+              Save Report
+              {/* } {intl.formatMessage({ id: 'connection.row.body.yes' })} */}
+            </Button>
+          </CardActions>
+        </Card>
+      </div>
+    );
+  }
 }
