@@ -580,7 +580,7 @@ function Application(props) {
         />
         <Route
           exact
-          path="/app/data/administration/actions"
+          path="/app/data/administration/roles"
           component={Action}
         />
         <Route

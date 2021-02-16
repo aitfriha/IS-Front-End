@@ -528,9 +528,9 @@ module.exports = [
     icon: 'ios-people',
     child: [
       {
-        key: 'actions',
-        name: 'actions',
-        link: '/app/data/administration/actions'
+        key: 'roles',
+        name: 'Roles',
+        link: '/app/data/administration/roles'
       },
       {
         key: 'users',
