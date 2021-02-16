@@ -276,6 +276,10 @@ class StaffAssignment extends React.Component {
   }
 
   componentDidMount() {
+
+    const { changeTheme } = this.props;
+    changeTheme('greenTheme');
+
     const { getTreeData, getStaffAssignedByOperation } = this.props;
     getTreeData();
     const params = {
@@ -582,7 +586,6 @@ class StaffAssignment extends React.Component {
 }
 
 StaffAssignment.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
 
