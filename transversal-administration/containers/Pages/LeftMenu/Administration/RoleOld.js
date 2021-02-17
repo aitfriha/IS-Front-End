@@ -14,17 +14,13 @@ import { red, teal } from '@material-ui/core/colors';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import MUIDataTable from 'mui-datatables';
 import {
   addRole, deleteRole, getAllRoles, updateRole, addRoleAbilities
 } from '../../../../redux/rolesAbilities/actions';
 import notification from '../../../../../app/components/Notification/Notification';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
 import { getAllActions } from '../../../../redux/actions/actions';
-import history from '../../../../../app/utils/history';
-import CustomToolbar from '../../../../../app/components/CustomToolbar/CustomToolbar';
+import IconButton from "@material-ui/core/IconButton";
 const styles = (theme) => ({
   gridItemMargin: {
     marginRight: theme.spacing(3),
@@ -46,26 +42,26 @@ class Role extends React.Component {
     this.state = {
       columns: [
         {
-          label: 'Role Name*',
-          name: 'roleName'
+          title: 'role*',
+          field: 'roleName'
         },
         {
-          name: 'roleDescription',
-          label: 'Description'
+          title: 'description',
+          field: 'roleDescription'
         },
         {
-          name: '',
-          label: 'Role Actions',
-          options: {
-            customBodyRender: (value, data) => (
-              <React.Fragment>
-                <IconButton onClick={() => this.showMondatoryAttributes(data.rowIndex, data)}>
-                  <VisibilityIcon color="secondary" />
-                </IconButton>
-              </React.Fragment>
-            )
-          }
-        },
+          title: 'Actions',
+          field: '',
+          editable: false,
+          render: (rowData) => rowData && (
+            <IconButton
+              color="secondary"
+              onClick={this.displayAction(rowData)}
+            >
+             {/* <AddIcon />*/}actions
+            </IconButton>
+          )
+        }
       ]
     };
   }
@@ -76,29 +72,10 @@ class Role extends React.Component {
   }
 
   displayAction = (rowData) => {
-    console.log(rowData);
+   console.log(rowData);
   };
 
-  showMondatoryAttributes= (data, aaa) => {
-    console.log(aaa.rowData[0]);
-    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]) });
-  }
-
   render() {
-    const options = {
-      filter: true,
-      selectableRows: false,
-      filterType: 'dropdown',
-      responsive: 'stacked',
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar
-          /* csvData={staffs} */
-          url="/app/data/administration/role-actions"
-          tooltip="add new role"
-        />
-      )
-    };
     const {
       classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
     } = this.props;
@@ -109,13 +86,7 @@ class Role extends React.Component {
     (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
     return (
       <div>
-        <MUIDataTable
-          title="Status of Commercial Operation"
-          data={allRoles && allRoles}
-          columns={columns}
-          options={options}
-        />
-        {/*  <MaterialTable
+        <MaterialTable
           title=""
           columns={columns}
           data={allRoles && allRoles}
@@ -176,7 +147,7 @@ class Role extends React.Component {
               }
             }),
           }}
-        /> */}
+        />
       </div>
     );
   }
