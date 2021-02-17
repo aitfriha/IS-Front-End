@@ -37,6 +37,7 @@ import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 import CurrencyService from '../../../Services/CurrencyService';
 import IvaService from '../../../Services/IvaService';
+import PrintPurchaseOrder from './printPurchaseOrder';
 
 const useStyles = makeStyles(styles);
 
@@ -44,7 +45,9 @@ class PurchaseOrderBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      purchaseOrder: {},
       purchaseOrderId: '',
+      purchaseNumber: '',
       companyDataEmit: '',
       companyLogo: '',
       internLogo: '',
@@ -89,6 +92,7 @@ class PurchaseOrderBlock extends React.Component {
       paymentMethod: '',
       localCurrency: '',
       openPopUp: false,
+      openPrint: false,
       datas: [],
       columns: [
         {
@@ -103,6 +107,31 @@ class PurchaseOrderBlock extends React.Component {
                 }
               </React.Fragment>
             ),
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+          }
+        },
+        {
+          name: 'purchaseNumber',
+          label: 'Nº Purchase Order',
+          options: {
+            filter: true,
             setCellProps: () => ({
               style: {
                 whiteSpace: 'nowrap',
@@ -578,7 +607,7 @@ class PurchaseOrderBlock extends React.Component {
                 <IconButton onClick={() => this.handleDetails(tableMeta)}>
                   <DetailsIcon color="primary" />
                 </IconButton>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                <IconButton onClick={() => this.handlePrint(tableMeta)}>
                   <PrintIcon color="primary" />
                 </IconButton>
                 <IconButton onClick={() => this.handleDelete(tableMeta)}>
@@ -617,6 +646,20 @@ class PurchaseOrderBlock extends React.Component {
     changeTheme('greyTheme');
   }
 
+  handlePrint = (tableMeta) => {
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
+        + tableMeta.rowIndex;
+    // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+    const id = this.state.datas[index].purchaseOrderId;
+    PurchaseOrderService.getPurchaseOrderById(id).then(result => {
+      console.log(result.data);
+      this.setState({
+        purchaseOrder: result.data,
+        openPrint: true
+      });
+    });
+  }
+
   // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
@@ -627,6 +670,7 @@ class PurchaseOrderBlock extends React.Component {
       console.log(result.data);
       this.setState({
         purchaseOrderId: id,
+        purchaseNumber: result.data.purchaseNumber,
         companyDataEmit: result.data.companyEmit._id,
         companyLogo: result.data.companyLogo,
         internLogo: result.data.internLogo,
@@ -683,7 +727,7 @@ class PurchaseOrderBlock extends React.Component {
 
   handleSave = () => {
     const {
-      purchaseOrderId, companyDataEmit, companyLogo, companyNIF, companyAddress,
+      purchaseOrderId, companyDataEmit, companyLogo, companyNIF, companyAddress, purchaseNumber,
       receptionSupplierType, receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress, internLogo,
       nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
       termsListe, termDescription, termTitle, factor,
@@ -697,6 +741,7 @@ class PurchaseOrderBlock extends React.Component {
     const iva = { _id: ivaState };
     const PurchaseOrder = {
       purchaseOrderId,
+      purchaseNumber,
       iva,
       currency,
       factor,
@@ -741,7 +786,7 @@ class PurchaseOrderBlock extends React.Component {
   };
 
   handleClose = () => {
-    this.setState({ openPopUp: false });
+    this.setState({ openPopUp: false, openPrint: false });
   };
 
     handleChange = (ev) => {
@@ -976,7 +1021,7 @@ class PurchaseOrderBlock extends React.Component {
         receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress,
         externalSuppliers, companies, currencies, ivasCountries, internLogo,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
-        termsListe, termDescription, termTitle,
+        termsListe, termDescription, termTitle, purchaseOrder, openPrint,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
         localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
       } = this.state;
@@ -1715,6 +1760,33 @@ class PurchaseOrderBlock extends React.Component {
                 onClick={this.handleSave}
               >
                 save
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={openPrint}
+            keepMounted
+            scroll="body"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth="lg"
+            maxWidth="lg"
+          >
+            <DialogTitle id="alert-dialog-slide-title"> Print Purchase Order</DialogTitle>
+            <DialogContent dividers>
+              <PrintPurchaseOrder Info={purchaseOrder} />
+            </DialogContent>
+            <DialogActions>
+              <Button color="secondary" onClick={this.handleClose}>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handlePrint}
+              >
+                Print
               </Button>
             </DialogActions>
           </Dialog>
