@@ -1,0 +1,14 @@
+{
+    "nuxeo" : {
+                "url": "http://localhost:8180",
+                "user": "Administrator",
+                "pass": "Administrator",
+                "nombredominio": "default-domain"               
+             },
+    "onlyoffice" : {
+                 "url": "http://localhost"    
+             },
+    "color": "#FF0000",    
+    "configurado" : true
+
+}

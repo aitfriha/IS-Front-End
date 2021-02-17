@@ -89,7 +89,7 @@ import ColorPicker from 'material-ui-color-picker'
 //import Lightbox from 'react-lightbox-component';
 import ImgsViewer from 'react-images'
 import DocWindows from './DocWindows'
-//import data from "./data.json";
+import data from "./data.json";
 
 //import {Lightbox} from 'react-lightbox-component';
 //import Lightbox from 'react-image-lightbox';
@@ -119,13 +119,7 @@ import { injectIntl } from 'react-intl';
 ////
 ///////////////////////////////////////////////////// 
 /// carga en esta variable los datos de configuración ////
-const config =
-{
-  nuxeo: {
-    nombredominio: "myDataShouldBeHere"
-  }
-}
-
+const config = data;
 /// paso a cada una de las variables glovales los valores correspondientes en la configuración ///
 var dominio = '/' + config.nuxeo.nombredominio;
 var nombredominio = config.nuxeo.nombredominio;
