@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Grid,
   Card,
@@ -7,6 +7,9 @@ import {
   Checkbox,
   Button
 } from '@material-ui/core';
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
 
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import KeyboardReturnIcon from '@material-ui/icons/KeyboardReturn';
@@ -20,7 +23,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import notification from '../../../../components/Notification/Notification';
 
 import {
@@ -33,9 +36,18 @@ import {
   deleteBusinessExpenseSubtype
 } from '../../../../redux/businessExpenseType/actions';
 
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
 const styles = {};
 
 const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Business Expense Types';
+const description = brand.desc;
 
 class BusinessExpenseTypes extends React.Component {
   constructor(props) {
@@ -120,6 +132,9 @@ class BusinessExpenseTypes extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const { getBusinessExpensesTypes } = this.props;
     getBusinessExpensesTypes();
   }
@@ -189,7 +204,15 @@ class BusinessExpenseTypes extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent>
             {!this.state.selectedType
@@ -273,7 +296,6 @@ class BusinessExpenseTypes extends React.Component {
                     startIcon={<KeyboardReturnIcon />}
                     onClick={(e) => this.setState({ selectedType: null })}
                   >
-Return
                   </Button>
                   <MaterialTable
                     title={`${this.state.selectedType.name} subtypes list`}
@@ -360,7 +382,7 @@ Return
 }
 
 BusinessExpenseTypes.propTypes = {
-  location: PropTypes.object.isRequired,
+  //location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   businessExpenseTypeResponse: PropTypes.string.isRequired,
@@ -384,4 +406,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteBusinessExpenseSubtype
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(BusinessExpenseTypes)));
+
+const BusinessExpenseTypesMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(BusinessExpenseTypes));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <BusinessExpenseTypesMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(BusinessExpenseTypes)));

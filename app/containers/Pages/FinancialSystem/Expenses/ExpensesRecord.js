@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -53,7 +53,7 @@ import { connect } from 'react-redux';
 import { isString } from 'lodash';
 import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
 import { Confirmation } from '../Travels/Confirmation';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import notification from '../../../../components/Notification/Notification';
 import { ExpenseDetail } from './ExpenseDetail';
 
@@ -89,17 +89,23 @@ import {
   getDataAssociatedWithCurrencyTypes
 } from '../../../../redux/currency/actions';
 
+import {
+  getStaffByCompanyEmail
+} from '../../../../redux/staff/actions';
+
 
 let self = null;
 
 const styles = {};
 
-const employeeId = '5f7e29b1d33ad5b25ef1ce54';
-
 const ITEM_HEIGHT = 40;
 
 const today = new Date();
 const minimunDate = new Date('1990-01-01');
+
+
+const logedUser = localStorage.getItem('logedUser');
+const logedUserData = JSON.parse(logedUser);
 
 function TabContainer(props) {
   return (
@@ -108,6 +114,17 @@ function TabContainer(props) {
     </Typography>
   );
 }
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Expenses Record';
+const description = brand.desc;
 
 class ExpensesRecord extends React.Component {
   constructor(props) {
@@ -236,15 +253,21 @@ class ExpensesRecord extends React.Component {
 
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const {
-      getCurrencyTypes, getDataAssociatedWithCurrencyTypes, getAllCountry, getStaffExpensesTypes, getAllPersonTypes, getAllVoucherTypes, getExpenses
+      getStaffByCompanyEmail, getCurrencyTypes, getDataAssociatedWithCurrencyTypes, getAllCountry, getStaffExpensesTypes, getAllPersonTypes, getAllVoucherTypes, getExpenses
     } = this.props;
     getStaffExpensesTypes();
     getAllCountry();
     getAllPersonTypes();
     getAllVoucherTypes();
+
+    const companyEmail = logedUserData.userEmail;
+
     const data = {
-      employeeId,
+      companyEmail: companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
@@ -253,6 +276,8 @@ class ExpensesRecord extends React.Component {
 
     getCurrencyTypes();
     getDataAssociatedWithCurrencyTypes();
+
+    getStaffByCompanyEmail(companyEmail);
   }
 
   componentWillUnmount() {
@@ -318,15 +343,16 @@ class ExpensesRecord extends React.Component {
       searchComplete: true,
     });
     const { getExpenses, expenses } = this.props;
+
+    const companyEmail = logedUserData.userEmail;
+
     const data = {
-      employeeId,
+      companyEmail: companyEmail,
       period: this.state.period,
       startDate: this.state.startDate,
       endDate: this.state.endDate
     };
     getExpenses(data);
-
-    console.log(expenses);
   }
 
   handleClearDates = (e) => {
@@ -390,20 +416,19 @@ class ExpensesRecord extends React.Component {
         break;
       }
     }
-    const data = rowData || {
-      staffAvatar: '8',
-      staffCompany: 'Implemental Systems España',
-      staffFatherFamilyName: 'Escalante',
-      staffId: '5f7e29b1d33ad5b25ef1ce54',
-      staffMotherFamilyName: 'Suarez',
-      staffName: 'Juan Francisco',
-      staffPersonalNumber: '143690',
-    };
+
+    /* const { getStaffByCompanyEmail, staff } = this.props;
+    const { companyEmail } = logedUserData.userEmail;
+    getStaffByCompanyEmail(companyEmail); */
+
+    const data = rowData || {};
     data.type = type;
     this.setState({
       openDialog: true,
       dataDialog: data
     });
+
+    console.log(staff);
   }
 
   handleNoConfirm() {
@@ -456,10 +481,12 @@ class ExpensesRecord extends React.Component {
 
   handleExportCSV(event) {
     const { exportExpenses } = this.props;
+
+    const companyEmail = logedUserData.userEmail;
     new Promise((resolve) => {
       const params = {
         fileType: 'excel',
-        employeeId,
+        companyEmail: companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -484,10 +511,11 @@ class ExpensesRecord extends React.Component {
 
   handleExportPDF(event) {
     const { exportExpenses } = this.props;
+    const companyEmail = logedUserData.userEmail;
     new Promise((resolve) => {
       const params = {
         fileType: 'pdf',
-        employeeId,
+        companyEmail: companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -531,7 +559,7 @@ class ExpensesRecord extends React.Component {
   render() {
     const {
       intl, location, isLoading, errors, countries, staffExpensesTypes, personTypes, voucherTypes, expenses, expenseResponse, getExpenses, changeStatusExpense,
-      currencyTypes, currencyData, saveExpenseWithFile, saveExpense
+      currencyTypes, currencyData, saveExpenseWithFile, saveExpense, staff
     } = this.props;
     const { columns } = this.state;
 
@@ -562,7 +590,15 @@ class ExpensesRecord extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         {!this.state.openDialog
           ? (
             <Card>
@@ -735,7 +771,7 @@ class ExpensesRecord extends React.Component {
                               ? (
                                 <Grid item xs={12} md={4}>
                                   <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                  Expense Subtype:
+                                    Expense Subtype:
                                   </Typography>
                                   <Typography component="span" color="textSecondary">
                                     {this.getExpenseSubtypeBy(rowData).name}
@@ -747,7 +783,7 @@ class ExpensesRecord extends React.Component {
                               ? (
                                 <Grid item xs={12} md={4}>
                                   <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                  Payment Date:
+                                    Payment Date:
                                   </Typography>
                                   <Typography component="span" color="textSecondary">
                                     {rowData.paymentDate ? rowData.paymentDate : ''}
@@ -762,7 +798,7 @@ class ExpensesRecord extends React.Component {
                                 <Grid container direction="row">
                                   <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Expense City:
+                                      Expense City:
                                     </Typography>
                                     <Typography component="span" color="textSecondary">
                                       {rowData.expenseCityName}
@@ -770,7 +806,7 @@ class ExpensesRecord extends React.Component {
                                   </Grid>
                                   <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Expense State:
+                                      Expense State:
                                     </Typography>
                                     <Typography component="span" color="textSecondary">
                                       {rowData.expenseStateName}
@@ -778,7 +814,7 @@ class ExpensesRecord extends React.Component {
                                   </Grid>
                                   <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                    Expense Country:
+                                      Expense Country:
                                     </Typography>
                                     <Typography component="span" color="textSecondary">
                                       {rowData.expenseCountryName}
@@ -791,7 +827,7 @@ class ExpensesRecord extends React.Component {
                                       <Grid container direction="row">
                                         <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                           <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                        Arrival Date:
+                                            Arrival Date:
                                           </Typography>
                                           <Typography component="span" color="textSecondary">
                                             {new Date(rowData.arrivalDate).toLocaleString('es-ES', {
@@ -806,7 +842,7 @@ class ExpensesRecord extends React.Component {
                                         </Grid>
                                         <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                           <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                        Departure Date:
+                                            Departure Date:
                                           </Typography>
                                           <Typography component="span" color="textSecondary">
                                             {new Date(rowData.departureDate).toLocaleString('es-ES', {
@@ -827,7 +863,7 @@ class ExpensesRecord extends React.Component {
                                       <React.Fragment>
                                         <Grid item xs={12} md={12} style={{ marginBottom: 5 }}>
                                           <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                        Description:
+                                            Description:
                                           </Typography>
                                           <Typography component="span" color="textSecondary">
                                             {rowData.description}
@@ -845,7 +881,7 @@ class ExpensesRecord extends React.Component {
                                   <Grid container direction="row">
                                     <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                       <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      From City:
+                                        From City:
                                       </Typography>
                                       <Typography component="span" color="textSecondary">
                                         {rowData.fromCityName}
@@ -853,7 +889,7 @@ class ExpensesRecord extends React.Component {
                                     </Grid>
                                     <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                       <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      From State:
+                                        From State:
                                       </Typography>
                                       <Typography component="span" color="textSecondary">
                                         {rowData.fromStateName}
@@ -861,7 +897,7 @@ class ExpensesRecord extends React.Component {
                                     </Grid>
                                     <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                       <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      From Country:
+                                        From Country:
                                       </Typography>
                                       <Typography component="span" color="textSecondary">
                                         {rowData.fromCountryName}
@@ -872,7 +908,7 @@ class ExpensesRecord extends React.Component {
                                   <Grid container direction="row">
                                     <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                       <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      To City:
+                                        To City:
                                       </Typography>
                                       <Typography component="span" color="textSecondary">
                                         {rowData.toCityName}
@@ -880,7 +916,7 @@ class ExpensesRecord extends React.Component {
                                     </Grid>
                                     <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                       <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      To State:
+                                        To State:
                                       </Typography>
                                       <Typography component="span" color="textSecondary">
                                         {rowData.toStateName}
@@ -888,7 +924,7 @@ class ExpensesRecord extends React.Component {
                                     </Grid>
                                     <Grid item xs={12} md={4} style={{ marginBottom: 5 }}>
                                       <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      To Country:
+                                        To Country:
                                       </Typography>
                                       <Typography component="span" color="textSecondary">
                                         {rowData.toCountryName}
@@ -900,7 +936,7 @@ class ExpensesRecord extends React.Component {
                                     ? (
                                       <Grid item xs={12} md={12} style={{ marginBottom: 5 }}>
                                         <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                      Kms:
+                                          Kms:
                                         </Typography>
                                         <Typography component="span" color="textSecondary">
                                           {rowData.kms}
@@ -999,10 +1035,10 @@ class ExpensesRecord extends React.Component {
                 }}
               >
                 <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
-                Export as CSV
+                  Export as CSV
                 </MenuItem>
                 <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
-                Export as PDF
+                  Export as PDF
                 </MenuItem>
               </Menu>
             </React.Fragment>
@@ -1019,7 +1055,7 @@ class ExpensesRecord extends React.Component {
             case: 'EXPENSE'
           }}
           data={{
-            employeeId,
+            companyEmail: logedUserData.userEmail,
             period: this.state.period,
             startDate: this.state.startDate,
             endDate: this.state.endDate
@@ -1037,7 +1073,6 @@ class ExpensesRecord extends React.Component {
 }
 
 ExpensesRecord.propTypes = {
-  location: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   expenseResponse: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired
@@ -1065,6 +1100,9 @@ const mapStateToProps = state => ({
   expenses: state.getIn(['expense']).expenses,
   expenseResponse: state.getIn(['expense']).expenseResponse,
 
+  staff: state.getIn(['staffs']).staff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+
   isLoading: state.getIn(['expense']).isLoading,
   errors: state.getIn(['expense']).errors,
 
@@ -1083,7 +1121,16 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   downloadDocumentOfExpense,
   getCurrencyTypes,
   getDataByCurrencyType,
-  getDataAssociatedWithCurrencyTypes
+  getDataAssociatedWithCurrencyTypes,
+  getStaffByCompanyEmail
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesRecord)));
+const ExpensesRecordMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesRecord));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ExpensesRecordMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesRecord)));

@@ -1,37 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Grid,
   Card,
   CardContent,
-  CardActions,
-  Typography,
-  Chip,
-  Checkbox,
-  Button,
-  TextField,
-  FormControl,
-  FormHelperText,
   Select,
-  MenuItem,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Tooltip
+  MenuItem
 } from '@material-ui/core';
 
-import ReceiptIcon from '@material-ui/icons/Receipt';
-import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import DeleteIcon from '@material-ui/icons/Delete';
-import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
-import EmailIcon from '@material-ui/icons/Email';
-
-import MaterialTable, { MTableEditRow, MTableToolbar } from 'material-table';
+import MaterialTable from 'material-table';
 
 import { injectIntl } from 'react-intl';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -40,7 +16,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import notification from '../../../../components/Notification/Notification';
 import {
   getAllExpenseEmailAddresses,
@@ -50,6 +26,17 @@ import {
 } from '../../../../redux/expenseEmailAddress/actions';
 
 const styles = {};
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Expense Email Address';
+const description = brand.desc;
 
 
 class ExpenseEmailAddress extends React.Component {
@@ -100,6 +87,9 @@ class ExpenseEmailAddress extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const { getAllExpenseEmailAddresses } = this.props;
     getAllExpenseEmailAddresses();
   }
@@ -153,7 +143,15 @@ class ExpenseEmailAddress extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent>
             <Grid item xs={12} md={12} style={{ marginTop: '10px' }}>
@@ -234,7 +232,6 @@ class ExpenseEmailAddress extends React.Component {
 }
 
 ExpenseEmailAddress.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   expenseEmailAddressResponse: PropTypes.string.isRequired,
@@ -257,4 +254,12 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpenseEmailAddress)));
+const ExpenseEmailAddressMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpenseEmailAddress));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ExpenseEmailAddressMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpenseEmailAddress)));

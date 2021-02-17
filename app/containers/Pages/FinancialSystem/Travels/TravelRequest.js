@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import ClearIcon from '@material-ui/icons/Clear';
 import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
 import CloseIcon from '@material-ui/icons/Close';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import MaterialTable, { MTableToolbar } from 'material-table';
@@ -12,7 +11,6 @@ import {
   Grid,
   FormControl,
   InputLabel,
-  OutlinedInput,
   Fab,
   Tooltip,
   Select,
@@ -23,10 +21,6 @@ import {
   IconButton,
   MenuItem,
   Chip,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
   Table,
   TableBody,
   TableCell,
@@ -38,12 +32,6 @@ import {
 
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
-
-import { CsvBuilder } from 'filefy';
-
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -54,11 +42,8 @@ import {
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { isString } from 'lodash';
-import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
 import { Confirmation } from './Confirmation';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
-import notification from '../../../../components/Notification/Notification';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import { TravelRequestDetail } from './TravelRequestDetail';
 
 import {
@@ -71,6 +56,7 @@ import {
 } from '../../../../redux/travelRequest/actions';
 
 import {
+  getAllCustomerContractsByCompanyEmail,
   getAllCustomerContractsByEmployee
 } from '../../../../redux/staffAssignment/actions';
 
@@ -87,14 +73,24 @@ let self = null;
 
 const styles = {};
 
-const employeeId = '5f7e29b1d33ad5b25ef1ce54';
-const fullName = 'Juan Francisco Escalante Suarez';
-const companyEmail = 'jfescalante@implementalsystems.com';
-
 const ITEM_HEIGHT = 40;
 
 const today = new Date();
 const minimunDate = new Date('1990-01-01');
+
+const logedUser = localStorage.getItem('logedUser');
+const logedUserData = JSON.parse(logedUser);
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Travel Requests';
+const description = brand.desc;
 
 class TravelRequest extends React.Component {
   constructor(props) {
@@ -298,17 +294,23 @@ class TravelRequest extends React.Component {
 
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const {
-      getTravelRequests, getAllCountry, getAllCustomerContractsByEmployee, getBusinessExpensesTypes
+      getTravelRequests, getAllCountry, getAllCustomerContractsByCompanyEmail, getBusinessExpensesTypes
     } = this.props;
+
+    const companyEmail = logedUserData.userEmail;
+
     const data = {
-      requesterId: employeeId,
+      companyEmail: companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
     };
     getTravelRequests(data);
-    getAllCustomerContractsByEmployee(employeeId);
+    getAllCustomerContractsByCompanyEmail(companyEmail);
     getBusinessExpensesTypes();
     getAllCountry();
   }
@@ -345,8 +347,10 @@ class TravelRequest extends React.Component {
       searchComplete: true,
     });
     const { getTravelRequests } = this.props;
+
+    const companyEmail = logedUserData.userEmail;
     const data = {
-      requesterId: employeeId,
+      companyEmail: companyEmail,
       period: this.state.period,
       startDate: this.state.startDate,
       endDate: this.state.endDate
@@ -440,10 +444,11 @@ class TravelRequest extends React.Component {
 
   handleExportCSV(event) {
     const { exportTravelRequests } = this.props;
+    const companyEmail = logedUserData.userEmail;
     new Promise((resolve) => {
       const params = {
         fileType: 'excel',
-        requesterId: employeeId,
+        companyEmail: companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -468,10 +473,11 @@ class TravelRequest extends React.Component {
 
   handleExportPDF(event) {
     const { exportTravelRequests } = this.props;
+    const companyEmail = logedUserData.userEmail;
     new Promise((resolve) => {
       const params = {
         fileType: 'pdf',
-        requesterId: employeeId,
+        companyEmail: companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -523,7 +529,15 @@ class TravelRequest extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         {!this.state.openDialog
           ? (
             <MaterialTable
@@ -712,10 +726,10 @@ class TravelRequest extends React.Component {
                 }}
               >
                 <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
-                Export as CSV
+                  Export as CSV
                 </MenuItem>
                 <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
-                Export as PDF
+                  Export as PDF
                 </MenuItem>
               </Menu>
             </React.Fragment>
@@ -732,7 +746,7 @@ class TravelRequest extends React.Component {
             case: 'TRAVEL REQUEST'
           }}
           data={{
-            requesterId: employeeId,
+            companyEmail: logedUserData.userEmail,
             period: this.state.period,
             startDate: this.state.startDate,
             endDate: this.state.endDate
@@ -750,7 +764,6 @@ class TravelRequest extends React.Component {
 }
 
 TravelRequest.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   travelRequestResponse: PropTypes.string.isRequired,
@@ -781,8 +794,18 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   exportTravelRequests,
   downloadDocumentsOfTravelRequest,
   getAllCountry,
+  getAllCustomerContractsByCompanyEmail,
   getAllCustomerContractsByEmployee,
   getBusinessExpensesTypes
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequest)));
+
+const TravelRequestMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequest));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <TravelRequestMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequest)));

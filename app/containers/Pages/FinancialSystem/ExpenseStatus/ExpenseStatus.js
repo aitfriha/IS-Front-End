@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Grid,
   Card,
@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import notification from '../../../../components/Notification/Notification';
 
 import {
@@ -25,6 +25,17 @@ import {
 } from '../../../../redux/expenseStatus/actions';
 
 const styles = {};
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Expense Status';
+const description = brand.desc;
 
 
 class ExpenseStatus extends React.Component {
@@ -59,6 +70,9 @@ class ExpenseStatus extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const { getAllExpenseStatus } = this.props;
     getAllExpenseStatus();
   }
@@ -79,7 +93,15 @@ class ExpenseStatus extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent>
             <Grid item xs={12} md={12} style={{ marginTop: '10px' }}>
@@ -148,7 +170,6 @@ class ExpenseStatus extends React.Component {
 }
 
 ExpenseStatus.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   expenseStatusResponse: PropTypes.string.isRequired,
@@ -171,4 +192,12 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpenseStatus)));
+const ExpenseStatusMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpenseStatus));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ExpenseStatusMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpenseStatus)));

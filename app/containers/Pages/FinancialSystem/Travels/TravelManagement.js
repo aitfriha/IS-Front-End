@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
@@ -41,11 +41,8 @@ import {
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { isString } from 'lodash';
-import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import { Confirmation } from './Confirmation';
-import notification from '../../../../components/Notification/Notification';
 import { TravelRequestDocumentPanel } from './TravelRequestDocumentPanel';
 
 import {
@@ -73,6 +70,17 @@ const ITEM_HEIGHT = 40;
 
 const today = new Date();
 const minimunDate = new Date('1990-01-01');
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Travels Management';
+const description = brand.desc;
 
 class TravelManagement extends React.Component {
   constructor(props) {
@@ -253,6 +261,9 @@ class TravelManagement extends React.Component {
 
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const {
       getTravelRequests, travelRequests, getCurrencyTypes, getDataAssociatedWithCurrencyTypes
     } = this.props;
@@ -462,7 +473,15 @@ class TravelManagement extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <MaterialTable
           title=""
           columns={columns}
@@ -738,7 +757,6 @@ class TravelManagement extends React.Component {
 }
 
 TravelManagement.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   travelRequestResponse: PropTypes.string.isRequired,
@@ -768,4 +786,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getDataAssociatedWithCurrencyTypes
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelManagement)));
+const TravelManagementMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelManagement));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <TravelManagementMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelManagement)));

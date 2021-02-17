@@ -528,25 +528,10 @@ module.exports = [
     icon: 'ios-people',
     child: [
       {
-        key: 'actions',
-        name: 'actions',
-        link: '/app/data/administration/actions'
+        key: 'roles',
+        name: 'Roles',
+        link: '/app/data/administration/roles'
       },
-      /*  {
-          key: 'departments',
-          name: 'departments',
-          link: '/app/data/administration/departments'
-        },
-        {
-          key: 'subjects',
-          name: 'subjects',
-          link: '/app/data/administration/subjects'
-        }, */
-      // {
-      //     key: 'fields',
-      //     name: 'fields',
-      //     link: '/app/data/administration/fields'
-      // },
       {
         key: 'users',
         name: 'Users Management',
@@ -554,8 +539,8 @@ module.exports = [
       },
       {
         key: 'roles_abilities',
-        name: 'Roles Management',
-        link: '/app/data/administration/roles-abilities'
+        name: 'Actions Management',
+        link: '/app/data/administration/role-actions'
       } /* ,
     {
         key: 'machines',
