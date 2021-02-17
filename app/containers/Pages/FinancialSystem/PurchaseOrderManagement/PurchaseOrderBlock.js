@@ -93,6 +93,7 @@ class PurchaseOrderBlock extends React.Component {
       localCurrency: '',
       openPopUp: false,
       openPrint: false,
+      print: false,
       datas: [],
       columns: [
         {
@@ -1012,6 +1013,10 @@ class PurchaseOrderBlock extends React.Component {
       }
     }
 
+    handlePrintChild = () => {
+      this.setState({ print: true });
+    }
+
     render() {
       console.log(this.state);
       const { classes } = this.props;
@@ -1021,7 +1026,7 @@ class PurchaseOrderBlock extends React.Component {
         receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress,
         externalSuppliers, companies, currencies, ivasCountries, internLogo,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
-        termsListe, termDescription, termTitle, purchaseOrder, openPrint,
+        termsListe, termDescription, termTitle, purchaseOrder, openPrint, print,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
         localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
       } = this.state;
@@ -1775,7 +1780,7 @@ class PurchaseOrderBlock extends React.Component {
           >
             <DialogTitle id="alert-dialog-slide-title"> Print Purchase Order</DialogTitle>
             <DialogContent dividers>
-              <PrintPurchaseOrder Info={purchaseOrder} />
+              <PrintPurchaseOrder Info={purchaseOrder} Print={print} />
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleClose}>
@@ -1784,7 +1789,7 @@ class PurchaseOrderBlock extends React.Component {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={this.handlePrint}
+                onClick={this.handlePrintChild}
               >
                 Print
               </Button>
