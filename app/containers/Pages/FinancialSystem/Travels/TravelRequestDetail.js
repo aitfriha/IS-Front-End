@@ -7,7 +7,6 @@ import {
   CardActions,
   Divider,
   Typography,
-  Fab,
   Tooltip,
   TextField,
   FormControl,
@@ -17,6 +16,7 @@ import {
   MenuItem,
   IconButton,
   Button,
+  Box,
   FormHelperText,
 } from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
@@ -24,14 +24,7 @@ import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pi
 import MaterialTable from 'material-table';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import DeleteIcon from '@material-ui/icons/Delete';
-
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { isString } from 'lodash';
-import { injectIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { isThisISOWeek } from 'date-fns';
 import notification from '../../../../components/Notification/Notification';
 
 
@@ -498,7 +491,7 @@ export class TravelRequestDetail extends React.Component {
                   <Chip label="Requester information" color="secondary" style={{ marginTop: '10px', marginBottom: '10px' }} />
                   <Grid item>
                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                            Personal Number:
+                      Personal Number:
                     </Typography>
                     <Typography component="span" color="textSecondary">
                       {obj.requesterPersonalNumber}
@@ -506,7 +499,7 @@ export class TravelRequestDetail extends React.Component {
                   </Grid>
                   <Grid item>
                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                            Name:
+                      Name:
                     </Typography>
                     <Typography component="span" color="textSecondary">
                       {obj.requesterName}
@@ -514,7 +507,7 @@ export class TravelRequestDetail extends React.Component {
                   </Grid>
                   <Grid item>
                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                            Father Family Name:
+                      Father Family Name:
                     </Typography>
                     <Typography component="span" color="textSecondary">
                       {obj.requesterFatherFamilyName}
@@ -522,7 +515,7 @@ export class TravelRequestDetail extends React.Component {
                   </Grid>
                   <Grid item>
                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                            Mother Family Name:
+                      Mother Family Name:
                     </Typography>
                     <Typography component="span" color="textSecondary">
                       {obj.requesterMotherFamilyName}
@@ -530,7 +523,7 @@ export class TravelRequestDetail extends React.Component {
                   </Grid>
                   <Grid item>
                     <Typography component="span" variant="subtitle2" gutterBottom style={{ marginRight: '5px' }}>
-                                            Company Name:
+                      Company Name:
                     </Typography>
                     <Typography component="span" color="textSecondary">
                       {obj.requesterCompany}
@@ -542,7 +535,7 @@ export class TravelRequestDetail extends React.Component {
                     ? (
                       <React.Fragment>
                         <Typography component="span" color="textSecondary" display="block" align="center">
-                                                Request Code
+                          Request Code
                         </Typography>
                         <Typography component="span" variant="h4" display="block" align="center">
                           {obj.code}
@@ -569,7 +562,7 @@ export class TravelRequestDetail extends React.Component {
                 </Grid>
                 <Grid item xs={5} md={11} style={{ marginTop: '13px' }}>
                   <Typography variant="subtitle2" gutterBottom>
-                                        Journey List
+                    Journey List
                   </Typography>
                 </Grid>
               </Grid>
@@ -578,13 +571,17 @@ export class TravelRequestDetail extends React.Component {
                 <Grid container key={'parent-grid' + index}>
 
                   <Grid container direction="row" spacing={2} key={'delete-grid' + index} style={{ marginTop: '2px', marginBottom: '2px' }}>
-                    <Grid item xs={1} md={1} key={'delete-btn-grid' + index} style={{ marginRight: '10px', maxWidth: '50px' }}>
-                      <IconButton key={'delete-icon-button' + index} onClick={(e) => this.handleDeleteRow(e, index)}>
-                        <DeleteIcon key={'delete-btn' + index} />
-                      </IconButton>
+                    <Grid item xs={6} md={6} key={'chip-grid' + index}>
+                      <Box display="flex" justifyContent="flex-start">
+                        <Chip label={`No. ${index + 1}`} key={'chip' + index} color="secondary" style={{ marginTop: '8px' }} />
+                      </Box>
                     </Grid>
-                    <Grid item xs={1} md={1} key={'chip-grid' + index}>
-                      <Chip label={`No. ${index + 1}`} key={'chip' + index} color="secondary" style={{ marginTop: '10px' }} />
+                    <Grid item xs={6} md={6} key={'delete-btn-grid' + index}>
+                      <Box display="flex" justifyContent="flex-end">
+                        <IconButton key={'delete-icon-button' + index} onClick={(e) => this.handleDeleteRow(e, index)}>
+                          <DeleteIcon key={'delete-btn' + index} />
+                        </IconButton>
+                      </Box>
                     </Grid>
                   </Grid>
 
@@ -880,7 +877,7 @@ export class TravelRequestDetail extends React.Component {
                 ? (
                   <div style={{ marginTop: '20px', marginBottom: '5px' }}>
                     <Typography component="span" variant="subtitle2" gutterBottom>
-                                        Customers and operations to visit
+                      Customers and operations to visit
                     </Typography>
                     <Grid container spacing={2} style={{ marginBottom: '5px' }}>
                       <Grid item xs={12} md={3}>
@@ -992,7 +989,7 @@ export class TravelRequestDetail extends React.Component {
           </CardContent>
           <CardActions style={{ marginLeft: '10px' }}>
             <Button variant="contained" size="small" color="default" onClick={(e) => handleClose(false)}>
-                            Cancel
+              Cancel
               {/* {intl.formatMessage({ id: 'connection.row.body.no' })} */}
             </Button>
             <Button
@@ -1002,7 +999,7 @@ export class TravelRequestDetail extends React.Component {
               color="primary"
               onClick={(e) => this.handleSave(e)}
             >
-                            Save Travel Request
+              Save Travel Request
               {/* } {intl.formatMessage({ id: 'connection.row.body.yes' })} */}
             </Button>
           </CardActions>

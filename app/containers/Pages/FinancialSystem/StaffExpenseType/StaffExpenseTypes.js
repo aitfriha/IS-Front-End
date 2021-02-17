@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Grid,
   Card,
@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import notification from '../../../../components/Notification/Notification';
 
 import {
@@ -36,6 +36,16 @@ import {
 
 const styles = {};
 
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Staff Expense Types';
+const description = brand.desc;
 
 class StaffExpenseTypes extends React.Component {
   constructor(props) {
@@ -144,6 +154,9 @@ class StaffExpenseTypes extends React.Component {
   }
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const { getStaffExpensesTypes } = this.props;
     getStaffExpensesTypes();
   }
@@ -222,7 +235,15 @@ class StaffExpenseTypes extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent>
             {!this.state.selectedType
@@ -269,12 +290,12 @@ class StaffExpenseTypes extends React.Component {
                       }
                     }), */
                       onRowUpdate: newData => new Promise((resolve) => {
-                      // update staff expense type action
+                        // update staff expense type action
                         updateStaffExpenseType(newData);
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getStaffExpensesTypes();
                           notification('success', result);
                         } else {
@@ -282,12 +303,12 @@ class StaffExpenseTypes extends React.Component {
                         }
                       }),
                       onRowDelete: oldData => new Promise((resolve) => {
-                      // delete staff expense type action
+                        // delete staff expense type action
                         deleteStaffExpenseType(oldData.id);
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getStaffExpensesTypes();
                           notification('success', result);
                         } else {
@@ -306,7 +327,7 @@ class StaffExpenseTypes extends React.Component {
                     startIcon={<KeyboardReturnIcon />}
                     onClick={(e) => this.setState({ selectedType: null })}
                   >
-Return
+                    Return
                   </Button>
                   <MaterialTable
                     title={`${this.state.selectedType.name} subtypes list`}
@@ -323,7 +344,7 @@ Return
                     style={{ marginTop: '10px' }}
                     editable={{
                       onRowAdd: newData => new Promise((resolve) => {
-                      // add staff expense subtype action
+                        // add staff expense subtype action
                         newData.type = this.state.selectedType.id;
                         newData.masterValueType = this.state.selectedType.masterValue;
                         if (newData.masterValueType === 'LODGING') {
@@ -333,7 +354,7 @@ Return
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getStaffExpensesTypes();
                           this.setState({
                             requirementModified: false,
@@ -345,7 +366,7 @@ Return
                         }
                       }),
                       onRowUpdate: newData => new Promise((resolve) => {
-                      // update staff expense subtype action
+                        // update staff expense subtype action
                         if (newData.masterValueType === 'LODGING') {
                           newData.requirement = this.state.requirementModified ? this.getRequirementByValue(this.state.selectedRequirement) : newData.requirement;
                         }
@@ -353,7 +374,7 @@ Return
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getStaffExpensesTypes();
                           this.setState({
                             requirementModified: false,
@@ -365,7 +386,7 @@ Return
                         }
                       }),
                       onRowDelete: oldData => new Promise((resolve) => {
-                      // delete staff expense subtype action
+                        // delete staff expense subtype action
                         const data = {
                           typeId: oldData.type,
                           subtypeId: oldData.id
@@ -374,7 +395,7 @@ Return
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getStaffExpensesTypes();
                           notification('success', result);
                         } else {
@@ -393,7 +414,6 @@ Return
 }
 
 StaffExpenseTypes.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   staffExpenseTypeResponse: PropTypes.string.isRequired,
@@ -420,4 +440,12 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(StaffExpenseTypes)));
+const StaffExpenseTypesMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(StaffExpenseTypes));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StaffExpenseTypesMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(StaffExpenseTypes)));

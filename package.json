@@ -154,6 +154,7 @@
     "leaflet-control-geocoder": "^1.13.0",
     "lodash": "^4.17.15",
     "material-table": "^1.69.0",
+    "material-ui-color-picker": "^3.5.1",
     "material-ui-pickers": "^2.2.4",
     "minimist": "^1.2.5",
     "moment": "^2.29.1",

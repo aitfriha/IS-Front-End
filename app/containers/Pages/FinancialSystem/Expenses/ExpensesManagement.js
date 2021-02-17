@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
@@ -50,7 +50,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
 import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
-import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import Loading from '../../../../components/Loading/index';
 import notification from '../../../../components/Notification/Notification';
 import { Confirmation } from '../Travels/Confirmation';
@@ -102,6 +102,17 @@ function TabContainer(props) {
     </Typography>
   );
 }
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+const useStyles = makeStyles((theme) => {
+
+});
+const title = brand.name + ' - Expenses Management';
+const description = brand.desc;
 
 class ExpensesManagement extends React.Component {
   constructor(props) {
@@ -215,6 +226,9 @@ class ExpensesManagement extends React.Component {
 
 
   componentDidMount() {
+    const { changeTheme } = this.props;
+    changeTheme('greyTheme');
+
     const {
       getCurrencyTypes, getDataAssociatedWithCurrencyTypes, getAllCountry, getStaffExpensesTypes, getAllPersonTypes, getAllVoucherTypes, getExpenses
     } = this.props;
@@ -487,7 +501,15 @@ class ExpensesManagement extends React.Component {
 
     return (
       <div>
-        <HelmetCustom location={location} />
+        {/* <HelmetCustom location={location} /> */}
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
         <Card>
           <CardContent>
             <Grid container direction="row" spacing={2} style={{ marginLeft: 20, marginBottom: 25 }}>
@@ -980,7 +1002,6 @@ class ExpensesManagement extends React.Component {
 }
 
 ExpensesManagement.propTypes = {
-  location: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   expenseResponse: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired
@@ -1026,4 +1047,12 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getDataAssociatedWithCurrencyTypes
 }, dispatch);
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesManagement)));
+const ExpensesManagementMapped = connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesManagement));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ExpensesManagementMapped changeTheme={changeTheme} classes={classes} />;
+};
+
+//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesManagement)));

@@ -16,7 +16,7 @@ import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
 import { Group, FolderSpecial, Edit, Close, Image, Audiotrack, Movie, InsertComment, MoveToInbox, LocalOffer, Add, Archive, Publish, PictureAsPdf, GetApp, Delete, Info, MoreHoriz, Share, HomeIcon, ViewList, Dehaze, Toc, AssignmentInd, Restore, Grade, Folder, FolderOpen, FolderShared, History, HourglassEmpty, Search, PermMedia, Favorite, LibraryBooks, Assignment, DeleteSweep, Dvr } from '@material-ui/icons';
 
 
-export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, handleYesConfirm }) => {
+export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, handleYesConfirm, color}) => {
 
   const [state, setState] = React.useState({
     btndisabled: true,
@@ -30,7 +30,6 @@ export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, h
   });
 
   React.useEffect(() => {
-    // console.log('entro vent ' + options.error);
     setState({
       btndisabled: true,
       value: options.denom,
@@ -139,7 +138,7 @@ export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, h
           marginBottom: '5px',
           paddingTop: '5px',
           paddingBottom: '5px',
-          backgroundColor: '#FF0000'
+          backgroundColor: color
         }} disableTypography onClose={handleNoConfirm}
         ><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -162,7 +161,7 @@ export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, h
             <FormControl style={{ width: '300px' }}>
               <FormGroup>
                 <TextField
-                  variant="outlined"
+                 // variant="outlined"
                   id="denominacion"
                   label="Denominación"
                   style={{ marginTop: '20px', marginBottom: '7px' }}
@@ -176,7 +175,7 @@ export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, h
               </FormGroup>
               <FormGroup>
                 <TextField
-                  variant="outlined"
+                 // variant="outlined"
                   id="descripcion"
                   label="Descripción"
                   error={state.error1}
@@ -194,7 +193,9 @@ export const CreateDocumentDialog = (({ openConfirm, options, handleNoConfirm, h
           <Button variant="outlined" size="small" onClick={handleNoConfirm} color="primary">
             Cancelar
           </Button>
-          <Button variant="contained" size="small" onClick={crearArchivo} color="primary" disabled={state.btndisabled} style={{ width: '91px', height: '39px' }}>
+          <Button variant="contained" size="small" onClick={crearArchivo} color="primary" disabled={state.btndisabled} 
+          style={{ width: '100px', height: '33px' }}
+          >
             Crear
           </Button>
         </DialogActions>
