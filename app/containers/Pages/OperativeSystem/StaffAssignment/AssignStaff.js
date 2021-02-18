@@ -19,7 +19,6 @@ import notification from '../../../../components/Notification/Notification';
 import { DateDialog } from './DateDialog';
 
 import avatarApi from '../../../../api/images/avatars';
-import StaffAssignment from './StaffAssignment';
 
 let self = null;
 
