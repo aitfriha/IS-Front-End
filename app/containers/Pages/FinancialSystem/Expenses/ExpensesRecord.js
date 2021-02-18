@@ -257,8 +257,8 @@ class ExpensesRecord extends React.Component {
     changeTheme('greyTheme');
 
     const {
-      getStaffByCompanyEmail, getCurrencyTypes, getDataAssociatedWithCurrencyTypes, getAllCountry, getStaffExpensesTypes, getAllPersonTypes, getAllVoucherTypes, getExpenses
-    } = this.props;
+      getStaffByCompanyEmail, getCurrencyTypes, getDataAssociatedWithCurrencyTypes, getAllCountry, getStaffExpensesTypes, getAllPersonTypes, getAllVoucherTypes, getExpenses,
+      staff } = this.props;
     getStaffExpensesTypes();
     getAllCountry();
     getAllPersonTypes();
@@ -417,18 +417,19 @@ class ExpensesRecord extends React.Component {
       }
     }
 
-    /* const { getStaffByCompanyEmail, staff } = this.props;
-    const { companyEmail } = logedUserData.userEmail;
-    getStaffByCompanyEmail(companyEmail); */
-
-    const data = rowData || {};
+    const { staff } = this.props;
+    const data = rowData || {
+      staffPersonalNumber: staff.personalNumber,
+      staffName: staff.firstName,
+      staffFatherFamilyName: staff.fatherFamilyName,
+      staffMotherFamilyName: staff.motherFamilyName,
+      staffCompany: staff.companyName
+    };
     data.type = type;
     this.setState({
       openDialog: true,
       dataDialog: data
     });
-
-    console.log(staff);
   }
 
   handleNoConfirm() {

@@ -68,6 +68,10 @@ import {
   getBusinessExpensesTypes
 } from '../../../../redux/businessExpenseType/actions';
 
+import {
+  getStaffByCompanyEmail
+} from '../../../../redux/staff/actions';
+
 
 let self = null;
 
@@ -298,7 +302,7 @@ class TravelRequest extends React.Component {
     changeTheme('greyTheme');
 
     const {
-      getTravelRequests, getAllCountry, getAllCustomerContractsByCompanyEmail, getBusinessExpensesTypes
+      getTravelRequests, getAllCountry, getAllCustomerContractsByCompanyEmail, getBusinessExpensesTypes, getStaffByCompanyEmail
     } = this.props;
 
     const companyEmail = logedUserData.userEmail;
@@ -313,6 +317,7 @@ class TravelRequest extends React.Component {
     getAllCustomerContractsByCompanyEmail(companyEmail);
     getBusinessExpensesTypes();
     getAllCountry();
+    getStaffByCompanyEmail(companyEmail)
   }
 
   componentWillUnmount() {
@@ -387,16 +392,17 @@ class TravelRequest extends React.Component {
   }
 
   handleTravelRequest = (e, rowData) => {
+    const { staff } = this.props;
     this.setState({
       openDialog: true,
       dataDialog: rowData || {
-        requesterAvatar: '8',
-        requesterCompany: 'Implemental Systems España',
-        requesterFatherFamilyName: 'Escalante',
-        requesterId: '5f7e29b1d33ad5b25ef1ce54',
-        requesterMotherFamilyName: 'Suarez',
-        requesterName: 'Juan Francisco',
-        requesterPersonalNumber: '143690',
+        requesterAvatar: staff.photo,
+        requesterCompany: staff.companyName,
+        requesterFatherFamilyName: staff.fatherFamilyName,
+        requesterId: staff.staffId,
+        requesterMotherFamilyName: staff.motherFamilyName,
+        requesterName: staff.firstName,
+        requesterPersonalNumber: staff.personalNumber,
       }
     });
   }
@@ -780,6 +786,9 @@ const mapStateToProps = state => ({
   businessExpensesTypes: state.getIn(['businessExpenseType']).businessExpensesTypes,
   businessExpenseTypeResponse: state.getIn(['businessExpenseType']).businessExpenseTypeResponse,
 
+  staff: state.getIn(['staffs']).staff,
+  staffResponse: state.getIn(['staffs']).staffResponse,
+
   travelRequests: state.getIn(['travelRequest']).travelRequests,
   travelRequestResponse: state.getIn(['travelRequest']).travelRequestResponse,
   isLoading: state.getIn(['travelRequest']).isLoading,
@@ -796,7 +805,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
   getAllCustomerContractsByCompanyEmail,
   getAllCustomerContractsByEmployee,
-  getBusinessExpensesTypes
+  getBusinessExpensesTypes,
+  getStaffByCompanyEmail
 }, dispatch);
 
 
