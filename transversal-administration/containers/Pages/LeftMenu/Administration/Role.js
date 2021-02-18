@@ -53,6 +53,10 @@ class Role extends React.Component {
           name: 'roleDescription',
           label: 'Description'
         },
+        /*        {
+          name: 'actionsNames',
+          label: 'actionsNames'
+        }, */
         {
           name: '',
           label: 'Role Actions',
@@ -80,8 +84,16 @@ class Role extends React.Component {
   };
 
   showMondatoryAttributes= (data, aaa) => {
-    console.log(aaa.rowData[0]);
-    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]) });
+    const { allRoles } = this.props;
+    let theRole;
+    for (const key in allRoles) {
+      if (allRoles[key].roleName === aaa.rowData[0]) {
+        // this.setState({ keyState: newProps.allStateCountrys[key] });
+        theRole = allRoles[key];
+        break;
+      }
+    }
+    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]), actions: theRole.actionsNames});
   }
 
   render() {
