@@ -1304,7 +1304,6 @@ class PurchaseOrderBlock extends React.Component {
                       name="itemNames"
                       value={itemNames[row]}
                       multiline
-                      rows={1}
                       onChange={event => this.handleConcept(event, row)}
                       fullWidth
                       required
@@ -1320,7 +1319,6 @@ class PurchaseOrderBlock extends React.Component {
                       name="description"
                       value={description[row]}
                       multiline
-                      rows={1}
                       onChange={event => this.handleConcept(event, row)}
                       fullWidth
                       required
