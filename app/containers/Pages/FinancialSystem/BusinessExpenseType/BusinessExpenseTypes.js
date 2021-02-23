@@ -259,12 +259,12 @@ class BusinessExpenseTypes extends React.Component {
                       }
                     }), */
                       onRowUpdate: newData => new Promise((resolve) => {
-                      // update business expense type action
+                        // update business expense type action
                         updateBusinessExpenseType(newData);
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getBusinessExpensesTypes();
                           notification('success', result);
                         } else {
@@ -272,12 +272,12 @@ class BusinessExpenseTypes extends React.Component {
                         }
                       }),
                       onRowDelete: oldData => new Promise((resolve) => {
-                      // delete business expense type action
+                        // delete business expense type action
                         deleteBusinessExpenseType(oldData.id);
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getBusinessExpensesTypes();
                           notification('success', result);
                         } else {
@@ -296,6 +296,7 @@ class BusinessExpenseTypes extends React.Component {
                     startIcon={<KeyboardReturnIcon />}
                     onClick={(e) => this.setState({ selectedType: null })}
                   >
+                    Return
                   </Button>
                   <MaterialTable
                     title={`${this.state.selectedType.name} subtypes list`}
@@ -312,7 +313,7 @@ class BusinessExpenseTypes extends React.Component {
                     style={{ marginTop: '10px' }}
                     editable={{
                       onRowAdd: newData => new Promise((resolve) => {
-                      // add business expense subtype action
+                        // add business expense subtype action
                         newData.type = this.state.selectedType.id;
                         newData.masterValueType = this.state.selectedType.masterValue;
                         /* if (newData.masterValueType === 'LODGING') {
@@ -322,7 +323,7 @@ class BusinessExpenseTypes extends React.Component {
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getBusinessExpensesTypes();
                           this.setState({
                             requirementModified: false,
@@ -334,15 +335,15 @@ class BusinessExpenseTypes extends React.Component {
                         }
                       }),
                       onRowUpdate: newData => new Promise((resolve) => {
-                      // update business expense subtype action
-                      /* if (newData.masterValueType === 'LODGING') {
-                        newData.requirement = this.state.requirementModified ? this.getRequirementByValue(this.state.selectedRequirement) : newData.requirement
-                      } */
+                        // update business expense subtype action
+                        /* if (newData.masterValueType === 'LODGING') {
+                          newData.requirement = this.state.requirementModified ? this.getRequirementByValue(this.state.selectedRequirement) : newData.requirement
+                        } */
                         updateBusinessExpenseSubtype(newData);
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getBusinessExpensesTypes();
                           this.setState({
                             requirementModified: false,
@@ -354,7 +355,7 @@ class BusinessExpenseTypes extends React.Component {
                         }
                       }),
                       onRowDelete: oldData => new Promise((resolve) => {
-                      // delete business expense subtype action
+                        // delete business expense subtype action
                         const data = {
                           typeId: oldData.type,
                           subtypeId: oldData.id
@@ -363,7 +364,7 @@ class BusinessExpenseTypes extends React.Component {
                         this.editingPromiseResolve = resolve;
                       }).then((result) => {
                         if (isString(result)) {
-                        // Fetch data
+                          // Fetch data
                           getBusinessExpensesTypes();
                           notification('success', result);
                         } else {

@@ -115,7 +115,8 @@ export default function* rootSaga() {
     expenseEmailAddressSaga(),
     assignmentTypeSaga(),
     weeklyReportSaga(),
-    weeklyReportConfigSaga(),
+    weeklyReportConfigSaga()
+
     // add other watchers to the array
   ]);
 }
