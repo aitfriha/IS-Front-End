@@ -30,6 +30,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Button, InputLabel } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 import { addAction, getAllActions } from '../../../../redux/actions/actions';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
 import notification from '../../../../../app/components/Notification/Notification';
@@ -59,8 +60,9 @@ class RoleActions extends React.Component {
     this.editingPromiseResolveAction = () => {
     };
     this.state = {
+      roleDescription: '',
       expanded: false,
-      role: '',
+      roleName: '',
       admin_user_Management_access: false,
       admin_user_Management_create: false,
       admin_user_Management_modify: false,
@@ -435,15 +437,33 @@ class RoleActions extends React.Component {
   }
 
   componentDidMount() {
-    const { getAllRoles, getAllSubjects, getAllActions } = this.props;
+    const {
+      getAllRoles, getAllSubjects, getAllActions, actions,
+    } = this.props;
     getAllRoles();
     getAllSubjects();
     getAllActions();
+   //console.log(this.props.location.state.actions);
+    if (!isEmpty(this.props.location.state)) {
+      for (const key in this.props.location.state.actions) {
+        console.log('==> : ', key);
+        console.log('==> : ', this.props.location.state.actions[key]);
+        this.setState({ [key]: this.props.location.state.actions[key] });
+      }
+    }
   }
 
      handleChange = (event) => {
        this.setState({ [event.target.name]: event.target.checked });
      };
+
+  handleChangeRoleName= (event) => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
+
+  handleChangeDescription = (event) => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
 
   handleChangeRole = (event) => {
     this.setState({ [event.target.name]: event.target.value });
@@ -451,9 +471,10 @@ class RoleActions extends React.Component {
   };
 
   handleSubmit = () => {
-    const { addAction } = this.props;
+    const { addAction, addRole } = this.props;
     const {
-      role,
+      roleName,
+      roleDescription,
       admin_user_Management_access,
       admin_user_Management_create,
       admin_user_Management_modify,
@@ -745,7 +766,8 @@ class RoleActions extends React.Component {
       financialModule_expensesEmailAddress_export,
     } = this.state;
     const action = {
-      roleId: role,
+      roleName,
+      roleDescription,
       actionsNames: {
         admin_user_Management_access,
         admin_user_Management_create,
@@ -1040,8 +1062,8 @@ class RoleActions extends React.Component {
     };
     console.log(action);
     const promise = new Promise((resolve) => {
-      addAction(action);
-      this.editingPromiseResolveAction = resolve;
+      addRole(action);
+      this.editingPromiseResolve = resolve;
     });
     promise.then((result) => {
       if (isString(result)) {
@@ -1066,7 +1088,7 @@ class RoleActions extends React.Component {
     render() {
       const {
         expanded,
-        role,
+        roleName,
         admin_user_Management_access,
         admin_user_Management_create,
         admin_user_Management_modify,
@@ -1362,129 +1384,113 @@ class RoleActions extends React.Component {
         classes, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities,
         isLoadingAction, actionResponse, errorsAction
       } = this.props;
-      const { columns } = this.state;
+      const { columns, roleDescription } = this.state;
       (!isLoadingAction && actionResponse) && this.editingPromiseResolveAction(actionResponse);
       (!isLoadingAction && !actionResponse) && this.editingPromiseResolveAction(errorsAction);
       // Sent resolve to editing promises
       (!isLoading && roleResponse) && this.editingPromiseResolve(roleResponse);
       (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
-      console.log(this.props.location.state.UserRole);
       return (
         <div>
-          {/*   <MaterialTable
-            components={{
-              EditField: fieldProps => {
-                const {
-                  columnDef: { lookup },
-                } = fieldProps;
-                if (lookup && fieldProps.columnDef.field === 'roleActionsIds') {
-                  return (
-                    <Select
-                      multiple
-                      value={fieldProps.value ? fieldProps.value : []}
-                      onChange={e => fieldProps.onChange(e.target.value)}
-                      input={<Input />}
-                      renderValue={(selected) => selected.join(', ')}
-                    >
-                      {Object.values(fieldProps.columnDef.lookup).map((name) => (
-                        <MenuItem key={name} value={name}>
-                          {name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  );
-                }
-                return <MTableEditField {...{ ...fieldProps, value: fieldProps.value || '' }} />;
-              },
-            }}
-            title=""
-            columns={columns}
-            data={allRoles && allRoles}
-            options={{
-              filtering: true,
-              grouping: true,
-              exportButton: true,
-              pageSize: 10,
-              actionsCellStyle: {
-                paddingLeft: 30,
-                width: 120,
-                maxWidth: 120,
-              },
-            }}
-
-            editable={{
-              onRowAdd: newData => new Promise((resolve) => {
-                // add Role*
-                newData.roleName = newData.roleName.toUpperCase();
-                addRole(newData);
-
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllRoles();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-              onRowUpdate: (newData) => new Promise((resolve) => {
-                // update Role
-                newData.roleName = newData.roleName.toUpperCase();
-                updateRole(newData);
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllRoles();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-              onRowDelete: oldData => new Promise((resolve) => {
-                // delete Role
-                console.log(oldData.roleId);
-                deleteRole(oldData.roleId);
-                this.editingPromiseResolve = resolve;
-              }).then((result) => {
-                if (isString(result)) {
-                  // Fetch data
-                  getAllRoles();
-                  notification('success', result);
-                } else {
-                  notification('danger', result);
-                }
-              }),
-            }}
-          /> */}
           <PapperBlock
-            title="Actions"
+            title={isEmpty(this.props.location.state)
+              ? 'Add new Role' : 'Actions'}
             desc=""
             icon="ios-people-outline"
             noMargin
             overflowX
           >
-            <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-              <FormControl
-                className={classes.formControl}
-                style={{ width: '30%' }}
-                required
-              >
-                <InputLabel>select the Role</InputLabel>
-                <Select
-                  name="role"
-                  value={role}
-                  onChange={this.handleChangeRole}
-                >
-                  {allRoles.map(theRole => (
-                    <MenuItem key={theRole.roleId} value={theRole.roleId}>
-                      {theRole.roleName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
+            {isEmpty(this.props.location.state)
+              ? (
+                <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
+                  {/*                 <FormControl
+                    className={classes.formControl}
+                    style={{ width: '30%' }}
+                    required
+                  >
+                    <InputLabel>select the Role</InputLabel>
+                    <Select
+                      name="role"
+                      value={role}
+                      onChange={this.handleChangeRole}
+                    >
+                      {allRoles.map(theRole => (
+                        <MenuItem key={theRole.roleId} value={theRole.roleId}>
+                          {theRole.roleName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl> */}
+                  <div>
+                    <FormControl
+                      className={classes.formControl}
+                      style={{ width: '30%' }}
+                      required
+                    >
+                      <TextField id="standard-basic" label="Role Name*" value={roleName} name="roleName" onChange={this.handleChangeRoleName} />
+                    </FormControl>
+                  </div>
+                  <br />
+                  <div>
+                    <FormControl
+                      className={classes.formControl}
+                      style={{ width: '70%' }}
+                      required
+                    >
+                      <TextField
+                        id="outlined-basic"
+                        label="Description"
+                        variant="outlined"
+                        name="roleDescription"
+                        value={roleDescription}
+                        style={{ width: '100%' }}
+                        className={classes.textField}
+                        onChange={this.handleChangeDescription}
+                      />
+                    </FormControl>
+                  </div>
+                  {/*              <FormControl
+                    className={classes.formControl}
+                    style={{ width: '30%' }}
+                    required
+                  >
+                    <TextField
+                      id="outlined-basic"
+                      label="Description"
+                      variant="outlined"
+                      name="description"
+                      value={description}
+                      style={{ width: '100%' }}
+                      className={classes.textField}
+                      onChange={this.handleChange}
+                    />
+                  </FormControl> */}
+
+                </div>
+              )
+              : (
+                <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
+                  <FormControl
+                    className={classes.formControl}
+                    style={{ width: '30%' }}
+                    required
+                  >
+                    <InputLabel>selected Role</InputLabel>
+                    <Select
+                      name="roleName"
+                      value={this.props.location.state.UserRole}
+                      onChange={this.handleChangeRole}
+                      disabled
+                    >
+                      {allRoles.map(theRole => (
+                        <MenuItem key={theRole.roleId} value={theRole.roleName}>
+                          {this.props.location.state.UserRole}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+              )}
             <br />
             <Accordion expanded={expanded === 'panel1'} onChange={this.handleChangePanel('panel1')}>
               <AccordionSummary
@@ -3446,15 +3452,29 @@ class RoleActions extends React.Component {
               </AccordionDetails>
             </Accordion>
             <br />
+
             <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-              <Button
-                color="primary"
-                variant="contained"
-                size="medium"
-                onClick={this.handleSubmit}
-              >
-                Save
-              </Button>
+              {isEmpty(this.props.location.state)
+                ? (
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    size="medium"
+                    onClick={this.handleSubmit}
+                  >
+                    Save role
+                  </Button>
+                ) : (
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    size="medium"
+                    onClick={this.handleSubmit}
+                  >
+                    Save Actions
+                  </Button>
+                )
+              }
             </div>
           </PapperBlock>
         </div>

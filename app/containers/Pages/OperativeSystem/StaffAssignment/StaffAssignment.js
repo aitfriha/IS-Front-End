@@ -30,6 +30,7 @@ import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { AssignStaff } from './AssignStaff';
 import avatarApi from '../../../../api/images/avatars';
+import Avatar from '@material-ui/core/Avatar';
 // import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import {
   updateOperationAssignment,
@@ -195,7 +196,8 @@ class StaffAssignment extends React.Component {
           minWidth: 100,
           render: rowData => (
             <Tooltip title={`${rowData.name} ${rowData.fatherFamilyName} ${rowData.motherFamilyName}`}>
-              <img src={avatarApi[parseInt(rowData.avatar)]} style={{ width: 40, borderRadius: '50%' }} />
+              {/*<Avatar alt="Employee name" src={rowData.avatar} />*/}
+              <img src={rowData.avatar} style={{ width: 40, borderRadius: '50%' }} />
             </Tooltip>
           )
         },

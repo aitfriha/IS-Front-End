@@ -143,7 +143,7 @@ function* getStaffByCompanyEmail(action) {
       type: GET_STAFF_BY_COMPANY_EMAIL_FAILURE,
       errors: errors.response.data.errors
     });
-  }
+  }  
 }
 
 export default function* staffSaga() {
