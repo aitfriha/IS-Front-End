@@ -130,9 +130,12 @@ class TypeOfCurrencyBlock extends React.Component {
       const Currency = {
         typeOfCurrencyId, currencyName, currencyCode
       };
-      TypeOfCurrencylService.updateTypeOfCurrency(Currency).then(result => {
-        this.setState({ datas: result.data, openPopUp: false });
-      });
+      const code = currencyCode.toString();
+      if (code.length < 4) {
+        TypeOfCurrencylService.updateTypeOfCurrency(Currency).then(result => {
+          this.setState({ datas: result.data, openPopUp: false });
+        });
+      }
     };
 
     handleChange = (ev) => {
