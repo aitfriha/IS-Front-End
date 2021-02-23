@@ -1,7 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
@@ -10,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import { fade } from '@material-ui/core/styles/colorManipulator';
+import { isString } from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import Grid from "@material-ui/core/Grid";
@@ -85,11 +84,11 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import SaveIcon from '@material-ui/icons/Save';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ColorPicker from 'material-ui-color-picker'
+import { API } from '../../../config/apiUrl';
 
 //import Lightbox from 'react-lightbox-component';
 import ImgsViewer from 'react-images'
 import DocWindows from './DocWindows'
-import data from "./data.json";
 
 //import {Lightbox} from 'react-lightbox-component';
 //import Lightbox from 'react-image-lightbox';
@@ -101,44 +100,20 @@ import {
 } from "material-ui-pickers";
 import 'moment/locale/es';
 
+//import data from './data.json'
+
 //const writeJsonFile = require('write-json-file');
 
 
 import MomentUtils from "@date-io/moment";
-import Fade from '@material-ui/core/Fade';
 import MenuList from '@material-ui/core/MenuList';
-import { Settings, ColorLens, Dns, VpnKey, Check, Notifications, Security, Public, PersonAdd, Group, FolderSpecial, MailOutline, VerifiedUser, ExpandLess, PermIdentity, Block, Done, FindInPage, ExpandMore, Edit, Theaters, AssignmentTurnedIn, HighlightOff, Visibility, NoteAdd, RestorePage, Refresh, Storage, GroupAdd, Create, Reply, MoreVert, PlaylistAdd, Comment, Close, AccountBalanceWallet, LockOpen, Undo, DeleteForever, Lock, Note, Receipt, Image, Audiotrack, Movie, InsertComment, MoveToInbox, LocalOffer, Add, Archive, Publish, PictureAsPdf, GetApp, Delete, Info, MoreHoriz, Share, HomeIcon, ViewList, Dehaze, Toc, AssignmentInd, Restore, Grade, Folder, FolderOpen, FolderShared, History, HourglassEmpty, Search, PermMedia, Favorite, LibraryBooks, Assignment, DeleteSweep, Dvr } from '@material-ui/icons';
-
-import { connect } from 'react-redux';
-import { injectIntl } from 'react-intl';
+import { Apps, Reorder, ViewHeadline, Settings, ColorLens, Dns, VpnKey, Check, Notifications, Security, Public, PersonAdd, Group, FolderSpecial, MailOutline, VerifiedUser, ExpandLess, PermIdentity, Block, Done, FindInPage, ExpandMore, Edit, Theaters, AssignmentTurnedIn, HighlightOff, Visibility, NoteAdd, RestorePage, Refresh, Storage, GroupAdd, Create, Reply, MoreVert, PlaylistAdd, Comment, Close, AccountBalanceWallet, LockOpen, Undo, DeleteForever, Lock, Note, Receipt, Image, Audiotrack, Movie, InsertComment, MoveToInbox, LocalOffer, Add, Archive, Publish, PictureAsPdf, GetApp, Delete, Info, MoreHoriz, Share, HomeIcon, ViewList, Dehaze, Toc, AssignmentInd, Restore, Grade, Folder, FolderOpen, FolderShared, History, HourglassEmpty, Search, PermMedia, Favorite, LibraryBooks, Assignment, DeleteSweep, Dvr } from '@material-ui/icons';
 
 
-/////////////////////////////////////////////////////
-////
-////               CONFIG MÓDULO
-////
-///////////////////////////////////////////////////// 
-/// carga en esta variable los datos de configuración ////
-const config = data;
-/// paso a cada una de las variables glovales los valores correspondientes en la configuración ///
-var dominio = '/' + config.nuxeo.nombredominio;
-var nombredominio = config.nuxeo.nombredominio;
-var workspace = '/UserWorkspaces/';
-if (nombredominio != 'default-domain') {
-  workspace = '/workspaces/';
-}
-//Parameters to connect to Nuxeo
-let usercheq = config.nuxeo.user;
-let passcheq = config.nuxeo.pass;
-var urlnuxeo = '';
-if (config.nuxeo.url) {
-  urlnuxeo = config.nuxeo.url + '/nuxeo/'
-}
-var onlyoffice = '';
-if (config.onlyoffice.url) {
-  onlyoffice = config.onlyoffice.url + '/web-apps/apps/api/documents/api.js'
-}
-var cssColor = config.color;
+/// necesario para poder trabajar con el cliente de nuxeo ///
+var Nuxeo = require('nuxeo');
+var path = require('path');
+var fs = require('fs');
 
 ///////////////////////////////////////////////
 ////
@@ -146,16 +121,254 @@ var cssColor = config.color;
 ////
 ////////////////////////////////////////////////
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: cssColor,
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import { ThemeContext } from '../../App/ThemeWrapper';
+
+let themeColor = '';
+
+let initialState = {};
+
+const useStyles = makeStyles((theme) => (
+  themeColor = theme.palette.primary.main,
+  {
+    grow: {
+      flexGrow: 1,
     },
-    default: {
-      main: cssColor,
+    title: {
+      display: 'none',
+      [theme.breakpoints.up('sm')]: {
+        display: 'block',
+      },
     },
-  },
-});
+    theme: {
+      backgroundColor: theme.palette.primary.main
+    },
+    themecolor: {
+      color: theme.palette.primary.main,
+    },
+    search: {
+      position: 'relative',
+      borderRadius: theme.shape.borderRadius,
+      backgroundColor: fade(theme.palette.common.white, 0.15),
+      '&:hover': {
+        backgroundColor: fade(theme.palette.common.white, 0.25),
+      },
+      marginLeft: 0,
+      width: '100%',
+      [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing.unit,
+        width: 'auto',
+      },
+    },
+    searchIcon: {
+      width: theme.spacing.unit * 9,
+      height: '100%',
+      position: 'absolute',
+      pointerEvents: 'none',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    inputRoot: {
+      color: 'inherit',
+      width: '100%',
+    },
+    inputInput: {
+      paddingTop: theme.spacing.unit,
+      paddingRight: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit * 10,
+      transition: theme.transitions.create('width'),
+      width: '100%',
+      [theme.breakpoints.up('sm')]: {
+        width: 120,
+        '&:focus': {
+          width: 200,
+        },
+      },
+    },
+    sectionDesktop: {
+      display: 'none',
+      [theme.breakpoints.up('md')]: {
+        display: 'flex',
+      },
+    },
+    sectionMobile: {
+      display: 'flex',
+      [theme.breakpoints.up('md')]: {
+        display: 'none',
+      },
+    },
+    link: {
+      display: 'flex',
+    },
+    icon: {
+      marginRight: theme.spacing.unit * 0.5,
+      width: 20,
+      height: 20,
+    },
+    container: {
+      // display: 'flex',
+    },
+    paper: {
+      margin: theme.spacing.unit,
+    },
+    appBar: {
+      transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+    },
+    appBarShift: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginRight: drawerWidth,
+    },
+    menuButton: {
+      marginLeft: 12,
+      marginRight: 20,
+    },
+    hide: {
+      display: 'none',
+    },
+    drawer: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+    drawerPaper: {
+      width: drawerWidth,
+    },
+    iconspequennos: {
+      marginLeft: '6px',
+      marginRight: '6px',
+      fontSize: '16px'
+    },
+    metadatadetailprimero: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '13px',
+      marginTop: '15px',
+      /* color: '#FF0000'//'#039BE5' */
+      color: theme.palette.primary.main,
+    },
+    metadatadetail: {
+      display: 'flex',
+      alignItems: 'center',
+      marginTop: '8px',
+      fontSize: '13px',
+      /* color: '#FF0000'//'#039BE5' */
+      color: theme.palette.primary.main,
+    },
+    metadatacontributorprimero: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '13px',
+      marginTop: '20px',
+      marginLeft: '15px',
+      /* color: '#FF0000'//'#039BE5' */
+      color: theme.palette.primary.main,
+    },
+    metadatacontributor: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '13px',
+      marginTop: '8px',
+      marginLeft: '15px',
+      /* color: '#FF0000'//'#039BE5' */
+      color: theme.palette.primary.main,
+    },
+    textspacenego: {
+      marginLeft: '5px',
+      color: '#000000'
+    },
+    tabs: {
+      /*  borderTop: '2px solid #FF0000',//#039BE5', */
+      borderTop: '2px solid ' + theme.palette.primary.main,
+      borderRadius: '0px',
+      marginTop: '25px'
+    },
+    tab: {
+      borderRadius: '0px',
+    },
+    rightIcon: {
+      marginLeft: theme.spacing.unit,
+    },
+    margin: {
+      margin: theme.spacing.unit,
+    },
+    avatar: {
+      /*  backgroundColor: '#FF0000'//'#039BE5' */
+      backgroundColor: theme.palette.primary.main,
+    },
+    avatarinactivo: {
+      backgroundColor: '#dddddd',
+    },
+    avatarconfig: {
+      color: theme.palette.primary.main,
+      backgroundColor: '#FFFFFF',
+      fontSize: 'large',
+    },
+    small: {
+      backgroundColor: '2px solid ' + theme.palette.primary.main,
+      /*  backgroundColor: '#FF0000',//'#039BE5' */
+      width: theme.spacing.unit * 3,
+      height: theme.spacing.unit * 3,
+    },
+    card: {
+      maxWidth: 200,
+    },
+    button: {
+      margin: theme.spacing.unit,
+    },
+    chip: {
+      margin: theme.spacing.unit,
+    },
+    heading: {
+      fontSize: theme.typography.pxToRem(15),
+      fontWeight: theme.typography.fontWeightRegular,
+    },
+    input: {
+      height: '41px'
+    },
+    formControl: {
+      margin: theme.spacing.unit,
+      minWidth: 270,
+      maxWidth: 270,
+    },
+    tbody: {
+      height: '200px',
+      overflow: 'auto',
+    },
+    cardconfig: {
+      maxWidth: 800,
+      minWidth: 600,
+      alignItems: 'center',
+    },
+    /// password ///
+    marginpass: {
+      margin: theme.spacing.unit,
+    },
+    withoutLabelpass: {
+      marginTop: theme.spacing.unit * 3,
+    },
+    textFieldpass: {
+      flexBasis: 200,
+    },
+    // texto mensajes grid centro//
+    textmensajecentro: {
+      color: 'rgba(0, 0, 0, 0.54)',
+      fontSize: '16px',
+    }
+
+  }));
+
+const title = brand.name + ' - Document Manager';
+const description = brand.desc;
 
 const inputProps = {
   step: 300,
@@ -174,244 +387,6 @@ function TabContainer(props) {
 TabContainer.propTypes = {
   children: PropTypes.node.isRequired,
 };
-
-const styles = theme => ({
-  root: {
-
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  title: {
-    display: 'none',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
-    },
-  },
-  theme: {
-    backgroundColor: cssColor,
-  },
-  themecolor: {
-    color: cssColor,
-  },
-  search: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing.unit,
-      width: 'auto',
-    },
-  },
-  searchIcon: {
-    width: theme.spacing.unit * 9,
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputRoot: {
-    color: 'inherit',
-    width: '100%',
-  },
-  inputInput: {
-    paddingTop: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit * 10,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      width: 120,
-      '&:focus': {
-        width: 200,
-      },
-    },
-  },
-  sectionDesktop: {
-    display: 'none',
-    [theme.breakpoints.up('md')]: {
-      display: 'flex',
-    },
-  },
-  sectionMobile: {
-    display: 'flex',
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  link: {
-    display: 'flex',
-  },
-  icon: {
-    marginRight: theme.spacing.unit * 0.5,
-    width: 20,
-    height: 20,
-  },
-  container: {
-    // display: 'flex',
-  },
-  paper: {
-    margin: theme.spacing.unit,
-  },
-  appBar: {
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: drawerWidth,
-  },
-  menuButton: {
-    marginLeft: 12,
-    marginRight: 20,
-  },
-  hide: {
-    display: 'none',
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  iconspequennos: {
-    marginLeft: '6px',
-    marginRight: '6px',
-    fontSize: '16px'
-  },
-  metadatadetailprimero: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '13px',
-    marginTop: '15px',
-    /* color: '#FF0000'//'#039BE5' */
-    color: cssColor,
-  },
-  metadatadetail: {
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '8px',
-    fontSize: '13px',
-    /* color: '#FF0000'//'#039BE5' */
-    color: cssColor,
-  },
-  metadatacontributorprimero: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '13px',
-    marginTop: '20px',
-    marginLeft: '15px',
-    /* color: '#FF0000'//'#039BE5' */
-    color: cssColor,
-  },
-  metadatacontributor: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '13px',
-    marginTop: '8px',
-    marginLeft: '15px',
-    /* color: '#FF0000'//'#039BE5' */
-    color: cssColor,
-  },
-  textspacenego: {
-    marginLeft: '5px',
-    color: '#000000'
-  },
-  tabs: {
-    /*  borderTop: '2px solid #FF0000',//#039BE5', */
-    borderTop: '2px solid ' + cssColor,
-    borderRadius: '0px',
-    marginTop: '25px'
-  },
-  tab: {
-    borderRadius: '0px',
-  },
-  rightIcon: {
-    marginLeft: theme.spacing.unit,
-  },
-  margin: {
-    margin: theme.spacing.unit,
-  },
-  avatar: {
-    /*  backgroundColor: '#FF0000'//'#039BE5' */
-    backgroundColor: cssColor,
-  },
-  avatarinactivo: {
-    backgroundColor: '#dddddd',
-  },
-  avatarconfig: {
-    color: cssColor,
-    backgroundColor: '#FFFFFF',
-    fontSize: 'large',
-  },
-  small: {
-    backgroundColor: '2px solid ' + cssColor,
-    /*  backgroundColor: '#FF0000',//'#039BE5' */
-    width: theme.spacing.unit * 3,
-    height: theme.spacing.unit * 3,
-  },
-  card: {
-    maxWidth: 200,
-  },
-  button: {
-    margin: theme.spacing.unit,
-  },
-  chip: {
-    margin: theme.spacing.unit,
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
-  },
-  input: {
-    height: '41px'
-  },
-  formControl: {
-    margin: theme.spacing.unit,
-    minWidth: 270,
-    maxWidth: 270,
-  },
-  tbody: {
-    height: '200px',
-    overflow: 'auto',
-  },
-  cardconfig: {
-    maxWidth: 800,
-    minWidth: 600,
-    alignItems: 'center',
-  },
-  /// password ///
-  marginpass: {
-    margin: theme.spacing.unit,
-  },
-  withoutLabelpass: {
-    marginTop: theme.spacing.unit * 3,
-  },
-  textFieldpass: {
-    flexBasis: 200,
-  },
-  // texto mensajes grid centro//
-  textmensajecentro: {
-    color: 'rgba(0, 0, 0, 0.54)',
-    fontSize: '16px',
-  }
-
-});
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -438,10 +413,7 @@ function getStyles(name, that) {
 //        UTILITARIOS
 //
 ///////////////////////////////////////////////////
-/// necesario para poder trabajar con el cliente de nuxeo ///
-var Nuxeo = require('nuxeo');
-var path = require('path');
-var fs = require('fs');
+
 
 const emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -458,51 +430,67 @@ var i = 0;
 var seleccionado = {}
 let grupos = [];
 
-/// obtengo el usuario logueado ////
-let logedUser = localStorage.getItem('logedUser');
-logedUser = JSON.parse(logedUser);
-let username = logedUser.userEmail;
-let user = username;
-let emailempresa = logedUser.userEmail;
-let pass = username;
-let fullname = logedUser.userFullName;
-let administrador = logedUser.userRoles.map(role => role.roleName === 'ADMIN')[0];
-
-/*let administrador = true;
-let user = 'osmany.cordero';
-let emailempresa = 'osmany.cordero@etecsa.cu';
-let pass = 'osmany.cordero';
-let fullname = 'Admin Pérez';*/
 
 /// Autenticarse en nuxeo como administrador para crear user en nuxeo ///////
-var nuxeo = new Nuxeo({
-  baseURL: urlnuxeo,
-  auth: {
-    method: 'basic',
-    username: usercheq,
-    password: passcheq
-  }
-});
+var nuxeo = {};
+
+/* import { bindActionCreators } from 'redux';
+
+import {
+  updateDocumentManagerConfig,
+  getDocumentManagerConfig
+} from '../../../redux/documentManagerConfig/actions'; */
 
 class DocumentManager extends React.Component {
   constructor(props) {
     super(props);
     self = this;
     this.state = {
-
-      moduloconfig: config.configurado,
+      moduloconfig: false,
       anchorEl: null,
       openmenu: false,
       anchoraddEl: null,
       openpanel: false,
       openaddmenu: false,
-      path: dominio + workspace + user + '/',
+      path: '',
       textbuscar: '',
       tabactivo: 0,
       conexion: 0,
       showBackdrop: true,
       titulotoolbar: 'Archivo',
       iconvacio: 'Archivo',
+      vistadetalle: true,
+      config: {
+        menuactivate: false,
+        disableact: false,
+        showpassword: false,
+        password: '',
+        confpassword: '',
+        errorpassword: false,
+        user: '',
+        confuser: '',
+        erroruser: false,
+        url: '',
+        confurl: '',
+        errorurl: false,
+        texterror: '',
+        textconexion: 'Datos incorrectos, error en la conexión',
+        nombredominio: '',
+        confnombredominio: '',
+        dominio: '',
+        workspace: '',
+        errordominio: false,
+        urlonlyoffice: '',
+        confurlonlyoffice: '',
+        errorurloffice: false,
+      },
+      login: {
+        user: '',
+        admin: '',
+        email: '',
+        fullname: '',
+        grupos: [],
+      },
       visualizacion: {
         mostrarimg: false,
         images: [],
@@ -606,7 +594,12 @@ class DocumentManager extends React.Component {
         mostrarbtnatras: false,
         pathantecesor: '',
         iconvacioantecesor: '',
-        listpath: [{ iconvacioantecesor: 'Archivo', path: dominio + workspace + user + '/', vinculo: false, denom: 'Archivo' }],
+        listpath: [{
+          iconvacioantecesor: 'Archivo',
+          path: '',
+          vinculo: false,
+          denom: 'Archivo'
+        }],
       },
       compartir: {
         todosusuariosshare: [],
@@ -709,83 +702,97 @@ class DocumentManager extends React.Component {
         showwindows: false,
         doc: null,
       },
-      config: {
-        menuactivate: false,
-        disableact: false,
-        colortema: cssColor,
-        errorcolor: '',
-        showpassword: false,
-        password: config.nuxeo.pass,
-        errorpassword: false,
-        user: config.nuxeo.user,
-        erroruser: false,
-        url: config.nuxeo.url,
-        errorurl: false,
-        texterror: '',
-        textconexion: 'Datos incorrectos, error en la conexión',
-        nombredominio: config.nuxeo.nombredominio,
-        errordominio: false,
-        urlonlyoffice: config.onlyoffice.url,
-        errorurloffice: false,
-      }
     }
   }
 
 
   componentDidMount() {
-    this.setState({
-      onlyoffice: {
-        showwindows: false,
-        doc: null
+
+    const { changeTheme } = this.props;
+    changeTheme('redTheme');
+
+    /// carga en esta variable los datos de configuración ////
+    axios.get(`${API}/documentManagerConfig/all`).then(res => {
+      let config = res.data.payload;
+
+      /// actualizo el estado, paso los valores correspondientes en la configuración ///                        
+      let workspace = '/UserWorkspaces/';
+      if (config.dominio != 'default-domain') {
+        workspace = '/workspaces/';
       }
-    })
-    loadData = [];
-    rows = [];
-    //console.log('configurado' + config['configurado']);
-    let newstate = this.state;
-    newstate.moduloconfig = config.configurado;
-    newstate.colortema = config.color;
-    //newstate.config.url= ;
-    this.setState({
-      newstate
-    })
-    console.log(this.state.moduloconfig);
-    if (!this.state.moduloconfig) {
-      console.log('se oculta el panel');
-    } else {
-      console.log('se muestra el panel');
-      /*  let newstate = this.state;
-       newstate.moduloconfig = config['configurado'];
-       this.setState({
-          newstate
-       }) */
-      this.conectarServer();
-    }
+
+      let estado = this.state;
+      estado.config.dominio = '/' + config.dominio;
+      estado.config.nombredominio = config.dominio;
+      estado.config.workspace = workspace;
+
+      //Parameters to connect to Nuxeo
+      estado.config.user = config.user;
+      estado.config.password = config.password;
+      estado.config.url = config.nuxeourl;
+      estado.config.urlonlyoffice = config.onlyoffice;
+      estado.moduloconfig = config.configurado;
+
+      /// obtengo el usuario logueado ////
+      //migue
+      let logedUser = localStorage.getItem('logedUser');
+      logedUser = JSON.parse(logedUser);
+      estado.login.user = logedUser.userEmail;
+      estado.login.email = logedUser.userEmail;
+      // estado.login.fullname = logedUser.fullName;
+      estado.login.admin = logedUser.userRoles.map(role => role.roleName === 'ADMIN')[0];
+
+      estado.onlyoffice.showwindows = false;
+      estado.onlyoffice.doc = null;
+
+      estado.path = '/' + config.dominio + workspace + estado.login.user + '/';
+      estado.antecesor.listpath.path = '/' + config.dominio + workspace + estado.login.user + '/';
+
+      /// Llenar los valores del formulario de configuración///
+      estado.config.confnombredominio = config.dominio;
+      estado.config.confuser = config.user;
+      estado.config.confpassword = config.password;
+      estado.config.confurl = config.nuxeourl;
+      estado.config.confurlonlyoffice = config.onlyoffice;
+
+      this.setState({
+        estado
+      })
+
+      initialState = estado;
+
+      nuxeo = new Nuxeo({
+        baseURL: self.state.config.url,
+        auth: {
+          method: 'basic',
+          username: self.state.config.user,
+          password: self.state.config.password
+        }
+      });
+
+      loadData = [];
+      rows = [];
+      if (this.state.moduloconfig === true) {
+        this.conectarServer();
+      }
+
+    });
+
   }
 
   //// Métodos del formulario de Configuración del Módulo ///
 
   handleComprobarActualizar = () => {
     nuxeo = new Nuxeo({
-      baseURL: self.state.config.url + '/nuxeo/',
+      baseURL: self.state.config.confurl,
       auth: {
         method: 'basic',
-        username: self.state.config.user,
-        password: self.state.config.password
+        username: self.state.config.confuser,
+        password: self.state.config.confpassword
       }
     });
-
-    nuxeo.connect({
-      baseURL: self.state.config.url + '/nuxeo/',
-      auth: {
-        method: 'basic',
-        username: self.state.config.user,
-        password: self.state.config.password
-      }
-    })
+    nuxeo.connect()
       .then(function (client) {
-        // client.connected === true
-        // client === nuxeo
         nuxeo.operation('UserGroup.Suggestion')
           .params({
             groupRestriction: 'administrators',
@@ -793,62 +800,102 @@ class DocumentManager extends React.Component {
           })
           .execute()
           .then(function (res) {
-            let encontrado = res.find(fila => self.state.config.user === fila.username);
-            //console.log(encontrado)
+            let encontrado = res.find(fila => self.state.config.confuser === fila.username);
             if (encontrado) {
               let config = new Map();
-              config.set('urlnuxeo', self.state.config.url)
-              config.set('user', self.state.config.user)
-              config.set('password', self.state.config.password)
-              config.set('dominio', self.state.config.nombredominio)
-              config.set('color', self.state.config.colortema)
+              config.set('nuxeourl', self.state.config.confurl)
+              config.set('user', self.state.config.confuser)
+              config.set('password', self.state.config.confpassword)
+              config.set('dominio', self.state.config.confnombredominio)
+              config.set('onlyoffice', self.state.config.confurlonlyoffice)
               config = Object.fromEntries(config.entries());
-              axios.post(brand.server + "/api/docmanagerconfig/update", config).then(response => {
-                if (response.data[1] === 'OK') {
-                  dominio = '/' + self.state.config.nombredominio;
-                  nombredominio = self.state.config.nombredominio;
-                  workspace = '/UserWorkspaces/';
-                  if (nombredominio != 'default-domain') {
-                    workspace = '/workspaces/';
-                  }
-                  //Parameters to connect to Nuxeo
-                  usercheq = self.state.config.user;
-                  passcheq = self.state.config.password;
-                  urlnuxeo = self.state.config.url + '/nuxeo/';
-                  onlyoffice = self.state.config.urlonlyoffice + '/web-apps/apps/api/documents/api.js';
-                  cssColor = self.state.config.colortema;
+              axios.post(`${API}/documentManagerConfig/update`, config).then(response => {
+                if (isString(response.data.payload)) {
                   var estado = self.state;
                   estado.moduloconfig = true;
+                  let workspace = '/UserWorkspaces/';
+                  if (self.state.config.confnombredominio != 'default-domain') {
+                    workspace = '/workspaces/';
+                  }
+                  estado.config.dominio = '/' + self.state.config.confnombredominio;
+                  estado.config.nombredominio = self.state.config.confnombredominio;
+                  estado.config.workspace = workspace;
+
+                  //Parameters to connect to Nuxeo
+                  estado.config.user = self.state.config.confuser;
+                  estado.config.password = self.state.config.confpassword;
+                  estado.config.url = self.state.config.confurl;
+                  estado.config.urlonlyoffice = self.state.config.confurlonlyoffice;
+                  estado.moduloconfig = true;
+
+                  estado.path = '/' + self.state.config.confnombredominio + workspace + estado.login.user + '/';
+                  estado.antecesor.listpath.path = '/' + self.state.config.confnombredominio + workspace + estado.login.user + '/';
+
                   self.setState({
                     estado
                   });
-                  theme = createMuiTheme({
-                    palette: {
-                      primary: {
-                        main: cssColor,
-                      },
-                      default: {
-                        main: cssColor,
-                      },
-                    },
+                  self.conectarServer();
+                  notification('success', 'La configuración fue actualizada satisfactoriamente');
+                } else {
+                  nuxeo = new Nuxeo({
+                    baseURL: self.state.config.url,
+                    auth: {
+                      method: 'basic',
+                      username: self.state.config.user,
+                      password: self.state.config.password
+                    }
                   });
+                  nuxeo.connect();
+                  notification('danger', 'Ha ocurrido un error al acutualizar la configuración');
                 }
-                notification('success', 'La configuración fue actualizada satisfactoriamente');
               }).catch(error => {
-                notification('danger', error.message);
+                nuxeo = new Nuxeo({
+                  baseURL: self.state.config.url,
+                  auth: {
+                    method: 'basic',
+                    username: self.state.config.user,
+                    password: self.state.config.password
+                  }
+                });
+                nuxeo.connect();
+                notification('danger', 'Ha ocurrido un error al acutualizar la configuración');
               });
             } else {
+              nuxeo = new Nuxeo({
+                baseURL: self.state.config.url,
+                auth: {
+                  method: 'basic',
+                  username: self.state.config.fuser,
+                  password: self.state.config.password
+                }
+              });
+              nuxeo.connect();
               notification('danger', 'El usuario proporcionado no es administrador en la plataforma nuxeo');
             }
           }).catch(function (error) {
-            /*  console.log('El usuario proporcionado no es administrador en la plataforma nuxeo') */
+            nuxeo = new Nuxeo({
+              baseURL: self.state.config.url,
+              auth: {
+                method: 'basic',
+                username: self.state.config.user,
+                password: self.state.config.password
+              }
+            });
+            nuxeo.connect();
             notification('danger', 'El usuario proporcionado no es administrador en la plataforma nuxeo');
           })
       })
       .catch(function (error) {
+        nuxeo = new Nuxeo({
+          baseURL: self.state.config.url,
+          auth: {
+            method: 'basic',
+            username: self.state.config.user,
+            password: self.state.config.password
+          }
+        });
+        nuxeo.connect();
         notification('danger', 'Datos incorrectos, la dirección del servidor de nuxeo o los datos de autenticación son incorrectos');
-        //console.log('error al conectar al server nuxeo');
-        // wrong credentials / auth method / ...
         throw error;
       });
   }
@@ -860,10 +907,10 @@ class DocumentManager extends React.Component {
     var errorurl = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorurl ? e.target.value : '';
-    var disable = ((errorurl && value === "") || (this.state.config.errordominio && this.state.config.nombredominio === "") || (this.state.config.erroruser && this.state.config.user === "") || (this.state.config.errorpassword && this.state.config.password === "") || (this.state.config.errorurlonlyoffice && this.state.config.urlonlyoffice === "") || (this.state.config.errorcolor && this.state.config.colortema === "")) ? true : false;
+    var disable = ((errorurl && value === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
-    estado.config.url = value;
+    estado.config.confurl = value;
     estado.config.errorurl = errorurl;
     estado.config.texterror = texterror;
     this.setState({
@@ -878,11 +925,11 @@ class DocumentManager extends React.Component {
     var errordominio = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errordominio ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.url === "") || (errordominio && value === "") || (this.state.config.erroruser && this.state.config.user === "") || (this.state.config.errorpassword && this.state.config.password === "") || (this.state.config.errorurlonlyoffice && this.state.config.urlonlyoffice === "") || (this.state.config.errorcolor && this.state.config.colortema === "")) ? true : false;
+    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (errordominio && value === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
 
     let estado = this.state;
     estado.config.disableact = disable;
-    estado.config.nombredominio = value;
+    estado.config.confnombredominio = value;
     estado.config.errordominio = errordominio;
     estado.config.texterror = texterror;
     this.setState({
@@ -897,10 +944,10 @@ class DocumentManager extends React.Component {
     var erroruser = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !erroruser ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.url === "") || (this.state.config.errordominio && this.state.config.nombredominio === "") || (erroruser && value === "") || (this.state.config.errorpassword && this.state.config.password === "") || (this.state.config.errorurlonlyoffice && this.state.config.urlonlyoffice === "") || (this.state.config.errorcolor && this.state.config.colortema === "")) ? true : false;
+    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (erroruser && value === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
-    estado.config.user = value;
+    estado.config.confuser = value;
     estado.config.erroruser = erroruser;
     estado.config.texterror = texterror;
     this.setState({
@@ -915,10 +962,10 @@ class DocumentManager extends React.Component {
     var errorpassword = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorpassword ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.url === "") || (this.state.config.errordominio && this.state.config.nombredominio === "") || (this.state.config.erroruser && this.state.config.user === "") || (errorpassword && value === "") || (this.state.config.errorurlonlyoffice && this.state.config.urlonlyoffice === "") || (this.state.config.errorcolor && this.state.config.colortema === "")) ? true : false;
+    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (errorpassword && value === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
-    estado.config.password = value;
+    estado.config.confpassword = value;
     estado.config.errorpassword = errorpassword;
     estado.config.texterror = texterror;
     this.setState({
@@ -944,10 +991,10 @@ class DocumentManager extends React.Component {
     var errorurl = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorurl ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.url === "") || (this.state.config.errordominio && this.state.config.nombredominio === "") || (this.state.config.erroruser && this.state.config.user === "") || (this.state.config.errorpassword && this.state.config.password === "") || (errorurl && value === "") || (this.state.config.errorcolor && this.state.config.colortema === "")) ? true : false;
+    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (errorurl && value === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
-    estado.config.urlonlyoffice = value;
+    estado.config.confurlonlyoffice = value;
     estado.config.errorurloffice = errorurl;
     estado.config.texterror = texterror;
     this.setState({
@@ -955,32 +1002,9 @@ class DocumentManager extends React.Component {
     })
   }
 
-  /// Cambiar el valor del campo de color primario///
-
-  setColorPrimario = (color) => {
-    console.log(color);
-    //console.log(e.target.value);
-    var errorcolor = (color === null || color === 'undefined' || color === "") ? true : false;
-    var texterror = (color === null || color === 'undefined' || color === "") ? 'Campo obligatorio' : null;
-    var value = !errorcolor ? color : '';
-    var disable = ((this.state.config.errorurl && this.state.config.url === "") || (this.state.config.errordominio && this.state.config.nombredominio === "") || (this.state.config.erroruser && this.state.config.user === "") || (this.state.config.errorpassword && this.state.config.password === "") || (this.state.config.errorurlonlyoffice && this.state.config.urlonlyoffice === "") || (errorcolor && value === "")) ? true : false;
-    let estado = this.state;
-    estado.config.disableact = disable;
-    estado.config.colortema = value;
-    estado.config.errorcolor = errorcolor;
-    estado.config.texterror = texterror;
-    this.setState({
-      estado
-    })
-    console.log(this.state.config.colortema);
-  }
-
   /// Verifica si existe el nombre de dominio expecificado //////
   conectarServer = () => {
-    let variante = '';
-    let mensaje = '';
-    self.ejecutarQueryRepo("SELECT * FROM Domain WHERE ecm:name='" + nombredominio + "'", 5).then(function (docs) {
-      //console.log(docs);
+    self.ejecutarQueryRepo("SELECT * FROM Domain WHERE ecm:name='" + self.state.config.nombredominio + "'", 5).then(function (docs) {
       if (docs.length === 0) {
         self.creardominio();
       } else {
@@ -993,11 +1017,11 @@ class DocumentManager extends React.Component {
 
   creardominio = () => {
     nuxeo = new Nuxeo({
-      baseURL: urlnuxeo,
+      baseURL: self.state.config.url,
       auth: {
         method: 'basic',
-        username: usercheq,
-        password: passcheq
+        username: self.state.config.user,
+        password: self.state.config.password
       }
     });
     nuxeo.operation('Document.Create')
@@ -1005,12 +1029,12 @@ class DocumentManager extends React.Component {
       .input('/')
       .params({
         type: 'Domain',
-        name: nombredominio
+        name: self.state.config.nombredominio
       })
       .execute()
       .then(function (doc) {
         // console.log('Modif');
-        self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:path STARTSWITH'" + dominio + "'", 5).then(function (docs) {
+        self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:path STARTSWITH'" + self.state.config.dominio + "'", 5).then(function (docs) {
 
           if (docs.length === 0) {
             nuxeo.operation('Document.RemoveACL')
@@ -1030,7 +1054,7 @@ class DocumentManager extends React.Component {
                   .execute()
                   .then(function (doc) {
                     doc.set({
-                      'dc:title': user,
+                      'dc:title': self.state.login.user,
                       'dc:type': 'UserWorkspacesRoot',
 
                     });
@@ -1051,28 +1075,28 @@ class DocumentManager extends React.Component {
 
   existeusuario = () => {
     nuxeo = new Nuxeo({
-      baseURL: urlnuxeo,
+      baseURL: self.state.config.url,
       auth: {
         method: 'basic',
-        username: usercheq,
-        password: passcheq
+        username: self.state.config.user,
+        password: self.state.config.password
       }
     });
     nuxeo.operation('UserGroup.Suggestion')
       .params({
         searchType: 'USER_TYPE',
-        searchTerm: user
+        searchTerm: self.state.login.user
       })
       .execute()
       .then(function (res) {
         if (res.length > 0) {
-          if (administrador) {
-            nuxeo.request("group/administrators" + "/user/" + user)
+          if (self.state.login.admin) {
+            nuxeo.request("group/administrators" + "/user/" + self.state.login.user)
               .post()
               .then(function (res) {
               })
           }
-          self.ejecutarQueryRepo("SELECT * FROM Workspace WHERE ecm:name='" + user + "' AND ecm:path STARTSWITH '" + dominio + workspace + "'", 5).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM Workspace WHERE ecm:name='" + self.state.login.user + "' AND ecm:path STARTSWITH '" + self.state.config.dominio + self.state.config.workspace + "'", 5).then(function (docs) {
             if (docs.length === 0) {
               self.crearworkspaceuser();
             } else {
@@ -1091,26 +1115,26 @@ class DocumentManager extends React.Component {
 
   crearusuario = () => {
     nuxeo = new Nuxeo({
-      baseURL: urlnuxeo,
+      baseURL: self.state.config.url,
       auth: {
         method: 'basic',
-        username: usercheq,
-        password: passcheq
+        username: self.state.config.user,
+        password: self.state.config.password
       }
     });
     var newUser = {
       properties: {
-        username: user,
-        password: user,
-        firstName: fullname,
+        username: self.state.login.user,
+        password: self.state.login.user,
+        firstName: self.state.login.fullname,
         company: 'Módulo de Gestión Documental',
-        email: emailempresa,
+        email: self.state.login.email,
       },
     };
     nuxeo.users()
       .create(newUser)
       .then(function (user) {
-        if (administrador) {
+        if (self.state.login.admin) {
           nuxeo.request("group/administrators" + "/user/" + user.id)
             .post()
             .then(function (res) {
@@ -1124,19 +1148,19 @@ class DocumentManager extends React.Component {
 
   crearworkspaceuser = () => {
     nuxeo = new Nuxeo({
-      baseURL: urlnuxeo,
+      baseURL: self.state.config.url,
       auth: {
         method: 'basic',
-        username: usercheq,
-        password: passcheq
+        username: self.state.config.user,
+        password: self.state.config.password
       }
     });
     nuxeo.operation('Document.Create')
       .enrichers({ document: ['acls'] })
-      .input(dominio + workspace)
+      .input(self.state.config.dominio + self.state.config.workspace)
       .params({
         type: 'Workspace',
-        name: user
+        name: self.state.login.user
       })
       .execute()
       .then(function (doc) {
@@ -1145,7 +1169,7 @@ class DocumentManager extends React.Component {
           .input(doc.path)
           .params({
             acl: "local",
-            user: user,
+            user: self.state.login.user,
             permission: "Everything",
             grant: true,
             overwrite: true
@@ -1161,70 +1185,68 @@ class DocumentManager extends React.Component {
 
   conectaranuxeo = () => {
     nuxeo = new Nuxeo({
-      baseURL: urlnuxeo,
+      baseURL: self.state.config.url,
       auth: {
         method: 'basic',
-        username: user,
-        password: user
+        username: self.state.login.user,
+        password: self.state.login.user
       }
     });
 
     nuxeo.connect({
-      baseURL: urlnuxeo,
+      baseURL: self.state.config.url,
       auth: {
         method: 'basic',
-        username: user,
-        password: user
+        username: self.state.login.user,
+        password: self.state.login.user
       }
-    })
-      .then(function (client) {
-        conexion = 1;
-        administrador = client.user.isAdministrator;
-        grupos = client.user.properties.groups;
-        emailempresa = client.user.properties.email;
-        self.listarArchivos(self.state.path, 'Archivo');
-      }).catch(function (error) {
-        rows = [];
-        notification('danger', 'Usuario no autorizado');
-        self.setState({
-          showBackdrop: false,
-          titulotoolbar: self.state.titulotoolbar,
-          iconvacio: self.state.iconvacio,
-          textbuscar: '',
-          tabla: {
-            rowCount: 0,
-            order: 'asc',
-            selected: [],
-            orderBy: 'name',
-            numSelected: 0,
-          },
-          menu: {
-            menuselect: self.state.menu.menuselect,
-          },
-          comentario: {
-            listcoments: [],
-          }
-        });
-        conexion = 2;
-        //throw error;
+    }).then(function (client) {
+      /*  console.log(client);
+       console.log(self.state.path); */
+      conexion = 1;
+      let estado = self.state;
+      estado.login.admin = client.user.isAdministrator;
+      estado.login.grupos = client.user.properties.groups;
+      estado.login.email = client.user.properties.email;
+      self.setState({
+        estado
+      })
+      self.listarArchivos(self.state.path, 'Archivo');
+    }).catch(function (error) {
+      rows = [];
+      notification('danger', 'Usuario no autorizado');
+      self.setState({
+        showBackdrop: false,
+        titulotoolbar: self.state.titulotoolbar,
+        iconvacio: self.state.iconvacio,
+        textbuscar: '',
+        tabla: {
+          rowCount: 0,
+          order: 'asc',
+          selected: [],
+          orderBy: 'name',
+          numSelected: 0,
+        },
+        menu: {
+          menuselect: self.state.menu.menuselect,
+        },
+        comentario: {
+          listcoments: [],
+        }
       });
+      conexion = 2;
+      //throw error;
+    });
   }
-
-
-
-
-
-
-
 
 
   /// Menú List Items  /////
   handleActionsListItem = (item) => {
     let btnhide = false;
-    let url = dominio + workspace + user + '/';
+    let url = self.state.config.dominio + self.state.config.workspace + self.state.login.user + '/';
     switch (item) {
       case 'Grupos': {
-        url = dominio + '/sections/';
+        url = self.state.config.dominio + '/sections/';
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
         itemnew.config.menuactivate = false;
@@ -1254,7 +1276,7 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Espacio de Grupo de Trabajo': {
-        url = dominio + '/sections/';
+        url = self.state.config.dominio + '/sections/';
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
         itemnew.config.menuactivate = false;
@@ -1501,10 +1523,14 @@ class DocumentManager extends React.Component {
       case 'Config': {
         let itemnew = this.state;
         itemnew.config.menuactivate = true;
+        itemnew.config.confnombredominio = this.state.config.nombredominio;
+        itemnew.config.confurl = this.state.config.url;
+        itemnew.config.confuser = this.state.config.user;
+        itemnew.config.confpassword = this.state.config.password;
+        itemnew.config.confurlonlyoffice = this.state.config.urlonlyoffice;
         this.setState({
           itemnew
         })
-        //// Hacer la petición al servidor para buscar los datos de configuración////
         break;
       }
       default: {
@@ -1580,7 +1606,7 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Recientes': {
-        self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "' ORDER BY dc:modified DESC", 5).then(function (docs) {
+        self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC", 5).then(function (docs) {
           if (docs.length > 0) {
             listaresultado = docs;
             self.DevolverListaFormateada(docs, cont, docs.length, 'Recientes')
@@ -1591,7 +1617,7 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Expirados': {
-        self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "'", 2000000).then(function (docs) {
+        self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
           if (docs.length > 0) {
             listaresultado = docs;
             self.DevolverListaFormateada(docs, cont, docs.length, 'Expirados')
@@ -1602,7 +1628,7 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Multimedia': {
-        self.ejecutarQueryRepo("SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND ecm:path STARTSWITH '" + dominio + "'", 2000000).then(function (docs) {
+        self.ejecutarQueryRepo("SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
           if (docs.length > 0) {
             self.DevolverListaFormateada(docs, cont, docs.length, 'Multimedia')
           } else {
@@ -1661,7 +1687,7 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Eliminados': {
-        self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite','Everything'))) AND ecm:path STARTSWITH '" + dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
+        self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite','Everything'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
           if (docs.length > 0) {
             listaresultado = docs;
             self.DevolverListaFormateada(docs, cont, docs.length, 'Eliminados')
@@ -1677,7 +1703,7 @@ class DocumentManager extends React.Component {
           .execute({ schemas: ['file', 'dublincore'] })
           .then(function (docs) {
             let documentos = docs.entries;
-            self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
+            self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
               listaresultado = listdocs;
               listaresultado.forEach(element => {
                 let esta = false;
@@ -1781,6 +1807,17 @@ class DocumentManager extends React.Component {
     });
   };
 
+  /// Cambiar Modo de Mostrar los Archivos ////
+
+  handleClickMostrarDetalle = () => {
+    let estado = this.state;
+    estado.vistadetalle = !this.state.vistadetalle;
+    this.setState({
+      estado
+    })
+  }
+
+
 
   // Buscar x titulo y etiquetas de cada archivo.
   handleBuscar = (event) => {
@@ -1814,7 +1851,7 @@ class DocumentManager extends React.Component {
         }
         case 'Espacio de Grupo de Trabajo': {
           console.log('Espacio de GT');
-          self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + dominio + "/sections/'", 2000000).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "/sections/'", 2000000).then(function (docs) {
             if (docs.length > 0) {
               listaresultado = docs;
               self.DevolverListaFormateada(docs, cont, docs.length, 'Espacio de Grupo de Trabajo')
@@ -1826,7 +1863,7 @@ class DocumentManager extends React.Component {
         }
         case 'Recientes': {
           console.log('Recientes');
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "' ORDER BY dc:modified DESC", 5).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC", 5).then(function (docs) {
             console.log(docs);
             if (docs.length > 0) {
               listaresultado = docs;
@@ -1838,7 +1875,7 @@ class DocumentManager extends React.Component {
           break;
         }
         case 'Expirados': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "'", 2000000).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
             if (docs.length > 0) {
               self.DevolverListaFormateada(docs, cont, docs.length, 'Expirados')
             } else {
@@ -1848,7 +1885,7 @@ class DocumentManager extends React.Component {
           break;
         }
         case 'Favoritos': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired > DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "'", 2000000).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired > DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
             if (docs.length > 0) {
               self.DevolverListaFormateada(docs, cont, docs.length, 'Favoritos')
             } else {
@@ -1858,7 +1895,7 @@ class DocumentManager extends React.Component {
           break;
         }
         case 'Multimedia': {
-          self.ejecutarQueryRepo("SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + dominio + "'", 2000000).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
             if (docs.length > 0) {
               self.DevolverListaFormateada(docs, cont, docs.length, 'Multimedia')
             } else {
@@ -1868,7 +1905,7 @@ class DocumentManager extends React.Component {
           break;
         }
         case 'Eliminados': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 1 AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('Everything'))) AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 1 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('Everything'))) AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
             if (docs.length > 0) {
               listaresultado = docs;
               self.DevolverListaFormateada(docs, cont, docs.length, 'Eliminados')
@@ -1879,7 +1916,7 @@ class DocumentManager extends React.Component {
           break;
         }
         case 'Espacio Personal': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND dc:creator = '" + user + "' AND ecm:path STARTSWITH '" + self.state.path + "'", 2000000).then(function (docs) {
+          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND dc:creator = '" + self.state.login.user + "' AND ecm:path STARTSWITH '" + self.state.path + "'", 2000000).then(function (docs) {
             if (docs.length > 0) {
               listaresultado = docs;
               self.DevolverListaFormateada(docs, cont, docs.length, 'Espacio P. Busqueda')
@@ -1905,7 +1942,7 @@ class DocumentManager extends React.Component {
           break;
         }
         default: {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + self.state.textbuscar + "%' OR ecm:tag ILIKE '%" + self.state.textbuscar + "%') AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
+          self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + self.state.textbuscar + "%' OR ecm:tag ILIKE '%" + self.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
             listaresultado = listdocs;
             if (listdocs.length > 0) {
               self.DevolverListaFormateada(listdocs, cont, listdocs.length, 'Archivo Busqueda');
@@ -1925,10 +1962,10 @@ class DocumentManager extends React.Component {
   //// Búsqueda Avanzada de Documento ////
 
   handleBuscarAvanzado = () => {
-    let sql = "SELECT * FROM Folder, File, Note, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "'";
+    let sql = "SELECT * FROM Folder, File, Note, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
 
     if (this.state.busqueda.combotipo) {
-      sql = "SELECT * FROM File WHERE ecm:primaryType IN ('File') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "'";
+      sql = "SELECT * FROM File WHERE ecm:primaryType IN ('File') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
       // sql = "SELECT * FROM File WHERE (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('Read', 'ReadWrite','Everything'))) AND ecm:isProxy = 0 AND ecm:isVersion = 0";
       switch (this.state.busqueda.combotipo) {
         case 1: {
@@ -2129,7 +2166,7 @@ class DocumentManager extends React.Component {
     let objstate = this.state;
     objstate.busqueda.sql = sql,
       objstate.showBackdrop = true,
-      objstate.antecesor.listpath = [{ iconvacioantecesor: 'Búsqueda', pathantecesor: dominio + workspace + user + '/', mostrarbtnatras: false, denom: 'Búsqueda' }],
+      objstate.antecesor.listpath = [{ iconvacioantecesor: 'Búsqueda', pathantecesor: self.state.config.dominio + self.state.config.workspace + self.state.login.user + '/', mostrarbtnatras: false, denom: 'Búsqueda' }],
       this.setState({
         objstate
       });
@@ -2964,7 +3001,7 @@ class DocumentManager extends React.Component {
           "entity-type": "comment",
           parentId: id, // commented document model id
           ancestorIds: [],
-          author: user,
+          author: self.state.login.user,
           text: this.state.comentario.insertcomentvalue,
           creationdDate: moment(),
           modificationDate: moment()
@@ -2998,7 +3035,7 @@ class DocumentManager extends React.Component {
           "entity-type": "comment",
           parentId: seleccionado.id, // commented document model id
           ancestorIds: [],
-          author: user,
+          author: self.state.login.user,
           text: this.state.comentario.insertcomentvalue,
           creationdDate: moment(),
           modificationDate: moment()
@@ -3308,93 +3345,6 @@ class DocumentManager extends React.Component {
   }
 
 
-  /// Publicar Documento en las Seciones///
-  /* handleListSecciones = () =>{
-    self.ejecutarQueryRepo("SELECT * FROM Section", 2000).then(function (docs) {
-      //console.log(docs);
-      let list =[];
-      docs.forEach(element => {  
-        let descrip = element.properties['dc:description'];
-        if(descrip ==='' || descrip ===null){
-         descrip = element.title;
-        }
-        let obj = {
-              'name': element.title,
-              'descripcion': descrip,
-              'id': element.uid
-        }
-        list.push(obj);
-      })
-      let estado = self.state;
-      estado.publicar.listseciones= list;
-      self.setState({
-        estado
-      });      
-    })
-  } */
-
-  /*     nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'tags'] })
-    .input('/default-domain/sections/')
-    .execute({ schemas: ['file', 'dublincore'] })
-    .then(function (docs) {
-       console.log(docs);
-        let list = [];
-        let esta = false;
-        let tienepermiso = true;       
-        docs.entries.forEach(element => {  
-          if (element.properties['dc:creator'] === user) {
-            esta = true;
-            tienepermiso = true;
-          }        
-          if (element.contextParameters.acls.length > 0 && !esta) {
-            let acls = doc.contextParameters.acls;
-            for (var i = acls.length - 1; i >= 0; i--) {
-              let aces = acls[i].aces;
-              for (var j = aces.length - 1; j >= 0; j--) {
-                let pertenece = false;   
-                grupos.forEach(group => {
-                  if(aces[j].username === group){
-                    pertenece =true;
-                  }
-                });
-                if (aces[j].granted){                    
-                  if (aces[j].username === "Everyone" || aces[j].username === user || pertenece) {
-                    permisos.push(aces[j].permission);
-                    tienepermiso = true;                  
-                  }
-                } else {
-                  if (aces[j].username === "Everyone" || aces[j].username === user || pertenece) {
-                    permisos.splice(aces[j].permission);
-                    if (permisos.length === 0) {
-                      tienepermiso = false;
-                    }
-                  }
-                }
-              }
-            }
-          }
-          if(tienepermiso){
-            let descrip = element.properties['dc:description'];
-            if(descrip ==='' || descrip ===null){
-             descrip = element.title;
-            }
-            let obj = {
-                  'name': element.title,
-                  'descripcion': descrip,
-                  'id': element.uid
-            }
-            list.push(obj);
-          }          
-        });
-       // console.log(list);
-        let estado = self.state;
-        estado.publicar.listseciones= list;
-        self.setState({
-          estado
-        });
-        self.listarArchivos(self.state.path, 'Archivo');
-    }) */
-
   /// Trabajo con los Grupos ///
   handleActionsMenuEliminarGroup = () => {
     //console.log(this.state.tabla.selected);
@@ -3474,7 +3424,7 @@ class DocumentManager extends React.Component {
   listarDocPublicadoSecciones = (id) => {
     let listpub = [];
     let list = [];
-    self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + dominio + "'", 2000).then(function (docs1) {
+    self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000).then(function (docs1) {
       console.log(docs1);
       docs1.forEach(element => {
         //console.log(element); 
@@ -4141,7 +4091,7 @@ class DocumentManager extends React.Component {
 
   recursiveNotificarEmail = (listuser, cont, length) => {
     let msg = 'El documento dejó de compartirse de forma satisfactoria'
-    let msgemail = 'Hoy ' + moment().format('YYYY-MM-DD HH:mm:ss') + ' el usuario ' + user + ' dejó de compartir el documento ' + seleccionado.name;
+    let msgemail = 'Hoy ' + moment().format('YYYY-MM-DD HH:mm:ss') + ' el usuario ' + self.state.login.user + ' dejó de compartir el documento ' + seleccionado.name;
     nuxeo.operation('UserGroup.Suggestion')
       .params({
         searchTerm: listuser[0].username
@@ -4154,7 +4104,7 @@ class DocumentManager extends React.Component {
             .params({
               message: msgemail,
               subject: 'Sistemas Internos, dejó de compartirse el documento',
-              from: emailempresa,
+              //from: self.state.login.email,
               to: users[0].email,
             })
             .execute()
@@ -4190,13 +4140,13 @@ class DocumentManager extends React.Component {
 
   sendEmailUser(listuser, cont, length) {
     let msg = 'El documento ya no está disponible para los usuarios externos'
-    let msgemail = 'Hoy ' + moment().format('YYYY-MM-DD HH:mm:ss') + ' el usuario ' + user + ' le retiró el acceso al documento ' + seleccionado.name;
+    let msgemail = 'Hoy ' + moment().format('YYYY-MM-DD HH:mm:ss') + ' el usuario ' + self.state.login.user + ' le retiró el acceso al documento ' + seleccionado.name;
     nuxeo.operation('Document.Mail')
       .input(seleccionado.path)
       .params({
         message: msgemail,
         subject: 'Sistema de Aguas, Permiso revocado',
-        from: emailempresa,
+        //from: self.state.login.email,
         to: listuser[0].email,
       })
       .execute()
@@ -5685,47 +5635,47 @@ class DocumentManager extends React.Component {
   devuelveiconscamino = (tipo) => {
     switch (tipo) {
       case 'Archivo': {
-        return <Archive style={{ color: cssColor, fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <Archive color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Recientes': {
-        return <History style={{ color: 'primary', fontSize: '22px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <History color='primary' style={{ fontSize: '22px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Búsqueda': {
-        return <Search style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <Search color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Expirados': {
-        return <HourglassEmpty style={{ color: 'primary', fontSize: '22px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <HourglassEmpty color='primary' style={{ fontSize: '22px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Favoritos': {
-        return <Grade style={{ color: 'primary', fontSize: '22px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <Grade color='primary' style={{ fontSize: '22px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Multimedia': {
-        return <PermMedia style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '4px' }} />;
+        return <PermMedia color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Espacio Personal': {
-        return <FolderShared style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <FolderShared color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Eliminados': {
-        return <DeleteSweep style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <DeleteSweep color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Espacio de Grupo de Trabajo': {
-        return <FolderSpecial style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <FolderSpecial color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Grupos': {
-        return <Group style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <Group color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       case 'Folder': {
-        return <Folder style={{ color: 'primary', fontSize: '23px', marginBottom: '5px', marginRight: '2px' }} />;
+        return <Folder color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
       default: {
@@ -6011,7 +5961,7 @@ class DocumentManager extends React.Component {
       }
       if (selected.tipo !== 'Section' && selected.tipo !== 'Group') {
         if (selected.bloqueado) {
-          if (selected.ownerbloq === user) {
+          if (selected.ownerbloq === self.state.login.user) {
             varcoment = true,
               vartag = true;
             vardetail = true;
@@ -6347,7 +6297,7 @@ class DocumentManager extends React.Component {
     });
     let atras = false;
     let subcarpeta = self.isSubcarpeta(row);
-    let pathantecesor = dominio + workspace + user + '/';
+    let pathantecesor = self.state.config.dominio + self.state.config.workspace + self.state.login.user + '/';
     let iconvacioantecesor = self.state.iconvacio;
     let newlist = listacamino.splice(pos + 1);
     listacamino[listacamino.length - 1].vinculo = false;
@@ -6413,8 +6363,7 @@ class DocumentManager extends React.Component {
     }
   }
 
-  verificarPermisos = (row) => {
-    console.log(row);
+  verificarPermisos = (rowselect) => {
     var varedit = false;
     var varmov = false;
     var varshare = false;
@@ -6423,10 +6372,10 @@ class DocumentManager extends React.Component {
     var varupload = false;
     var varvisiblemenu = true;
     var varbtnprincipales = true;
-    row.permisos.forEach(element => {
+    rowselect.permisos.forEach(element => {
       if (element === "ReadWrite") {
         vardownload = true;
-        if (row.tipo === 'Folder') {
+        if (rowselect.tipo === 'Folder') {
           varupload = true;
           varedit = true
           varbtnprincipales = false;
@@ -6434,7 +6383,7 @@ class DocumentManager extends React.Component {
       }
       if (element === 'Everything') {
         vardownload = true;
-        if (row.tipo === 'Folder') {
+        if (rowselect.tipo === 'Folder') {
           varupload = true;
           varedit = true;
           varbtnprincipales = false;
@@ -6688,6 +6637,60 @@ class DocumentManager extends React.Component {
     //
   }
 
+  DevuelveIconsVista = (row) => {
+    //console.log(row);
+    switch (row.tipo) {
+      case 'Folder': {
+        return <Folder color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        break;
+      }
+      case 'File': {
+        let array = row.name.split('.');
+        let extension = array[array.length - 1].toLowerCase();
+        if (extension == 'txt' || extension == 'html' || extension == 'xhtml' || extension == 'shtml' || extension == 'stx' || extension == 'rst' || extension == 'rest' || extension == 'restx' || extension == 'rest' || extension == 'py' || extension == 'java' || extension == 'md' || extension == 'mkd' || extension == 'markdown' || extension == 'eml' || extension == 'msg' || extension == 'xml' || extension == 'graffle' || extension == 'twb' || extension == 'sxi' || extension == 'sxw' || extension == 'stw' || extension == 'sti' || extension == 'sxc' || extension == 'stc' || extension == 'sxd' || extension == 'std' || extension == 'std' || extension == 'ps' || extension == 'eps') {
+          return <Note color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'doc' || extension == 'dot' || extension == 'dot' || extension == 'doc.xml' || extension == 'docb.xml' || extension == 'docb' || extension == 'ods' || extension == 'ots' || extension == 'odt' || extension == 'ott' || extension == 'odp' || extension == 'otp' || extension == 'odg' || extension == 'otg' || extension == 'pdf' || extension == 'docm' || extension == 'docx' || extension == 'dotm' || extension == 'dotx' || extension == 'dotx' || extension == 'pdf') {
+          return <DescriptionIcon color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'xls' || extension == 'xlt' || extension == 'xlt' || extension == 'xlsb' || extension == 'xlsm' || extension == 'xlsm' || extension == 'xlsx' || extension == 'xps' || extension == 'csv') {
+          return <ChromeReaderModeIcon color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'ppt' || extension == 'pot' || extension == 'pps' || extension == 'mpp' || extension == 'pub' || extension == 'pub' || extension == 'ppsm' || extension == 'ppsx' || extension == 'pptm' || extension == 'pptx' || extension == 'pptx' || extension == 'vsdx' || extension == 'vsd' || extension == 'vst') {
+          return <Dvr color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'zip' || extension == 'rar' || extension == '7zip' || extension == 'jar') {
+          return <AccountBalanceWallet color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'gif' || extension === 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
+          return <Image color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax' || extension == 'wax' || extension == 'wax') {
+          return <Audiotrack color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf') {
+          return <Theaters color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        }
+        else {
+          return <Receipt color='primary' style={{ fontSize: '100px' }} />;
+        }
+        break;
+      }
+      case 'Section': {
+        return <FolderSpecial color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        break;
+      }
+      case 'Grupos': {
+        return <Group color='primary' style={{ fontSize: '100px' }} />;
+        break;
+      }
+      default: {
+        return <Receipt color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+      }
+        break;
+    }
+  }
+
   DevuelveIcons = (row) => {
     switch (row.tipo) {
       case 'Folder': {
@@ -6812,6 +6815,16 @@ class DocumentManager extends React.Component {
     </div>
   }
 
+  Devuelvenamevista = (row) => {
+    let denom = '';
+    if (row.name.length > 13) {
+      denom = row.name.slice(0, 12) + '...';
+    } else {
+      denom = row.name;
+    }
+    return <div style={{ alignItems: 'center' }}>{denom}</div>
+  }
+
   obtenertamaño = (tamanno) => {
     if (tamanno == 0) {
       return 1 + 'bytes';
@@ -6880,7 +6893,7 @@ class DocumentManager extends React.Component {
 
   // ejecutar consultas en el repositorio ///
   ejecutarQueryRepo(query, element) {
-    return nuxeo.operation('Repository.Query').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
+    return (nuxeo.operation('Repository.Query').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
       .params({
         language: "NXQL",
         query: query,
@@ -6891,7 +6904,7 @@ class DocumentManager extends React.Component {
       .execute({ schemas: ['file', 'dublincore'] })
       .then(function (docs) {
         return docs.entries;
-      })
+      }))
   }
 
   /// Devuelve la extension de un documento///
@@ -7020,7 +7033,7 @@ class DocumentManager extends React.Component {
     let compartido = false;
     let esta = false;
     let tienepermiso = true;
-    if (doc.properties['dc:creator'] === user) {
+    if (doc.properties['dc:creator'] === self.state.login.user) {
       permisos.push('Everything');
       esta = true;
     }
@@ -7036,13 +7049,13 @@ class DocumentManager extends React.Component {
             }
           });
           if (aces[j].granted) {
-            if (aces[j].username === "Everyone" || aces[j].username === user || pertenece) {
+            if (aces[j].username === "Everyone" || aces[j].username === self.state.login.user || pertenece) {
               permisos.push(aces[j].permission);
               tienepermiso = true;
               compartido = true;
             }
           } else {
-            if (aces[j].username === "Everyone" || aces[j].username === user || pertenece) {
+            if (aces[j].username === "Everyone" || aces[j].username === self.state.login.user || pertenece) {
               permisos.splice(aces[j].permission);
               if (permisos.length === 0) {
                 tienepermiso = false;
@@ -7082,7 +7095,7 @@ class DocumentManager extends React.Component {
       }
       case 'Favoritos': {
         let dominio = doc.path.split('/');
-        if (tienepermiso && doc.contextParameters.favorites.isFavorite === true && dominio[1] === nombredominio) {
+        if (tienepermiso && doc.contextParameters.favorites.isFavorite === true && dominio[1] === self.state.config.nombredominio) {
           cumple = true;
         }
         break;
@@ -7653,741 +7666,749 @@ class DocumentManager extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const title = brand.name + " - Gestión Documental";
-    const description = brand.desc;
     const { openpanel } = this.state;
     return (
-      <MuiThemeProvider theme={theme}>
-        <div>
-          <Helmet>
-            <title>{title}</title>
-            <meta name="description" content={description} />
-            <meta property="og:title" content={title} />
-            <meta property="og:description" content={description} />
-            <meta property="twitter:title" content={title} />
-            <meta property="twitter:description" content={description} />
-          </Helmet>
-          <PapperBlock whiteBg={true} title="Gestión Documental" desc="Aquí podrá gestionar todas sus archivos (documentos, hoja de cálculos, imagenes, videos, entre otros)">
-            {this.state.moduloconfig === false &&
-              <Grid container
-                //spacing={4}
-                alignContent='center'
-                alignItems='center'
-                justify='center'
-                direction='row'
-                xs={12}
-              >
-                <Card>
-                  <div className={classes.theme} style={{ padding: '8px', color: 'FFFFFF', justifyContent: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>                  {
-                      this.state.moduloconfig ? (
-                        <Tooltip title="Configuración Exitosa">
+      //<MuiThemeProvider theme={theme}>
+      <div>
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={description} />
+        </Helmet>
+        <PapperBlock whiteBg={true} title="Gestión Documental" desc="Aquí podrá gestionar todas sus archivos (documentos, hoja de cálculos, imagenes, videos, entre otros)">
+          {this.state.moduloconfig === false &&
+            <Grid container
+              //spacing={4}
+              alignContent='center'
+              alignItems='center'
+              justify='center'
+              direction='row'
+              xs={12}
+            >
+              <Card>
+                <div className={classes.theme} style={{ padding: '8px', color: 'FFFFFF', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>                  {
+                    this.state.moduloconfig ? (
+                      <Tooltip title="Configuración Exitosa">
+                        <Avatar aria-label="Recipe" className={classes.avatarconfig}>
+                          <Check />
+                        </Avatar>
+                      </Tooltip>
+                    ) : (
+                        <Tooltip title="Introducir los Datos de Configuración">
                           <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                            <Check />
+                            <Edit />
                           </Avatar>
                         </Tooltip>
-                      ) : (
-                          <Tooltip title="Introducir los Datos de Configuración">
-                            <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                              <Edit />
-                            </Avatar>
-                          </Tooltip>
-                        )
+                      )
 
-                    }
-                      <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de Configuración </Typography>
-                    </div>
+                  }
+                    <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
                   </div>
+                </div>
 
-                  <CardContent>
-                    <FormControl style={{ width: '100%', padding: '25px' }}>
-                      <Typography variant="h6" gutterBottom color='primary'> Servidor de Gestión Documental </Typography>
-                      <Typography variant="subtitle2" gutterBottom color='primary'> Introducir los datos de conexión al servidor de nuxeo: </Typography>
-                      <FormGroup>
-                        <Grid container spacing={8} style={{ marginTop: '10px', marginBottom: '15px' }}>
-                          <Grid item style={{ marginTop: '20px' }}>
-                            <Public color='primary' />
-                          </Grid>
-                          <Grid item xs={10}>
-                            <TextField
-                              id="input-with-icon-grid"
-                              label="Dirección del servidor"
-                              value={this.state.config.url}
-                              error={this.state.config.errorurl}
-                              helperText={this.state.config.texterror}
-                              onChange={this.setValueURLNuxeo}
-                              fullWidth
-                            />
-                          </Grid>
+                <CardContent>
+                  <FormControl style={{ width: '100%', padding: '25px' }}>
+                    <Typography variant="h6" gutterBottom color='primary'> Servidor de gestión documental </Typography>
+                    <Typography variant="subtitle2" gutterBottom color='primary'> Introducir los datos de conexión al servidor de nuxeo: </Typography>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <Public color='primary' />
                         </Grid>
-                      </FormGroup>
-                      <FormGroup>
-                        <Grid container spacing={8} style={{ marginTop: '10px', marginBottom: '15px' }}>
-                          <Grid item style={{ marginTop: '20px' }}>
-                            <Dns color='primary' />
-                          </Grid>
-                          <Grid item xs={10}>
-                            <TextField
-                              id="input-nombre-dominio"
-                              label="Nombre de dominio"
-                              value={this.state.config.nombredominio}
-                              error={this.state.config.errordominio}
-                              helperText={this.state.config.texterror}
-                              onChange={this.setValueNombreDomNuxeo}
-                              fullWidth
-                            />
-                          </Grid>
+                        <Grid item xs={11} md={11}>
+                          <TextField
+                            id="input-with-icon-grid"
+                            label="Url del servidor"
+                            value={this.state.config.confurl}
+                            error={this.state.config.errorurl}
+                            helperText={this.state.config.texterror}
+                            onChange={this.setValueURLNuxeo}
+                            fullWidth
+                          />
                         </Grid>
-                      </FormGroup>
-                      <FormGroup>
-                        <Grid container spacing={8} style={{ marginTop: '10px', marginBottom: '15px' }}>
-                          <Grid item style={{ marginTop: '20px' }}>
-                            <AssignmentInd color='primary' />
-                          </Grid>
-                          <Grid item xs={10}>
-                            <TextField
-                              id="input-admin-nuxeo"
-                              label="Administrador"
-                              value={this.state.config.user}
-                              error={this.state.config.erroruser}
-                              helperText={this.state.config.texterror}
-                              onChange={this.setValueAdminNuxeo}
-                              fullWidth
-                            />
-                          </Grid>
+                      </Grid>
+                    </FormGroup>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <Dns color='primary' />
                         </Grid>
-                      </FormGroup>
-                      <FormGroup>
-                        <Grid container spacing={8} style={{ marginTop: '10px', marginBottom: '15px' }}>
-                          <Grid item style={{ marginTop: '20px' }}>
-                            <VpnKey color='primary' />
-                          </Grid>
-                          <Grid item xs={10}>
-                            <TextField
-                              id="input-adminpass-nuxeo"
-                              className={classes.margin, classes.textField}
-                              type={this.state.config.showpassword ? 'text' : 'password'}
-                              label="Password"
-                              fullWidth
-                              value={this.state.config.password}
-                              error={this.state.config.errorpassword}
-                              helperText={this.state.config.texterror}
-                              onChange={this.setValueAdminPassNuxeo}
-                              InputProps={{
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <IconButton
-                                      aria-label="Mostrar/Ocultar Contraseña"
-                                      onClick={this.handleClickShowPassword}
-                                    >
-                                      {false ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          </Grid>
+                        <Grid item xs={11} md={11}>
+                          <TextField
+                            id="input-nombre-dominio"
+                            label="Nombre de dominio"
+                            value={this.state.config.confnombredominio}
+                            error={this.state.config.errordominio}
+                            helperText={this.state.config.texterror}
+                            onChange={this.setValueNombreDomNuxeo}
+                            fullWidth
+                          />
                         </Grid>
-                      </FormGroup>
-                      <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Servidor Editor de Documentos en Línea </Typography>
-                      <Typography variant="subtitle2" gutterBottom color='primary'> Introducir la ubicación del server de onlyoffice: </Typography>
-                      <FormGroup>
-                        <Grid container spacing={8} style={{ marginTop: '10px', marginBottom: '15px' }}>
-                          <Grid item style={{ marginTop: '20px' }}>
-                            <Public color='primary' />
-                          </Grid>
-                          <Grid item xs={10}>
-                            <TextField
-                              id="input-url-onlyoffice"
-                              label="Dirección del servidor"
-                              value={this.state.config.urlonlyoffice}
-                              error={this.state.config.errorurloffice}
-                              helperText={this.state.config.texterror}
-                              onChange={this.setValueURLOnlyoffice}
-                              fullWidth
-                            />
-                          </Grid>
+                      </Grid>
+                    </FormGroup>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <AssignmentInd color='primary' />
                         </Grid>
-                      </FormGroup>
-                      <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Apariencia </Typography>
-                      <Typography variant="subtitle2" gutterBottom color='primary'> Color del tema del módulo: </Typography>
-                      <FormGroup>
-                        <Grid container spacing={8} style={{ marginTop: '10px', marginBottom: '15px' }}>
-                          <Grid item style={{ marginTop: '20px' }}>
-                            <ColorLens color='primary' />
-                          </Grid>
-                          <Grid item xs={10}>
-                            <ColorPicker
-                              name='color'
-                              internalValue={this.state.config.colortema}
-                              label="Color principal"
-                              floatingLabelText={this.state.config.colortema}
-                              value={this.state.config.colortema}
-                              onChange={color => this.setColorPrimario(color)}
-                            />
-                            {this.state.config.errorcolor && <div style={{}}>Campo Obligatorio</div>}
-                          </Grid>
+                        <Grid item xs={11} md={11}>
+                          <TextField
+                            id="input-admin-nuxeo"
+                            label="Administrador"
+                            value={this.state.config.confuser}
+                            error={this.state.config.erroruser}
+                            helperText={this.state.config.texterror}
+                            onChange={this.setValueAdminNuxeo}
+                            fullWidth
+                          />
                         </Grid>
-                      </FormGroup>
-                    </FormControl>
-                  </CardContent>
-                  <CardActions className={classes.actions} style={{ width: '100%', padding: '0px 20px 20px 20px' }}>
-                    <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
-                      <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
-                        <SaveIcon className={classes.leftIcon} style={{ marginRight: '5px' }} />
+                      </Grid>
+                    </FormGroup>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <VpnKey color='primary' />
+                        </Grid>
+                        <Grid item xs={11} md={11}>
+                          <TextField
+                            id="input-adminpass-nuxeo"
+                            className={classes.margin, classes.textField}
+                            type={this.state.config.showpassword ? 'text' : 'password'}
+                            label="Password"
+                            fullWidth
+                            value={this.state.config.confpassword}
+                            error={this.state.config.errorpassword}
+                            helperText={this.state.config.texterror}
+                            onChange={this.setValueAdminPassNuxeo}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    aria-label="Mostrar/Ocultar Contraseña"
+                                    onClick={this.handleClickShowPassword}
+                                  >
+                                    {false ? <VisibilityOff /> : <Visibility />}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </FormGroup>
+                    <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Servidor editor de documentos en línea </Typography>
+                    <Typography variant="subtitle2" gutterBottom color='primary'> Introducir la ubicación del fichero de conexión a onlyoffice: </Typography>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <Public color='primary' />
+                        </Grid>
+                        <Grid item xs={11} md={11}>
+                          <TextField
+                            id="input-url-onlyoffice"
+                            label="Url del fichero"
+                            value={this.state.config.confurlonlyoffice}
+                            error={this.state.config.errorurloffice}
+                            helperText={this.state.config.texterror}
+                            onChange={this.setValueURLOnlyoffice}
+                            fullWidth
+                          />
+                        </Grid>
+                      </Grid>
+                    </FormGroup>
+                  </FormControl>
+                </CardContent>
+                <CardActions className={classes.actions} style={{ width: '100%', padding: '0px 20px 20px 20px' }}>
+                  <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
+                    <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
+                      <SaveIcon className={classes.leftIcon} style={{ marginRight: '5px' }} />
                           Actualizar
                       </Button>
-                    </Tooltip>
-                  </CardActions>
-                </Card>
-              </Grid>
-            }
-            {this.state.moduloconfig &&
-              <Grid container direction="row">
-                <Grid item sm={12} md={3} lg={3} align="left">
-                  <List component="nav" aria-labelledby="nested-list-subheader"
-                    subheader={
-                      <ListSubheader component="div" id="nested-list-subheader">MENÚ PRINCIPAL</ListSubheader>
-                    }
-                    style={{ borderRight: 2 }}
-                    className={classes.root}
-                  >
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Archivo')} selected={'Archivo' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <Archive />
-                      </ListItemIcon>
-                      <ListItemText primary="Archivo" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Recientes')} selected={'Recientes' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <History />
-                      </ListItemIcon>
-                      <ListItemText primary="Recientes" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Búsqueda')} selected={'Búsqueda' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <Search />
-                      </ListItemIcon>
-                      <ListItemText primary="Búsqueda" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Expirados')} selected={'Expirados' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <HourglassEmpty />
-                      </ListItemIcon>
-                      <ListItemText primary="Expirados" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Favoritos')} selected={'Favoritos' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <Grade />
-                      </ListItemIcon>
-                      <ListItemText primary="Favoritos" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Multimedia')} selected={'Multimedia' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <PermMedia />
-                      </ListItemIcon>
-                      <ListItemText primary="Multimedia" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Espacio Personal')} selected={'Espacio Personal' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <FolderShared />
-                      </ListItemIcon>
-                      <ListItemText primary="Esp. Personal" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Eliminados')} selected={'Eliminados' === this.state.menu.menuselect ? true : false}>
-                      <ListItemIcon>
-                        <DeleteSweep />
-                      </ListItemIcon>
-                      <ListItemText primary="Eliminados" />
-                    </ListItem>
-                    {/* <ListItem button onClick={(e) => this.handleActionsListItem('Notificaciones')} selected={'Notificaciones' === this.state.menu.menuselect ? true : false} >
+                  </Tooltip>
+                </CardActions>
+              </Card>
+            </Grid>
+          }
+          {this.state.moduloconfig &&
+            <Grid container direction="row">
+              <Grid item sm={12} md={3} lg={3} align="left">
+                <List component="nav" aria-labelledby="nested-list-subheader"
+                  subheader={
+                    <ListSubheader component="div" id="nested-list-subheader">MENÚ PRINCIPAL</ListSubheader>
+                  }
+                  style={{ borderRight: 2 }}
+                  className={classes.root}
+                >
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Archivo')} selected={'Archivo' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <Archive />
+                    </ListItemIcon>
+                    <ListItemText primary="Archivo" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Recientes')} selected={'Recientes' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <History />
+                    </ListItemIcon>
+                    <ListItemText primary="Recientes" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Búsqueda')} selected={'Búsqueda' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <Search />
+                    </ListItemIcon>
+                    <ListItemText primary="Búsqueda" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Expirados')} selected={'Expirados' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <HourglassEmpty />
+                    </ListItemIcon>
+                    <ListItemText primary="Expirados" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Favoritos')} selected={'Favoritos' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <Grade />
+                    </ListItemIcon>
+                    <ListItemText primary="Favoritos" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Multimedia')} selected={'Multimedia' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <PermMedia />
+                    </ListItemIcon>
+                    <ListItemText primary="Multimedia" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Espacio Personal')} selected={'Espacio Personal' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <FolderShared />
+                    </ListItemIcon>
+                    <ListItemText primary="Esp. Personal" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Eliminados')} selected={'Eliminados' === this.state.menu.menuselect ? true : false}>
+                    <ListItemIcon>
+                      <DeleteSweep />
+                    </ListItemIcon>
+                    <ListItemText primary="Eliminados" />
+                  </ListItem>
+                  {/* <ListItem button onClick={(e) => this.handleActionsListItem('Notificaciones')} selected={'Notificaciones' === this.state.menu.menuselect ? true : false} >
                     <ListItemIcon>
                       <Notifications />
                     </ListItemIcon>
                     <ListItemText primary="Notificaciones" />
                   </ListItem> */}
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Espacio de Grupo de Trabajo')} selected={'Espacio de Grupo de Trabajo' === this.state.menu.menuselect ? true : false} style={{ display: administrador ? '' : 'none' }}>
-                      <ListItemIcon>
-                        <FolderSpecial />
-                      </ListItemIcon>
-                      <ListItemText primary="Esp. de GT" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Grupos')} selected={'Grupos' === this.state.menu.menuselect ? true : false} style={{ display: administrador ? '' : 'none' }}>
-                      <ListItemIcon>
-                        <Group />
-                      </ListItemIcon>
-                      <ListItemText primary="Grupos" />
-                    </ListItem>
-                    <ListItem button onClick={(e) => this.handleActionsListItem('Config')} selected={'Config' === this.state.menu.menuselect ? true : false} style={{ display: administrador ? '' : 'none' }}>
-                      <ListItemIcon>
-                        <Settings />
-                      </ListItemIcon>
-                      <ListItemText primary="Configuraciones" />
-                    </ListItem>
-                  </List>
-                </Grid>
-                {this.state.config.menuactivate === false ? (
-                  <React.Fragment>
-                    <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid ' + cssColor }}>
-                      <Grid item sm={12} md={12} lg={12}>
-                        <div style={{ marginLeft: '10px', marginTop: '15px', color: cssColor, display: 'flex', alignItems: 'center' }}>
-                          {this.state.antecesor.listpath.map((row, index) => {
-                            return (
-                              <React.Fragment>
-                                {index > 0 && <div style={{ paddingLeft: '3px', paddingRight: '3px' }}><b>/</b></div>}
-                                {row.vinculo ? (
-                                  <Link color="inherit" onClick={(event) => this.handleSeleccionarCamino(row)} style={{ paddingRight: '3px' }}>
-                                    {this.devuelveiconscamino(row.iconvacioantecesor)} {row.denom}
-                                  </Link>
-                                ) : (
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                      {this.devuelveiconscamino(row.iconvacioantecesor)} <Typography color="primary" style={{ fontFamily: "Open Sans, sans-serif", fontSize: '16px' }}>{row.denom}</Typography> </div>
-                                  )
-                                }
-                              </React.Fragment>
-                            )
-                          }
-                          )}
-                        </div>
-                      </Grid>
-                      <Grid item sm={12} md={12} lg={12}>
-                        <div>
-                          <CssBaseline />
-                          <AppBar position="static" style={{ marginTop: '30px' }} className={classes.appBar}>
-                            <Toolbar variant='dense' style={{ justifyContent: 'space-between' }}>
-                              {this.state.tabla.numSelected > 0 ? (
-                                this.state.menu.menuselect !== 'Grupos' ? (
-                                  <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
-                                    {this.state.tabla.numSelected} archivos seleccionados</b>
-                                  </Typography>
-                                ) : (
-                                    <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
-                                      {this.state.tabla.numSelected} grupos seleccionados</b>
-                                    </Typography>
-                                  )
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Espacio de Grupo de Trabajo')} selected={'Espacio de Grupo de Trabajo' === this.state.menu.menuselect ? true : false} style={{ display: self.state.login.admin ? '' : 'none' }}>
+                    <ListItemIcon>
+                      <FolderSpecial />
+                    </ListItemIcon>
+                    <ListItemText primary="Esp. de GT" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Grupos')} selected={'Grupos' === this.state.menu.menuselect ? true : false} style={{ display: self.state.login.admin ? '' : 'none' }}>
+                    <ListItemIcon>
+                      <Group />
+                    </ListItemIcon>
+                    <ListItemText primary="Grupos" />
+                  </ListItem>
+                  <ListItem button onClick={(e) => this.handleActionsListItem('Config')} selected={'Config' === this.state.menu.menuselect ? true : false} style={{ display: self.state.login.admin ? '' : 'none' }}>
+                    <ListItemIcon>
+                      <Settings />
+                    </ListItemIcon>
+                    <ListItemText primary="Configuraciones" />
+                  </ListItem>
+                </List>
+              </Grid>
+              {this.state.config.menuactivate === false ? (
+                <React.Fragment>
+                  {/* va de color primario */}
+                  <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid ' + themeColor }}>
+                    <Grid item sm={12} md={12} lg={12}>
+                      <div style={{ marginLeft: '10px', marginTop: '15px', color: themeColor, display: 'flex', alignItems: 'center' }}>
+                        {this.state.antecesor.listpath.map((row, index) => {
+                          return (
+                            <React.Fragment>
+                              {index > 0 && <div style={{ paddingLeft: '3px', paddingRight: '3px' }}><b>/</b></div>}
+                              {row.vinculo ? (
+                                <Link color="inherit" onClick={(event) => this.handleSeleccionarCamino(row)} style={{ paddingRight: '3px' }}>
+                                  {this.devuelveiconscamino(row.iconvacioantecesor)} {row.denom}
+                                </Link>
                               ) : (
-                                  <Typography className={classes.title} variant="h6" id="tableTitle" style={{ color: "#FFFFFF" }}>
-                                    {this.state.titulotoolbar}
-                                  </Typography>
+                                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {this.devuelveiconscamino(row.iconvacioantecesor)} <Typography color="primary" style={{ fontFamily: "Open Sans, sans-serif", fontSize: '16px' }}>{row.denom}</Typography> </div>
                                 )
                               }
-                              <div style={{ display: 'flex', alignItems: 'center', marginRight: '70px' }}>
-                                {this.state.tabla.numSelected > 0 ? (
-                                  <React.Fragment>
-                                    <div className={classes.sectionDesktop} style={{ color: "#FFFFFF" }}>
-                                      {!this.state.menu.hidebtnprincipales &&
-                                        <React.Fragment>
-                                          {this.state.acciones.share &&
-                                            <Tooltip title="Compartir">
-                                              <IconButton aria-label="compartir" onClick={this.handleClickMostrarShare} style={{ color: "#FFFFFF" }}>
-                                                <Share />
-                                              </IconButton>
-                                            </Tooltip>
-                                          }
-                                          {this.state.acciones.download &&
-                                            <Tooltip title="Descargar archivo">
-                                              <IconButton aria-label="descargar" onClick={this.handleClickDownload} style={{ color: "#FFFFFF" }}>
-                                                <GetApp />
-                                              </IconButton>
-                                            </Tooltip>
-                                          }
-                                        </React.Fragment>
-                                      }
-                                      {this.state.acciones.menuvisible &&
-                                        <div>
-                                          <Tooltip title="Más acciones">
-                                            <IconButton aria-label="acciones" aria-controls="long-menu" aria-haspopup="true" onClick={this.handleClickMenuActions} style={{ color: "#FFFFFF" }}>
-                                              <MenuIcons />
+                            </React.Fragment>
+                          )
+                        }
+                        )}
+                      </div>
+                    </Grid>
+                    <Grid item sm={12} md={12} lg={12}>
+                      <div>
+                        <CssBaseline />
+                        <AppBar position="static" style={{ marginTop: '30px' }} className={classes.appBar}>
+                          <Toolbar variant='dense' style={{ justifyContent: 'space-between' }}>
+                            {this.state.tabla.numSelected > 0 ? (
+                              this.state.menu.menuselect !== 'Grupos' ? (
+                                <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
+                                  {this.state.tabla.numSelected} archivos seleccionados</b>
+                                </Typography>
+                              ) : (
+                                  <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
+                                    {this.state.tabla.numSelected} grupos seleccionados</b>
+                                  </Typography>
+                                )
+                            ) : (
+                                <Typography className={classes.title} variant="h6" id="tableTitle" style={{ color: "#FFFFFF" }}>
+                                  {this.state.titulotoolbar}
+                                </Typography>
+                              )
+                            }
+                            <div style={{ display: 'flex', alignItems: 'center', marginRight: '70px' }}>
+                              {this.state.tabla.numSelected > 0 ? (
+                                <React.Fragment>
+                                  <div className={classes.sectionDesktop} style={{ color: "#FFFFFF" }}>
+                                    {!this.state.menu.hidebtnprincipales &&
+                                      <React.Fragment>
+                                        {this.state.acciones.share &&
+                                          <Tooltip title="Compartir">
+                                            <IconButton aria-label="compartir" onClick={this.handleClickMostrarShare} style={{ color: "#FFFFFF" }}>
+                                              <Share />
                                             </IconButton>
                                           </Tooltip>
-                                          <Menu id="long-menu" anchorEl={this.state.anchorEl} keepMounted open={this.state.openmenu} onClose={this.handleMenuActionsClose}>
-                                            {this.state.acciones.fav &&
-                                              <Tooltip title="Añadir a favoritos">
-                                                <MenuItem key={'favorito'} onClick={this.handleActionsMenuAddFavorite}>
-                                                  < Grade color='primary' style={{ marginRight: '5px' }} />
+                                        }
+                                        {this.state.acciones.download &&
+                                          <Tooltip title="Descargar archivo">
+                                            <IconButton aria-label="descargar" onClick={this.handleClickDownload} style={{ color: "#FFFFFF" }}>
+                                              <GetApp />
+                                            </IconButton>
+                                          </Tooltip>
+                                        }
+                                      </React.Fragment>
+                                    }
+                                    {this.state.acciones.menuvisible &&
+                                      <div>
+                                        <Tooltip title="Más acciones">
+                                          <IconButton aria-label="acciones" aria-controls="long-menu" aria-haspopup="true" onClick={this.handleClickMenuActions} style={{ color: "#FFFFFF" }}>
+                                            <MenuIcons />
+                                          </IconButton>
+                                        </Tooltip>
+                                        <Menu id="long-menu" anchorEl={this.state.anchorEl} keepMounted open={this.state.openmenu} onClose={this.handleMenuActionsClose}>
+                                          {this.state.acciones.fav &&
+                                            <Tooltip title="Añadir a favoritos">
+                                              <MenuItem key={'favorito'} onClick={this.handleActionsMenuAddFavorite}>
+                                                < Grade color='primary' style={{ marginRight: '5px' }} />
                                                                      Favoritos
                                                                 </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.unfav &&
-                                              <Tooltip title="Quitar de favoritos">
-                                                <MenuItem key={'quitarfavorito'} onClick={this.handleActionsMenuRemoveFavorite}>
-                                                  <StarBorder color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.unfav &&
+                                            <Tooltip title="Quitar de favoritos">
+                                              <MenuItem key={'quitarfavorito'} onClick={this.handleActionsMenuRemoveFavorite}>
+                                                <StarBorder color='primary' style={{ marginRight: '5px' }} />
                                                                       Quitar Fav.
                                                                 </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.bloq &&
-                                              <Tooltip title="Bloquear">
-                                                <MenuItem key={'bloquear'} onClick={this.handleActionsMenuBloquear}>
-                                                  < Lock color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.bloq &&
+                                            <Tooltip title="Bloquear">
+                                              <MenuItem key={'bloquear'} onClick={this.handleActionsMenuBloquear}>
+                                                < Lock color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                       Bloquear
                                                                 </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.unbloq &&
-                                              <Tooltip title="Desbloquear">
-                                                <MenuItem key={'desbloquear'} onClick={this.handleActionsMenuDesbloquear}>
-                                                  < LockOpen color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.unbloq &&
+                                            <Tooltip title="Desbloquear">
+                                              <MenuItem key={'desbloquear'} onClick={this.handleActionsMenuDesbloquear}>
+                                                < LockOpen color='primary' style={{ marginRight: '5px' }} />
                                                                       Desbloq.
                                                                 </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.etiq &&
-                                              <Tooltip title="Etiquetar">
-                                                <MenuItem key={'etiquetar'} onClick={(event) => this.mostrarComment(true, false)}>
-                                                  <LocalOffer color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.etiq &&
+                                            <Tooltip title="Etiquetar">
+                                              <MenuItem key={'etiquetar'} onClick={(event) => this.mostrarComment(true, false)}>
+                                                <LocalOffer color='primary' style={{ marginRight: '5px' }} />
                                                                       Etiquetar
                                                                   </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.coment &&
-                                              <Tooltip title="Comentar">
-                                                <MenuItem key={'comentar'} onClick={(event) => this.mostrarComment(true, true)}>
-                                                  <InsertComment color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.coment &&
+                                            <Tooltip title="Comentar">
+                                              <MenuItem key={'comentar'} onClick={(event) => this.mostrarComment(true, true)}>
+                                                <InsertComment color='primary' style={{ marginRight: '5px' }} />
                                                                            Comentar
                                                                    </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.edit &&
-                                              <Tooltip title="Renombrar">
-                                                <MenuItem key={'renombrar'} onClick={(event) => this.mostrarActualizar()}>
-                                                  <Edit color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.edit &&
+                                            <Tooltip title="Renombrar">
+                                              <MenuItem key={'renombrar'} onClick={(event) => this.mostrarActualizar()}>
+                                                <Edit color='primary' style={{ marginRight: '5px' }} />
                                                                         Renombrar
                                                                    </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.detall &&
-                                              <Tooltip title="Metadatos del archivo">
-                                                <MenuItem key={'detalle'} onClick={(event) => this.toggleDrawer(true)}>
-                                                  < Info color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.detall &&
+                                            <Tooltip title="Metadatos del archivo">
+                                              <MenuItem key={'detalle'} onClick={(event) => this.toggleDrawer(true)}>
+                                                < Info color='primary' style={{ marginRight: '5px' }} />
                                                                       Detalle
                                                                   </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.mover &&
-                                              <Tooltip title="Mover archivo">
-                                                <MenuItem key={'mover'} onClick={(event) => this.prepararMovimiento()}>
-                                                  <MoveToInbox color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.mover &&
+                                            <Tooltip title="Mover archivo">
+                                              <MenuItem key={'mover'} onClick={(event) => this.prepararMovimiento()}>
+                                                <MoveToInbox color='primary' style={{ marginRight: '5px' }} />
                                                                        Mover
                                                                   </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.eliminar &&
-                                              <Tooltip title="Eliminar archivo">
-                                                <MenuItem key={'eliminar'} onClick={this.handleActionsMenuEliminar}>
-                                                  <Delete color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.eliminar &&
+                                            <Tooltip title="Eliminar archivo">
+                                              <MenuItem key={'eliminar'} onClick={this.handleActionsMenuEliminar}>
+                                                <Delete color='primary' style={{ marginRight: '5px' }} />
                                                                          Eliminar
                                                                   </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.elimadmin &&
-                                              <Tooltip title="Eliminar">
-                                                <MenuItem key={'eliminaradmin'} onClick={this.handleActionsMenuEliminar}>
-                                                  <Delete color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.elimadmin &&
+                                            <Tooltip title="Eliminar">
+                                              <MenuItem key={'eliminaradmin'} onClick={this.handleActionsMenuEliminar}>
+                                                <Delete color='primary' style={{ marginRight: '5px' }} />
                                                                          Eliminar
                                                                     </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.gestusergroup &&
-                                              <Tooltip title="Gestionar Miembros">
-                                                <MenuItem key={'gestusergroup'} onClick={(event) => this.mostrarMiembros(true)}>
-                                                  <PersonAdd color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.gestusergroup &&
+                                            <Tooltip title="Gestionar Miembros">
+                                              <MenuItem key={'gestusergroup'} onClick={(event) => this.mostrarMiembros(true)}>
+                                                <PersonAdd color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                            Miembros
                                                                     </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.elimgroup &&
-                                              <Tooltip title="Eliminar Grupos">
-                                                <MenuItem key={'eliminargroup'} onClick={this.handleActionsMenuEliminarGroup}>
-                                                  <Delete color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.elimgroup &&
+                                            <Tooltip title="Eliminar Grupos">
+                                              <MenuItem key={'eliminargroup'} onClick={this.handleActionsMenuEliminarGroup}>
+                                                <Delete color='primary' style={{ marginRight: '5px' }} />
                                                                              Eliminar
                                                                       </MenuItem>
-                                              </Tooltip>
-                                            }
-                                            {this.state.acciones.papelera &&
-                                              <React.Fragment>
-                                                <Tooltip title="Recuperar archivo">
-                                                  <MenuItem key={'recuperar'} onClick={this.handleActionsMenuRecuperar}>
-                                                    <Undo color='primary' style={{ marginRight: '5px' }} />
+                                            </Tooltip>
+                                          }
+                                          {this.state.acciones.papelera &&
+                                            <React.Fragment>
+                                              <Tooltip title="Recuperar archivo">
+                                                <MenuItem key={'recuperar'} onClick={this.handleActionsMenuRecuperar}>
+                                                  <Undo color='primary' style={{ marginRight: '5px' }} />
                                                                               Recuperar
                                                                         </MenuItem>
-                                                </Tooltip>
-                                                <Tooltip title="Eliminar permanentemente">
-                                                  <MenuItem key={'eliminarperm'} onClick={this.handleActionsMenuEliminarPerm}>
-                                                    <Delete color='primary' style={{ marginRight: '5px' }} />
+                                              </Tooltip>
+                                              <Tooltip title="Eliminar permanentemente">
+                                                <MenuItem key={'eliminarperm'} onClick={this.handleActionsMenuEliminarPerm}>
+                                                  <Delete color='primary' style={{ marginRight: '5px' }} />
                                                                               Permanente
                                                                         </MenuItem>
-                                                </Tooltip>
-                                              </React.Fragment>
-                                            }
-                                          </Menu>
-                                        </div>
-                                      }
-                                    </div>
-                                  </React.Fragment>
-                                ) : (
-                                    <React.Fragment>
-                                      {this.state.antecesor.mostrarbtnatras &&
-                                        <Tooltip title="Ir hacia atrás">
-                                          <IconButton style={{ color: "#FFFFFF" }} id='atrasdocument' aria-label="atras" aria-haspopup="true" onClick={this.handleClickAtras}>
-                                            <Reply />
-                                          </IconButton>
-                                        </Tooltip>
-                                      }
-                                      {this.state.menu.hidebtnprincipales === false ? (
-                                        <React.Fragment>
-                                          { this.state.acciones.crear ? (
-                                            this.state.menu.menuselect !== 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect !== 'Grupos' ? (
-                                              <React.Fragment>
-                                                <Tooltip title="Crear archivo">
-                                                  <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menu" aria-haspopup="true" onClick={this.handleClickAddMenuActions} >
-                                                    <Add />
-                                                  </IconButton>
-                                                </Tooltip>
-                                                <Menu id="long-menu" anchorEl={this.state.anchoraddEl} keepMounted open={this.state.openaddmenu} onClose={this.handleMenuAddActionsClose}>
-                                                  <Tooltip title="Crear Carpeta">
-                                                    <MenuItem key={'folder'} onClick={(event) => this.handleActionsMenuadd(event, 'Folder')}>
-                                                      <Folder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                              </Tooltip>
+                                            </React.Fragment>
+                                          }
+                                        </Menu>
+                                      </div>
+                                    }
+                                  </div>
+                                </React.Fragment>
+                              ) : (
+                                  <React.Fragment>
+                                    {this.state.antecesor.mostrarbtnatras &&
+                                      <Tooltip title="Ir hacia atrás">
+                                        <IconButton style={{ color: "#FFFFFF" }} id='atrasdocument' aria-label="atras" aria-haspopup="true" onClick={this.handleClickAtras}>
+                                          <Reply />
+                                        </IconButton>
+                                      </Tooltip>
+                                    }
+                                    {this.state.menu.hidebtnprincipales === false ? (
+                                      <React.Fragment>
+                                        { this.state.acciones.crear ? (
+                                          this.state.menu.menuselect !== 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect !== 'Grupos' ? (
+                                            <React.Fragment>
+                                              <Tooltip title="Crear archivo">
+                                                <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menu" aria-haspopup="true" onClick={this.handleClickAddMenuActions} >
+                                                  <Add />
+                                                </IconButton>
+                                              </Tooltip>
+                                              <Menu id="long-menu" anchorEl={this.state.anchoraddEl} keepMounted open={this.state.openaddmenu} onClose={this.handleMenuAddActionsClose}>
+                                                <Tooltip title="Crear Carpeta">
+                                                  <MenuItem key={'folder'} onClick={(event) => this.handleActionsMenuadd(event, 'Folder')}>
+                                                    <Folder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                              Carpeta
                                                                      </MenuItem>
-                                                  </Tooltip>
-                                                  <Tooltip title="Crear documento">
-                                                    <MenuItem key={'documento'} onClick={(event) => this.handleActionsMenuadd(event, 'File')}>
-                                                      <DescriptionIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                </Tooltip>
+                                                <Tooltip title="Crear documento">
+                                                  <MenuItem key={'documento'} onClick={(event) => this.handleActionsMenuadd(event, 'File')}>
+                                                    <DescriptionIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                               Documento
                                                                      </MenuItem>
-                                                  </Tooltip>
-                                                  <Tooltip title="Crear nota">
-                                                    <MenuItem key={'nota'} onClick={(event) => this.handleActionsMenuadd(event, 'Nota')}>
-                                                      <InsertDriveFileIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                </Tooltip>
+                                                <Tooltip title="Crear nota">
+                                                  <MenuItem key={'nota'} onClick={(event) => this.handleActionsMenuadd(event, 'Nota')}>
+                                                    <InsertDriveFileIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                             Nota
                                                                      </MenuItem>
-                                                  </Tooltip>
-                                                  <Tooltip title="Crear Hoja de Cálculo">
-                                                    <MenuItem key={'hoja'} onClick={(event) => this.handleActionsMenuadd(event, 'Hoja')}>
-                                                      <ChromeReaderModeIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                </Tooltip>
+                                                <Tooltip title="Crear Hoja de Cálculo">
+                                                  <MenuItem key={'hoja'} onClick={(event) => this.handleActionsMenuadd(event, 'Hoja')}>
+                                                    <ChromeReaderModeIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                               Hoja de Cálculo
                                                                       </MenuItem>
-                                                  </Tooltip>
-                                                  <Tooltip title="Crear presentacion">
-                                                    <MenuItem key={'presentacion'} onClick={(event) => this.handleActionsMenuadd(event, 'Presentacion')}>
-                                                      <Dvr color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                </Tooltip>
+                                                <Tooltip title="Crear presentacion">
+                                                  <MenuItem key={'presentacion'} onClick={(event) => this.handleActionsMenuadd(event, 'Presentacion')}>
+                                                    <Dvr color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
                                                                              Presentación
                                                                       </MenuItem>
+                                                </Tooltip>
+                                              </Menu>
+                                            </React.Fragment>
+                                          ) : (
+                                              this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' ? (
+                                                <React.Fragment>
+                                                  <Tooltip title="Crear">
+                                                    <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Secion')}>
+                                                      <Add />
+                                                    </IconButton>
                                                   </Tooltip>
-                                                </Menu>
-                                              </React.Fragment>
-                                            ) : (
-                                                this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' ? (
-                                                  <React.Fragment>
-                                                    <Tooltip title="Crear">
-                                                      <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Secion')}>
-                                                        <Add />
-                                                      </IconButton>
-                                                    </Tooltip>
-                                                  </React.Fragment>
-                                                ) : (
-                                                    this.state.menu.menuselect === 'Grupos' ? (
-                                                      <React.Fragment>
-                                                        <Tooltip title="Crear">
-                                                          <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Grupo')}>
-                                                            <Add />
-                                                          </IconButton>
-                                                        </Tooltip>
-                                                      </React.Fragment>
-                                                    ) : (null)
-                                                  ))
-                                          ) : (null)
+                                                </React.Fragment>
+                                              ) : (
+                                                  this.state.menu.menuselect === 'Grupos' ? (
+                                                    <React.Fragment>
+                                                      <Tooltip title="Crear">
+                                                        <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Grupo')}>
+                                                          <Add />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    </React.Fragment>
+                                                  ) : (null)
+                                                ))
+                                        ) : (null)
 
-                                          }
-                                          <div className={classes.search} >
-                                            <div className={classes.searchIcon}>
-                                              <SearchIcon />
-                                            </div>
-                                            <InputBase
-                                              onChange={(event) => this.handleBuscar(event)}
-                                              placeholder="Buscar…"
-                                              classes={{
-                                                root: classes.inputRoot,
-                                                input: classes.inputInput,
-                                              }}
-                                            />
+                                        }
+                                        {this.state.vistadetalle ? (
+                                          <Tooltip title="Vista iconos grande">
+                                            <IconButton aria-label="detalle" onClick={this.handleClickMostrarDetalle}>
+                                              <Apps style={{ color: '#FFFFFF' }} />
+                                            </IconButton>
+                                          </Tooltip>
+                                        ) : (
+                                            <Tooltip title="Vista de detalle">
+                                              <IconButton aria-label="iconos" onClick={this.handleClickMostrarDetalle}>
+                                                <ViewList style={{ color: '#FFFFFF' }} />
+                                              </IconButton>
+                                            </Tooltip>
+                                          )
+                                        }
+                                        <div className={classes.search} >
+                                          <div className={classes.searchIcon}>
+                                            <SearchIcon />
                                           </div>
-                                        </React.Fragment>
-                                      ) : (
-                                          <React.Fragment>
-                                            {this.state.menu.menuselect !== 'Búsqueda' &&
-                                              <div className={classes.search} style={{ color: "#FFFFFF" }}>
-                                                <div className={classes.searchIcon}>
-                                                  <SearchIcon />
-                                                </div>
-                                                <InputBase
-                                                  onChange={(event) => this.handleBuscar(event)}
-                                                  placeholder="Buscar…"
-                                                  classes={{
-                                                    root: classes.inputRoot,
-                                                    input: classes.inputInput,
-                                                  }}
-                                                />
-                                              </div>
-                                            }
-                                          </React.Fragment>
-                                        )
-                                      }
-                                    </React.Fragment>
-                                  )}
-                              </div>
-                            </Toolbar>
-                          </AppBar>
-                          <main className={classes.content, { [classes.contentShift]: openpanel, }}>
-                            {this.state.menu.menuselect === 'Búsqueda' &&
-                              <div style={{ margin: '10px' }}>
-                                <ExpansionPanel >
-                                  <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                                    <Typography className={classes.heading} color="primary">Introduzca los criterios por los que desea filtrar los documentos</Typography>
-                                  </ExpansionPanelSummary>
-                                  <ExpansionPanelDetails style={{ paddingLeft: '20px' }}>
-                                    <Grid container direction="row">
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                        <TextField id="titulo"
-                                          label="Denominación"
-                                          value={this.state.busqueda.denombuscar}
-                                          onChange={this.handleChangedenominacion}
-                                        />
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                        <TextField id="descripcion"
-                                          label="Descripción"
-                                          value={this.state.busqueda.descripbuscar}
-                                          onChange={this.handleChangedescripcion}
-                                        />
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "3px", minWidth: "170px" }} spacing={2}>
-                                        <FormControl size='small' fullWidth={true} >
-                                          <InputLabel htmlFor="combotipo">Tipo Documento</InputLabel>
-                                          <Select
-                                            id='combotipo'
-                                            value={this.state.busqueda.combotipo}
-                                            onChange={this.handleChangeComboTipo}
-                                          >
-                                            <MenuItem value="" ><em>Vacio</em></MenuItem>
-                                            <MenuItem value={1} >Documentos</MenuItem>
-                                            <MenuItem value={2} >Presentaciones</MenuItem>
-                                            <MenuItem value={3} >Hojas de cálculos</MenuItem>
-                                            <MenuItem value={4} >Notas</MenuItem>
-                                            <MenuItem value={5} >Audio</MenuItem>
-                                            <MenuItem value={6} >Imágenes</MenuItem>
-                                            <MenuItem value={7} >Video</MenuItem>
-                                            <MenuItem value={8} >Otros</MenuItem>
-                                          </Select>
-                                        </FormControl>
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                        <TextField id="tamaño"
-                                          type="number"
-                                          label="Tamaño en MB"
-                                          value={this.state.busqueda.tamanno}
-                                          onChange={this.handleChangetamanno}
-                                        />
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "3px", minWidth: "170px" }} spacing={2}>
-                                        <FormControl size='small' fullWidth={true} >
-                                          <InputLabel htmlFor="comboestado">Estado</InputLabel>
-                                          <Select
-                                            id='comboestado'
-                                            value={this.state.busqueda.comboestado}
-                                            onChange={this.handleChangeEstado}
-                                          >
-                                            <MenuItem value="" ><em>Vacio</em></MenuItem>
-                                            <MenuItem value={1} >Creado</MenuItem>
-                                            <MenuItem value={2} >Modificado</MenuItem>
-                                            <MenuItem value={3} >Publicado</MenuItem>
-                                            <MenuItem value={4} >Expirado</MenuItem>
-                                            <MenuItem value={5} >Bloqueado</MenuItem>
-                                            <MenuItem value={6} >Eliminado</MenuItem>
-                                          </Select>
-                                        </FormControl>
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "16px", minWidth: "170px" }} spacing={2}>
-                                        <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                          <DatePicker
-                                            id='fechadesde'
-                                            disabled={this.state.busqueda.disablefechas}
-                                            keyboard
-                                            placeholder="Fecha Desde"
-                                            format={"YYYY/MM/DD"}
-                                            mask={value =>
-                                              value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                                : []
-                                            }
-                                            maxDate={this.state.busqueda.fechahasta !== 'null' ? moment(this.state.busqueda.fechahasta) : moment()}
-                                            value={this.state.busqueda.fechadesde}
-                                            onChange={this.handleDateChangefechadesde}
-                                            disableOpenOnEnter
-                                            animateYearScrolling={false}
-                                            onInputChange={(e) => this.cambiarEstado(e)} />
-                                        </MuiPickersUtilsProvider>
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "16px", minWidth: "170px" }} spacing={2}>
-                                        <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                          <DatePicker
-                                            id='fechahasta'
-                                            disabled={this.state.busqueda.disablefechas}
-                                            keyboard
-                                            placeholder="Fecha Hasta"
-                                            format={"YYYY/MM/DD"}
-                                            mask={value =>
-                                              value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                                : []
-                                            }
-                                            minDate={moment(this.state.busqueda.fechadesde).add(1, "day")}
-                                            maxDate={moment()}
-                                            value={this.state.busqueda.fechahasta}
-                                            onChange={this.handleDateChangefechahasta}
-                                            disableOpenOnEnter
-                                            animateYearScrolling={false}
-                                            onInputChange={(e) => this.cambiarEstadoHasta(e)}
+                                          <InputBase
+                                            onChange={(event) => this.handleBuscar(event)}
+                                            placeholder="Buscar…"
+                                            classes={{
+                                              root: classes.inputRoot,
+                                              input: classes.inputInput,
+                                            }}
                                           />
-                                        </MuiPickersUtilsProvider>
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                        <TextField id="ejecuto"
-                                          label="Ejecutó"
-                                          disabled={this.state.busqueda.disablefechas}
-                                          value={this.state.busqueda.ejecutobuscar}
-                                          onChange={this.handleChangeejecuto}
-                                        />
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                        <TextField id="etiqueta"
-                                          type="search"
-                                          label="Etiquetas"
-                                          value={this.state.busqueda.etiquetas}
-                                          onChange={this.handleChangeEtiquetas}
-                                        />
-                                      </Grid>
-                                      <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
-                                        <TextField id="contribuyentes"
-                                          type="search"
-                                          label="Contribuyentes"
-                                          value={this.state.busqueda.contribuyentes}
-                                          onChange={this.handleChangeContribuyentes}
-                                        />
-                                      </Grid>
-                                      <div style={{ marginLeft: '15px', marginTop: '5px' }}>
-                                        <Tooltip title='Buscar'>
-                                          <IconButton aria-label="settings" disabled={this.state.busqueda.btnbuscar}>
-                                            <Search color='primary' style={{ fontSize: '25px' }} onClick={(e) => this.handleBuscarAvanzado()} />
-                                          </IconButton>
-                                        </Tooltip>
-                                      </div>
+                                        </div>
+                                      </React.Fragment>
+                                    ) : (
+                                        <React.Fragment>
+                                          {this.state.vistadetalle ? (
+                                            <Tooltip title="Vista iconos grande">
+                                              <IconButton aria-label="detalle" onClick={this.handleClickMostrarDetalle}>
+                                                <Apps style={{ color: '#FFFFFF' }} />
+                                              </IconButton>
+                                            </Tooltip>
+                                          ) : (
+                                              <Tooltip title="Vista de detalle">
+                                                <IconButton aria-label="iconos" onClick={this.handleClickMostrarDetalle}>
+                                                  <ViewList style={{ color: '#FFFFFF' }} />
+                                                </IconButton>
+                                              </Tooltip>
+                                            )
+                                          }
+                                          {this.state.menu.menuselect !== 'Búsqueda' &&
+                                            <div className={classes.search} style={{ color: "#FFFFFF" }}>
+                                              <div className={classes.searchIcon}>
+                                                <SearchIcon />
+                                              </div>
+                                              <InputBase
+                                                onChange={(event) => this.handleBuscar(event)}
+                                                placeholder="Buscar…"
+                                                classes={{
+                                                  root: classes.inputRoot,
+                                                  input: classes.inputInput,
+                                                }}
+                                              />
+                                            </div>
+                                          }
+                                        </React.Fragment>
+                                      )
+                                    }
+                                  </React.Fragment>
+                                )}
+                            </div>
+                          </Toolbar>
+                        </AppBar>
+                        <main className={classes.content, { [classes.contentShift]: openpanel, }}>
+                          {this.state.menu.menuselect === 'Búsqueda' &&
+                            <div style={{ margin: '10px' }}>
+                              <ExpansionPanel >
+                                <ExpansionPanelSummary expandIcon={<ExpandMore />}>
+                                  <Typography className={classes.heading} color="primary">Introduzca los criterios por los que desea filtrar los documentos</Typography>
+                                </ExpansionPanelSummary>
+                                <ExpansionPanelDetails style={{ paddingLeft: '20px' }}>
+                                  <Grid container direction="row">
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
+                                      <TextField id="titulo"
+                                        label="Denominación"
+                                        value={this.state.busqueda.denombuscar}
+                                        onChange={this.handleChangedenominacion}
+                                      />
                                     </Grid>
-                                  </ExpansionPanelDetails>
-                                </ExpansionPanel>
-                              </div>
-                            }
-                            < div style={{ maxWidth: "100%" }}>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
+                                      <TextField id="descripcion"
+                                        label="Descripción"
+                                        value={this.state.busqueda.descripbuscar}
+                                        onChange={this.handleChangedescripcion}
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "3px", minWidth: "170px" }} spacing={2}>
+                                      <FormControl size='small' fullWidth={true} >
+                                        <InputLabel htmlFor="combotipo">Tipo Documento</InputLabel>
+                                        <Select
+                                          id='combotipo'
+                                          value={this.state.busqueda.combotipo}
+                                          onChange={this.handleChangeComboTipo}
+                                        >
+                                          <MenuItem value="" ><em>Vacio</em></MenuItem>
+                                          <MenuItem value={1} >Documentos</MenuItem>
+                                          <MenuItem value={2} >Presentaciones</MenuItem>
+                                          <MenuItem value={3} >Hojas de cálculos</MenuItem>
+                                          <MenuItem value={4} >Notas</MenuItem>
+                                          <MenuItem value={5} >Audio</MenuItem>
+                                          <MenuItem value={6} >Imágenes</MenuItem>
+                                          <MenuItem value={7} >Video</MenuItem>
+                                          <MenuItem value={8} >Otros</MenuItem>
+                                        </Select>
+                                      </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
+                                      <TextField id="tamaño"
+                                        type="number"
+                                        label="Tamaño en MB"
+                                        value={this.state.busqueda.tamanno}
+                                        onChange={this.handleChangetamanno}
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "3px", minWidth: "170px" }} spacing={2}>
+                                      <FormControl size='small' fullWidth={true} >
+                                        <InputLabel htmlFor="comboestado">Estado</InputLabel>
+                                        <Select
+                                          id='comboestado'
+                                          value={this.state.busqueda.comboestado}
+                                          onChange={this.handleChangeEstado}
+                                        >
+                                          <MenuItem value="" ><em>Vacio</em></MenuItem>
+                                          <MenuItem value={1} >Creado</MenuItem>
+                                          <MenuItem value={2} >Modificado</MenuItem>
+                                          <MenuItem value={3} >Publicado</MenuItem>
+                                          <MenuItem value={4} >Expirado</MenuItem>
+                                          <MenuItem value={5} >Bloqueado</MenuItem>
+                                          <MenuItem value={6} >Eliminado</MenuItem>
+                                        </Select>
+                                      </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "16px", minWidth: "170px" }} spacing={2}>
+                                      <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
+                                        <DatePicker
+                                          id='fechadesde'
+                                          disabled={this.state.busqueda.disablefechas}
+                                          keyboard
+                                          placeholder="Fecha Desde"
+                                          format={"YYYY/MM/DD"}
+                                          mask={value =>
+                                            value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                              : []
+                                          }
+                                          maxDate={this.state.busqueda.fechahasta !== 'null' ? moment(this.state.busqueda.fechahasta) : moment()}
+                                          value={this.state.busqueda.fechadesde}
+                                          onChange={this.handleDateChangefechadesde}
+                                          disableOpenOnEnter
+                                          animateYearScrolling={false}
+                                          onInputChange={(e) => this.cambiarEstado(e)} />
+                                      </MuiPickersUtilsProvider>
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', marginTop: "16px", minWidth: "170px" }} spacing={2}>
+                                      <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
+                                        <DatePicker
+                                          id='fechahasta'
+                                          disabled={this.state.busqueda.disablefechas}
+                                          keyboard
+                                          placeholder="Fecha Hasta"
+                                          format={"YYYY/MM/DD"}
+                                          mask={value =>
+                                            value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                              : []
+                                          }
+                                          minDate={moment(this.state.busqueda.fechadesde).add(1, "day")}
+                                          maxDate={moment()}
+                                          value={this.state.busqueda.fechahasta}
+                                          onChange={this.handleDateChangefechahasta}
+                                          disableOpenOnEnter
+                                          animateYearScrolling={false}
+                                          onInputChange={(e) => this.cambiarEstadoHasta(e)}
+                                        />
+                                      </MuiPickersUtilsProvider>
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
+                                      <TextField id="ejecuto"
+                                        label="Ejecutó"
+                                        disabled={this.state.busqueda.disablefechas}
+                                        value={this.state.busqueda.ejecutobuscar}
+                                        onChange={this.handleChangeejecuto}
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
+                                      <TextField id="etiqueta"
+                                        type="search"
+                                        label="Etiquetas"
+                                        value={this.state.busqueda.etiquetas}
+                                        onChange={this.handleChangeEtiquetas}
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12} md={1} style={{ marginRight: '10px', minWidth: "170px" }} spacing={2}>
+                                      <TextField id="contribuyentes"
+                                        type="search"
+                                        label="Contribuyentes"
+                                        value={this.state.busqueda.contribuyentes}
+                                        onChange={this.handleChangeContribuyentes}
+                                      />
+                                    </Grid>
+                                    <div style={{ marginLeft: '15px', marginTop: '5px' }}>
+                                      <Tooltip title='Buscar'>
+                                        <IconButton aria-label="settings" disabled={this.state.busqueda.btnbuscar}>
+                                          <Search color='primary' style={{ fontSize: '25px' }} onClick={(e) => this.handleBuscarAvanzado()} />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </div>
+                                  </Grid>
+                                </ExpansionPanelDetails>
+                              </ExpansionPanel>
+                            </div>
+                          }
+                          < div style={{ maxWidth: "100%" }}>
+                            {this.state.vistadetalle &&
                               <Table
                                 className={classes.root}
                                 aria-labelledby="tableTitle"
@@ -8422,7 +8443,7 @@ class DocumentManager extends React.Component {
                                                 onClick={this.createSortHandler('name')}
                                               >
                                                 Denominación
-                                                        </TableSortLabel>
+                                                         </TableSortLabel>
                                             </TableCell>
                                             <TableCell
                                               style={{ minWidth: 150, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
@@ -8437,10 +8458,10 @@ class DocumentManager extends React.Component {
                                                 onClick={this.createSortHandler('descripcion')}
                                               >
                                                 Descripción
-                                                        </TableSortLabel>
+                                                         </TableSortLabel>
                                             </TableCell>
                                             <TableCell
-                                              style={{ minWidth: 105, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                              style={{ minWidth: 110, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
                                               key='sistema'
                                               align='center'
                                               padding='default'
@@ -8452,10 +8473,10 @@ class DocumentManager extends React.Component {
                                                 onClick={this.createSortHandler('sistema')}
                                               >
                                                 Creado
-                                                        </TableSortLabel>
+                                                         </TableSortLabel>
                                             </TableCell>
                                             <TableCell
-                                              style={{ minWidth: 125, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                              style={{ minWidth: 135, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
                                               key='cantmiembros'
                                               align='center'
                                               padding='default'
@@ -8467,7 +8488,7 @@ class DocumentManager extends React.Component {
                                                 onClick={this.createSortHandler('cantmiembros')}
                                               >
                                                 Miembros
-                                                        </TableSortLabel>
+                                                         </TableSortLabel>
                                             </TableCell>
                                           </TableRow>
                                         </TableHead>
@@ -8544,10 +8565,10 @@ class DocumentManager extends React.Component {
                                                   onClick={this.createSortHandler('name')}
                                                 >
                                                   Nombre
-                                                          </TableSortLabel>
+                                                           </TableSortLabel>
                                               </TableCell>
                                               <TableCell
-                                                style={{ minWidth: 110, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                                style={{ minWidth: 115, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
                                                 key='tamanno'
                                                 align="center"
                                                 padding='default'
@@ -8559,10 +8580,10 @@ class DocumentManager extends React.Component {
                                                   onClick={this.createSortHandler('tamanno')}
                                                 >
                                                   Tamaño
-                                                            </TableSortLabel>
+                                                             </TableSortLabel>
                                               </TableCell>
                                               <TableCell
-                                                style={{ minWidth: 130, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                                style={{ minWidth: 140, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
                                                 key='modificado'
                                                 align="center"
                                                 padding='default'
@@ -8574,7 +8595,7 @@ class DocumentManager extends React.Component {
                                                   onClick={this.createSortHandler('modificado')}
                                                 >
                                                   Modificado
-                                                            </TableSortLabel>
+                                                             </TableSortLabel>
                                               </TableCell>
                                             </TableRow>
                                           </TableHead>
@@ -8626,103 +8647,537 @@ class DocumentManager extends React.Component {
                                     </div>
                                   )}
                               </Table>
-                            </div>
-                          </main>
-                          <Drawer
-                            anchor="right"
-                            open={openpanel}
-                            classes={{ paper: classes.drawerPaper, }}
-                          >
-                            <div style={{ borderRadius: '0px' }}>
-                              <div style={{ display: 'flex', backgroundColor: cssColor, height: 'auto' }}>
-                                <IconButton onClick={(event) => this.toggleDrawer(false)}>
-                                  <ChevronRightIcon style={{ marginLeft: '5px', color: '#FFFFFF', fontSize: '20px' }} />
-                                </IconButton>
-                                <Typography className={classes.title} variant="h7" id="tableTitle" style={{ marginLeft: '5px', paddingTop: '10px', color: "#FFFFFF" }}>
-                                  {seleccionado.name}
-                                </Typography>
-                              </div>
-                              <Grid container direction="row">
-                                <Grid item sm={12} md={4} lg={5}>
-                                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: '35px', marginTop: '10px' }}>
-                                    {this.DevuelveIconsDetaill(seleccionado)}
-                                  </div>
-                                  {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' &&
-                                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: '20px', marginTop: '10px' }}>
-                                      {seleccionado.compartido && <Tooltip title='Compartido'><Share color='primary' className={classes.iconspequennos} /></Tooltip>}
-                                      {seleccionado.bloqueado && <Tooltip title='Bloqueado'><Lock color='primary' className={classes.iconspequennos} /></Tooltip>}
-                                      {seleccionado.favorito && <Tooltip title='Favorito'><Grade color='primary' className={classes.iconspequennos} /></Tooltip>}
-                                      {seleccionado.etiquetado && <Tooltip title='Etiquetado'><LocalOffer color='primary' className={classes.iconspequennos} /></Tooltip>}
-                                      {seleccionado.comentado && <Tooltip title='Comentado'><InsertComment color='primary' className={classes.iconspequennos} /></Tooltip>}
-                                    </div>
-                                  }
-                                </Grid>
-                                <Grid item sm={12} md={8} lg={7}>
-                                  {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetailprimero}><b> estado: </b><Chip size="small" label={seleccionado.estado}
-                                    color="primary" style={{ marginLeft: '5px', height: '25px' }} /></div>}
-                                  {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> creado: </b><span className={classes.textspacenego}>{seleccionado.creado}</span></div>}
-                                  {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> creado por: </b><span className={classes.textspacenego}>{seleccionado.creadopor}</span></div>}
-                                  {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> tamaño: </b><span className={classes.textspacenego}>{seleccionado.tamanno}</span></div>}
-                                  {this.state.menu.menuselect === 'Grupos' && <div className={classes.metadatadetail}><b> Descripción: </b></div>}
-                                  {this.state.menu.menuselect === 'Grupos' && <div className={classes.metadatadetail}>{seleccionado.descripcion}</div>}
-                                </Grid>
-                              </Grid>
-                              {this.state.menu.menuselect != 'Grupos' &&
-                                <Grid item sm={12} md={12} lg={12}>
-                                  <div className={classes.metadatacontributorprimero}><b> descripción: </b><span className={classes.textspacenego}>{seleccionado.descripcion}</span></div>
-                                  <div className={classes.metadatacontributor}><b> contribuyentes: </b><span className={classes.textspacenego}>{seleccionado.contribuyentes}</span></div>
-                                  <div className={classes.metadatacontributor}><b> último contribuyente: </b><span className={classes.textspacenego}>{seleccionado.ultcontribuyente}</span></div>
-                                  <div className={classes.metadatacontributor}><b> modificado: </b><span className={classes.textspacenego}>{seleccionado.fechamodif}</span></div>
-                                </Grid>}
-                              <Grid item sm={12} md={12} lg={12}>
-                                <Tabs
-                                  value={this.state.tabactivo}
-                                  onChange={this.handleCambioTabActivo}
-                                  indicatorColor="primary"
-                                  textColor="primary"
-                                  variant="scrollable"
-                                  scrollButtons="auto"
-                                  className={classes.tabs}
+                            }
+                            {!this.state.vistadetalle &&
+                              <React.Fragment>
+                                <Table
+                                  className={classes.root}
+                                  aria-labelledby="tableTitle"
+                                  aria-label="enhanced table"
                                 >
-                                  <Tooltip title="Actividad"><Tab className={classes.tab} label='Actividad' style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Publicar"><Tab className={classes.tab} label='Publicar' disabled={!this.state.acciones.share} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Compartir"><Tab className={classes.tab} label='Compartir' disabled={!this.state.acciones.share} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Comentar"><Tab className={classes.tab} label='Comentar' disabled={!this.state.acciones.comentar} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Etiquetar"><Tab className={classes.tab} label='Etiquetar' disabled={!this.state.acciones.comentar} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Permisos"><Tab className={classes.tab} label='Permisos' disabled={!this.state.acciones.permisos} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Versiones"><Tab className={classes.tab} label='Versiones' disabled={!this.state.acciones.version} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Micelaneas"><Tab className={classes.tab} label='Micelaneas' disabled={!this.state.acciones.comentar} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
-                                  <Tooltip title="Miembros"><Tab className={classes.tab} label='Miembros' style={{ display: this.state.menu.menuselect === 'Grupos' ? '' : 'none' }} /></Tooltip>
-                                </Tabs>
-                                {this.state.tabactivo === 0 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                                    <div style={{ height: '325px' }} >
-                                      <React.Fragment>
-                                        {this.state.historial.totalactividad > 0 ? (
+                                  {this.state.tabla.rowCount > 0 ? (
+                                    <div style={{ maxHeight: '350px' }}>
+                                      <TableHead>
+                                        <TableRow>
+                                          <TableCell padding="checkbox" style={{ width: '2%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}>
+                                            <Tooltip title='Seleccionar todos'>
+                                              <Checkbox color='primary'
+                                                indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
+                                                checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
+                                                onChange={this.handleSelectAllClickGroup}
+                                                inputProps={{ 'aria-label': 'select all desserts' }}
+                                              />
+                                            </Tooltip>
+                                          </TableCell>
+                                          <TableCell
+                                            style={{ width: '35%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                            key='name'
+                                            align='center'
+                                            padding='default'
+                                            sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
+                                          >
+                                            <TableSortLabel
+                                              active={this.state.tabla.orderBy === 'name'}
+                                              direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
+                                              onClick={this.createSortHandler('name')}
+                                            >
+                                              Denominación
+                                                     </TableSortLabel>
+                                          </TableCell>
+                                        </TableRow>
+                                      </TableHead>
+                                      <Grid container style={{ overflow: 'auto', maxHeight: '340px' }}>
+                                        {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy)).map((row, index) => {
+                                          const isItemSelected = this.isSelected(row.name);
+                                          const labelId = `enhanced-table-checkbox-${index}`;
+                                          return (
+                                            <Card elevation={0} className={classes.root} style={{ width: '140px', marginTop: '10px', marginLeft: '10px' }}>
+                                              <div style={{ padding: '0px', height: '35px', display: 'flex', alignItems: 'center' }}>
+                                                {this.state.menu.menuselect === 'Grupos' ? (
+                                                  <Tooltip title='Seleccione'>
+                                                    <Checkbox id={'checkbox' + row.id}
+                                                      color='primary'
+                                                      checked={isItemSelected}
+                                                      onClick={(event) => this.handleRowClickGroup(event, row.name)}
+                                                      inputProps={{ 'aria-labelledby': labelId }}
+                                                    />
+                                                  </Tooltip>
+                                                ) : (
+                                                    <Tooltip title='Seleccione'>
+                                                      <Checkbox id={'checkbox' + row.id}
+                                                        color='primary'
+                                                        checked={isItemSelected}
+                                                        onClick={(event) => this.handleRowClick(event, row.name)}
+                                                        inputProps={{ 'aria-labelledby': labelId }}
+                                                      />
+                                                    </Tooltip>
+                                                  )}
+                                                {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && row.tipo != 'Section' &&
+                                                  <div style={{ alignItems: 'center' }}>
+                                                    {row.compartido && <Tooltip title='Compartido'><Share color='disabled' style={{ marginRight: '2px', fontSize: '13px' }} /></Tooltip>}
+                                                    {row.bloqueado && <Tooltip title='Bloqueado'><Lock color='disabled' style={{ marginRight: '2px', fontSize: '13px' }} /></Tooltip>}
+                                                    {row.favorito && <Tooltip title='Favorito'><Grade color='disabled' style={{ marginRight: '2px', fontSize: '13px' }} /></Tooltip>}
+                                                    {row.etiquetado && <Tooltip title='Etiquetado'><LocalOffer color='disabled' style={{ marginRight: '2px', fontSize: '13px' }} /></Tooltip>}
+                                                    {row.comentado && <Tooltip title='Comentado'><InsertComment color='disabled' style={{ marginRight: '2px', fontSize: '13px' }} /></Tooltip>}
+                                                  </div>
+                                                }
+                                              </div>
+                                              <CardContent style={{ padding: '0px', textAlign: 'center' }} onClick={(event) => this.handleAbrirClick(row)}>
+                                                {this.DevuelveIconsVista(row)}
+                                              </CardContent>
+                                              <CardContent style={{ padding: '0px 5px 10px 5px', textAlign: 'center', display: 'block' }}>
+                                                <Tooltip title={row.name}>
+                                                  <Typography variant="body2" color="textSecondary" component="p">
+                                                    {this.Devuelvenamevista(row)}
+                                                  </Typography>
+                                                </Tooltip>
+                                              </CardContent>
+                                            </Card>
+                                          );
+                                        })
+                                        }
+                                      </Grid>
+                                      {this.state.showBackdrop &&
+                                        <Modal
+                                          aria-labelledby="simple-modal-title"
+                                          aria-describedby="simple-modal-description"
+                                          open={this.state.showBackdrop}
+                                        >
+                                          <Loading color="primary" />
+                                        </Modal>
+                                      }
+                                    </div>
+                                  ) : (
+                                      <div style={{ textAlign: 'center', marginTop: '12%' }} >
+                                        {this.devuelveiconsitems()}
+                                        {this.state.iconvacio != 'Espacio de Grupo de Trabajo' && this.state.iconvacio != 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay archivos que mostrar...</b></Typography>}
+                                        {this.state.iconvacio === 'Espacio de Grupo de Trabajo' && <Typography className={classes.textmensajecentro}><b>No hay espacios de grupos de trabajo que mostrar...</b></Typography>}
+                                        {this.state.iconvacio === 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay grupos que mostrar...</b></Typography>}
+                                      </div>
+                                    )}
+                                </Table>
+
+                              </React.Fragment>
+                            }
+                          </div>
+                        </main>
+                        <Drawer
+                          anchor="right"
+                          open={openpanel}
+                          classes={{ paper: classes.drawerPaper, }}
+                        >
+                          <div style={{ borderRadius: '0px' }}>
+                            {/*  va color primary */}
+                            <div style={{ display: 'flex', height: 'auto', backgroundColor: themeColor }}>
+                              <IconButton onClick={(event) => this.toggleDrawer(false)}>
+                                <ChevronRightIcon style={{ marginLeft: '5px', color: '#FFFFFF', fontSize: '20px' }} />
+                              </IconButton>
+                              <Typography className={classes.title} variant="h7" id="tableTitle" style={{ marginLeft: '5px', paddingTop: '10px', color: "#FFFFFF" }}>
+                                {seleccionado.name}
+                              </Typography>
+                            </div>
+                            <Grid container direction="row">
+                              <Grid item sm={12} md={4} lg={5}>
+                                <div style={{ display: 'flex', alignItems: 'center', marginLeft: '35px', marginTop: '10px' }}>
+                                  {this.DevuelveIconsDetaill(seleccionado)}
+                                </div>
+                                {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' &&
+                                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: '20px', marginTop: '10px' }}>
+                                    {seleccionado.compartido && <Tooltip title='Compartido'><Share color='primary' className={classes.iconspequennos} /></Tooltip>}
+                                    {seleccionado.bloqueado && <Tooltip title='Bloqueado'><Lock color='primary' className={classes.iconspequennos} /></Tooltip>}
+                                    {seleccionado.favorito && <Tooltip title='Favorito'><Grade color='primary' className={classes.iconspequennos} /></Tooltip>}
+                                    {seleccionado.etiquetado && <Tooltip title='Etiquetado'><LocalOffer color='primary' className={classes.iconspequennos} /></Tooltip>}
+                                    {seleccionado.comentado && <Tooltip title='Comentado'><InsertComment color='primary' className={classes.iconspequennos} /></Tooltip>}
+                                  </div>
+                                }
+                              </Grid>
+                              <Grid item sm={12} md={8} lg={7}>
+                                {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetailprimero}><b> estado: </b><Chip size="small" label={seleccionado.estado}
+                                  color="primary" style={{ marginLeft: '5px', height: '25px' }} /></div>}
+                                {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> creado: </b><span className={classes.textspacenego}>{seleccionado.creado}</span></div>}
+                                {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> creado por: </b><span className={classes.textspacenego}>{seleccionado.creadopor}</span></div>}
+                                {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> tamaño: </b><span className={classes.textspacenego}>{seleccionado.tamanno}</span></div>}
+                                {this.state.menu.menuselect === 'Grupos' && <div className={classes.metadatadetail}><b> Descripción: </b></div>}
+                                {this.state.menu.menuselect === 'Grupos' && <div className={classes.metadatadetail}>{seleccionado.descripcion}</div>}
+                              </Grid>
+                            </Grid>
+                            {this.state.menu.menuselect != 'Grupos' &&
+                              <Grid item sm={12} md={12} lg={12}>
+                                <div className={classes.metadatacontributorprimero}><b> descripción: </b><span className={classes.textspacenego}>{seleccionado.descripcion}</span></div>
+                                <div className={classes.metadatacontributor}><b> contribuyentes: </b><span className={classes.textspacenego}>{seleccionado.contribuyentes}</span></div>
+                                <div className={classes.metadatacontributor}><b> último contribuyente: </b><span className={classes.textspacenego}>{seleccionado.ultcontribuyente}</span></div>
+                                <div className={classes.metadatacontributor}><b> modificado: </b><span className={classes.textspacenego}>{seleccionado.fechamodif}</span></div>
+                              </Grid>}
+                            <Grid item sm={12} md={12} lg={12}>
+                              <Tabs
+                                value={this.state.tabactivo}
+                                onChange={this.handleCambioTabActivo}
+                                indicatorColor="primary"
+                                textColor="primary"
+                                variant="scrollable"
+                                scrollButtons="auto"
+                                className={classes.tabs}
+                              >
+                                <Tooltip title="Actividad"><Tab className={classes.tab} label='Actividad' style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Publicar"><Tab className={classes.tab} label='Publicar' disabled={!this.state.acciones.share} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Compartir"><Tab className={classes.tab} label='Compartir' disabled={!this.state.acciones.share} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Comentar"><Tab className={classes.tab} label='Comentar' disabled={!this.state.acciones.comentar} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Etiquetar"><Tab className={classes.tab} label='Etiquetar' disabled={!this.state.acciones.comentar} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Permisos"><Tab className={classes.tab} label='Permisos' disabled={!this.state.acciones.permisos} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Versiones"><Tab className={classes.tab} label='Versiones' disabled={!this.state.acciones.version} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Micelaneas"><Tab className={classes.tab} label='Micelaneas' disabled={!this.state.acciones.comentar} style={{ display: this.state.menu.menuselect === 'Grupos' ? 'none' : '' }} /></Tooltip>
+                                <Tooltip title="Miembros"><Tab className={classes.tab} label='Miembros' style={{ display: this.state.menu.menuselect === 'Grupos' ? '' : 'none' }} /></Tooltip>
+                              </Tabs>
+                              {this.state.tabactivo === 0 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
+                                  <div style={{ height: '325px' }} >
+                                    <React.Fragment>
+                                      {this.state.historial.totalactividad > 0 ? (
+                                        <Grid container>
+                                          {this.state.historial.listactividad.map((row, index) => {
+                                            return (
+                                              <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                <CardHeader style={{ padding: '10px' }}
+                                                  avatar={
+                                                    <Tooltip title={row.principalName}>
+                                                      <Avatar aria-label="recipe" className={classes.avatar}>
+                                                        {row.principalName.charAt().toUpperCase()}
+                                                      </Avatar>
+                                                    </Tooltip>
+                                                  }
+                                                  title={this.devolverAccion(row.eventId)}
+                                                  subheader={moment(row.eventDate, 'YYYY-MM-DDTHH:mm:ss.SSSSZ').format('YYYY-MM-DD HH:mm:ss')}
+                                                />
+                                              </Card>
+                                            );
+                                          })
+                                          }
+                                          {this.state.historial.totalactividad >= 4 &&
+                                            <div style={{ marginLeft: '100px' }}>
+                                              <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistaractividad()}>
+                                                <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
+                                                  <b>{this.state.historial.textactbtntodos}</b>
+                                                </Typography>
+                                              </Button>
+                                            </div>
+                                          }
+                                        </Grid>
+                                      ) :
+                                        (
+                                          <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                            <History style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                            <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha registrado actividad en el documento seleccionado...</b></Typography>
+                                          </div>
+
+                                        )}
+
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 1 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }} disabled={true}>
+                                  <div style={{ textAlign: 'center', height: '325px' }} >
+                                    <div className={classes.margin}>
+                                      <Grid container>
+                                        <Grid item >
+                                          <Public style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
+                                        </Grid>
+                                        <Grid item style={{ width: '280px' }}>
+                                          <FormControl size='small' variant="outlined" className={classes.formControl}>
+                                            <InputLabel ref={ref => { this.InputLabelRef = ref; }}
+                                              htmlFor="select-multiple-checkbox"
+                                            >Publicar en...</InputLabel>
+                                            <Select multiple value={this.state.publicar.name}
+                                              onChange={this.handleChangeSelectSecion}
+                                              input={<OutlinedInput name="age" labelWidth={100} id="select-multiple-checkbox" />}
+                                              renderValue={selected => selected.join(', ')}
+
+                                            >
+                                              {this.state.publicar.listseciones ? (
+                                                this.state.publicar.listseciones.map(secion => (
+                                                  <MenuItem key={secion.name} value={secion.name} style={{ maxHeight: 36 }}>
+                                                    <Checkbox color='primary' checked={this.state.publicar.name.indexOf(secion.name) > -1} />
+                                                    <Tooltip title={secion.descripcion}>
+                                                      <div>{secion.name}</div>
+                                                    </Tooltip>
+                                                  </MenuItem>
+                                                ))
+                                              ) : (
+                                                  <MenuItem key='nulo' value='nulo'>
+                                                    <Tooltip title='No hay seciones donde publicar ó el documento ya fue publicado'>
+                                                      <div>No hay secciones donde publicar </div>
+                                                    </Tooltip>
+                                                  </MenuItem>)
+                                              }
+
+                                            </Select>
+                                          </FormControl>
+                                        </Grid>
+                                        <Grid item >
+                                          <Tooltip title="Publicar documento">
+                                            <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.publicar.btnpublicardisable} onClick={(e) => this.handleActionPublicar(e)}>
+                                              <Done />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </Grid>
+                                      </Grid>
+                                    </div>
+                                    <React.Fragment>
+                                      <div>
+                                        {/* va color primary */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                          <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Espacios de GT donde se ha publicado:</b></Typography>
+                                          <Tooltip title="Dejar de publicar el documento">
+                                            <IconButton color="primary" component="span" disabled={this.state.publicar.deletepublicardisable} onClick={(e) => this.handleDeletePublicadosAll(e)}>
+                                              <HighlightOff />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </div>
+                                        {this.state.publicar.listpublicados.length > 0 ? (
                                           <Grid container>
-                                            {this.state.historial.listactividad.map((row, index) => {
+                                            {this.state.publicar.listpublicados.map((row, index) => {
                                               return (
                                                 <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                  <CardHeader style={{ padding: '10px' }}
-                                                    avatar={
-                                                      <Tooltip title={row.principalName}>
-                                                        <Avatar aria-label="recipe" className={classes.avatar}>
-                                                          {row.principalName.charAt().toUpperCase()}
-                                                        </Avatar>
-                                                      </Tooltip>
-                                                    }
-                                                    title={this.devolverAccion(row.eventId)}
-                                                    subheader={moment(row.eventDate, 'YYYY-MM-DDTHH:mm:ss.SSSSZ').format('YYYY-MM-DD HH:mm:ss')}
-                                                  />
+                                                  <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                    <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <FolderSpecial color='primary' />
+                                                        <span style={{ marginLeft: '12px', fontSize: '16px' }}>{row.name}</span>
+                                                      </div>
+                                                      <div>
+                                                        <Tooltip title={'Eliminar la publicación en este espacio de GT'}>
+                                                          <IconButton aria-label="settings">
+                                                            <Delete color='primary' style={{ fontSize: '18px' }}
+                                                              onClick={(e) => this.handleEliminarPublicacionSecion(row.path)}
+                                                            />
+                                                          </IconButton>
+                                                        </Tooltip>
+                                                      </div>
+                                                    </div>
+                                                    <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Publicó: </b> <Chip size="small" label={row.publicado}
+                                                        color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                      </Typography>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                        <b>Fecha: </b> {row.fechapublic}
+                                                      </Typography>
+                                                    </div>
+                                                  </CardContent>
                                                 </Card>
                                               );
                                             })
                                             }
-                                            {this.state.historial.totalactividad >= 4 &&
+                                          </Grid>
+                                        ) :
+                                          (
+                                            <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                              <Public style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha publicado el documento seleccionado...</b></Typography>
+                                            </div>
+                                          )}
+                                      </div>
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 2 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }} disabled={true}>
+                                  <div style={{ textAlign: 'center', height: '325px' }} >
+                                    <div className={classes.margin}>
+                                      <Grid container>
+                                        <Grid item style={{ marginTop: '10px' }}>
+                                          <Share style={{ position: 'relative', marginTop: '10px', marginRight: '15px' }} color='primary' />
+                                        </Grid>
+                                        <Grid item style={{ width: '280px' }}>
+                                          <FormControl>
+                                            <TextField
+                                              variant="outlined"
+                                              type='search'
+                                              value={this.state.compartir.usuariosshare}
+                                              style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
+                                              size="small"
+                                              label='Compartir con...'
+                                              onChange={(event) => this.handleBuscarUsersGroups(event)}
+                                            />
+                                            <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }} s>
+                                              {({ TransitionProps }) => (
+                                                <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
+                                                  <MenuList>
+                                                    {this.state.usersygroups.listusersygrups.length > 0 ? (
+                                                      this.state.usersygroups.listusersygrups.map((row, index) => {
+                                                        return <MenuItem key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
+                                                          <Tooltip title={row.name}>
+                                                            <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
+                                                              {row.avatar}
+                                                            </Avatar>
+                                                          </Tooltip>
+                                                          {row.username}
+                                                        </MenuItem>
+                                                      })
+                                                    ) : (
+                                                        'vacio'
+                                                      )}
+                                                  </MenuList>
+                                                </Paper>
+                                              )}
+                                            </Popper>
+                                          </FormControl>
+                                        </Grid>
+                                        <Grid item >
+                                          <Tooltip title="Compartir documento">
+                                            <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionShare(e)}>
+                                              <Done />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </Grid>
+                                      </Grid>
+                                    </div>
+                                    <React.Fragment>
+                                      <div>
+                                        {/* va color primary */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                          <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con los que se ha compartido</b></Typography>
+                                          <Tooltip title="Dejar de compartir el documento">
+                                            <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeleteShareAll('compartidos')}>
+                                              <HighlightOff />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </div>
+                                        {this.state.compartir.totalusuarios > 0 ? (
+                                          <Grid container>
+                                            {this.state.compartir.listusuarios.map((row, index) => {
+                                              return (
+                                                <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                  <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                    <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        {row.status === 'Activo' ? (
+                                                          <Tooltip title={row.status}>
+                                                            <Avatar aria-label="recipe" className={classes.avatar}>
+                                                              {row.avatar}
+                                                            </Avatar>
+                                                          </Tooltip>
+                                                        ) : (
+                                                            <Tooltip title={row.status}>
+                                                              <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                {row.avatar}
+                                                              </Avatar>
+                                                            </Tooltip>
+                                                          )}
+                                                        <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
+
+                                                      </div>
+                                                      <div>
+                                                        <Tooltip title='Editar Permiso'>
+                                                          <IconButton aria-label="settings" disabled={row.mostrarformulario}>
+                                                            <Create color='primary'
+                                                              style={{ fontSize: '18px' }}
+                                                              onClick={(e) => this.prepararActPermiso(index)}
+                                                            />
+                                                          </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title={'Dejar de compartir con este usuario'}>
+                                                          <IconButton aria-label="settings">
+                                                            <Delete color='primary'
+                                                              style={{ fontSize: '18px' }}
+                                                              onClick={(e) => this.handleDeleteShare(row, 'compartidos')} />
+                                                          </IconButton>
+                                                        </Tooltip>
+                                                      </div>
+                                                    </div>
+
+                                                    <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
+                                                        color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                      </Typography>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                        <b>Compartió: </b> {row.creator}
+                                                      </Typography>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                        <b>Concedido: </b> {row.concedido}
+                                                      </Typography>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                        <b>Duración: </b>  {row.duracion}
+                                                      </Typography>
+                                                    </div>
+                                                  </CardContent>
+                                                  <Collapse in={row.mostrarformulario} timeout="auto" unmountOnExit>
+                                                    <Divider variant="middle" />
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginRight: '15px' }}>
+                                                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <Create color='primary'
+                                                          style={{ marginLeft: '30px', fontSize: '18px' }}
+                                                        />
+                                                        {/* va color primary */}
+                                                        <span style={{ marginLeft: '5px', color: themeColor }}>Editar Permiso</span>
+                                                      </div>
+                                                      <Tooltip title={'Cancelar la edición del permiso'}>
+                                                        <IconButton>
+                                                          <Close color='primary'
+                                                            style={{ fontSize: '18px' }}
+                                                            onClick={(e) => this.cancelarEdicionPermiso(index)} />
+                                                        </IconButton>
+                                                      </Tooltip>
+                                                    </div>
+                                                    <CardContent style={{ padding: '0px 20px 10px 20px', textAlign: 'left', fontSize: '8px' }}>
+                                                      <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                                        control={
+                                                          <Checkbox fontSize="small" color='primary' checked={this.state.compartir.permisoescritrura} size='small' onChange={(e) => this.handleChangeEscritura('compartidos')} value={this.state.compartir.permisoescritrura} />
+                                                        }
+                                                        label="Permitir editar y eliminar el documento"
+                                                      />
+                                                      <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                                        control={
+                                                          <Checkbox fontSize="small" color='primary' value={this.state.compartir.permisotodos} checked={this.state.compartir.permisotodos} onChange={(e) => this.handleChangeTodos('compartidos')} />
+                                                        }
+                                                        label="Ototgar todos los permisos"
+                                                      />
+                                                      <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                                        control={
+                                                          <Checkbox fontSize="small" color='primary' value={this.state.compartir.fechadisable === 'none' ? false : true} checked={this.state.compartir.fechadisable === 'none' ? false : true} onChange={(e) => this.handleMostrarFechaHasta('compartidos')} />
+                                                        }
+                                                        label="Definir duración del permiso"
+                                                      />
+                                                      <FormControl variant="outlined" style={{ marginLeft: '4em', marginTop: '8px', width: '195px', display: this.state.compartir.fechadisable }} >
+                                                        <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
+                                                          <DatePicker
+                                                            id='duracionhasta'
+                                                            keyboard
+                                                            placeholder="Fecha hasta"
+                                                            format={"YYYY/MM/DD"}
+                                                            mask={value =>
+                                                              value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                                                : []
+                                                            }
+                                                            minDate={moment()}
+                                                            value={this.state.compartir.duracionhasta}
+                                                            onChange={this.handleChangeDuracion}
+                                                            disableOpenOnEnter
+                                                            animateYearScrolling={false}
+                                                            onInputChange={(e) => this.cambiarEstadoDuracion(e)} />
+                                                        </MuiPickersUtilsProvider>
+                                                      </FormControl>
+                                                      <Tooltip title="Edita los permisos">
+                                                        <Button variant="contained" size='small' className={classes.button} color='primary' style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'compartidos')} disabled={this.state.compartir.notificar === 'none' || (this.state.compartir.notificar === 'block' && this.state.compartir.direcemail !== null && this.state.compartir.errordirecmail === null) ? false : true}>
+                                                          Editar
+                                                                                                                </Button>
+                                                      </Tooltip>
+                                                      {/*   <Button variant="outlined" size='small' color="primary" className={classes.button} style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'compartidos')} disabled={this.state.compartir.notificar === 'none' || (this.state.compartir.notificar === 'block' && this.state.compartir.direcemail !== null && this.state.compartir.errordirecmail === null) ? false : true}>
+                                                                                                                   <SaveIcon className={classes.leftIcon} style={{marginRight:'5px'}}/>
+                                                                                                              </Button> */}
+                                                    </CardContent>
+                                                  </Collapse>
+                                                </Card>
+                                              );
+                                            })
+                                            }
+                                            {this.state.compartir.listusuarios.length >= 2 &&
                                               <div style={{ marginLeft: '100px' }}>
-                                                <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistaractividad()}>
-                                                  <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
-                                                    <b>{this.state.historial.textactbtntodos}</b>
+                                                <Button color="primary" className={classes.button} onClick={(e) => this.prepararlistarShare()}>
+                                                  {/* va color primary */}
+                                                  <Typography textAlign='center' style={{ fontSize: '10px', color: 'primary' }}>
+                                                    <b>{this.state.compartir.textbtnlistartodos}</b>
                                                   </Typography>
                                                 </Button>
                                               </div>
@@ -8731,167 +9186,221 @@ class DocumentManager extends React.Component {
                                         ) :
                                           (
                                             <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                              <History style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha registrado actividad en el documento seleccionado...</b></Typography>
+                                              <Share style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento seleccionado...</b></Typography>
                                             </div>
-
                                           )}
-
-                                      </React.Fragment>
-                                    </div>
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 1 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }} disabled={true}>
-                                    <div style={{ textAlign: 'center', height: '325px' }} >
-                                      <div className={classes.margin}>
-                                        <Grid container>
-                                          <Grid item >
-                                            <Public style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
-                                          </Grid>
-                                          <Grid item style={{ width: '280px' }}>
-                                            <FormControl size='small' variant="outlined" className={classes.formControl}>
-                                              <InputLabel ref={ref => { this.InputLabelRef = ref; }}
-                                                htmlFor="select-multiple-checkbox"
-                                              >Publicar en...</InputLabel>
-                                              <Select multiple value={this.state.publicar.name}
-                                                onChange={this.handleChangeSelectSecion}
-                                                input={<OutlinedInput name="age" labelWidth={100} id="select-multiple-checkbox" />}
-                                                renderValue={selected => selected.join(', ')}
-
-                                              >
-                                                {this.state.publicar.listseciones ? (
-                                                  this.state.publicar.listseciones.map(secion => (
-                                                    <MenuItem key={secion.name} value={secion.name} style={{ maxHeight: 36 }}>
-                                                      <Checkbox color='primary' checked={this.state.publicar.name.indexOf(secion.name) > -1} />
-                                                      <Tooltip title={secion.descripcion}>
-                                                        <div>{secion.name}</div>
-                                                      </Tooltip>
-                                                    </MenuItem>
-                                                  ))
-                                                ) : (
-                                                    <MenuItem key='nulo' value='nulo'>
-                                                      <Tooltip title='No hay seciones donde publicar ó el documento ya fue publicado'>
-                                                        <div>No hay secciones donde publicar </div>
-                                                      </Tooltip>
-                                                    </MenuItem>)
-                                                }
-
-                                              </Select>
-                                            </FormControl>
-                                          </Grid>
-                                          <Grid item >
-                                            <Tooltip title="Publicar documento">
-                                              <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.publicar.btnpublicardisable} onClick={(e) => this.handleActionPublicar(e)}>
-                                                <Done />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </Grid>
-                                        </Grid>
                                       </div>
-                                      <React.Fragment>
-                                        <div>
-                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                            <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Espacios de GT donde se ha publicado:</b></Typography>
-                                            <Tooltip title="Dejar de publicar el documento">
-                                              <IconButton color="primary" component="span" disabled={this.state.publicar.deletepublicardisable} onClick={(e) => this.handleDeletePublicadosAll(e)}>
-                                                <HighlightOff />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </div>
-                                          {this.state.publicar.listpublicados.length > 0 ? (
-                                            <Grid container>
-                                              {this.state.publicar.listpublicados.map((row, index) => {
-                                                return (
-                                                  <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                    <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                      <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                          <FolderSpecial color='primary' />
-                                                          <span style={{ marginLeft: '12px', fontSize: '16px' }}>{row.name}</span>
-                                                        </div>
-                                                        <div>
-                                                          <Tooltip title={'Eliminar la publicación en este espacio de GT'}>
-                                                            <IconButton aria-label="settings">
-                                                              <Delete color='primary' style={{ fontSize: '18px' }}
-                                                                onClick={(e) => this.handleEliminarPublicacionSecion(row.path)}
-                                                              />
-                                                            </IconButton>
-                                                          </Tooltip>
-                                                        </div>
-                                                      </div>
-                                                      <div style={{ padding: '0px 0px 0px 35px' }}>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Publicó: </b> <Chip size="small" label={row.publicado}
-                                                          color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                        </Typography>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                          <b>Fecha: </b> {row.fechapublic}
-                                                        </Typography>
-                                                      </div>
-                                                    </CardContent>
-                                                  </Card>
-                                                );
-                                              })
-                                              }
-                                            </Grid>
-                                          ) :
-                                            (
-                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                <Public style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha publicado el documento seleccionado...</b></Typography>
-                                              </div>
-                                            )}
-                                        </div>
-                                      </React.Fragment>
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 3 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
+                                  <div style={{ textAlign: 'center', height: '325px' }} >
+                                    <div className={classes.margin}>
+                                      <Grid container>
+                                        <Grid item >
+                                          <Comment style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
+                                        </Grid>
+                                        <Grid item style={{ width: '280px' }}>
+                                          <FormGroup>
+                                            <TextField
+                                              variant="outlined"
+                                              id="comentario"
+                                              label="Insertar comentario"
+                                              value={this.state.comentario.insertcomentvalue}
+                                              width='280px'
+                                              style={{ marginTop: '10px', marginBottom: '7px' }}
+                                              size="small"
+                                              onChange={(event) => this.setValueInsertarComentario(event)}
+                                            />
+                                          </FormGroup>
+                                        </Grid>
+                                        <Grid item >
+                                          <Tooltip title="Insertar comentario">
+                                            <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.comentario.btncomentdisable} onClick={(e) => this.handleActionAddComent(e, seleccionado.id)}>
+                                              <PlaylistAdd />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </Grid>
+                                      </Grid>
                                     </div>
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 2 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }} disabled={true}>
+                                    <React.Fragment>
+                                      <div>
+                                        {/* va color primary */}
+                                        <div style={{ borderBottom: '1px solid ' + themeColor, paddingTop: '10px', marginBottom: '10px' }}>
+                                          <Typography align='left' variant='h7' color="primary" style={{ marginBottom: '5px', marginLeft: '5px' }}><b>Comentarios del documento seleccionado</b></Typography>
+                                        </div>
+                                        {this.state.comentario.totalcoment > 0 ? (
+                                          <Grid container>
+                                            {this.state.comentario.listcoments.map((row, index) => {
+                                              return (
+                                                <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                  <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                    <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <Tooltip title={row.autor}>
+                                                          <Avatar aria-label="recipe" className={classes.avatar}>
+                                                            {row.avatar}
+                                                          </Avatar>
+                                                        </Tooltip>
+                                                        <div>
+                                                          <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.fecha}</span>
+                                                        </div>
+                                                      </div>
+                                                      <div>
+                                                        {row.autor === self.state.login.user ? (
+                                                          <React.Fragment>
+                                                            <Tooltip title='Actualizar Comentario'>
+                                                              <IconButton aria-label="settings">
+                                                                <Create color='primary' onClick={(e) => this.prepararActualizar(row.id, row.text)} />
+                                                              </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title='Eliminar Comentario'>
+                                                              <IconButton aria-label="settings">
+                                                                <Delete color='primary' onClick={(e) => this.handleClickDeleteComment(row.id)} />
+                                                              </IconButton>
+                                                            </Tooltip>
+                                                          </React.Fragment>
+                                                        ) : (
+                                                            seleccionado.permisos[seleccionado.permisos.length - 1] === 'Everything' && <React.Fragment>
+                                                              <Tooltip title='Eliminar Comentario'>
+                                                                <IconButton aria-label="settings">
+                                                                  <Delete color='primary' onClick={(e) => this.handleClickDeleteComment(row.id)} />
+                                                                </IconButton>
+                                                              </Tooltip></React.Fragment>
+                                                          )
+                                                        }
+                                                      </div>
+                                                    </div>
+                                                    <div>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                        <b>Comentó : </b> {row.text}
+                                                      </Typography>
+                                                    </div>
+                                                  </CardContent>
+                                                </Card>
+                                              );
+                                            })
+                                            }
+                                            {this.state.comentario.listcoments.length >= 3 &&
+                                              <div style={{ marginLeft: '100px' }}>
+                                                <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarComments()}>
+                                                  <Typography textAlign='center' style={{ fontSize: '10px', color: 'primary' }}>
+                                                    <b>{this.state.comentario.textbtnlistartodos}</b>
+                                                  </Typography>
+                                                </Button>
+                                              </div>
+                                            }
+                                          </Grid>
+                                        ) :
+                                          (
+                                            <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                              <Comment style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han realizado comentarios...</b></Typography>
+                                            </div>
+                                          )}
+                                      </div>
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 4 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
+                                  <div style={{ textAlign: 'center', height: '325px' }} >
+                                    <div className={classes.margin}>
+                                      <Grid container>
+                                        <Grid item >
+                                          <LocalOffer style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
+                                        </Grid>
+                                        <Grid item style={{ width: '280px' }}>
+                                          <FormGroup>
+                                            <TextField
+                                              variant="outlined"
+                                              id="etiquetas"
+                                              label="Etiquetar documento"
+                                              value={this.state.etiquetar.insertetiqueta
+                                              }
+                                              width='280px'
+                                              style={{ marginTop: '10px', marginBottom: '7px' }}
+                                              size="small"
+                                              onChange={(event) => this.setValueInsertarEtiqueta(event)}
+                                            />
+                                          </FormGroup>
+                                        </Grid>
+                                        <Grid item >
+                                          <Tooltip title="Etiquetar documento">
+                                            <IconButton color="primary" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.etiquetar.btnetiquetardisable} onClick={(e) => this.handleActionEtiquetarDocumento()}>
+                                              <AddIcon />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </Grid>
+                                      </Grid>
+                                    </div>
+                                    <React.Fragment>
+                                      <div>
+                                        {/* va color primary */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                          <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Etiquetas del documento seleccionado</b></Typography>
+                                          <Tooltip title="Eliminar todas las etiquetas del documento">
+                                            <IconButton color="primary" component="span" disabled={this.state.etiquetar.deletedisable} onClick={(e) => this.handleTodasDeleteTags()}>
+                                              <DeleteForever />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </div>
+                                        {this.state.etiquetar.listetiquetas.length > 0 ? (
+                                          <Grid container>
+                                            {this.state.etiquetar.listetiquetas.map((row, index) => {
+                                              return (
+                                                <Chip
+                                                  label={row}
+                                                  onDelete={(event) => this.handleDeleteTags(row)}
+                                                  className={classes.chip}
+                                                  color="primary"
+                                                />
+                                              );
+                                            })
+                                            }
+                                          </Grid>
+                                        ) :
+                                          (
+                                            <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                              <LocalOffer style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha etiquetado el documento seleccionado...</b></Typography>
+                                            </div>
+                                          )}
+                                      </div>
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+
+                              }
+                              {this.state.tabactivo === 5 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
+                                  {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && seleccionado.tipo != 'Section' ? (
                                     <div style={{ textAlign: 'center', height: '325px' }} >
                                       <div className={classes.margin}>
                                         <Grid container>
-                                          <Grid item style={{ marginTop: '10px' }}>
-                                            <Share style={{ position: 'relative', marginTop: '10px', marginRight: '15px' }} color='primary' />
+                                          <Grid item >
+                                            <MailOutline style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
                                           </Grid>
                                           <Grid item style={{ width: '280px' }}>
                                             <FormControl>
                                               <TextField
                                                 variant="outlined"
-                                                type='search'
-                                                value={this.state.compartir.usuariosshare}
+                                                type='email'
+                                                value={this.state.permisos.direcemail}
                                                 style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
                                                 size="small"
-                                                label='Compartir con...'
-                                                onChange={(event) => this.handleBuscarUsersGroups(event)}
+                                                label='Conceder permiso a...'
+                                                onChange={this.handleVerificarEmail}
                                               />
-                                              <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }} s>
-                                                {({ TransitionProps }) => (
-                                                  <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
-                                                    <MenuList>
-                                                      {this.state.usersygroups.listusersygrups.length > 0 ? (
-                                                        this.state.usersygroups.listusersygrups.map((row, index) => {
-                                                          return <MenuItem key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
-                                                            <Tooltip title={row.name}>
-                                                              <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
-                                                                {row.avatar}
-                                                              </Avatar>
-                                                            </Tooltip>
-                                                            {row.username}
-                                                          </MenuItem>
-                                                        })
-                                                      ) : (
-                                                          'vacio'
-                                                        )}
-                                                    </MenuList>
-                                                  </Paper>
-                                                )}
-                                              </Popper>
                                             </FormControl>
                                           </Grid>
                                           <Grid item >
-                                            <Tooltip title="Compartir documento">
-                                              <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionShare(e)}>
+                                            <Tooltip title="Conceder permiso al usuario">
+                                              <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.permisos.btnpermisosdisable} onClick={(e) => this.handleActionConcederPermisoExterno(e)}>
                                                 <Done />
                                               </IconButton>
                                             </Tooltip>
@@ -8900,367 +9409,336 @@ class DocumentManager extends React.Component {
                                       </div>
                                       <React.Fragment>
                                         <div>
-                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                            <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con los que se ha compartido</b></Typography>
-                                            <Tooltip title="Dejar de compartir el documento">
-                                              <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeleteShareAll('compartidos')}>
+                                          {/* va color primary */}
+                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                            <div style={{ display: 'flex', alignItems: 'center' }} >
+                                              <Tooltip title="Expandir listado">
+                                                <IconButton color="primary" component="span" onClick={(e) => this.handleChangeExpandir('panel1')}>
+                                                  {this.state.permisos.panel1expand ? <ExpandLess /> : <ExpandMore />}
+                                                </IconButton>
+                                              </Tooltip>
+                                              <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios externos con permisos</b></Typography>
+                                            </div>
+                                            <Tooltip title="Eliminar los permisos concedidos en el documento">
+                                              <IconButton color="primary" component="span" disabled={this.state.permisos.deletepermisosdisable} onClick={(e) => this.handleDeleteShareAll('local')}>
                                                 <HighlightOff />
                                               </IconButton>
                                             </Tooltip>
                                           </div>
-                                          {this.state.compartir.totalusuarios > 0 ? (
-                                            <Grid container>
-                                              {this.state.compartir.listusuarios.map((row, index) => {
-                                                return (
-                                                  <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                    <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                      <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                          {row.status === 'Activo' ? (
-                                                            <Tooltip title={row.status}>
-                                                              <Avatar aria-label="recipe" className={classes.avatar}>
-                                                                {row.avatar}
-                                                              </Avatar>
-                                                            </Tooltip>
-                                                          ) : (
+                                          <Collapse in={this.state.permisos.panel1expand} timeout="auto" unmountOnExit>
+                                            {this.state.permisos.listuserexternos.length > 0 ? (
+                                              <Grid container>
+                                                {this.state.permisos.listuserexternos.map((row, index) => {
+                                                  return (
+                                                    <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                      <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                        <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            {row.status === 'Activo' ? (
                                                               <Tooltip title={row.status}>
-                                                                <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                <Avatar aria-label="recipe" className={classes.avatar}>
                                                                   {row.avatar}
                                                                 </Avatar>
                                                               </Tooltip>
-                                                            )}
-                                                          <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
+                                                            ) : (
+                                                                <Tooltip title={row.status}>
+                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                    {row.avatar}
+                                                                  </Avatar>
+                                                                </Tooltip>
+                                                              )}
+                                                            <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
 
-                                                        </div>
-                                                        <div>
-                                                          <Tooltip title='Editar Permiso'>
-                                                            <IconButton aria-label="settings" disabled={row.mostrarformulario}>
-                                                              <Create color='primary'
-                                                                style={{ fontSize: '18px' }}
-                                                                onClick={(e) => this.prepararActPermiso(index)}
-                                                              />
-                                                            </IconButton>
-                                                          </Tooltip>
-                                                          <Tooltip title={'Dejar de compartir con este usuario'}>
-                                                            <IconButton aria-label="settings">
-                                                              <Delete color='primary'
-                                                                style={{ fontSize: '18px' }}
-                                                                onClick={(e) => this.handleDeleteShare(row, 'compartidos')} />
-                                                            </IconButton>
-                                                          </Tooltip>
-                                                        </div>
-                                                      </div>
-
-                                                      <div style={{ padding: '0px 0px 0px 35px' }}>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                          color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                        </Typography>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                          <b>Compartió: </b> {row.creator}
-                                                        </Typography>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                          <b>Concedido: </b> {row.concedido}
-                                                        </Typography>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                          <b>Duración: </b>  {row.duracion}
-                                                        </Typography>
-                                                      </div>
-                                                    </CardContent>
-                                                    <Collapse in={row.mostrarformulario} timeout="auto" unmountOnExit>
-                                                      <Divider variant="middle" />
-                                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginRight: '15px' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                          <Create color='primary'
-                                                            style={{ marginLeft: '30px', fontSize: '18px' }}
-                                                          />
-                                                          <span style={{ marginLeft: '5px', color: cssColor }}>Editar Permiso</span>
-                                                        </div>
-                                                        <Tooltip title={'Cancelar la edición del permiso'}>
-                                                          <IconButton>
-                                                            <Close color='primary'
-                                                              style={{ fontSize: '18px' }}
-                                                              onClick={(e) => this.cancelarEdicionPermiso(index)} />
-                                                          </IconButton>
-                                                        </Tooltip>
-                                                      </div>
-                                                      <CardContent style={{ padding: '0px 20px 10px 20px', textAlign: 'left', fontSize: '8px' }}>
-                                                        <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                                          control={
-                                                            <Checkbox fontSize="small" color='primary' checked={this.state.compartir.permisoescritrura} size='small' onChange={(e) => this.handleChangeEscritura('compartidos')} value={this.state.compartir.permisoescritrura} />
-                                                          }
-                                                          label="Permitir editar y eliminar el documento"
-                                                        />
-                                                        <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                                          control={
-                                                            <Checkbox fontSize="small" color='primary' value={this.state.compartir.permisotodos} checked={this.state.compartir.permisotodos} onChange={(e) => this.handleChangeTodos('compartidos')} />
-                                                          }
-                                                          label="Ototgar todos los permisos"
-                                                        />
-                                                        <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                                          control={
-                                                            <Checkbox fontSize="small" color='primary' value={this.state.compartir.fechadisable === 'none' ? false : true} checked={this.state.compartir.fechadisable === 'none' ? false : true} onChange={(e) => this.handleMostrarFechaHasta('compartidos')} />
-                                                          }
-                                                          label="Definir duración del permiso"
-                                                        />
-                                                        <FormControl variant="outlined" style={{ marginLeft: '4em', marginTop: '8px', width: '195px', display: this.state.compartir.fechadisable }} >
-                                                          <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                                            <DatePicker
-                                                              id='duracionhasta'
-                                                              keyboard
-                                                              placeholder="Fecha hasta"
-                                                              format={"YYYY/MM/DD"}
-                                                              mask={value =>
-                                                                value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                                                  : []
-                                                              }
-                                                              minDate={moment()}
-                                                              value={this.state.compartir.duracionhasta}
-                                                              onChange={this.handleChangeDuracion}
-                                                              disableOpenOnEnter
-                                                              animateYearScrolling={false}
-                                                              onInputChange={(e) => this.cambiarEstadoDuracion(e)} />
-                                                          </MuiPickersUtilsProvider>
-                                                        </FormControl>
-                                                        <Tooltip title="Edita los permisos">
-                                                          <Button variant="contained" size='small' className={classes.button} color='primary' style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'compartidos')} disabled={this.state.compartir.notificar === 'none' || (this.state.compartir.notificar === 'block' && this.state.compartir.direcemail !== null && this.state.compartir.errordirecmail === null) ? false : true}>
-                                                            Editar
-                                                                                                                </Button>
-                                                        </Tooltip>
-                                                        {/*   <Button variant="outlined" size='small' color="primary" className={classes.button} style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'compartidos')} disabled={this.state.compartir.notificar === 'none' || (this.state.compartir.notificar === 'block' && this.state.compartir.direcemail !== null && this.state.compartir.errordirecmail === null) ? false : true}>
-                                                                                                                   <SaveIcon className={classes.leftIcon} style={{marginRight:'5px'}}/>
-                                                                                                              </Button> */}
-                                                      </CardContent>
-                                                    </Collapse>
-                                                  </Card>
-                                                );
-                                              })
-                                              }
-                                              {this.state.compartir.listusuarios.length >= 2 &&
-                                                <div style={{ marginLeft: '100px' }}>
-                                                  <Button color="primary" className={classes.button} onClick={(e) => this.prepararlistarShare()}>
-                                                    <Typography textAlign='center' style={{ fontSize: '10px', color: cssColor }}>
-                                                      <b>{this.state.compartir.textbtnlistartodos}</b>
-                                                    </Typography>
-                                                  </Button>
-                                                </div>
-                                              }
-                                            </Grid>
-                                          ) :
-                                            (
-                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                <Share style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento seleccionado...</b></Typography>
-                                              </div>
-                                            )}
-                                        </div>
-                                      </React.Fragment>
-                                    </div>
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 3 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                                    <div style={{ textAlign: 'center', height: '325px' }} >
-                                      <div className={classes.margin}>
-                                        <Grid container>
-                                          <Grid item >
-                                            <Comment style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
-                                          </Grid>
-                                          <Grid item style={{ width: '280px' }}>
-                                            <FormGroup>
-                                              <TextField
-                                                variant="outlined"
-                                                id="comentario"
-                                                label="Insertar comentario"
-                                                value={this.state.comentario.insertcomentvalue}
-                                                width='280px'
-                                                style={{ marginTop: '10px', marginBottom: '7px' }}
-                                                size="small"
-                                                onChange={(event) => this.setValueInsertarComentario(event)}
-                                              />
-                                            </FormGroup>
-                                          </Grid>
-                                          <Grid item >
-                                            <Tooltip title="Insertar comentario">
-                                              <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.comentario.btncomentdisable} onClick={(e) => this.handleActionAddComent(e, seleccionado.id)}>
-                                                <PlaylistAdd />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </Grid>
-                                        </Grid>
-                                      </div>
-                                      <React.Fragment>
-                                        <div>
-                                          <div style={{ borderBottom: '1px solid ' + cssColor, paddingTop: '10px', marginBottom: '10px' }}>
-                                            <Typography align='left' variant='h7' color="primary" style={{ marginBottom: '5px', marginLeft: '5px' }}><b>Comentarios del documento seleccionado</b></Typography>
-                                          </div>
-                                          {this.state.comentario.totalcoment > 0 ? (
-                                            <Grid container>
-                                              {this.state.comentario.listcoments.map((row, index) => {
-                                                return (
-                                                  <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                    <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                      <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                          <Tooltip title={row.autor}>
-                                                            <Avatar aria-label="recipe" className={classes.avatar}>
-                                                              {row.avatar}
-                                                            </Avatar>
-                                                          </Tooltip>
+                                                          </div>
                                                           <div>
-                                                            <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.fecha}</span>
+                                                            <Tooltip title='Editar Permiso'>
+                                                              <IconButton aria-label="settings" disabled={row.mostrarformulario}>
+                                                                <Create color='primary'
+                                                                  style={{ fontSize: '18px' }}
+                                                                  onClick={(e) => this.prepararActPermisoExt(index)}
+                                                                />
+                                                              </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title={'Eliminar permisos del usuario'}>
+                                                              <IconButton aria-label="settings">
+                                                                <Delete color='primary'
+                                                                  style={{ fontSize: '18px' }}
+                                                                  onClick={(e) => this.handleDeleteShare(row, 'local')} />
+                                                              </IconButton>
+                                                            </Tooltip>
                                                           </div>
                                                         </div>
-                                                        <div>
-                                                          {row.autor === user ? (
-                                                            <React.Fragment>
-                                                              <Tooltip title='Actualizar Comentario'>
-                                                                <IconButton aria-label="settings">
-                                                                  <Create color='primary' onClick={(e) => this.prepararActualizar(row.id, row.text)} />
-                                                                </IconButton>
-                                                              </Tooltip>
-                                                              <Tooltip title='Eliminar Comentario'>
-                                                                <IconButton aria-label="settings">
-                                                                  <Delete color='primary' onClick={(e) => this.handleClickDeleteComment(row.id)} />
-                                                                </IconButton>
-                                                              </Tooltip>
-                                                            </React.Fragment>
-                                                          ) : (
-                                                              seleccionado.permisos[seleccionado.permisos.length - 1] === 'Everything' && <React.Fragment>
-                                                                <Tooltip title='Eliminar Comentario'>
-                                                                  <IconButton aria-label="settings">
-                                                                    <Delete color='primary' onClick={(e) => this.handleClickDeleteComment(row.id)} />
-                                                                  </IconButton>
-                                                                </Tooltip></React.Fragment>
-                                                            )
-                                                          }
+                                                        <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
+                                                            color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Compartió: </b> {row.creator}
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Concedido: </b> {row.concedido}
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Duración: </b>  {row.duracion}
+                                                          </Typography>
                                                         </div>
-                                                      </div>
-                                                      <div>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                          <b>Comentó : </b> {row.text}
-                                                        </Typography>
-                                                      </div>
-                                                    </CardContent>
-                                                  </Card>
-                                                );
-                                              })
-                                              }
-                                              {this.state.comentario.listcoments.length >= 3 &&
-                                                <div style={{ marginLeft: '100px' }}>
-                                                  <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarComments()}>
-                                                    <Typography textAlign='center' style={{ fontSize: '10px', color: cssColor }}>
-                                                      <b>{this.state.comentario.textbtnlistartodos}</b>
-                                                    </Typography>
-                                                  </Button>
-                                                </div>
-                                              }
-                                            </Grid>
-                                          ) :
-                                            (
-                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                <Comment style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han realizado comentarios...</b></Typography>
-                                              </div>
-                                            )}
-                                        </div>
-                                      </React.Fragment>
-                                    </div>
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 4 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                                    <div style={{ textAlign: 'center', height: '325px' }} >
-                                      <div className={classes.margin}>
-                                        <Grid container>
-                                          <Grid item >
-                                            <LocalOffer style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
-                                          </Grid>
-                                          <Grid item style={{ width: '280px' }}>
-                                            <FormGroup>
-                                              <TextField
-                                                variant="outlined"
-                                                id="etiquetas"
-                                                label="Etiquetar documento"
-                                                value={this.state.etiquetar.insertetiqueta
+                                                      </CardContent>
+                                                      <Collapse in={row.mostrarformulario} timeout="auto" unmountOnExit>
+                                                        <Divider variant="middle" />
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginRight: '15px' }}>
+                                                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <Create color='primary'
+                                                              style={{ marginLeft: '30px', fontSize: '18px' }}
+                                                            />
+                                                            {/* va color primary */}
+                                                            <span style={{ marginLeft: '5px', color: themeColor }}>Editar Permiso</span>
+                                                          </div>
+                                                          <Tooltip title={'Cancelar la edición del permiso'}>
+                                                            <IconButton>
+                                                              <Close color='primary'
+                                                                style={{ fontSize: '18px' }}
+                                                                onClick={(e) => this.cancelarPermisoEdicion(index)} />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </div>
+                                                        <CardContent style={{ padding: '0px 20px 10px 20px', textAlign: 'left', fontSize: '8px' }}>
+                                                          <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                                            control={
+                                                              <Checkbox color='primary' fontSize="small" checked={this.state.permisos.permisoescritrura} size='small' onChange={(e) => this.handleChangeEscritura('local')} value={this.state.compartir.permisoescritrura} />
+                                                            }
+                                                            label="Permitir editar y eliminar el documento"
+                                                          />
+                                                          <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                                            control={
+                                                              <Checkbox color='primary' fontSize="small" value={this.state.permisos.permisotodos} checked={this.state.permisos.permisotodos} onChange={(e) => this.handleChangeTodos('local')} />
+                                                            }
+                                                            label="Ototgar todos los permisos"
+                                                          />
+                                                          <Typography textAlign='justify' variant="body2" color="primary" component="p">
+                                                            Definir fecha limite del permiso
+                                                     </Typography>
+                                                          <FormControl variant="outlined" style={{ marginLeft: '1em', marginTop: '8px', width: '195px' }} >
+                                                            <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
+                                                              <DatePicker
+                                                                id='duracionhasta'
+                                                                keyboard
+                                                                placeholder="Fecha hasta"
+                                                                format={"YYYY/MM/DD"}
+                                                                // handle clearing outside => pass plain array if you are not controlling value outside
+                                                                mask={value =>
+                                                                  value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                                                    : []
+                                                                }
+                                                                minDate={moment()}
+                                                                value={this.state.permisos.duracionhasta}
+                                                                onChange={this.handleChangeDuracion}
+                                                                disableOpenOnEnter
+                                                                animateYearScrolling={false}
+                                                                //autoOk={true}
+                                                                //clearable
+                                                                onInputChange={(e) => this.cambiarEstadoDuracion(e)} />
+                                                            </MuiPickersUtilsProvider>
+                                                          </FormControl>
+                                                          <Tooltip title="Edita los permisos">
+                                                            <Button variant="contained" size='small' className={classes.button} color='primary' style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'local')} disabled={this.state.permisos.notificar === 'none' || (this.state.permisos.notificar === 'block' && this.state.permisos.direcemail !== null && this.state.permisos.errordirecmail === null) ? false : true}>
+                                                              {/*   <SaveIcon className={classes.leftIcon} style={{marginRight:'5px'}}/> */}
+                                                       Editar
+                                                       </Button>
+                                                          </Tooltip>
+                                                          {/*  <Button variant="outlined" size='small' color="primary" className={classes.button} style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'local')} disabled={this.state.permisos.notificar === 'none' || (this.state.permisos.notificar === 'block' && this.state.permisos.direcemail !== null && this.state.permisos.errordirecmail === null) ? false : true}>
+                                                       Editar
+                                                      </Button> */}
+                                                        </CardContent>
+                                                      </Collapse>
+                                                    </Card>
+                                                  );
+                                                })
                                                 }
-                                                width='280px'
-                                                style={{ marginTop: '10px', marginBottom: '7px' }}
-                                                size="small"
-                                                onChange={(event) => this.setValueInsertarEtiqueta(event)}
-                                              />
-                                            </FormGroup>
-                                          </Grid>
-                                          <Grid item >
-                                            <Tooltip title="Etiquetar documento">
-                                              <IconButton color="primary" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.etiquetar.btnetiquetardisable} onClick={(e) => this.handleActionEtiquetarDocumento()}>
-                                                <AddIcon />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </Grid>
-                                        </Grid>
-                                      </div>
-                                      <React.Fragment>
-                                        <div>
-                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                            <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Etiquetas del documento seleccionado</b></Typography>
-                                            <Tooltip title="Eliminar todas las etiquetas del documento">
-                                              <IconButton color="primary" component="span" disabled={this.state.etiquetar.deletedisable} onClick={(e) => this.handleTodasDeleteTags()}>
-                                                <DeleteForever />
-                                              </IconButton>
-                                            </Tooltip>
+                                              </Grid>
+                                            ) : (
+                                                <div style={{ textAlign: 'center', marginTop: '15%', height: '105px' }} >
+                                                  <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
+                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se le ha concedido permisos a ningún usuario...</b></Typography>
+                                                </div>
+                                              )}
+                                          </Collapse>
+                                          {/* va color primary */}
+                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                            <div style={{ display: 'flex', alignItems: 'center' }} >
+                                              <Tooltip title="Expandir listado">
+                                                <IconButton color="primary" component="span" onClick={(e) => this.handleChangeExpandir('panel2')}>
+                                                  {this.state.permisos.panel2expand ? <ExpandLess /> : <ExpandMore />}
+                                                </IconButton>
+                                              </Tooltip>
+                                              <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios con el documento compartido</b></Typography>
+                                            </div>
                                           </div>
-                                          {this.state.etiquetar.listetiquetas.length > 0 ? (
-                                            <Grid container>
-                                              {this.state.etiquetar.listetiquetas.map((row, index) => {
-                                                return (
-                                                  <Chip
-                                                    label={row}
-                                                    onDelete={(event) => this.handleDeleteTags(row)}
-                                                    className={classes.chip}
-                                                    color="primary"
-                                                  />
-                                                );
-                                              })
-                                              }
-                                            </Grid>
-                                          ) :
-                                            (
-                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                <LocalOffer style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha etiquetado el documento seleccionado...</b></Typography>
-                                              </div>
-                                            )}
+                                          <Collapse in={this.state.permisos.panel2expand} timeout="auto" unmountOnExit>
+                                            {this.state.permisos.listcompartidos.length > 0 ? (
+                                              <Grid container>
+                                                {this.state.permisos.listcompartidos.map((row, index) => {
+                                                  return (
+                                                    <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                      < CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                        <div style={{ padding: '15px 0px 0px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            {row.status === 'Activo' ? (
+                                                              <Tooltip title={row.status}>
+                                                                <Avatar aria-label="recipe" className={classes.avatar}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                            ) : (
+                                                                <Tooltip title={row.status}>
+                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                    {row.avatar}
+                                                                  </Avatar>
+                                                                </Tooltip>
+                                                              )}
+                                                            <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
+                                                          </div>
+                                                          <Tooltip title="Detalle">
+                                                            <IconButton color="primary" component="span" onClick={(e) => this.mostrarDetalle(index)}>
+                                                              {row.mostrarformulario ? <ExpandLess /> : <ExpandMore />}
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </div>
+                                                        <div style={{ padding: '0px 0px 0px 45px' }} hidden={row.mostrarformulario}>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
+                                                            color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                          </Typography>
+                                                        </div>
+                                                      </CardContent>
+                                                      <Collapse in={row.mostrarformulario} timeout="auto" unmountOnExit>
+                                                        <div style={{ padding: '0px 0px 10px 45px' }}>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
+                                                            color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Compartió: </b> {row.creator}
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Concedido: </b> {row.concedido}
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Duración: </b>  {row.duracion}
+                                                          </Typography>
+                                                        </div>
+                                                      </Collapse>
+                                                    </Card>
+                                                  );
+                                                })
+                                                }
+                                              </Grid>
+                                            ) : (
+                                                <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
+                                                  <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
+                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento...</b></Typography>
+                                                </div>
+                                              )}
+                                          </Collapse>
+                                          {/* va color primary */}
+                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                            <div style={{ display: 'flex', alignItems: 'center' }} >
+                                              <Tooltip title="Expandir listado">
+                                                <IconButton color="primary" component="span" onClick={(e) => this.handleChangeExpandir('panel3')}>
+                                                  {this.state.permisos.panel3expand ? <ExpandLess /> : <ExpandMore />}
+                                                </IconButton>
+                                              </Tooltip>
+                                              <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Permisos heredados</b></Typography>
+                                            </div>
+                                          </div>
+                                          <Collapse in={this.state.permisos.panel3expand} timeout="auto" unmountOnExit>
+                                            {this.state.permisos.listheredados.length > 0 ? (
+                                              <Grid container>
+                                                {this.state.permisos.listheredados.map((row, index) => {
+                                                  return (
+                                                    <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                      <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                        <div style={{ padding: '15px 0px 0px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            {row.status === 'Activo' ? (
+                                                              <Tooltip title={row.status}>
+                                                                <Avatar aria-label="recipe" className={classes.avatar}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                            ) : (
+                                                                <Tooltip title={row.status}>
+                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                    {row.avatar}
+                                                                  </Avatar>
+                                                                </Tooltip>
+                                                              )}
+                                                            <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
+                                                          </div>
+                                                        </div>
+                                                        <div style={{ padding: '0px 0px 0px 45px' }}>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
+                                                            color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                          </Typography>
+                                                        </div>
+                                                      </CardContent>
+                                                    </Card>
+                                                  );
+                                                })
+                                                }
+                                              </Grid>
+                                            ) : (
+                                                <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
+                                                  <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
+                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han heredado permisos...</b></Typography>
+                                                </div>
+                                              )}
+                                          </Collapse>
                                         </div>
                                       </React.Fragment>
                                     </div>
-                                  </TabContainer>
-
-                                }
-                                {this.state.tabactivo === 5 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                                    {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && seleccionado.tipo != 'Section' ? (
+                                  ) : (
                                       <div style={{ textAlign: 'center', height: '325px' }} >
                                         <div className={classes.margin}>
                                           <Grid container>
-                                            <Grid item >
-                                              <MailOutline style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
+                                            <Grid item style={{ marginTop: '10px' }}>
+                                              <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
                                             </Grid>
                                             <Grid item style={{ width: '280px' }}>
                                               <FormControl>
                                                 <TextField
                                                   variant="outlined"
-                                                  type='email'
-                                                  value={this.state.permisos.direcemail}
+                                                  type='search'
+                                                  value={this.state.compartir.usuariosshare}
                                                   style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
                                                   size="small"
-                                                  label='Conceder permiso a...'
-                                                  onChange={this.handleVerificarEmail}
+                                                  label='Permitir a...'
+                                                  onChange={(event) => this.handleBuscarUsersGroups(event)}
                                                 />
+                                                <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }}>
+                                                  {({ TransitionProps }) => (
+                                                    <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
+                                                      <MenuList>
+                                                        {this.state.usersygroups.listusersygrups.length > 0 ? (
+                                                          this.state.usersygroups.listusersygrups.map((row, index) => {
+                                                            return <MenuItem style={{ fontSize: '14px', height: '20px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
+                                                              <Tooltip title={row.name}>
+                                                                <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                              {row.username}
+                                                            </MenuItem>
+                                                          })
+                                                        ) : (
+                                                            'vacio'
+                                                          )}
+                                                      </MenuList>
+                                                    </Paper>
+                                                  )}
+                                                </Popper>
                                               </FormControl>
                                             </Grid>
-                                            <Grid item >
-                                              <Tooltip title="Conceder permiso al usuario">
-                                                <IconButton color="primary" aria-label="upload picture" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.permisos.btnpermisosdisable} onClick={(e) => this.handleActionConcederPermisoExterno(e)}>
+                                            <Grid item style={{ marginTop: '10px' }}>
+                                              <Tooltip title="Otorgar permiso">
+                                                <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
                                                   <Done />
                                                 </IconButton>
                                               </Tooltip>
@@ -9269,931 +9747,588 @@ class DocumentManager extends React.Component {
                                         </div>
                                         <React.Fragment>
                                           <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                              <div style={{ display: 'flex', alignItems: 'center' }} >
-                                                <Tooltip title="Expandir listado">
-                                                  <IconButton color="primary" component="span" onClick={(e) => this.handleChangeExpandir('panel1')}>
-                                                    {this.state.permisos.panel1expand ? <ExpandLess /> : <ExpandMore />}
-                                                  </IconButton>
-                                                </Tooltip>
-                                                <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios externos con permisos</b></Typography>
-                                              </div>
-                                              <Tooltip title="Eliminar los permisos concedidos en el documento">
-                                                <IconButton color="primary" component="span" disabled={this.state.permisos.deletepermisosdisable} onClick={(e) => this.handleDeleteShareAll('local')}>
+                                            {/* va color primary */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                              <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con permisos</b></Typography>
+                                              <Tooltip title="Quitar permiso">
+                                                <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeletePermisosUserAll('local')}>
                                                   <HighlightOff />
                                                 </IconButton>
                                               </Tooltip>
                                             </div>
-                                            <Collapse in={this.state.permisos.panel1expand} timeout="auto" unmountOnExit>
-                                              {this.state.permisos.listuserexternos.length > 0 ? (
-                                                <Grid container>
-                                                  {this.state.permisos.listuserexternos.map((row, index) => {
-                                                    return (
-                                                      <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                        <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                          <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                              {row.status === 'Activo' ? (
+                                            {this.state.permisos.listuserexternos.length > 0 ? (
+                                              <Grid container>
+                                                {this.state.permisos.listuserexternos.map((row, index) => {
+                                                  return (
+                                                    <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                      <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                        <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            {row.status === 'Activo' ? (
+                                                              <Tooltip title={row.status}>
+                                                                <Avatar aria-label="recipe" className={classes.avatar}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                            ) : (
                                                                 <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatar}>
+                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
                                                                     {row.avatar}
                                                                   </Avatar>
                                                                 </Tooltip>
-                                                              ) : (
-                                                                  <Tooltip title={row.status}>
-                                                                    <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                      {row.avatar}
-                                                                    </Avatar>
-                                                                  </Tooltip>
-                                                                )}
-                                                              <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
+                                                              )}
+                                                            <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
 
-                                                            </div>
-                                                            <div>
-                                                              <Tooltip title='Editar Permiso'>
-                                                                <IconButton aria-label="settings" disabled={row.mostrarformulario}>
-                                                                  <Create color='primary'
-                                                                    style={{ fontSize: '18px' }}
-                                                                    onClick={(e) => this.prepararActPermisoExt(index)}
-                                                                  />
-                                                                </IconButton>
-                                                              </Tooltip>
-                                                              <Tooltip title={'Eliminar permisos del usuario'}>
-                                                                <IconButton aria-label="settings">
-                                                                  <Delete color='primary'
-                                                                    style={{ fontSize: '18px' }}
-                                                                    onClick={(e) => this.handleDeleteShare(row, 'local')} />
-                                                                </IconButton>
-                                                              </Tooltip>
-                                                            </div>
                                                           </div>
-                                                          <div style={{ padding: '0px 0px 0px 35px' }}>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                              color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Compartió: </b> {row.creator}
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Concedido: </b> {row.concedido}
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Duración: </b>  {row.duracion}
-                                                            </Typography>
-                                                          </div>
-                                                        </CardContent>
-                                                        <Collapse in={row.mostrarformulario} timeout="auto" unmountOnExit>
-                                                          <Divider variant="middle" />
-                                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginRight: '15px' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                              <Create color='primary'
-                                                                style={{ marginLeft: '30px', fontSize: '18px' }}
-                                                              />
-                                                              <span style={{ marginLeft: '5px', color: cssColor }}>Editar Permiso</span>
-                                                            </div>
-                                                            <Tooltip title={'Cancelar la edición del permiso'}>
-                                                              <IconButton>
-                                                                <Close color='primary'
+                                                          <div>
+                                                            <Tooltip title={'Eliminar permiso'}>
+                                                              <IconButton aria-label="settings">
+                                                                <Delete color='primary'
                                                                   style={{ fontSize: '18px' }}
-                                                                  onClick={(e) => this.cancelarPermisoEdicion(index)} />
+                                                                  onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
                                                               </IconButton>
                                                             </Tooltip>
                                                           </div>
-                                                          <CardContent style={{ padding: '0px 20px 10px 20px', textAlign: 'left', fontSize: '8px' }}>
-                                                            <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                                              control={
-                                                                <Checkbox color='primary' fontSize="small" checked={this.state.permisos.permisoescritrura} size='small' onChange={(e) => this.handleChangeEscritura('local')} value={this.state.compartir.permisoescritrura} />
-                                                              }
-                                                              label="Permitir editar y eliminar el documento"
-                                                            />
-                                                            <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                                              control={
-                                                                <Checkbox color='primary' fontSize="small" value={this.state.permisos.permisotodos} checked={this.state.permisos.permisotodos} onChange={(e) => this.handleChangeTodos('local')} />
-                                                              }
-                                                              label="Ototgar todos los permisos"
-                                                            />
-                                                            <Typography textAlign='justify' variant="body2" color="primary" component="p">
-                                                              Definir fecha limite del permiso
-                                                     </Typography>
-                                                            <FormControl variant="outlined" style={{ marginLeft: '1em', marginTop: '8px', width: '195px' }} >
-                                                              <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                                                <DatePicker
-                                                                  id='duracionhasta'
-                                                                  keyboard
-                                                                  placeholder="Fecha hasta"
-                                                                  format={"YYYY/MM/DD"}
-                                                                  // handle clearing outside => pass plain array if you are not controlling value outside
-                                                                  mask={value =>
-                                                                    value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                                                      : []
-                                                                  }
-                                                                  minDate={moment()}
-                                                                  value={this.state.permisos.duracionhasta}
-                                                                  onChange={this.handleChangeDuracion}
-                                                                  disableOpenOnEnter
-                                                                  animateYearScrolling={false}
-                                                                  //autoOk={true}
-                                                                  //clearable
-                                                                  onInputChange={(e) => this.cambiarEstadoDuracion(e)} />
-                                                              </MuiPickersUtilsProvider>
-                                                            </FormControl>
-                                                            <Tooltip title="Edita los permisos">
-                                                              <Button variant="contained" size='small' className={classes.button} color='primary' style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'local')} disabled={this.state.permisos.notificar === 'none' || (this.state.permisos.notificar === 'block' && this.state.permisos.direcemail !== null && this.state.permisos.errordirecmail === null) ? false : true}>
-                                                                {/*   <SaveIcon className={classes.leftIcon} style={{marginRight:'5px'}}/> */}
-                                                       Editar
-                                                       </Button>
-                                                            </Tooltip>
-                                                            {/*  <Button variant="outlined" size='small' color="primary" className={classes.button} style={{ float: 'right' }} onClick={(e) => this.editarPermiso(row, 'local')} disabled={this.state.permisos.notificar === 'none' || (this.state.permisos.notificar === 'block' && this.state.permisos.direcemail !== null && this.state.permisos.errordirecmail === null) ? false : true}>
-                                                       Editar
-                                                      </Button> */}
-                                                          </CardContent>
-                                                        </Collapse>
-                                                      </Card>
-                                                    );
-                                                  })
-                                                  }
-                                                </Grid>
-                                              ) : (
-                                                  <div style={{ textAlign: 'center', marginTop: '15%', height: '105px' }} >
-                                                    <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
-                                                    <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se le ha concedido permisos a ningún usuario...</b></Typography>
+                                                        </div>
+
+                                                        <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
+                                                            color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Concedió: </b> {row.creator}
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Concedido: </b> {row.concedido}
+                                                          </Typography>
+                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                            <b>Duración: </b>  {row.duracion}
+                                                          </Typography>
+                                                        </div>
+                                                      </CardContent>
+                                                    </Card>
+                                                  );
+                                                })
+                                                }
+                                                {this.state.permisos.listuserexternos.length >= 2 &&
+                                                  <div style={{ marginLeft: '100px' }}>
+                                                    <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarPermisosEGT()}>
+                                                      <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
+                                                        <b>{this.state.compartir.textbtnlistartodos}</b>
+                                                      </Typography>
+                                                    </Button>
                                                   </div>
-                                                )}
-                                            </Collapse>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                              <div style={{ display: 'flex', alignItems: 'center' }} >
-                                                <Tooltip title="Expandir listado">
-                                                  <IconButton color="primary" component="span" onClick={(e) => this.handleChangeExpandir('panel2')}>
-                                                    {this.state.permisos.panel2expand ? <ExpandLess /> : <ExpandMore />}
-                                                  </IconButton>
-                                                </Tooltip>
-                                                <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios con el documento compartido</b></Typography>
-                                              </div>
-                                            </div>
-                                            <Collapse in={this.state.permisos.panel2expand} timeout="auto" unmountOnExit>
-                                              {this.state.permisos.listcompartidos.length > 0 ? (
-                                                <Grid container>
-                                                  {this.state.permisos.listcompartidos.map((row, index) => {
-                                                    return (
-                                                      <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                        < CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                          <div style={{ padding: '15px 0px 0px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                              {row.status === 'Activo' ? (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatar}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              ) : (
-                                                                  <Tooltip title={row.status}>
-                                                                    <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                      {row.avatar}
-                                                                    </Avatar>
-                                                                  </Tooltip>
-                                                                )}
-                                                              <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
-                                                            </div>
-                                                            <Tooltip title="Detalle">
-                                                              <IconButton color="primary" component="span" onClick={(e) => this.mostrarDetalle(index)}>
-                                                                {row.mostrarformulario ? <ExpandLess /> : <ExpandMore />}
-                                                              </IconButton>
-                                                            </Tooltip>
-                                                          </div>
-                                                          <div style={{ padding: '0px 0px 0px 45px' }} hidden={row.mostrarformulario}>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                              color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                            </Typography>
-                                                          </div>
-                                                        </CardContent>
-                                                        <Collapse in={row.mostrarformulario} timeout="auto" unmountOnExit>
-                                                          <div style={{ padding: '0px 0px 10px 45px' }}>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                              color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Compartió: </b> {row.creator}
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Concedido: </b> {row.concedido}
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Duración: </b>  {row.duracion}
-                                                            </Typography>
-                                                          </div>
-                                                        </Collapse>
-                                                      </Card>
-                                                    );
-                                                  })
-                                                  }
-                                                </Grid>
-                                              ) : (
-                                                  <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
-                                                    <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
-                                                    <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento...</b></Typography>
-                                                  </div>
-                                                )}
-                                            </Collapse>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                              <div style={{ display: 'flex', alignItems: 'center' }} >
-                                                <Tooltip title="Expandir listado">
-                                                  <IconButton color="primary" component="span" onClick={(e) => this.handleChangeExpandir('panel3')}>
-                                                    {this.state.permisos.panel3expand ? <ExpandLess /> : <ExpandMore />}
-                                                  </IconButton>
-                                                </Tooltip>
-                                                <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Permisos heredados</b></Typography>
-                                              </div>
-                                            </div>
-                                            <Collapse in={this.state.permisos.panel3expand} timeout="auto" unmountOnExit>
-                                              {this.state.permisos.listheredados.length > 0 ? (
-                                                <Grid container>
-                                                  {this.state.permisos.listheredados.map((row, index) => {
-                                                    return (
-                                                      <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                        <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                          <div style={{ padding: '15px 0px 0px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                              {row.status === 'Activo' ? (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatar}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              ) : (
-                                                                  <Tooltip title={row.status}>
-                                                                    <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                      {row.avatar}
-                                                                    </Avatar>
-                                                                  </Tooltip>
-                                                                )}
-                                                              <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
-                                                            </div>
-                                                          </div>
-                                                          <div style={{ padding: '0px 0px 0px 45px' }}>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                              color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                            </Typography>
-                                                          </div>
-                                                        </CardContent>
-                                                      </Card>
-                                                    );
-                                                  })
-                                                  }
-                                                </Grid>
-                                              ) : (
-                                                  <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
-                                                    <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
-                                                    <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han heredado permisos...</b></Typography>
-                                                  </div>
-                                                )}
-                                            </Collapse>
+                                                }
+                                              </Grid>
+                                            ) :
+                                              (
+                                                <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                                  <Security style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha otorgado permiso a usuarios en el espacio de grupo de trabajo seleccionado...</b></Typography>
+                                                </div>
+                                              )}
                                           </div>
                                         </React.Fragment>
                                       </div>
-                                    ) : (
-                                        <div style={{ textAlign: 'center', height: '325px' }} >
-                                          <div className={classes.margin}>
-                                            <Grid container>
-                                              <Grid item style={{ marginTop: '10px' }}>
-                                                <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
-                                              </Grid>
-                                              <Grid item style={{ width: '280px' }}>
-                                                <FormControl>
-                                                  <TextField
-                                                    variant="outlined"
-                                                    type='search'
-                                                    value={this.state.compartir.usuariosshare}
-                                                    style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
-                                                    size="small"
-                                                    label='Permitir a...'
-                                                    onChange={(event) => this.handleBuscarUsersGroups(event)}
-                                                  />
-                                                  <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }}>
-                                                    {({ TransitionProps }) => (
-                                                      <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
-                                                        <MenuList>
-                                                          {this.state.usersygroups.listusersygrups.length > 0 ? (
-                                                            this.state.usersygroups.listusersygrups.map((row, index) => {
-                                                              return <MenuItem style={{ fontSize: '14px', height: '20px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
-                                                                <Tooltip title={row.name}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                                {row.username}
-                                                              </MenuItem>
-                                                            })
-                                                          ) : (
-                                                              'vacio'
-                                                            )}
-                                                        </MenuList>
-                                                      </Paper>
-                                                    )}
-                                                  </Popper>
-                                                </FormControl>
-                                              </Grid>
-                                              <Grid item style={{ marginTop: '10px' }}>
-                                                <Tooltip title="Otorgar permiso">
-                                                  <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
-                                                    <Done />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              </Grid>
-                                            </Grid>
-                                          </div>
-                                          <React.Fragment>
-                                            <div>
-                                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + cssColor }}>
-                                                <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con permisos</b></Typography>
-                                                <Tooltip title="Quitar permiso">
-                                                  <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeletePermisosUserAll('local')}>
-                                                    <HighlightOff />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              </div>
-                                              {this.state.permisos.listuserexternos.length > 0 ? (
-                                                <Grid container>
-                                                  {this.state.permisos.listuserexternos.map((row, index) => {
-                                                    return (
-                                                      <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                        <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                          <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                              {row.status === 'Activo' ? (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatar}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              ) : (
-                                                                  <Tooltip title={row.status}>
-                                                                    <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                      {row.avatar}
-                                                                    </Avatar>
-                                                                  </Tooltip>
-                                                                )}
-                                                              <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
-
-                                                            </div>
-                                                            <div>
-                                                              <Tooltip title={'Eliminar permiso'}>
-                                                                <IconButton aria-label="settings">
-                                                                  <Delete color='primary'
-                                                                    style={{ fontSize: '18px' }}
-                                                                    onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
-                                                                </IconButton>
-                                                              </Tooltip>
-                                                            </div>
-                                                          </div>
-
-                                                          <div style={{ padding: '0px 0px 0px 35px' }}>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
-                                                              color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Concedió: </b> {row.creator}
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Concedido: </b> {row.concedido}
-                                                            </Typography>
-                                                            <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                              <b>Duración: </b>  {row.duracion}
-                                                            </Typography>
-                                                          </div>
-                                                        </CardContent>
-                                                      </Card>
-                                                    );
-                                                  })
-                                                  }
-                                                  {this.state.permisos.listuserexternos.length >= 2 &&
-                                                    <div style={{ marginLeft: '100px' }}>
-                                                      <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarPermisosEGT()}>
-                                                        <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
-                                                          <b>{this.state.compartir.textbtnlistartodos}</b>
-                                                        </Typography>
-                                                      </Button>
-                                                    </div>
-                                                  }
-                                                </Grid>
-                                              ) :
-                                                (
-                                                  <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                    <Security style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                    <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha otorgado permiso a usuarios en el espacio de grupo de trabajo seleccionado...</b></Typography>
-                                                  </div>
-                                                )}
-                                            </div>
-                                          </React.Fragment>
-                                        </div>
-                                      )
-                                    }
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 6 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                                    {/*  <Tooltip title='Crear versión'>
+                                    )
+                                  }
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 6 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
+                                  {/*  <Tooltip title='Crear versión'>
                                         <IconButton aria-label="settings">
                                         <NoteAdd color='primary'
                                          style={{ fontSize: '30px' }}
                                          onClick={(e) => this.crearVersion()} />
                                          </IconButton>
                                         </Tooltip> */}
-                                    <div style={{ textAlign: 'center', height: '325px' }} >
-                                      <React.Fragment>
-                                        <div>
-                                          {this.state.versiones.totalversiones > 0 ? (
-                                            <Grid container>
-                                              {this.state.versiones.listversiones.map((row, index) => {
-                                                return (
-                                                  <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                    <CardHeader style={{ padding: '10px' }}
-                                                      avatar={
-                                                        <Tooltip title={moment(row.lastModified, 'YYYY-MM-DDTHH:mm:ss.SSSSZ').format('YYYY-MM-DD HH:mm:ss')}>
-                                                          {this.DevuelveIcons(seleccionado)}
+                                  <div style={{ textAlign: 'center', height: '325px' }} >
+                                    <React.Fragment>
+                                      <div>
+                                        {this.state.versiones.totalversiones > 0 ? (
+                                          <Grid container>
+                                            {this.state.versiones.listversiones.map((row, index) => {
+                                              return (
+                                                <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                  <CardHeader style={{ padding: '10px' }}
+                                                    avatar={
+                                                      <Tooltip title={moment(row.lastModified, 'YYYY-MM-DDTHH:mm:ss.SSSSZ').format('YYYY-MM-DD HH:mm:ss')}>
+                                                        {this.DevuelveIcons(seleccionado)}
+                                                      </Tooltip>
+                                                    }
+                                                    action={
+                                                      seleccionado.permisos[seleccionado.permisos.length - 1] === 'Everything' &&
+                                                      <React.Fragment>
+                                                        <Tooltip title='Mortrar versión'>
+                                                          <IconButton aria-label="view" style={{ marginTop: '10px' }}>
+                                                            <Visibility color='primary' onClick={(e) => this.handleClickMostrarVersion(row.uid)} />
+                                                          </IconButton>
                                                         </Tooltip>
-                                                      }
-                                                      action={
-                                                        seleccionado.permisos[seleccionado.permisos.length - 1] === 'Everything' &&
-                                                        <React.Fragment>
-                                                          <Tooltip title='Mortrar versión'>
-                                                            <IconButton aria-label="view" style={{ marginTop: '10px' }}>
-                                                              <Visibility color='primary' onClick={(e) => this.handleClickMostrarVersion(row.uid)} />
-                                                            </IconButton>
-                                                          </Tooltip>
-                                                          <Tooltip title='Restaurar versión'>
-                                                            <IconButton aria-label="restore" style={{ marginTop: '10px' }}>
-                                                              <RestorePage color='primary' onClick={(e) => this.restaurarVersion(row.uid)} />
-                                                            </IconButton>
-                                                          </Tooltip>
-                                                        </React.Fragment>
-                                                      }
-                                                      title={'versión ' + row.properties['uid:major_version'] + '.' + row.properties['uid:minor_version'] + ' ( ' + this.tiempotranscurrido(row.lastModified) + ' )'}
-                                                    />
-                                                  </Card>
-                                                );
-                                              })
-                                              }
-                                              {this.state.versiones.totalversiones >= 4 &&
-                                                <div style={{ marginLeft: '100px' }}>
-                                                  <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarVersiones()}>
-                                                    <Typography textAlign='center' style={{ fontSize: '10px', color: cssColor }}>
-                                                      <b>{this.state.versiones.textverbtntodos}</b>
-                                                    </Typography>
-                                                  </Button>
-                                                </div>
-                                              }
-                                            </Grid>
-                                          ) : (
-                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                <Storage style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han guardado versiones del documento...</b></Typography>
+                                                        <Tooltip title='Restaurar versión'>
+                                                          <IconButton aria-label="restore" style={{ marginTop: '10px' }}>
+                                                            <RestorePage color='primary' onClick={(e) => this.restaurarVersion(row.uid)} />
+                                                          </IconButton>
+                                                        </Tooltip>
+                                                      </React.Fragment>
+                                                    }
+                                                    title={'versión ' + row.properties['uid:major_version'] + '.' + row.properties['uid:minor_version'] + ' ( ' + this.tiempotranscurrido(row.lastModified) + ' )'}
+                                                  />
+                                                </Card>
+                                              );
+                                            })
+                                            }
+                                            {this.state.versiones.totalversiones >= 4 &&
+                                              <div style={{ marginLeft: '100px' }}>
+                                                <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarVersiones()}>
+                                                  <Typography textAlign='center' style={{ fontSize: '10px', color: 'primary' }}>
+                                                    <b>{this.state.versiones.textverbtntodos}</b>
+                                                  </Typography>
+                                                </Button>
                                               </div>
-                                            )}
-                                        </div>
-                                      </React.Fragment>
-                                    </div>
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 7 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
-                                    <div style={{ height: '325px', marginTop: '20px' }} >
-                                      <div hidden={this.state.expiracion.expriracionvisible}>
-                                        <Typography textAlign='justify' variant="body2" color="primary" component="p">
-                                          Seleccione la fecha en que expira el documento
-                                            </Typography>
-                                        <div style={{ marginLeft: '10px', marginTop: '10px', marginBottom: '10px' }} >
-                                          <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
-                                            <DatePicker
-                                              id='expiriracion'
-                                              keyboard
-                                              placeholder="Fecha expiración"
-                                              format={"YYYY/MM/DD"}
-                                              // handle clearing outside => pass plain array if you are not controlling value outside
-                                              mask={value =>
-                                                value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
-                                                  : []
-                                              }
-                                              minDate={this.state.expiracion.fechamin}
-                                              value={this.state.expiracion.fechaexpiracion}
-                                              onChange={this.handleChangeExpiracion}
-                                              disableOpenOnEnter
-                                              animateYearScrolling={false}
-                                              onInputChange={(e) => this.cambiarEstadoExpiracion(e)} />
-                                          </MuiPickersUtilsProvider>
-                                        </div>
+                                            }
+                                          </Grid>
+                                        ) : (
+                                            <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                              <Storage style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han guardado versiones del documento...</b></Typography>
+                                            </div>
+                                          )}
                                       </div>
-
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 7 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }}>
+                                  <div style={{ height: '325px', marginTop: '20px' }} >
+                                    <div hidden={this.state.expiracion.expriracionvisible}>
                                       <Typography textAlign='justify' variant="body2" color="primary" component="p">
-                                        Seleccione las opciones de subscripción al documento
-                                        </Typography>
-                                      <div style={{ marginLeft: '10px', marginTop: '10px' }}>
-                                        <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                          control={
-                                            <Checkbox color='primary' fontSize="small" value={this.state.subscripcion.notifsubscripcion} checked={this.state.subscripcion.notifsubscripcion} onChange={(e) => this.handleChangeSubscribirse(this.state.subscripcion.notifsubscripcion, 'Todos')} />
-                                          }
-                                          label="Subscribirse al documento"
-                                        />
-                                        <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                          control={
-                                            <Checkbox color='primary' fontSize="small" value={this.state.subscripcion.notifmodificar} checked={this.state.subscripcion.notifmodificar} onChange={(e) => this.handleChangeSubscribirse(this.state.subscripcion.notifmodificar, 'Modifications')} />
-                                          }
-                                          label="Solo las notificaciones de modificación"
-                                        />
-                                        <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
-                                          control={
-                                            <Checkbox color='primary' fontSize="small" value={this.state.subscripcion.notifcomment} checked={this.state.subscripcion.notifcomment} onChange={(e) => this.handleChangeSubscribirse(this.state.subscripcion.notifcomment, 'CommentAdded')} />
-                                          }
-                                          label="Solo las notificaciones de nuevo comentario"
-                                        />
+                                        Seleccione la fecha en que expira el documento
+                                            </Typography>
+                                      <div style={{ marginLeft: '10px', marginTop: '10px', marginBottom: '10px' }} >
+                                        <MuiPickersUtilsProvider utils={MomentUtils} locale={'es'} moment={moment}>
+                                          <DatePicker
+                                            id='expiriracion'
+                                            keyboard
+                                            placeholder="Fecha expiración"
+                                            format={"YYYY/MM/DD"}
+                                            // handle clearing outside => pass plain array if you are not controlling value outside
+                                            mask={value =>
+                                              value ? [/\d/, /\d/, /\d/, /\d/, "-", /\d/, /\d/, "-", /\d/, /\d/]
+                                                : []
+                                            }
+                                            minDate={this.state.expiracion.fechamin}
+                                            value={this.state.expiracion.fechaexpiracion}
+                                            onChange={this.handleChangeExpiracion}
+                                            disableOpenOnEnter
+                                            animateYearScrolling={false}
+                                            onInputChange={(e) => this.cambiarEstadoExpiracion(e)} />
+                                        </MuiPickersUtilsProvider>
                                       </div>
                                     </div>
-                                  </TabContainer>
-                                }
-                                {this.state.tabactivo === 8 &&
-                                  <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }} disabled={true}>
-                                    <div style={{ textAlign: 'center', height: '325px' }} >
-                                      <div className={classes.margin}>
-                                        <Grid container>
-                                          <Grid item>
-                                            <PersonAdd style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
-                                          </Grid>
-                                          <Grid item style={{ width: '280px' }}>
-                                            <FormControl>
-                                              <TextField
-                                                variant="outlined"
-                                                type='search'
-                                                value={this.state.grupos.usuariosselect}
-                                                style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
-                                                size="small"
-                                                label='Agregar:'
-                                                onChange={(event) => this.handleBuscarUsersGroups(event)}
-                                              />
-                                              <Popper open={this.state.grupos.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.grupos.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.grupos.visible }} s>
-                                                {({ TransitionProps }) => (
-                                                  <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
-                                                    <MenuList>
-                                                      {this.state.usersygroups.listusersygrups.length > 0 ? (
-                                                        this.state.usersygroups.listusersygrups.map((row, index) => {
-                                                          return (
-                                                            <MenuItem style={{ fontSize: '14px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuarioGrupos(event, row)}>
-                                                              <Tooltip title={row.name}>
-                                                                <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
-                                                                  {row.avatar}
-                                                                </Avatar>
-                                                              </Tooltip>
-                                                              {row.username}
-                                                            </MenuItem>
-                                                          )
-                                                        })
-                                                      ) : (
-                                                          'vacio'
-                                                        )}
-                                                    </MenuList>
-                                                  </Paper>
-                                                )}
-                                              </Popper>
-                                            </FormControl>
-                                          </Grid>
-                                          <Grid item>
-                                            <Tooltip title="Agregar Usuario">
-                                              <IconButton color="primary" aria-label="agregar user" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.grupos.btnsagregardisable} onClick={(e) => this.handleActionAgregar(e)}>
-                                                <Done />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </Grid>
-                                        </Grid>
-                                      </div>
-                                      <React.Fragment>
-                                        <div>
-                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid' + cssColor }}>
-                                            <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Miembros del grupo</b></Typography>
-                                            <Tooltip title="Eliminar usuarios del grupo">
-                                              <IconButton color="primary" component="span" disabled={this.state.grupos.deleteuserdisable} onClick={(e) => this.handleActionsEliminarTodosUsers()}>
-                                                <HighlightOff />
-                                              </IconButton>
-                                            </Tooltip>
-                                          </div>
-                                          {this.state.grupos.totalusuarios > 0 ? (
-                                            <Grid container>
-                                              {this.state.grupos.listusuarios.map((row, index) => {
-                                                return (
-                                                  <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                    <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                      <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                          <Tooltip title={row.name}>
-                                                            <Avatar aria-label="recipe" className={classes.avatar}>
-                                                              {row.avatar}
-                                                            </Avatar>
-                                                          </Tooltip>
-                                                          <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.name}</span>
-                                                        </div>
-                                                        <div>
-                                                          <Tooltip title={'Quitar del grupo'}>
-                                                            <IconButton aria-label="settings">
-                                                              <Delete color='primary' onClick={(e) => this.handleActionQuitar(row)} />
-                                                            </IconButton>
-                                                          </Tooltip>
-                                                        </div>
-                                                      </div>
-                                                      <div style={{ padding: '0px 0px 0px 35px' }}>
-                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Email: </b> <Chip size="small" label={row.email}
-                                                          color="primary" style={{ marginLeft: '5px', height: '22px' }} />
-                                                        </Typography>
-                                                      </div>
-                                                    </CardContent>
-                                                  </Card>
-                                                );
-                                              })
-                                              }
-                                              {this.state.grupos.listusuarios.length >= 3 &&
-                                                <div style={{ marginLeft: '100px' }}>
-                                                  <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarUserGrupos()}>
-                                                    <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
-                                                      <b>{this.state.grupos.textbtnlistartodos}</b>
-                                                    </Typography>
-                                                  </Button>
-                                                </div>
-                                              }
-                                            </Grid>
-                                          ) :
-                                            (
-                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                <Group style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han agregado usuarios al grupo...</b></Typography>
-                                              </div>
-                                            )}
-                                        </div>
-                                      </React.Fragment>
-                                    </div>
-                                  </TabContainer>
-                                }
-                              </Grid>
-                            </div>
-                          </Drawer>
-                        </div>
-                      </Grid>
-                    </Grid>
-                    <Grid item sm={12} md={12} lg={12}>
-                      <div>
-                        {!this.state.menu.hidebtnprincipales && this.state.acciones.upload &&
-                          <React.Fragment>
-                            <input hidden='hidden' id="icon-button-file" type="file" name="file" multiple onChange={(e) => this.onChangeupload(e)} />
-                            <label htmlFor="icon-button-file">
-                              <Tooltip title="Importar Archivo">
-                                <Fab color="primary" aria-label="crear" variant="raised" aria-label="upload file" component="span"
-                                  size="small"
-                                  style={{ float: 'right' }}
-                                  aria-haspopup="true"
-                                >
-                                  <Publish />
-                                </Fab>
-                              </Tooltip>
-                            </label>
-                          </React.Fragment>
-                        }
-                        {this.state.mover.btnclearmover && !this.state.menu.hidebtnprincipales && this.state.acciones.mover &&
-                          <React.Fragment>
-                            <Tooltip title="Cancelar Movimiento">
-                              <Fab color='primary' variant="raised" component="span" onClick={this.cancelarMovimiento}
-                                size="small"
-                                style={{ float: 'right', backgroundColor: '#757575', marginRight: '10px', marginLeft: '10px' }}
-                              >
-                                <HighlightOff color='inherit' />
-                              </Fab>
-                            </Tooltip>
-                          </React.Fragment>
-                        }
-                        {this.state.mover.btnaceptarmovimiento && !this.state.menu.hidebtnprincipales && this.state.acciones.mover &&
-                          <React.Fragment>
-                            <Tooltip title="Pegar archivos copiados">
-                              <Fab color='primary' variant="raised" component="span" disabled={this.state.mover.nosubcarpeta}
-                                onClick={this.handleActionsMenuMover}
-                                size="small"
-                                style={{ float: 'right' }}
-                              >
-                                <AssignmentTurnedIn />
-                              </Fab>
-                            </Tooltip>
-                          </React.Fragment>
-                        }
-                        <CreateDocumentDialog
-                          openConfirm={this.state.ventadicionar.opencrear}
-                          options={{
-                            title: this.state.ventadicionar.enunciado,
-                            tipo: this.state.ventadicionar.tipo,
-                            mimeType: this.state.ventadicionar.mimeType,
-                            error: this.state.ventadicionar.error,
-                            errorMessage: this.state.ventadicionar.errorMessage,
-                            denom: this.state.ventadicionar.denom,
-                            descrip: this.state.ventadicionar.descrip,
-                          }}
-                          handleYesConfirm={this.handleYesConfirmCrear}
-                          handleNoConfirm={this.handleNoConfirmCrear}
-                          color={cssColor} />
-                        <Confirmacion
-                          openConfirm={this.state.confirmacion.open}
-                          options={{
-                            title: this.state.confirmacion.enunciado,
-                            text: this.state.confirmacion.texto,
-                          }}
-                          handleYesConfirm={this.handleYesConfirmDelete}
-                          handleNoConfirm={this.handleCloseConfirmacion} />
 
-                        {this.state.acciones.papelera && this.state.acciones.elimperm &&
-                          <Tooltip title="Eliminar todos">
-                            <Fab color="primary" aria-label="crear" disabled={!rows.length > 0 ? true : false}
-                              size="small"
-                              variant="contained"
-                              style={{ float: 'right' }}
-                              aria-controls="long-menu-crear"
-                              aria-haspopup="true"
-                              onClick={this.handleClicDeletePerm}
-                            >
-                              <DeleteForever />
-                            </Fab>
-                          </Tooltip>
-                        }
+                                    <Typography textAlign='justify' variant="body2" color="primary" component="p">
+                                      Seleccione las opciones de subscripción al documento
+                                        </Typography>
+                                    <div style={{ marginLeft: '10px', marginTop: '10px' }}>
+                                      <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                        control={
+                                          <Checkbox color='primary' fontSize="small" value={this.state.subscripcion.notifsubscripcion} checked={this.state.subscripcion.notifsubscripcion} onChange={(e) => this.handleChangeSubscribirse(this.state.subscripcion.notifsubscripcion, 'Todos')} />
+                                        }
+                                        label="Subscribirse al documento"
+                                      />
+                                      <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                        control={
+                                          <Checkbox color='primary' fontSize="small" value={this.state.subscripcion.notifmodificar} checked={this.state.subscripcion.notifmodificar} onChange={(e) => this.handleChangeSubscribirse(this.state.subscripcion.notifmodificar, 'Modifications')} />
+                                        }
+                                        label="Solo las notificaciones de modificación"
+                                      />
+                                      <FormControlLabel style={{ fontSize: '8px', height: '30px' }}
+                                        control={
+                                          <Checkbox color='primary' fontSize="small" value={this.state.subscripcion.notifcomment} checked={this.state.subscripcion.notifcomment} onChange={(e) => this.handleChangeSubscribirse(this.state.subscripcion.notifcomment, 'CommentAdded')} />
+                                        }
+                                        label="Solo las notificaciones de nuevo comentario"
+                                      />
+                                    </div>
+                                  </div>
+                                </TabContainer>
+                              }
+                              {this.state.tabactivo === 8 &&
+                                <TabContainer style={{ borderBottom: '2px solid #FFFFFF' }} disabled={true}>
+                                  <div style={{ textAlign: 'center', height: '325px' }} >
+                                    <div className={classes.margin}>
+                                      <Grid container>
+                                        <Grid item>
+                                          <PersonAdd style={{ position: 'relative', marginTop: '18px', marginRight: '15px' }} color='primary' />
+                                        </Grid>
+                                        <Grid item style={{ width: '280px' }}>
+                                          <FormControl>
+                                            <TextField
+                                              variant="outlined"
+                                              type='search'
+                                              value={this.state.grupos.usuariosselect}
+                                              style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
+                                              size="small"
+                                              label='Agregar:'
+                                              onChange={(event) => this.handleBuscarUsersGroups(event)}
+                                            />
+                                            <Popper open={this.state.grupos.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.grupos.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.grupos.visible }} s>
+                                              {({ TransitionProps }) => (
+                                                <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
+                                                  <MenuList>
+                                                    {this.state.usersygroups.listusersygrups.length > 0 ? (
+                                                      this.state.usersygroups.listusersygrups.map((row, index) => {
+                                                        return (
+                                                          <MenuItem style={{ fontSize: '14px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuarioGrupos(event, row)}>
+                                                            <Tooltip title={row.name}>
+                                                              <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
+                                                                {row.avatar}
+                                                              </Avatar>
+                                                            </Tooltip>
+                                                            {row.username}
+                                                          </MenuItem>
+                                                        )
+                                                      })
+                                                    ) : (
+                                                        'vacio'
+                                                      )}
+                                                  </MenuList>
+                                                </Paper>
+                                              )}
+                                            </Popper>
+                                          </FormControl>
+                                        </Grid>
+                                        <Grid item>
+                                          <Tooltip title="Agregar Usuario">
+                                            <IconButton color="primary" aria-label="agregar user" component="span" style={{ position: 'relative', marginTop: '6px', marginLeft: '5px' }} disabled={this.state.grupos.btnsagregardisable} onClick={(e) => this.handleActionAgregar(e)}>
+                                              <Done />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </Grid>
+                                      </Grid>
+                                    </div>
+                                    <React.Fragment>
+                                      <div>
+                                        {/* va color primary */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid' + themeColor }}>
+                                          <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Miembros del grupo</b></Typography>
+                                          <Tooltip title="Eliminar usuarios del grupo">
+                                            <IconButton color="primary" component="span" disabled={this.state.grupos.deleteuserdisable} onClick={(e) => this.handleActionsEliminarTodosUsers()}>
+                                              <HighlightOff />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </div>
+                                        {this.state.grupos.totalusuarios > 0 ? (
+                                          <Grid container>
+                                            {this.state.grupos.listusuarios.map((row, index) => {
+                                              return (
+                                                <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                  <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                    <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <Tooltip title={row.name}>
+                                                          <Avatar aria-label="recipe" className={classes.avatar}>
+                                                            {row.avatar}
+                                                          </Avatar>
+                                                        </Tooltip>
+                                                        <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.name}</span>
+                                                      </div>
+                                                      <div>
+                                                        <Tooltip title={'Quitar del grupo'}>
+                                                          <IconButton aria-label="settings">
+                                                            <Delete color='primary' onClick={(e) => this.handleActionQuitar(row)} />
+                                                          </IconButton>
+                                                        </Tooltip>
+                                                      </div>
+                                                    </div>
+                                                    <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                      <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Email: </b> <Chip size="small" label={row.email}
+                                                        color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                      </Typography>
+                                                    </div>
+                                                  </CardContent>
+                                                </Card>
+                                              );
+                                            })
+                                            }
+                                            {this.state.grupos.listusuarios.length >= 3 &&
+                                              <div style={{ marginLeft: '100px' }}>
+                                                <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarUserGrupos()}>
+                                                  <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
+                                                    <b>{this.state.grupos.textbtnlistartodos}</b>
+                                                  </Typography>
+                                                </Button>
+                                              </div>
+                                            }
+                                          </Grid>
+                                        ) :
+                                          (
+                                            <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                              <Group style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han agregado usuarios al grupo...</b></Typography>
+                                            </div>
+                                          )}
+                                      </div>
+                                    </React.Fragment>
+                                  </div>
+                                </TabContainer>
+                              }
+                            </Grid>
+                          </div>
+                        </Drawer>
                       </div>
                     </Grid>
-                  </React.Fragment>
-                ) : (
-                    <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid ' + cssColor }}>
-                      <Grid container direction="row" spacing={4}
-                        alignContent='center'
-                        alignItems='center'
-                        justify='center'
-                        sm={12} md={12} lg={12}
-                      >
-                        <Card>
-                          <div className={classes.theme} style={{ padding: '8px', color: 'FFFFFF', justifyContent: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                              {this.state.moduloconfig ? (
-                                <Tooltip title="Configuración Exitosa">
+                  </Grid>
+                  <Grid item sm={12} md={12} lg={12}>
+                    <div>
+                      {!this.state.menu.hidebtnprincipales && this.state.acciones.upload &&
+                        <React.Fragment>
+                          <input hidden='hidden' id="icon-button-file" type="file" name="file" multiple onChange={(e) => this.onChangeupload(e)} />
+                          <label htmlFor="icon-button-file">
+                            <Tooltip title="Importar Archivo">
+                              <Fab color="primary" aria-label="crear" variant="raised" aria-label="upload file" component="span"
+                                size="small"
+                                style={{ float: 'right' }}
+                                aria-haspopup="true"
+                              >
+                                <Publish />
+                              </Fab>
+                            </Tooltip>
+                          </label>
+                        </React.Fragment>
+                      }
+                      {this.state.mover.btnclearmover && !this.state.menu.hidebtnprincipales && this.state.acciones.mover &&
+                        <React.Fragment>
+                          <Tooltip title="Cancelar Movimiento">
+                            <Fab color='primary' variant="raised" component="span" onClick={this.cancelarMovimiento}
+                              size="small"
+                              style={{ float: 'right', backgroundColor: '#757575', marginRight: '10px', marginLeft: '10px' }}
+                            >
+                              <HighlightOff color='inherit' />
+                            </Fab>
+                          </Tooltip>
+                        </React.Fragment>
+                      }
+                      {this.state.mover.btnaceptarmovimiento && !this.state.menu.hidebtnprincipales && this.state.acciones.mover &&
+                        <React.Fragment>
+                          <Tooltip title="Pegar archivos copiados">
+                            <Fab color='primary' variant="raised" component="span" disabled={this.state.mover.nosubcarpeta}
+                              onClick={this.handleActionsMenuMover}
+                              size="small"
+                              style={{ float: 'right' }}
+                            >
+                              <AssignmentTurnedIn />
+                            </Fab>
+                          </Tooltip>
+                        </React.Fragment>
+                      }
+                      <CreateDocumentDialog
+                        openConfirm={this.state.ventadicionar.opencrear}
+                        options={{
+                          title: this.state.ventadicionar.enunciado,
+                          tipo: this.state.ventadicionar.tipo,
+                          mimeType: this.state.ventadicionar.mimeType,
+                          error: this.state.ventadicionar.error,
+                          errorMessage: this.state.ventadicionar.errorMessage,
+                          denom: this.state.ventadicionar.denom,
+                          descrip: this.state.ventadicionar.descrip,
+                        }}
+                        color={themeColor}
+                        handleYesConfirm={this.handleYesConfirmCrear}
+                        handleNoConfirm={this.handleNoConfirmCrear}
+                      />
+                      <Confirmacion
+                        openConfirm={this.state.confirmacion.open}
+                        options={{
+                          title: this.state.confirmacion.enunciado,
+                          text: this.state.confirmacion.texto,
+                        }}
+                        handleYesConfirm={this.handleYesConfirmDelete}
+                        handleNoConfirm={this.handleCloseConfirmacion} />
+
+                      {this.state.acciones.papelera && this.state.acciones.elimperm &&
+                        <Tooltip title="Eliminar todos">
+                          <Fab color="primary" aria-label="crear" disabled={!rows.length > 0 ? true : false}
+                            size="small"
+                            variant="contained"
+                            style={{ float: 'right' }}
+                            aria-controls="long-menu-crear"
+                            aria-haspopup="true"
+                            onClick={this.handleClicDeletePerm}
+                          >
+                            <DeleteForever />
+                          </Fab>
+                        </Tooltip>
+                      }
+                    </div>
+                  </Grid>
+                </React.Fragment>
+              ) : (
+
+                  <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid ' + themeColor }}>
+                    <Grid container direction="row" spacing={4}
+                      alignContent='center'
+                      alignItems='center'
+                      justify='center'
+                      sm={12} md={12} lg={12}
+                    >
+                      <Card>
+                        <div className={classes.theme} style={{ padding: '8px', color: 'FFFFFF', justifyContent: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {this.state.moduloconfig ? (
+                              <Tooltip title="Configuración Exitosa">
+                                <Avatar aria-label="Recipe" className={classes.avatarconfig}>
+                                  <Check />
+                                </Avatar>
+                              </Tooltip>
+                            ) : (
+                                <Tooltip title="Introducir los Datos de Configuración">
                                   <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                                    <Check />
+                                    <Edit />
                                   </Avatar>
                                 </Tooltip>
-                              ) : (
-                                  <Tooltip title="Introducir los Datos de Configuración">
-                                    <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                                      <Edit />
-                                    </Avatar>
-                                  </Tooltip>
-                                )
-                              }
-                              <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
-                            </div>
+                              )
+                            }
+                            <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
                           </div>
-                          <CardContent>
-                            <FormControl style={{ width: '100%', padding: '25px' }}>
-                              <Typography variant="h6" gutterBottom color='primary'> Servidor de gestión documental </Typography>
-                              <Typography variant="subtitle2" gutterBottom color='primary'> Introducir los datos de conexión al servidor de nuxeo: </Typography>
-                              <FormGroup>
-                                <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                  <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                    <Public color='primary' />
-                                  </Grid>
-                                  <Grid item xs={11} md={11}>
-                                    <TextField
-                                      id="input-with-icon-grid"
-                                      label="Dirección del servidor"
-                                      value={this.state.config.url}
-                                      error={this.state.config.errorurl}
-                                      helperText={this.state.config.texterror}
-                                      onChange={this.setValueURLNuxeo}
-                                      fullWidth
-                                    />
-                                  </Grid>
-                                </Grid>
-                              </FormGroup>
-                              <FormGroup>
-                                <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                  <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                    <Dns color='primary' />
-                                  </Grid>
-                                  <Grid item item xs={11} md={11}>
-                                    <TextField
-                                      id="input-nombre-dominio"
-                                      label="Nombre de dominio"
-                                      value={this.state.config.nombredominio}
-                                      error={this.state.config.errordominio}
-                                      helperText={this.state.config.texterror}
-                                      onChange={this.setValueNombreDomNuxeo}
-                                      fullWidth
-                                    />
-                                  </Grid>
-                                </Grid>
-                              </FormGroup>
-                              <FormGroup>
-                                <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                  <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                    <AssignmentInd color='primary' />
-                                  </Grid>
-                                  <Grid item item xs={11} md={11}>
-                                    <TextField
-                                      id="input-admin-nuxeo"
-                                      label="Administrador"
-                                      value={this.state.config.user}
-                                      error={this.state.config.erroruser}
-                                      helperText={this.state.config.texterror}
-                                      onChange={this.setValueAdminNuxeo}
-                                      fullWidth
-                                    />
-                                  </Grid>
-                                </Grid>
-                              </FormGroup>
-                              <FormGroup>
-                                <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                  <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                    <VpnKey color='primary' />
-                                  </Grid>
-                                  <Grid item item xs={11} md={11}>
-                                    <TextField
-                                      id="input-adminpass-nuxeo"
-                                      className={classes.margin, classes.textField}
-                                      type={this.state.config.showpassword ? 'text' : 'password'}
-                                      label="Password"
-                                      value={this.state.config.password}
-                                      error={this.state.config.errorpassword}
-                                      helperText={this.state.config.texterror}
-                                      onChange={this.setValueAdminPassNuxeo}
-                                      InputProps={{
-                                        endAdornment: (
-                                          <InputAdornment position="end">
-                                            <IconButton aria-label="Mostrar/Ocultar Contraseña" onClick={this.handleClickShowPassword} >
-                                              {false ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                          </InputAdornment>
-                                        ),
-                                      }}
-                                      fullWidth
-                                    />
-                                  </Grid>
-                                </Grid>
-                              </FormGroup>
-                              <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Servidor editor de documentos en línea </Typography>
-                              <Typography variant="subtitle2" gutterBottom color='primary'> Introducir la ubicación del server de onlyoffice: </Typography>
-                              <FormGroup>
-                                <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                  <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                    <Public color='primary' />
-                                  </Grid>
-                                  <Grid item item xs={11} md={11}>
-                                    <TextField
-                                      id="input-url-onlyoffice"
-                                      label="Dirección del servidor"
-                                      value={this.state.config.urlonlyoffice}
-                                      error={this.state.config.errorurloffice}
-                                      helperText={this.state.config.texterror}
-                                      onChange={this.setValueURLOnlyoffice}
-                                      fullWidth
-                                    />
-                                  </Grid>
-                                </Grid>
-                              </FormGroup>
-                              <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0px' }}> Apariencia </Typography>
-                              <Typography variant="subtitle2" gutterBottom color='primary'> Color del tema del módulo: </Typography>
+                        </div>
+                        <CardContent>
+                          <FormControl style={{ width: '100%', padding: '25px' }}>
+                            <Typography variant="h6" gutterBottom color='primary'> Servidor de gestión documental </Typography>
+                            <Typography variant="subtitle2" gutterBottom color='primary'> Introducir los datos de conexión al servidor de nuxeo: </Typography>
+                            <FormGroup>
                               <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                  <ColorLens color='primary' />
+                                <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                  <Public color='primary' />
                                 </Grid>
-                                <Grid item item xs={11} md={11}>
-                                  <ColorPicker
-                                    name='color'
-                                    internalValue={this.state.config.colortema}
-                                    label="Color principal"
-                                    floatingLabelText={this.state.config.colortema}
-                                    value={this.state.config.colortema}
-                                    onChange={color => this.setColorPrimario(color)}
-                                    style={{ position: 'absolute', zIndex: 0 }}
+                                <Grid item xs={11} md={11}>
+                                  <TextField
+                                    id="input-with-icon-grid"
+                                    label="Dirección del servidor"
+                                    value={this.state.config.confurl}
+                                    error={this.state.config.errorurl}
+                                    helperText={this.state.config.texterror}
+                                    onChange={this.setValueURLNuxeo}
+                                    fullWidth
                                   />
-                                  {this.state.config.errorcolor && <div >Campo Obligatorio</div>}
                                 </Grid>
                               </Grid>
-                            </FormControl>
-                          </CardContent>
-                          <CardActions className={classes.actions} style={{ width: '100%', padding: '75px 20px 20px 20px' }}>
-                            <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
-                              <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
-                                <SaveIcon className={classes.leftIcon} style={{ marginRight: '5px' }} />
+                            </FormGroup>
+                            <FormGroup>
+                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                  <Dns color='primary' />
+                                </Grid>
+                                <Grid item item xs={11} md={11}>
+                                  <TextField
+                                    id="input-nombre-dominio"
+                                    label="Nombre de dominio"
+                                    value={this.state.config.confnombredominio}
+                                    error={this.state.config.errordominio}
+                                    helperText={this.state.config.texterror}
+                                    onChange={this.setValueNombreDomNuxeo}
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                            </FormGroup>
+                            <FormGroup>
+                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                  <AssignmentInd color='primary' />
+                                </Grid>
+                                <Grid item item xs={11} md={11}>
+                                  <TextField
+                                    id="input-admin-nuxeo"
+                                    label="Administrador"
+                                    value={this.state.config.confuser}
+                                    error={this.state.config.erroruser}
+                                    helperText={this.state.config.texterror}
+                                    onChange={this.setValueAdminNuxeo}
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                            </FormGroup>
+                            <FormGroup>
+                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                  <VpnKey color='primary' />
+                                </Grid>
+                                <Grid item item xs={11} md={11}>
+                                  <TextField
+                                    id="input-adminpass-nuxeo"
+                                    className={classes.margin, classes.textField}
+                                    type={this.state.config.showpassword ? 'text' : 'password'}
+                                    label="Password"
+                                    value={this.state.config.confpassword}
+                                    error={this.state.config.errorpassword}
+                                    helperText={this.state.config.texterror}
+                                    onChange={this.setValueAdminPassNuxeo}
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <IconButton aria-label="Mostrar/Ocultar Contraseña" onClick={this.handleClickShowPassword} >
+                                            {false ? <VisibilityOff /> : <Visibility />}
+                                          </IconButton>
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                            </FormGroup>
+                            <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Servidor editor de documentos en línea </Typography>
+                            <Typography variant="subtitle2" gutterBottom color='primary'> Introducir la ubicación del fichero de conexión a onlyoffice: </Typography>
+                            <FormGroup>
+                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                  <Public color='primary' />
+                                </Grid>
+                                <Grid item item xs={11} md={11}>
+                                  <TextField
+                                    id="input-url-onlyoffice"
+                                    label="Url del fichero"
+                                    value={this.state.config.confurlonlyoffice}
+                                    error={this.state.config.errorurloffice}
+                                    helperText={this.state.config.texterror}
+                                    onChange={this.setValueURLOnlyoffice}
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                            </FormGroup>
+                          </FormControl>
+                        </CardContent>
+                        <CardActions className={classes.actions} style={{ width: '100%', padding: '75px 20px 20px 20px' }}>
+                          <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
+                            <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
+                              <SaveIcon className={classes.leftIcon} style={{ marginRight: '5px' }} />
                                   Actualizar
                              </Button>
-                            </Tooltip>
-                          </CardActions>
-                        </Card>
-                      </Grid>
+                          </Tooltip>
+                        </CardActions>
+                      </Card>
                     </Grid>
-                  )
-                }
-              </Grid>
-            }
-          </PapperBlock>
-          {this.state.onlyoffice.showwindows && <DocWindows doc={this.state.onlyoffice.doc} />}
-        </div >
-      </MuiThemeProvider>
+                  </Grid>
+                )
+              }
+            </Grid>
+          }
+        </PapperBlock>
+        {/*{this.state.onlyoffice.showwindows && <DocWindows doc={this.state.onlyoffice.doc} />}*/}
+      </div >
+      //</MuiThemeProvider>
     );
   }
 }
 
-export default withStyles(styles)(DocumentManager);
+//export default withStyles(styles) (connect(mapStateToProps, mapDispatchToProps)(injectIntl(DocumentManager)));
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <DocumentManager changeTheme={changeTheme} classes={classes} />;
+};

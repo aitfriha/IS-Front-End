@@ -170,7 +170,6 @@ class AssignmentType extends React.Component {
 }
 
 AssignmentType.propTypes = {
-  location: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
   assignmentTypeResponse: PropTypes.string.isRequired,
