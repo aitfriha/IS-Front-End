@@ -38,6 +38,10 @@ function MainMenu(props) {
 
   const getMenus = menuArray => menuArray.map((item, index) => {
     if (item.child || item.linkParent) {
+      /*if(item.child !== undefined) {
+        const found = (item.child).find(element => element.key == "roles");
+        console.log(found);
+      }*/
       return (
         <div key={index.toString()}>
           <ListItem

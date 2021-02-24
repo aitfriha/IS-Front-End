@@ -54,6 +54,8 @@ class User extends React.Component {
     const { intl } = props;
     this.editingPromiseResolve = () => {
     };
+    this.editingPromiseResolveEdit = () => {
+    };
     this.state = {
       firstName: '',
       fatherFamilyName: '',
@@ -397,6 +399,8 @@ class User extends React.Component {
       // Sent resolve to editing promises
     (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
     (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
+    (!isLoading && userResponse) && this.editingPromiseResolveEdit(userResponse);
+    (!isLoading && !userResponse) && this.editingPromiseResolveEdit(errors);
     console.log(JSON.parse(localStorage.getItem('logedUser')));
     return (
       <div>
@@ -470,9 +474,8 @@ class User extends React.Component {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
-              return;
               updateUser(newData);
-              this.editingPromiseResolve = resolve;
+              this.editingPromiseResolveEdit = resolve;
             }).then((result) => {
               if (isString(result)) {
                 // Fetch data

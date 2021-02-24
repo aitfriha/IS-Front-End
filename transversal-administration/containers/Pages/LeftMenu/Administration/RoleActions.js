@@ -139,6 +139,8 @@ class RoleActions extends React.Component {
       commercial_titleType_modify: false,
       commercial_titleType_delete: false,
       commercial_titleType_export: false,
+
+      commercial_documentManager_access: false,
       // hh
       hh_administrativeStructureDefinition_access: false,
       hh_administrativeStructureDefinition_create: false,
@@ -250,11 +252,17 @@ class RoleActions extends React.Component {
       operativeModule_workPartsConfig_modify: false,
       operativeModule_workPartsConfig_export: false,
       // financial
-      financialModule_contacts_access: false,
-      financialModule_contacts_create: false,
-      financialModule_contacts_modify: false,
-      financialModule_contacts_delete: false,
-      financialModule_contacts_export: false,
+      financialModule_contracts_access: false,
+      financialModule_contracts_create: false,
+      financialModule_contracts_modify: false,
+      financialModule_contracts_delete: false,
+      financialModule_contracts_export: false,
+
+      financialModule_suppliersContracts_access: false,
+      financialModule_suppliersContracts_create: false,
+      financialModule_suppliersContracts_modify: false,
+      financialModule_suppliersContracts_delete: false,
+      financialModule_suppliersContracts_export: false,
 
       financialModule_billingManagement_access: false,
       financialModule_billingManagement_create: false,
@@ -411,6 +419,18 @@ class RoleActions extends React.Component {
       financialModule_expensesEmailAddress_modify: false,
       financialModule_expensesEmailAddress_delete: false,
       financialModule_expensesEmailAddress_export: false,
+      // translation
+      translationModule_defaultSentences_access: false,
+      translationModule_defaultSentences_create: false,
+      translationModule_defaultSentences_modify: false,
+      translationModule_defaultSentences_delete: false,
+
+      translationModule_translationSentences_access: false,
+      translationModule_translationSentences_create: false,
+      translationModule_translationSentences_modify: false,
+      translationModule_translationSentences_delete: false,
+
+
       columns: [
         {
           title: 'role*',
@@ -443,7 +463,7 @@ class RoleActions extends React.Component {
     getAllRoles();
     getAllSubjects();
     getAllActions();
-   //console.log(this.props.location.state.actions);
+    // console.log(this.props.location.state.actions);
     if (!isEmpty(this.props.location.state)) {
       for (const key in this.props.location.state.actions) {
         console.log('==> : ', key);
@@ -540,6 +560,7 @@ class RoleActions extends React.Component {
       commercial_titleType_modify,
       commercial_titleType_delete,
       commercial_titleType_export,
+      commercial_documentManager_access,
       hh_administrativeStructureDefinition_access,
       hh_administrativeStructureDefinition_create,
       hh_administrativeStructureDefinition_modify,
@@ -630,11 +651,16 @@ class RoleActions extends React.Component {
       operativeModule_workPartsConfig_access,
       operativeModule_workPartsConfig_modify,
       operativeModule_workPartsConfig_export,
-      financialModule_contacts_access,
-      financialModule_contacts_create,
-      financialModule_contacts_modify,
-      financialModule_contacts_delete,
-      financialModule_contacts_export,
+      financialModule_contracts_access,
+      financialModule_contracts_create,
+      financialModule_contracts_modify,
+      financialModule_contracts_delete,
+      financialModule_contracts_export,
+      financialModule_suppliersContracts_access,
+      financialModule_suppliersContracts_create,
+      financialModule_suppliersContracts_modify,
+      financialModule_suppliersContracts_delete,
+      financialModule_suppliersContracts_export,
       financialModule_billingManagement_access,
       financialModule_billingManagement_create,
       financialModule_billingManagement_modify,
@@ -764,6 +790,16 @@ class RoleActions extends React.Component {
       financialModule_expensesEmailAddress_modify,
       financialModule_expensesEmailAddress_delete,
       financialModule_expensesEmailAddress_export,
+      translationModule_defaultSentences_access,
+      translationModule_defaultSentences_create,
+      translationModule_defaultSentences_modify,
+      translationModule_defaultSentences_delete,
+
+      translationModule_translationSentences_access,
+      translationModule_translationSentences_create,
+      translationModule_translationSentences_modify,
+      translationModule_translationSentences_delete,
+
     } = this.state;
     const action = {
       roleName,
@@ -834,6 +870,7 @@ class RoleActions extends React.Component {
         commercial_titleType_modify,
         commercial_titleType_delete,
         commercial_titleType_export,
+        commercial_documentManager_access,
         hh_administrativeStructureDefinition_access,
         hh_administrativeStructureDefinition_create,
         hh_administrativeStructureDefinition_modify,
@@ -924,332 +961,16 @@ class RoleActions extends React.Component {
         operativeModule_workPartsConfig_access,
         operativeModule_workPartsConfig_modify,
         operativeModule_workPartsConfig_export,
-        financialModule_contacts_access,
-        financialModule_contacts_create,
-        financialModule_contacts_modify,
-        financialModule_contacts_delete,
-        financialModule_contacts_export,
-        financialModule_billingManagement_access,
-        financialModule_billingManagement_create,
-        financialModule_billingManagement_modify,
-        financialModule_billingManagement_delete,
-        financialModule_billingManagement_export,
-        financialModule_staffEconomicManagement_access,
-        financialModule_staffEconomicManagement_create,
-        financialModule_staffEconomicManagement_modify,
-        financialModule_staffEconomicManagement_delete,
-        financialModule_staffEconomicManagement_export,
-        financialModule_staffEconomicPayments_access,
-        financialModule_staffEconomicPayments_create,
-        financialModule_staffEconomicPayments_modify,
-        financialModule_staffEconomicPayments_delete,
-        financialModule_staffEconomicPayments_export,
-        financialModule_suppliersPayments_access,
-        financialModule_suppliersPayments_create,
-        financialModule_suppliersPayments_modify,
-        financialModule_suppliersPayments_delete,
-        financialModule_suppliersPayments_export,
-        financialModule_purchaseOrderManagement_access,
-        financialModule_purchaseOrderManagement_create,
-        financialModule_purchaseOrderManagement_modify,
-        financialModule_purchaseOrderManagement_delete,
-        financialModule_purchaseOrderManagement_export,
-        financialModule_travelRequest_access,
-        financialModule_travelRequest_create,
-        financialModule_travelRequest_modify,
-        financialModule_travelRequest_delete,
-        financialModule_travelRequest_cancel,
-        financialModule_travelRequest_export,
-        financialModule_travelManagement_access,
-        financialModule_travelManagement_modify,
-        financialModule_travelManagement_export,
-        financialModule_expenseRecord_access,
-        financialModule_expenseRecord_create,
-        financialModule_expenseRecord_modify,
-        financialModule_expenseRecord_download,
-        financialModule_expenseRecord_export,
-        financialModule_expensesManagement_access,
-        financialModule_expensesManagement_create,
-        financialModule_expensesManagement_modify,
-        financialModule_expensesManagement_download,
-        financialModule_expensesManagement_export,
-        financialModule_companies_access,
-        financialModule_companies_create,
-        financialModule_companies_modify,
-        financialModule_companies_delete,
-        financialModule_companies_export,
-        financialModule_typeOfCurrency_access,
-        financialModule_typeOfCurrency_create,
-        financialModule_typeOfCurrency_modify,
-        financialModule_typeOfCurrency_delete,
-        financialModule_typeOfCurrency_export,
-        financialModule_currencyManagement_access,
-        financialModule_currencyManagement_create,
-        financialModule_currencyManagement_modify,
-        financialModule_currencyManagement_delete,
-        financialModule_currencyManagement_export,
-        financialModule_contractStatus_access,
-        financialModule_contractStatus_create,
-        financialModule_contractStatus_modify,
-        financialModule_contractStatus_delete,
-        financialModule_contractStatus_export,
-        financialModule_iva_access,
-        financialModule_iva_create,
-        financialModule_iva_modify,
-        financialModule_iva_delete,
-        financialModule_iva_export,
-        financialModule_typeOfRententions_access,
-        financialModule_typeOfRententions_create,
-        financialModule_typeOfRententions_modify,
-        financialModule_typeOfRententions_delete,
-        financialModule_typeOfRententions_export,
-        financialModule_suppliersTypes_access,
-        financialModule_suppliersTypes_create,
-        financialModule_suppliersTypes_modify,
-        financialModule_suppliersTypes_delete,
-        financialModule_suppliersTypes_export,
-        financialModule_externalSuppliers_access,
-        financialModule_externalSuppliers_create,
-        financialModule_externalSuppliers_modify,
-        financialModule_externalSuppliers_delete,
-        financialModule_externalSuppliers_export,
-        financialModule_purchaseOrderAcceptance_access,
-        financialModule_purchaseOrderAcceptance_create,
-        financialModule_purchaseOrderAcceptance_modify,
-        financialModule_purchaseOrderAcceptance_delete,
-        financialModule_purchaseOrderAcceptance_export,
-        financialModule_businessExpenseTypes_access,
-        financialModule_businessExpenseTypes_create,
-        financialModule_businessExpenseTypes_modify,
-        financialModule_businessExpenseTypes_delete,
-        financialModule_businessExpenseTypes_export,
-        financialModule_requestStatus_access,
-        financialModule_requestStatus_create,
-        financialModule_requestStatus_modify,
-        financialModule_requestStatus_delete,
-        financialModule_requestStatus_export,
-        financialModule_travelRequestEmailAddress_access,
-        financialModule_travelRequestEmailAddress_create,
-        financialModule_travelRequestEmailAddress_modify,
-        financialModule_travelRequestEmailAddress_delete,
-        financialModule_travelRequestEmailAddress_export,
-        financialModule_staffExpensesTypes_access,
-        financialModule_staffExpensesTypes_create,
-        financialModule_staffExpensesTypes_modify,
-        financialModule_staffExpensesTypes_delete,
-        financialModule_staffExpensesTypes_export,
-        financialModule_personsTypes_access,
-        financialModule_personsTypes_create,
-        financialModule_personsTypes_modify,
-        financialModule_personsTypes_delete,
-        financialModule_personsTypes_export,
-        financialModule_voucherType_access,
-        financialModule_voucherType_create,
-        financialModule_voucherType_modify,
-        financialModule_voucherType_delete,
-        financialModule_voucherType_export,
-        financialModule_expensesStatus_access,
-        financialModule_expensesStatus_create,
-        financialModule_expensesStatus_modify,
-        financialModule_expensesStatus_delete,
-        financialModule_expensesStatus_export,
-        financialModule_expensesEmailAddress_access,
-        financialModule_expensesEmailAddress_create,
-        financialModule_expensesEmailAddress_modify,
-        financialModule_expensesEmailAddress_delete,
-        financialModule_expensesEmailAddress_export
-      }
-    };
-    console.log(action);
-    const promise = new Promise((resolve) => {
-      addRole(action);
-      this.editingPromiseResolve = resolve;
-    });
-    promise.then((result) => {
-      if (isString(result)) {
-        notification('success', result);
-      } else {
-        notification('danger', result);
-      }
-    });
-  };
-
-    handleChangePanel = (panel) => (event, isExpanded) => {
-    // setExpanded(isExpanded ? panel : false);
-    //  this.setState({ [event.target.name]: event.target.checked })
-      console.log(panel);
-      if (isExpanded === true) {
-        this.setState({ expanded: panel });
-      } else {
-        this.setState({ expanded: false });
-      }
-    };
-
-    render() {
-      const {
-        expanded,
-        roleName,
-        admin_user_Management_access,
-        admin_user_Management_create,
-        admin_user_Management_modify,
-        admin_user_Management_delete,
-        admin_user_Management_export,
-        admin_roles_management_access,
-        admin_roles_management_create,
-        admin_roles_management_modify,
-        admin_roles_management_delete,
-        admin_roles_management_export,
-        // //commercial
-        commercial_customers_access,
-        commercial_customers_create,
-        commercial_customers_modify,
-        commercial_customers_delete,
-        commercial_customers_export,
-        commercial_commercialAssignments_access,
-        commercial_commercialAssignments_create,
-        commercial_commercialAssignments_modify,
-        commercial_commercialAssignments_delete,
-        commercial_commercialAssignments_export,
-        commercial_clientContact_access,
-        commercial_clientContact_create,
-        commercial_clientContact_modify,
-        commercial_clientContact_delete,
-        commercial_clientContact_export,
-        commercial_commercialOperation_access,
-        commercial_commercialOperation_create,
-        commercial_commercialOperation_modify,
-        commercial_commercialOperation_delete,
-        commercial_commercialOperation_export,
-        commercial_commercialAction_access,
-        commercial_commercialAction_create,
-        commercial_commercialAction_modify,
-        commercial_commercialAction_delete,
-        commercial_commercialAction_export,
-        commercial_countriesStatesCities_access,
-        commercial_countriesStatesCities_create,
-        commercial_countriesStatesCities_modify,
-        commercial_countriesStatesCities_delete,
-        commercial_countriesStatesCities_export,
-        commercial_StateOfCommercialOperation_access,
-        commercial_StateOfCommercialOperation_create,
-        commercial_StateOfCommercialOperation_modify,
-        commercial_StateOfCommercialOperation_delete,
-        commercial_StateOfCommercialOperation_export,
-        commercial_contactByOperationStatus_access,
-        commercial_contactByOperationStatus_create,
-        commercial_contactByOperationStatus_modify,
-        commercial_contactByOperationStatus_delete,
-        commercial_contactByOperationStatus_export,
-        commercial_serviceType_access,
-        commercial_serviceType_create,
-        commercial_serviceType_modify,
-        commercial_serviceType_delete,
-        commercial_serviceType_export,
-        commercial_sectorsCompany_access,
-        commercial_sectorsCompany_create,
-        commercial_sectorsCompany_modify,
-        commercial_sectorsCompany_delete,
-        commercial_sectorsCompany_export,
-        commercial_titleType_access,
-        commercial_titleType_create,
-        commercial_titleType_modify,
-        commercial_titleType_delete,
-        commercial_titleType_export,
-        hh_administrativeStructureDefinition_access,
-        hh_administrativeStructureDefinition_create,
-        hh_administrativeStructureDefinition_modify,
-        hh_administrativeStructureDefinition_delete,
-        hh_administrativeStructureDefinition_export,
-        hh_administrativeStructureAssignation_access,
-        hh_administrativeStructureAssignation_modify,
-        hh_functionalStructureDefinition_access,
-        hh_functionalStructureDefinition_create,
-        hh_functionalStructureDefinition_modify,
-        hh_functionalStructureDefinition_delete,
-        hh_functionalStructureDefinition_export,
-        hh_functionalStructureAssignation_access,
-        hh_functionalStructureAssignation_modify,
-        hh_staff_personalInformationManagement_access,
-        hh_staff_personalInformationManagement_create,
-        hh_staff_personalInformationManagement_modify,
-        hh_staff_personalInformationManagement_delete,
-        hh_staff_personalInformationManagement_export,
-        hh_staff_contractInformationManagement_access,
-        hh_staff_contractInformationManagement_create,
-        hh_staff_contractInformationManagement_modify,
-        hh_staff_contractInformationManagement_delete,
-        hh_staff_contractInformationManagement_export,
-        hh_staff_economicObjectiveManagement_access,
-        hh_staff_economicObjectiveManagement_create,
-        hh_staff_economicObjectiveManagement_modify,
-        hh_staff_economicObjectiveManagement_delete,
-        hh_staff_economicObjectiveManagement_export,
-        hh_absenceRequest_access,
-        hh_absenceRequest_create,
-        hh_absenceRequest_modify,
-        hh_absenceRequest_delete,
-        hh_absenceRequest_export,
-        hh_absenceConsult_access,
-        hh_absenceConsult_modify,
-        hh_absenceConsult_export,
-        hh_selectionProcessInformation_access,
-        hh_selectionProcessInformation_create,
-        hh_selectionProcessInformation_modify,
-        hh_selectionProcessInformation_delete,
-        hh_selectionProcessInformation_export,
-        hh_typesOfLegalCategory_access,
-        hh_typesOfLegalCategory_create,
-        hh_typesOfLegalCategory_modify,
-        hh_typesOfLegalCategory_delete,
-        hh_typesOfLegalCategory_export,
-        hh_typesOfContracts_access,
-        hh_typesOfContracts_create,
-        hh_typesOfContracts_modify,
-        hh_typesOfContracts_delete,
-        hh_typesOfContracts_export,
-        hh_typesOfAbsences_access,
-        hh_typesOfAbsences_create,
-        hh_typesOfAbsences_modify,
-        hh_typesOfAbsences_delete,
-        hh_typesOfAbsences_export,
-        hh_contractModels_access,
-        hh_contractModels_create,
-        hh_contractModels_modify,
-        hh_contractModels_delete,
-        hh_contractModels_export,
-        hh_localBankHolidays_access,
-        hh_localBankHolidays_create,
-        hh_localBankHolidays_modify,
-        hh_localBankHolidays_delete,
-        hh_localBankHolidays_export,
-        hh_selectionTypesEvaluation_access,
-        hh_selectionTypesEvaluation_create,
-        hh_selectionTypesEvaluation_modify,
-        hh_selectionTypesEvaluation_delete,
-        hh_selectionTypesEvaluation_export,
-        operativeModule_staffAssignments_access,
-        operativeModule_staffAssignments_create,
-        operativeModule_staffAssignments_modify,
-        operativeModule_staffAssignments_delete,
-        operativeModule_staffAssignments_export,
-        operativeModule_workParts_access,
-        operativeModule_workParts_create,
-        operativeModule_workParts_modify,
-        operativeModule_workParts_delete,
-        operativeModule_workParts_export,
-        operativeModule_AssignmentType_access,
-        operativeModule_AssignmentType_create,
-        operativeModule_AssignmentType_modify,
-        operativeModule_AssignmentType_delete,
-        operativeModule_AssignmentType_export,
-        operativeModule_workPartsConfig_access,
-        operativeModule_workPartsConfig_modify,
-        operativeModule_workPartsConfig_export,
-        financialModule_contacts_access,
-        financialModule_contacts_create,
-        financialModule_contacts_modify,
-        financialModule_contacts_delete,
-        financialModule_contacts_export,
+        financialModule_contracts_access,
+        financialModule_contracts_create,
+        financialModule_contracts_modify,
+        financialModule_contracts_delete,
+        financialModule_contracts_export,
+        financialModule_suppliersContracts_access,
+        financialModule_suppliersContracts_create,
+        financialModule_suppliersContracts_modify,
+        financialModule_suppliersContracts_delete,
+        financialModule_suppliersContracts_export,
         financialModule_billingManagement_access,
         financialModule_billingManagement_create,
         financialModule_billingManagement_modify,
@@ -1379,31 +1100,387 @@ class RoleActions extends React.Component {
         financialModule_expensesEmailAddress_modify,
         financialModule_expensesEmailAddress_delete,
         financialModule_expensesEmailAddress_export,
-      } = this.state;
-      const {
-        classes, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities,
-        isLoadingAction, actionResponse, errorsAction
-      } = this.props;
-      const { columns, roleDescription } = this.state;
-      (!isLoadingAction && actionResponse) && this.editingPromiseResolveAction(actionResponse);
-      (!isLoadingAction && !actionResponse) && this.editingPromiseResolveAction(errorsAction);
-      // Sent resolve to editing promises
-      (!isLoading && roleResponse) && this.editingPromiseResolve(roleResponse);
-      (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
-      return (
-        <div>
-          <PapperBlock
-            title={isEmpty(this.props.location.state)
-              ? 'Add new Role' : 'Actions'}
-            desc=""
-            icon="ios-people-outline"
-            noMargin
-            overflowX
-          >
-            {isEmpty(this.props.location.state)
-              ? (
-                <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-                  {/*                 <FormControl
+        translationModule_defaultSentences_access,
+        translationModule_defaultSentences_create,
+        translationModule_defaultSentences_modify,
+        translationModule_defaultSentences_delete,
+        translationModule_translationSentences_access,
+        translationModule_translationSentences_create,
+        translationModule_translationSentences_modify,
+        translationModule_translationSentences_delete
+      }
+    };
+    console.log(action);
+    const promise = new Promise((resolve) => {
+      addRole(action);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then((result) => {
+      if (isString(result)) {
+        notification('success', result);
+      } else {
+        notification('danger', result);
+      }
+    });
+  };
+
+    handleChangePanel = (panel) => (event, isExpanded) => {
+    // setExpanded(isExpanded ? panel : false);
+    //  this.setState({ [event.target.name]: event.target.checked })
+      console.log(panel);
+      if (isExpanded === true) {
+        this.setState({ expanded: panel });
+      } else {
+        this.setState({ expanded: false });
+      }
+    };
+
+  handleChangeAdminModule= (panel) => (event, isExpanded) => {
+    this.setState({ admin_user_Management_access: event.target.checked });
+    this.setState({ admin_user_Management_create: event.target.checked });
+    this.setState({ admin_user_Management_modify: event.target.checked });
+    this.setState({ admin_user_Management_delete: event.target.checked });
+    this.setState({ admin_user_Management_export: event.target.checked });
+    this.setState({ admin_roles_management_access: event.target.checked });
+    this.setState({ admin_roles_management_create: event.target.checked });
+    this.setState({ admin_roles_management_modify: event.target.checked });
+    this.setState({ admin_roles_management_delete: event.target.checked });
+    this.setState({ admin_roles_management_export: event.target.checked });
+  };
+
+  render() {
+    const {
+      expanded,
+      roleName,
+      admin_user_Management_access,
+      admin_user_Management_create,
+      admin_user_Management_modify,
+      admin_user_Management_delete,
+      admin_user_Management_export,
+      admin_roles_management_access,
+      admin_roles_management_create,
+      admin_roles_management_modify,
+      admin_roles_management_delete,
+      admin_roles_management_export,
+      // //commercial
+      commercial_customers_access,
+      commercial_customers_create,
+      commercial_customers_modify,
+      commercial_customers_delete,
+      commercial_customers_export,
+      commercial_commercialAssignments_access,
+      commercial_commercialAssignments_create,
+      commercial_commercialAssignments_modify,
+      commercial_commercialAssignments_delete,
+      commercial_commercialAssignments_export,
+      commercial_clientContact_access,
+      commercial_clientContact_create,
+      commercial_clientContact_modify,
+      commercial_clientContact_delete,
+      commercial_clientContact_export,
+      commercial_commercialOperation_access,
+      commercial_commercialOperation_create,
+      commercial_commercialOperation_modify,
+      commercial_commercialOperation_delete,
+      commercial_commercialOperation_export,
+      commercial_commercialAction_access,
+      commercial_commercialAction_create,
+      commercial_commercialAction_modify,
+      commercial_commercialAction_delete,
+      commercial_commercialAction_export,
+      commercial_countriesStatesCities_access,
+      commercial_countriesStatesCities_create,
+      commercial_countriesStatesCities_modify,
+      commercial_countriesStatesCities_delete,
+      commercial_countriesStatesCities_export,
+      commercial_StateOfCommercialOperation_access,
+      commercial_StateOfCommercialOperation_create,
+      commercial_StateOfCommercialOperation_modify,
+      commercial_StateOfCommercialOperation_delete,
+      commercial_StateOfCommercialOperation_export,
+      commercial_contactByOperationStatus_access,
+      commercial_contactByOperationStatus_create,
+      commercial_contactByOperationStatus_modify,
+      commercial_contactByOperationStatus_delete,
+      commercial_contactByOperationStatus_export,
+      commercial_serviceType_access,
+      commercial_serviceType_create,
+      commercial_serviceType_modify,
+      commercial_serviceType_delete,
+      commercial_serviceType_export,
+      commercial_sectorsCompany_access,
+      commercial_sectorsCompany_create,
+      commercial_sectorsCompany_modify,
+      commercial_sectorsCompany_delete,
+      commercial_sectorsCompany_export,
+      commercial_titleType_access,
+      commercial_titleType_create,
+      commercial_titleType_modify,
+      commercial_titleType_delete,
+      commercial_titleType_export,
+      commercial_documentManager_access,
+      hh_administrativeStructureDefinition_access,
+      hh_administrativeStructureDefinition_create,
+      hh_administrativeStructureDefinition_modify,
+      hh_administrativeStructureDefinition_delete,
+      hh_administrativeStructureDefinition_export,
+      hh_administrativeStructureAssignation_access,
+      hh_administrativeStructureAssignation_modify,
+      hh_functionalStructureDefinition_access,
+      hh_functionalStructureDefinition_create,
+      hh_functionalStructureDefinition_modify,
+      hh_functionalStructureDefinition_delete,
+      hh_functionalStructureDefinition_export,
+      hh_functionalStructureAssignation_access,
+      hh_functionalStructureAssignation_modify,
+      hh_staff_personalInformationManagement_access,
+      hh_staff_personalInformationManagement_create,
+      hh_staff_personalInformationManagement_modify,
+      hh_staff_personalInformationManagement_delete,
+      hh_staff_personalInformationManagement_export,
+      hh_staff_contractInformationManagement_access,
+      hh_staff_contractInformationManagement_create,
+      hh_staff_contractInformationManagement_modify,
+      hh_staff_contractInformationManagement_delete,
+      hh_staff_contractInformationManagement_export,
+      hh_staff_economicObjectiveManagement_access,
+      hh_staff_economicObjectiveManagement_create,
+      hh_staff_economicObjectiveManagement_modify,
+      hh_staff_economicObjectiveManagement_delete,
+      hh_staff_economicObjectiveManagement_export,
+      hh_absenceRequest_access,
+      hh_absenceRequest_create,
+      hh_absenceRequest_modify,
+      hh_absenceRequest_delete,
+      hh_absenceRequest_export,
+      hh_absenceConsult_access,
+      hh_absenceConsult_modify,
+      hh_absenceConsult_export,
+      hh_selectionProcessInformation_access,
+      hh_selectionProcessInformation_create,
+      hh_selectionProcessInformation_modify,
+      hh_selectionProcessInformation_delete,
+      hh_selectionProcessInformation_export,
+      hh_typesOfLegalCategory_access,
+      hh_typesOfLegalCategory_create,
+      hh_typesOfLegalCategory_modify,
+      hh_typesOfLegalCategory_delete,
+      hh_typesOfLegalCategory_export,
+      hh_typesOfContracts_access,
+      hh_typesOfContracts_create,
+      hh_typesOfContracts_modify,
+      hh_typesOfContracts_delete,
+      hh_typesOfContracts_export,
+      hh_typesOfAbsences_access,
+      hh_typesOfAbsences_create,
+      hh_typesOfAbsences_modify,
+      hh_typesOfAbsences_delete,
+      hh_typesOfAbsences_export,
+      hh_contractModels_access,
+      hh_contractModels_create,
+      hh_contractModels_modify,
+      hh_contractModels_delete,
+      hh_contractModels_export,
+      hh_localBankHolidays_access,
+      hh_localBankHolidays_create,
+      hh_localBankHolidays_modify,
+      hh_localBankHolidays_delete,
+      hh_localBankHolidays_export,
+      hh_selectionTypesEvaluation_access,
+      hh_selectionTypesEvaluation_create,
+      hh_selectionTypesEvaluation_modify,
+      hh_selectionTypesEvaluation_delete,
+      hh_selectionTypesEvaluation_export,
+      operativeModule_staffAssignments_access,
+      operativeModule_staffAssignments_create,
+      operativeModule_staffAssignments_modify,
+      operativeModule_staffAssignments_delete,
+      operativeModule_staffAssignments_export,
+      operativeModule_workParts_access,
+      operativeModule_workParts_create,
+      operativeModule_workParts_modify,
+      operativeModule_workParts_delete,
+      operativeModule_workParts_export,
+      operativeModule_AssignmentType_access,
+      operativeModule_AssignmentType_create,
+      operativeModule_AssignmentType_modify,
+      operativeModule_AssignmentType_delete,
+      operativeModule_AssignmentType_export,
+      operativeModule_workPartsConfig_access,
+      operativeModule_workPartsConfig_modify,
+      operativeModule_workPartsConfig_export,
+      financialModule_contracts_access,
+      financialModule_contracts_create,
+      financialModule_contracts_modify,
+      financialModule_contracts_delete,
+      financialModule_contracts_export,
+      financialModule_suppliersContracts_access,
+      financialModule_suppliersContracts_create,
+      financialModule_suppliersContracts_modify,
+      financialModule_suppliersContracts_delete,
+      financialModule_suppliersContracts_export,
+      financialModule_billingManagement_access,
+      financialModule_billingManagement_create,
+      financialModule_billingManagement_modify,
+      financialModule_billingManagement_delete,
+      financialModule_billingManagement_export,
+      financialModule_staffEconomicManagement_access,
+      financialModule_staffEconomicManagement_create,
+      financialModule_staffEconomicManagement_modify,
+      financialModule_staffEconomicManagement_delete,
+      financialModule_staffEconomicManagement_export,
+      financialModule_staffEconomicPayments_access,
+      financialModule_staffEconomicPayments_create,
+      financialModule_staffEconomicPayments_modify,
+      financialModule_staffEconomicPayments_delete,
+      financialModule_staffEconomicPayments_export,
+      financialModule_suppliersPayments_access,
+      financialModule_suppliersPayments_create,
+      financialModule_suppliersPayments_modify,
+      financialModule_suppliersPayments_delete,
+      financialModule_suppliersPayments_export,
+      financialModule_purchaseOrderManagement_access,
+      financialModule_purchaseOrderManagement_create,
+      financialModule_purchaseOrderManagement_modify,
+      financialModule_purchaseOrderManagement_delete,
+      financialModule_purchaseOrderManagement_export,
+      financialModule_travelRequest_access,
+      financialModule_travelRequest_create,
+      financialModule_travelRequest_modify,
+      financialModule_travelRequest_delete,
+      financialModule_travelRequest_cancel,
+      financialModule_travelRequest_export,
+      financialModule_travelManagement_access,
+      financialModule_travelManagement_modify,
+      financialModule_travelManagement_export,
+      financialModule_expenseRecord_access,
+      financialModule_expenseRecord_create,
+      financialModule_expenseRecord_modify,
+      financialModule_expenseRecord_download,
+      financialModule_expenseRecord_export,
+      financialModule_expensesManagement_access,
+      financialModule_expensesManagement_create,
+      financialModule_expensesManagement_modify,
+      financialModule_expensesManagement_download,
+      financialModule_expensesManagement_export,
+      financialModule_companies_access,
+      financialModule_companies_create,
+      financialModule_companies_modify,
+      financialModule_companies_delete,
+      financialModule_companies_export,
+      financialModule_typeOfCurrency_access,
+      financialModule_typeOfCurrency_create,
+      financialModule_typeOfCurrency_modify,
+      financialModule_typeOfCurrency_delete,
+      financialModule_typeOfCurrency_export,
+      financialModule_currencyManagement_access,
+      financialModule_currencyManagement_create,
+      financialModule_currencyManagement_modify,
+      financialModule_currencyManagement_delete,
+      financialModule_currencyManagement_export,
+      financialModule_contractStatus_access,
+      financialModule_contractStatus_create,
+      financialModule_contractStatus_modify,
+      financialModule_contractStatus_delete,
+      financialModule_contractStatus_export,
+      financialModule_iva_access,
+      financialModule_iva_create,
+      financialModule_iva_modify,
+      financialModule_iva_delete,
+      financialModule_iva_export,
+      financialModule_typeOfRententions_access,
+      financialModule_typeOfRententions_create,
+      financialModule_typeOfRententions_modify,
+      financialModule_typeOfRententions_delete,
+      financialModule_typeOfRententions_export,
+      financialModule_suppliersTypes_access,
+      financialModule_suppliersTypes_create,
+      financialModule_suppliersTypes_modify,
+      financialModule_suppliersTypes_delete,
+      financialModule_suppliersTypes_export,
+      financialModule_externalSuppliers_access,
+      financialModule_externalSuppliers_create,
+      financialModule_externalSuppliers_modify,
+      financialModule_externalSuppliers_delete,
+      financialModule_externalSuppliers_export,
+      financialModule_purchaseOrderAcceptance_access,
+      financialModule_purchaseOrderAcceptance_create,
+      financialModule_purchaseOrderAcceptance_modify,
+      financialModule_purchaseOrderAcceptance_delete,
+      financialModule_purchaseOrderAcceptance_export,
+      financialModule_businessExpenseTypes_access,
+      financialModule_businessExpenseTypes_create,
+      financialModule_businessExpenseTypes_modify,
+      financialModule_businessExpenseTypes_delete,
+      financialModule_businessExpenseTypes_export,
+      financialModule_requestStatus_access,
+      financialModule_requestStatus_create,
+      financialModule_requestStatus_modify,
+      financialModule_requestStatus_delete,
+      financialModule_requestStatus_export,
+      financialModule_travelRequestEmailAddress_access,
+      financialModule_travelRequestEmailAddress_create,
+      financialModule_travelRequestEmailAddress_modify,
+      financialModule_travelRequestEmailAddress_delete,
+      financialModule_travelRequestEmailAddress_export,
+      financialModule_staffExpensesTypes_access,
+      financialModule_staffExpensesTypes_create,
+      financialModule_staffExpensesTypes_modify,
+      financialModule_staffExpensesTypes_delete,
+      financialModule_staffExpensesTypes_export,
+      financialModule_personsTypes_access,
+      financialModule_personsTypes_create,
+      financialModule_personsTypes_modify,
+      financialModule_personsTypes_delete,
+      financialModule_personsTypes_export,
+      financialModule_voucherType_access,
+      financialModule_voucherType_create,
+      financialModule_voucherType_modify,
+      financialModule_voucherType_delete,
+      financialModule_voucherType_export,
+      financialModule_expensesStatus_access,
+      financialModule_expensesStatus_create,
+      financialModule_expensesStatus_modify,
+      financialModule_expensesStatus_delete,
+      financialModule_expensesStatus_export,
+      financialModule_expensesEmailAddress_access,
+      financialModule_expensesEmailAddress_create,
+      financialModule_expensesEmailAddress_modify,
+      financialModule_expensesEmailAddress_delete,
+      financialModule_expensesEmailAddress_export,
+      translationModule_defaultSentences_access,
+      translationModule_defaultSentences_create,
+      translationModule_defaultSentences_modify,
+      translationModule_defaultSentences_delete,
+      translationModule_translationSentences_access,
+      translationModule_translationSentences_create,
+      translationModule_translationSentences_modify,
+      translationModule_translationSentences_delete,
+    } = this.state;
+    const {
+      classes, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities,
+      isLoadingAction, actionResponse, errorsAction
+    } = this.props;
+    const { columns, roleDescription } = this.state;
+    (!isLoadingAction && actionResponse) && this.editingPromiseResolveAction(actionResponse);
+    (!isLoadingAction && !actionResponse) && this.editingPromiseResolveAction(errorsAction);
+    // Sent resolve to editing promises
+    (!isLoading && roleResponse) && this.editingPromiseResolve(roleResponse);
+    (!isLoading && !roleResponse) && this.editingPromiseResolve(errors);
+    return (
+      <div>
+        <PapperBlock
+          title={isEmpty(this.props.location.state)
+            ? 'Add new Role' : 'Actions'}
+          desc=""
+          icon="ios-people-outline"
+          noMargin
+          overflowX
+        >
+          {isEmpty(this.props.location.state)
+            ? (
+              <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
+                {/*                 <FormControl
                     className={classes.formControl}
                     style={{ width: '30%' }}
                     required
@@ -1421,35 +1498,35 @@ class RoleActions extends React.Component {
                       ))}
                     </Select>
                   </FormControl> */}
-                  <div>
-                    <FormControl
-                      className={classes.formControl}
-                      style={{ width: '30%' }}
-                      required
-                    >
-                      <TextField id="standard-basic" label="Role Name*" value={roleName} name="roleName" onChange={this.handleChangeRoleName} />
-                    </FormControl>
-                  </div>
-                  <br />
-                  <div>
-                    <FormControl
-                      className={classes.formControl}
-                      style={{ width: '70%' }}
-                      required
-                    >
-                      <TextField
-                        id="outlined-basic"
-                        label="Description"
-                        variant="outlined"
-                        name="roleDescription"
-                        value={roleDescription}
-                        style={{ width: '100%' }}
-                        className={classes.textField}
-                        onChange={this.handleChangeDescription}
-                      />
-                    </FormControl>
-                  </div>
-                  {/*              <FormControl
+                <div>
+                  <FormControl
+                    className={classes.formControl}
+                    style={{ width: '30%' }}
+                    required
+                  >
+                    <TextField id="standard-basic" label="Role Name*" value={roleName} name="roleName" onChange={this.handleChangeRoleName} />
+                  </FormControl>
+                </div>
+                <br />
+                <div>
+                  <FormControl
+                    className={classes.formControl}
+                    style={{ width: '70%' }}
+                    required
+                  >
+                    <TextField
+                      id="outlined-basic"
+                      label="Description"
+                      variant="outlined"
+                      name="roleDescription"
+                      value={roleDescription}
+                      style={{ width: '100%' }}
+                      className={classes.textField}
+                      onChange={this.handleChangeDescription}
+                    />
+                  </FormControl>
+                </div>
+                {/*              <FormControl
                     className={classes.formControl}
                     style={{ width: '30%' }}
                     required
@@ -1466,2020 +1543,2141 @@ class RoleActions extends React.Component {
                     />
                   </FormControl> */}
 
-                </div>
-              )
-              : (
-                <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-                  <FormControl
-                    className={classes.formControl}
-                    style={{ width: '30%' }}
-                    required
+              </div>
+            )
+            : (
+              <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
+                <FormControl
+                  className={classes.formControl}
+                  style={{ width: '30%' }}
+                  required
+                >
+                  <InputLabel>selected Role</InputLabel>
+                  <Select
+                    name="roleName"
+                    value={this.props.location.state.UserRole}
+                    onChange={this.handleChangeRole}
+                    disabled
                   >
-                    <InputLabel>selected Role</InputLabel>
-                    <Select
-                      name="roleName"
-                      value={this.props.location.state.UserRole}
-                      onChange={this.handleChangeRole}
-                      disabled
-                    >
-                      {allRoles.map(theRole => (
-                        <MenuItem key={theRole.roleId} value={theRole.roleName}>
-                          {this.props.location.state.UserRole}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              )}
-            <br />
-            <Accordion expanded={expanded === 'panel1'} onChange={this.handleChangePanel('panel1')}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography className={classes.heading}>1. Administrative Module</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="User Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_user_Management_access} onChange={this.handleChange} name="admin_user_Management_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_user_Management_create} onChange={this.handleChange} name="admin_user_Management_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_user_Management_modify} onChange={this.handleChange} name="admin_user_Management_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_user_Management_delete} onChange={this.handleChange} name="admin_user_Management_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_user_Management_export} onChange={this.handleChange} name="admin_user_Management_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
+                    {allRoles.map(theRole => (
+                      <MenuItem key={theRole.roleId} value={theRole.roleName}>
+                        {this.props.location.state.UserRole}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Roles Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_roles_management_access} onChange={this.handleChange} name="admin_roles_management_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_roles_management_create} onChange={this.handleChange} name="admin_roles_management_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_roles_management_modify} onChange={this.handleChange} name="admin_roles_management_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_roles_management_delete} onChange={this.handleChange} name="admin_roles_management_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={admin_roles_management_export} onChange={this.handleChange} name="admin_roles_management_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+              </div>
+            )}
+          <br />
+          <Accordion expanded={expanded === 'panel1'} onChange={this.handleChangePanel('panel1')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography className={classes.heading}>
+1. Administrative Module
+                <Checkbox onChange={this.handleChangeAdminModule('admin')} />
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="User Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_user_Management_access} onChange={this.handleChange} name="admin_user_Management_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_user_Management_create} onChange={this.handleChange} name="admin_user_Management_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_user_Management_modify} onChange={this.handleChange} name="admin_user_Management_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_user_Management_delete} onChange={this.handleChange} name="admin_user_Management_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_user_Management_export} onChange={this.handleChange} name="admin_user_Management_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Roles Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_roles_management_access} onChange={this.handleChange} name="admin_roles_management_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_roles_management_create} onChange={this.handleChange} name="admin_roles_management_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_roles_management_modify} onChange={this.handleChange} name="admin_roles_management_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_roles_management_delete} onChange={this.handleChange} name="admin_roles_management_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={admin_roles_management_export} onChange={this.handleChange} name="admin_roles_management_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-            </Accordion>
-            <Accordion expanded={expanded === 'panel2'} onChange={this.handleChangePanel('panel2')}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={classes.heading}>2. Commercial Module</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Customers" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_customers_access} onChange={this.handleChange} name="commercial_customers_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_customers_create} onChange={this.handleChange} name="commercial_customers_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_customers_modify} onChange={this.handleChange} name="commercial_customers_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_customers_delete} onChange={this.handleChange} name="commercial_customers_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_customers_export} onChange={this.handleChange} name="commercial_customers_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel2'} onChange={this.handleChangePanel('panel2')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={classes.heading}>2. Commercial Module</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Customers" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_customers_access} onChange={this.handleChange} name="commercial_customers_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_customers_create} onChange={this.handleChange} name="commercial_customers_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_customers_modify} onChange={this.handleChange} name="commercial_customers_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_customers_delete} onChange={this.handleChange} name="commercial_customers_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_customers_export} onChange={this.handleChange} name="commercial_customers_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Commercial Assignments" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAssignments_access} onChange={this.handleChange} name="commercial_commercialAssignments_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAssignments_create} onChange={this.handleChange} name="commercial_commercialAssignments_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAssignments_modify} onChange={this.handleChange} name="commercial_commercialAssignments_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAssignments_delete} onChange={this.handleChange} name="commercial_commercialAssignments_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAssignments_export} onChange={this.handleChange} name="commercial_commercialAssignments_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Commercial Assignments" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAssignments_access} onChange={this.handleChange} name="commercial_commercialAssignments_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAssignments_create} onChange={this.handleChange} name="commercial_commercialAssignments_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAssignments_modify} onChange={this.handleChange} name="commercial_commercialAssignments_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAssignments_delete} onChange={this.handleChange} name="commercial_commercialAssignments_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAssignments_export} onChange={this.handleChange} name="commercial_commercialAssignments_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Client Contract" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_clientContact_access} onChange={this.handleChange} name="commercial_clientContact_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_clientContact_create} onChange={this.handleChange} name="commercial_clientContact_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_clientContact_modify} onChange={this.handleChange} name="commercial_clientContact_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_clientContact_delete} onChange={this.handleChange} name="commercial_clientContact_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_clientContact_export} onChange={this.handleChange} name="commercial_clientContact_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Client Contract" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_clientContact_access} onChange={this.handleChange} name="commercial_clientContact_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_clientContact_create} onChange={this.handleChange} name="commercial_clientContact_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_clientContact_modify} onChange={this.handleChange} name="commercial_clientContact_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_clientContact_delete} onChange={this.handleChange} name="commercial_clientContact_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_clientContact_export} onChange={this.handleChange} name="commercial_clientContact_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Commercial Operation" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialOperation_access} onChange={this.handleChange} name="commercial_commercialOperation_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialOperation_create} onChange={this.handleChange} name="commercial_commercialOperation_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialOperation_modify} onChange={this.handleChange} name="commercial_commercialOperation_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialOperation_delete} onChange={this.handleChange} name="commercial_commercialOperation_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialOperation_export} onChange={this.handleChange} name="commercial_commercialOperation_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Commercial Operation" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialOperation_access} onChange={this.handleChange} name="commercial_commercialOperation_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialOperation_create} onChange={this.handleChange} name="commercial_commercialOperation_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialOperation_modify} onChange={this.handleChange} name="commercial_commercialOperation_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialOperation_delete} onChange={this.handleChange} name="commercial_commercialOperation_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialOperation_export} onChange={this.handleChange} name="commercial_commercialOperation_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Commercial Action" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAction_access} onChange={this.handleChange} name="commercial_commercialAction_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAction_create} onChange={this.handleChange} name="commercial_commercialAction_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAction_modify} onChange={this.handleChange} name="commercial_commercialAction_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAction_delete} onChange={this.handleChange} name="commercial_commercialAction_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAction_export} onChange={this.handleChange} name="commercial_commercialAction_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Commercial Action" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAction_access} onChange={this.handleChange} name="commercial_commercialAction_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAction_create} onChange={this.handleChange} name="commercial_commercialAction_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAction_modify} onChange={this.handleChange} name="commercial_commercialAction_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAction_delete} onChange={this.handleChange} name="commercial_commercialAction_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_commercialAction_export} onChange={this.handleChange} name="commercial_commercialAction_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Countries-States-Cities" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_countriesStatesCities_access} onChange={this.handleChange} name="commercial_countriesStatesCities_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_countriesStatesCities_create} onChange={this.handleChange} name="commercial_countriesStatesCities_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_countriesStatesCities_modify} onChange={this.handleChange} name="commercial_countriesStatesCities_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_countriesStatesCities_delete} onChange={this.handleChange} name="commercial_countriesStatesCities_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_countriesStatesCities_export} onChange={this.handleChange} name="commercial_countriesStatesCities_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Countries-States-Cities" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_countriesStatesCities_access} onChange={this.handleChange} name="commercial_countriesStatesCities_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_countriesStatesCities_create} onChange={this.handleChange} name="commercial_countriesStatesCities_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_countriesStatesCities_modify} onChange={this.handleChange} name="commercial_countriesStatesCities_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_countriesStatesCities_delete} onChange={this.handleChange} name="commercial_countriesStatesCities_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_countriesStatesCities_export} onChange={this.handleChange} name="commercial_countriesStatesCities_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="State of Commercial Operation" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_StateOfCommercialOperation_access} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_StateOfCommercialOperation_create} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_StateOfCommercialOperation_modify} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_StateOfCommercialOperation_delete} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_StateOfCommercialOperation_export} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="State of Commercial Operation" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_StateOfCommercialOperation_access} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_StateOfCommercialOperation_create} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_StateOfCommercialOperation_modify} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_StateOfCommercialOperation_delete} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_StateOfCommercialOperation_export} onChange={this.handleChange} name="commercial_StateOfCommercialOperation_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Contact by Operation Status" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_contactByOperationStatus_access} onChange={this.handleChange} name="commercial_contactByOperationStatus_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_contactByOperationStatus_create} onChange={this.handleChange} name="commercial_contactByOperationStatus_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_contactByOperationStatus_modify} onChange={this.handleChange} name="commercial_contactByOperationStatus_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_contactByOperationStatus_delete} onChange={this.handleChange} name="commercial_contactByOperationStatus_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_contactByOperationStatus_export} onChange={this.handleChange} name="commercial_contactByOperationStatus_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Contact by Operation Status" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_contactByOperationStatus_access} onChange={this.handleChange} name="commercial_contactByOperationStatus_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_contactByOperationStatus_create} onChange={this.handleChange} name="commercial_contactByOperationStatus_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_contactByOperationStatus_modify} onChange={this.handleChange} name="commercial_contactByOperationStatus_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_contactByOperationStatus_delete} onChange={this.handleChange} name="commercial_contactByOperationStatus_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_contactByOperationStatus_export} onChange={this.handleChange} name="commercial_contactByOperationStatus_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Service Type" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_serviceType_access} onChange={this.handleChange} name="commercial_serviceType_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_serviceType_create} onChange={this.handleChange} name="commercial_serviceType_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_serviceType_modify} onChange={this.handleChange} name="commercial_serviceType_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_serviceType_delete} onChange={this.handleChange} name="commercial_serviceType_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_serviceType_export} onChange={this.handleChange} name="commercial_serviceType_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Service Type" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_serviceType_access} onChange={this.handleChange} name="commercial_serviceType_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_serviceType_create} onChange={this.handleChange} name="commercial_serviceType_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_serviceType_modify} onChange={this.handleChange} name="commercial_serviceType_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_serviceType_delete} onChange={this.handleChange} name="commercial_serviceType_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_serviceType_export} onChange={this.handleChange} name="commercial_serviceType_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Sectors Company" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_sectorsCompany_access} onChange={this.handleChange} name="commercial_sectorsCompany_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_sectorsCompany_create} onChange={this.handleChange} name="commercial_sectorsCompany_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_sectorsCompany_modify} onChange={this.handleChange} name="commercial_sectorsCompany_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_sectorsCompany_delete} onChange={this.handleChange} name="commercial_sectorsCompany_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_sectorsCompany_export} onChange={this.handleChange} name="commercial_sectorsCompany_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Title Type" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_titleType_access} onChange={this.handleChange} name="commercial_titleType_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_titleType_create} onChange={this.handleChange} name="commercial_titleType_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_titleType_modify} onChange={this.handleChange} name="commercial_titleType_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_titleType_delete} onChange={this.handleChange} name="commercial_titleType_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={commercial_titleType_export} onChange={this.handleChange} name="commercial_titleType_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Sectors Company" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_sectorsCompany_access} onChange={this.handleChange} name="commercial_sectorsCompany_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_sectorsCompany_create} onChange={this.handleChange} name="commercial_sectorsCompany_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_sectorsCompany_modify} onChange={this.handleChange} name="commercial_sectorsCompany_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_sectorsCompany_delete} onChange={this.handleChange} name="commercial_sectorsCompany_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_sectorsCompany_export} onChange={this.handleChange} name="commercial_sectorsCompany_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Title Type" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_titleType_access} onChange={this.handleChange} name="commercial_titleType_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_titleType_create} onChange={this.handleChange} name="commercial_titleType_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_titleType_modify} onChange={this.handleChange} name="commercial_titleType_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_titleType_delete} onChange={this.handleChange} name="commercial_titleType_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_titleType_export} onChange={this.handleChange} name="commercial_titleType_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-            </Accordion>
-            <Accordion expanded={expanded === 'panel3'} onChange={this.handleChangePanel('panel3')}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={classes.heading}>3. HH-RR Module</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Administrative Structure Definition" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureDefinition_access} onChange={this.handleChange} name="hh_administrativeStructureDefinition_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureDefinition_create} onChange={this.handleChange} name="hh_administrativeStructureDefinition_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureDefinition_modify} onChange={this.handleChange} name="hh_administrativeStructureDefinition_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureDefinition_delete} onChange={this.handleChange} name="hh_administrativeStructureDefinition_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureDefinition_export} onChange={this.handleChange} name="hh_administrativeStructureDefinition_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Commercial document" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={commercial_documentManager_access} onChange={this.handleChange} name="commercial_documentManager_access" />}
+                    label="Access"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Administrative Structure Assignation" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureAssignation_access} onChange={this.handleChange} name="hh_administrativeStructureAssignation_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_administrativeStructureAssignation_modify} onChange={this.handleChange} name="hh_administrativeStructureAssignation_modify" />}
-                      label="Modify"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel3'} onChange={this.handleChangePanel('panel3')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={classes.heading}>3. HH-RR Module</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Administrative Structure Definition" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureDefinition_access} onChange={this.handleChange} name="hh_administrativeStructureDefinition_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureDefinition_create} onChange={this.handleChange} name="hh_administrativeStructureDefinition_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureDefinition_modify} onChange={this.handleChange} name="hh_administrativeStructureDefinition_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureDefinition_delete} onChange={this.handleChange} name="hh_administrativeStructureDefinition_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureDefinition_export} onChange={this.handleChange} name="hh_administrativeStructureDefinition_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Functional Structure Definition" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureDefinition_access} onChange={this.handleChange} name="hh_functionalStructureDefinition_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureDefinition_create} onChange={this.handleChange} name="hh_functionalStructureDefinition_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureDefinition_modify} onChange={this.handleChange} name="hh_functionalStructureDefinition_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureDefinition_delete} onChange={this.handleChange} name="hh_functionalStructureDefinition_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureDefinition_export} onChange={this.handleChange} name="hh_functionalStructureDefinition_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Administrative Structure Assignation" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureAssignation_access} onChange={this.handleChange} name="hh_administrativeStructureAssignation_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_administrativeStructureAssignation_modify} onChange={this.handleChange} name="hh_administrativeStructureAssignation_modify" />}
+                    label="Modify"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Functional Structure Assignation" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureAssignation_access} onChange={this.handleChange} name="hh_functionalStructureAssignation_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_functionalStructureAssignation_modify} onChange={this.handleChange} name="hh_functionalStructureAssignation_modify" />}
-                      label="Modify"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Functional Structure Definition" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureDefinition_access} onChange={this.handleChange} name="hh_functionalStructureDefinition_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureDefinition_create} onChange={this.handleChange} name="hh_functionalStructureDefinition_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureDefinition_modify} onChange={this.handleChange} name="hh_functionalStructureDefinition_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureDefinition_delete} onChange={this.handleChange} name="hh_functionalStructureDefinition_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureDefinition_export} onChange={this.handleChange} name="hh_functionalStructureDefinition_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff – Personal Information Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_personalInformationManagement_access} onChange={this.handleChange} name="hh_staff_personalInformationManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_personalInformationManagement_create} onChange={this.handleChange} name="hh_staff_personalInformationManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_personalInformationManagement_modify} onChange={this.handleChange} name="hh_staff_personalInformationManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_personalInformationManagement_delete} onChange={this.handleChange} name="hh_staff_personalInformationManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_personalInformationManagement_export} onChange={this.handleChange} name="hh_staff_personalInformationManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Functional Structure Assignation" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureAssignation_access} onChange={this.handleChange} name="hh_functionalStructureAssignation_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_functionalStructureAssignation_modify} onChange={this.handleChange} name="hh_functionalStructureAssignation_modify" />}
+                    label="Modify"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff – Contract Information Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_contractInformationManagement_access} onChange={this.handleChange} name="hh_staff_contractInformationManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_contractInformationManagement_create} onChange={this.handleChange} name="hh_staff_contractInformationManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_contractInformationManagement_modify} onChange={this.handleChange} name="hh_staff_contractInformationManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_contractInformationManagement_delete} onChange={this.handleChange} name="hh_staff_contractInformationManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_contractInformationManagement_export} onChange={this.handleChange} name="hh_staff_contractInformationManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff – Economic Objective Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_economicObjectiveManagement_access} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_economicObjectiveManagement_create} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_economicObjectiveManagement_modify} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_economicObjectiveManagement_delete} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_staff_economicObjectiveManagement_export} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Absence Request" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceRequest_access} onChange={this.handleChange} name="hh_absenceRequest_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceRequest_create} onChange={this.handleChange} name="hh_absenceRequest_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceRequest_modify} onChange={this.handleChange} name="hh_absenceRequest_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceRequest_delete} onChange={this.handleChange} name="hh_absenceRequest_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceRequest_export} onChange={this.handleChange} name="hh_absenceRequest_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff – Personal Information Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_personalInformationManagement_access} onChange={this.handleChange} name="hh_staff_personalInformationManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_personalInformationManagement_create} onChange={this.handleChange} name="hh_staff_personalInformationManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_personalInformationManagement_modify} onChange={this.handleChange} name="hh_staff_personalInformationManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_personalInformationManagement_delete} onChange={this.handleChange} name="hh_staff_personalInformationManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_personalInformationManagement_export} onChange={this.handleChange} name="hh_staff_personalInformationManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Absence Consult" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceConsult_access} onChange={this.handleChange} name="hh_absenceConsult_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceConsult_modify} onChange={this.handleChange} name="hh_absenceConsult_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_absenceConsult_export} onChange={this.handleChange} name="hh_absenceConsult_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff – Contract Information Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_contractInformationManagement_access} onChange={this.handleChange} name="hh_staff_contractInformationManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_contractInformationManagement_create} onChange={this.handleChange} name="hh_staff_contractInformationManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_contractInformationManagement_modify} onChange={this.handleChange} name="hh_staff_contractInformationManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_contractInformationManagement_delete} onChange={this.handleChange} name="hh_staff_contractInformationManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_contractInformationManagement_export} onChange={this.handleChange} name="hh_staff_contractInformationManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff – Economic Objective Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_economicObjectiveManagement_access} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_economicObjectiveManagement_create} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_economicObjectiveManagement_modify} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_economicObjectiveManagement_delete} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_staff_economicObjectiveManagement_export} onChange={this.handleChange} name="hh_staff_economicObjectiveManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Absence Request" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceRequest_access} onChange={this.handleChange} name="hh_absenceRequest_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceRequest_create} onChange={this.handleChange} name="hh_absenceRequest_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceRequest_modify} onChange={this.handleChange} name="hh_absenceRequest_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceRequest_delete} onChange={this.handleChange} name="hh_absenceRequest_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceRequest_export} onChange={this.handleChange} name="hh_absenceRequest_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Selection Process Information" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionProcessInformation_access} onChange={this.handleChange} name="hh_selectionProcessInformation_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionProcessInformation_create} onChange={this.handleChange} name="hh_selectionProcessInformation_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionProcessInformation_modify} onChange={this.handleChange} name="hh_selectionProcessInformation_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionProcessInformation_delete} onChange={this.handleChange} name="hh_selectionProcessInformation_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionProcessInformation_export} onChange={this.handleChange} name="hh_selectionProcessInformation_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Absence Consult" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceConsult_access} onChange={this.handleChange} name="hh_absenceConsult_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceConsult_modify} onChange={this.handleChange} name="hh_absenceConsult_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_absenceConsult_export} onChange={this.handleChange} name="hh_absenceConsult_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Types of Legal Category" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfLegalCategory_access} onChange={this.handleChange} name="hh_typesOfLegalCategory_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfLegalCategory_create} onChange={this.handleChange} name="hh_typesOfLegalCategory_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfLegalCategory_modify} onChange={this.handleChange} name="hh_typesOfLegalCategory_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfLegalCategory_delete} onChange={this.handleChange} name="hh_typesOfLegalCategory_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfLegalCategory_export} onChange={this.handleChange} name="hh_typesOfLegalCategory_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Selection Process Information" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionProcessInformation_access} onChange={this.handleChange} name="hh_selectionProcessInformation_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionProcessInformation_create} onChange={this.handleChange} name="hh_selectionProcessInformation_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionProcessInformation_modify} onChange={this.handleChange} name="hh_selectionProcessInformation_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionProcessInformation_delete} onChange={this.handleChange} name="hh_selectionProcessInformation_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionProcessInformation_export} onChange={this.handleChange} name="hh_selectionProcessInformation_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Types of Contracts" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfContracts_access} onChange={this.handleChange} name="hh_typesOfContracts_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfContracts_create} onChange={this.handleChange} name="hh_typesOfContracts_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfContracts_modify} onChange={this.handleChange} name="hh_typesOfContracts_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfContracts_delete} onChange={this.handleChange} name="hh_typesOfContracts_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfContracts_export} onChange={this.handleChange} name="hh_typesOfContracts_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Types of Legal Category" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfLegalCategory_access} onChange={this.handleChange} name="hh_typesOfLegalCategory_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfLegalCategory_create} onChange={this.handleChange} name="hh_typesOfLegalCategory_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfLegalCategory_modify} onChange={this.handleChange} name="hh_typesOfLegalCategory_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfLegalCategory_delete} onChange={this.handleChange} name="hh_typesOfLegalCategory_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfLegalCategory_export} onChange={this.handleChange} name="hh_typesOfLegalCategory_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Types of Absences" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfAbsences_access} onChange={this.handleChange} name="hh_typesOfAbsences_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfAbsences_create} onChange={this.handleChange} name="hh_typesOfAbsences_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfAbsences_modify} onChange={this.handleChange} name="hh_typesOfAbsences_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfAbsences_delete} onChange={this.handleChange} name="hh_typesOfAbsences_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_typesOfAbsences_export} onChange={this.handleChange} name="hh_typesOfAbsences_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Types of Contracts" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfContracts_access} onChange={this.handleChange} name="hh_typesOfContracts_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfContracts_create} onChange={this.handleChange} name="hh_typesOfContracts_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfContracts_modify} onChange={this.handleChange} name="hh_typesOfContracts_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfContracts_delete} onChange={this.handleChange} name="hh_typesOfContracts_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfContracts_export} onChange={this.handleChange} name="hh_typesOfContracts_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Contract Models" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_contractModels_access} onChange={this.handleChange} name="hh_contractModels_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_contractModels_create} onChange={this.handleChange} name="hh_contractModels_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_contractModels_modify} onChange={this.handleChange} name="hh_contractModels_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_contractModels_delete} onChange={this.handleChange} name="hh_contractModels_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_contractModels_export} onChange={this.handleChange} name="hh_contractModels_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Types of Absences" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfAbsences_access} onChange={this.handleChange} name="hh_typesOfAbsences_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfAbsences_create} onChange={this.handleChange} name="hh_typesOfAbsences_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfAbsences_modify} onChange={this.handleChange} name="hh_typesOfAbsences_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfAbsences_delete} onChange={this.handleChange} name="hh_typesOfAbsences_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_typesOfAbsences_export} onChange={this.handleChange} name="hh_typesOfAbsences_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Local Bank Holidays" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_localBankHolidays_access} onChange={this.handleChange} name="hh_localBankHolidays_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_localBankHolidays_create} onChange={this.handleChange} name="hh_localBankHolidays_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_localBankHolidays_modify} onChange={this.handleChange} name="hh_localBankHolidays_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_localBankHolidays_delete} onChange={this.handleChange} name="hh_localBankHolidays_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_localBankHolidays_export} onChange={this.handleChange} name="hh_localBankHolidays_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Contract Models" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_contractModels_access} onChange={this.handleChange} name="hh_contractModels_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_contractModels_create} onChange={this.handleChange} name="hh_contractModels_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_contractModels_modify} onChange={this.handleChange} name="hh_contractModels_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_contractModels_delete} onChange={this.handleChange} name="hh_contractModels_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_contractModels_export} onChange={this.handleChange} name="hh_contractModels_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Selection Types Evaluation" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionTypesEvaluation_access} onChange={this.handleChange} name="hh_selectionTypesEvaluation_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionTypesEvaluation_create} onChange={this.handleChange} name="hh_selectionTypesEvaluation_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionTypesEvaluation_modify} onChange={this.handleChange} name="hh_selectionTypesEvaluation_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={hh_selectionTypesEvaluation_export} onChange={this.handleChange} name="hh_selectionTypesEvaluation_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion expanded={expanded === 'panel4'} onChange={this.handleChangePanel('panel4')}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={classes.heading}>4. Operative Module</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff Assignments" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_staffAssignments_access} onChange={this.handleChange} name="operativeModule_staffAssignments_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_staffAssignments_create} onChange={this.handleChange} name="operativeModule_staffAssignments_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_staffAssignments_modify} onChange={this.handleChange} name="operativeModule_staffAssignments_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_staffAssignments_delete} onChange={this.handleChange} name="operativeModule_staffAssignments_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_staffAssignments_export} onChange={this.handleChange} name="operativeModule_staffAssignments_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Local Bank Holidays" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_localBankHolidays_access} onChange={this.handleChange} name="hh_localBankHolidays_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_localBankHolidays_create} onChange={this.handleChange} name="hh_localBankHolidays_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_localBankHolidays_modify} onChange={this.handleChange} name="hh_localBankHolidays_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_localBankHolidays_delete} onChange={this.handleChange} name="hh_localBankHolidays_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_localBankHolidays_export} onChange={this.handleChange} name="hh_localBankHolidays_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Work Parts" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workParts_access} onChange={this.handleChange} name="operativeModule_workParts_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workParts_create} onChange={this.handleChange} name="operativeModule_workParts_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workParts_modify} onChange={this.handleChange} name="operativeModule_workParts_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workParts_delete} onChange={this.handleChange} name="operativeModule_workParts_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workParts_export} onChange={this.handleChange} name="operativeModule_workParts_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Selection Types Evaluation" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionTypesEvaluation_access} onChange={this.handleChange} name="hh_selectionTypesEvaluation_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionTypesEvaluation_create} onChange={this.handleChange} name="hh_selectionTypesEvaluation_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionTypesEvaluation_modify} onChange={this.handleChange} name="hh_selectionTypesEvaluation_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={hh_selectionTypesEvaluation_export} onChange={this.handleChange} name="hh_selectionTypesEvaluation_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel4'} onChange={this.handleChangePanel('panel4')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={classes.heading}>4. Operative Module</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff Assignments" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_staffAssignments_access} onChange={this.handleChange} name="operativeModule_staffAssignments_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_staffAssignments_create} onChange={this.handleChange} name="operativeModule_staffAssignments_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_staffAssignments_modify} onChange={this.handleChange} name="operativeModule_staffAssignments_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_staffAssignments_delete} onChange={this.handleChange} name="operativeModule_staffAssignments_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_staffAssignments_export} onChange={this.handleChange} name="operativeModule_staffAssignments_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Assignment Type" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_AssignmentType_access} onChange={this.handleChange} name="operativeModule_AssignmentType_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_AssignmentType_create} onChange={this.handleChange} name="operativeModule_AssignmentType_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_AssignmentType_modify} onChange={this.handleChange} name="operativeModule_AssignmentType_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_AssignmentType_delete} onChange={this.handleChange} name="operativeModule_AssignmentType_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_AssignmentType_export} onChange={this.handleChange} name="operativeModule_AssignmentType_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Work Parts Config" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workPartsConfig_access} onChange={this.handleChange} name="operativeModule_workPartsConfig_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workPartsConfig_modify} onChange={this.handleChange} name="operativeModule_workPartsConfig_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={operativeModule_workPartsConfig_export} onChange={this.handleChange} name="operativeModule_workPartsConfig_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Work Parts" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workParts_access} onChange={this.handleChange} name="operativeModule_workParts_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workParts_create} onChange={this.handleChange} name="operativeModule_workParts_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workParts_modify} onChange={this.handleChange} name="operativeModule_workParts_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workParts_delete} onChange={this.handleChange} name="operativeModule_workParts_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workParts_export} onChange={this.handleChange} name="operativeModule_workParts_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-            </Accordion>
-            <Accordion expanded={expanded === 'panel5'} onChange={this.handleChangePanel('panel5')}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2a-content"
-                id="panel2a-header"
-              >
-                <Typography className={classes.heading}>5. Financial Module</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Contracts" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contacts_access} onChange={this.handleChange} name="financialModule_contacts_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contacts_create} onChange={this.handleChange} name="financialModule_contacts_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contacts_modify} onChange={this.handleChange} name="financialModule_contacts_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contacts_delete} onChange={this.handleChange} name="financialModule_contacts_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contacts_export} onChange={this.handleChange} name="financialModule_contacts_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Assignment Type" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_AssignmentType_access} onChange={this.handleChange} name="operativeModule_AssignmentType_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_AssignmentType_create} onChange={this.handleChange} name="operativeModule_AssignmentType_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_AssignmentType_modify} onChange={this.handleChange} name="operativeModule_AssignmentType_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_AssignmentType_delete} onChange={this.handleChange} name="operativeModule_AssignmentType_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_AssignmentType_export} onChange={this.handleChange} name="operativeModule_AssignmentType_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Work Parts Config" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workPartsConfig_access} onChange={this.handleChange} name="operativeModule_workPartsConfig_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workPartsConfig_modify} onChange={this.handleChange} name="operativeModule_workPartsConfig_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={operativeModule_workPartsConfig_export} onChange={this.handleChange} name="operativeModule_workPartsConfig_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Billing Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_billingManagement_access} onChange={this.handleChange} name="financialModule_billingManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_billingManagement_create} onChange={this.handleChange} name="financialModule_billingManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_billingManagement_modify} onChange={this.handleChange} name="financialModule_billingManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_billingManagement_delete} onChange={this.handleChange} name="financialModule_billingManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_billingManagement_export} onChange={this.handleChange} name="financialModule_billingManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff Economic Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicManagement_access} onChange={this.handleChange} name="financialModule_staffEconomicManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicManagement_create} onChange={this.handleChange} name="financialModule_staffEconomicManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicManagement_modify} onChange={this.handleChange} name="financialModule_staffEconomicManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicManagement_delete} onChange={this.handleChange} name="financialModule_staffEconomicManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicManagement_export} onChange={this.handleChange} name="financialModule_staffEconomicManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff Economic Payments" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicPayments_access} onChange={this.handleChange} name="financialModule_staffEconomicPayments_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicPayments_create} onChange={this.handleChange} name="financialModule_staffEconomicPayments_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicPayments_modify} onChange={this.handleChange} name="financialModule_staffEconomicPayments_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicPayments_delete} onChange={this.handleChange} name="financialModule_staffEconomicPayments_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffEconomicPayments_export} onChange={this.handleChange} name="financialModule_staffEconomicPayments_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Suppliers Payments" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersPayments_access} onChange={this.handleChange} name="financialModule_suppliersPayments_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersPayments_create} onChange={this.handleChange} name="financialModule_suppliersPayments_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersPayments_modify} onChange={this.handleChange} name="financialModule_suppliersPayments_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersPayments_delete} onChange={this.handleChange} name="financialModule_suppliersPayments_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersPayments_export} onChange={this.handleChange} name="financialModule_suppliersPayments_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Purchase Order Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderManagement_access} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderManagement_create} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderManagement_modify} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderManagement_delete} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderManagement_export} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel5'} onChange={this.handleChangePanel('panel5')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography className={classes.heading}>5. Financial Module</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Contracts" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contracts_access} onChange={this.handleChange} name="financialModule_contracts_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contracts_create} onChange={this.handleChange} name="financialModule_contracts_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contracts_modify} onChange={this.handleChange} name="financialModule_contracts_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contracts_delete} onChange={this.handleChange} name="financialModule_contracts_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contracts_export} onChange={this.handleChange} name="financialModule_contracts_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Travel Request" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequest_access} onChange={this.handleChange} name="financialModule_travelRequest_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequest_create} onChange={this.handleChange} name="financialModule_travelRequest_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequest_modify} onChange={this.handleChange} name="financialModule_travelRequest_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequest_delete} onChange={this.handleChange} name="financialModule_travelRequest_delete" />}
-                      label="Download"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequest_cancel} onChange={this.handleChange} name="financialModule_travelRequest_cancel" />}
-                      label="Cancel"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequest_export} onChange={this.handleChange} name="financialModule_travelRequest_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Suppliers contracts" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersContracts_access} onChange={this.handleChange} name="financialModule_suppliersContracts_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersContracts_create} onChange={this.handleChange} name="financialModule_suppliersContracts_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersContracts_modify} onChange={this.handleChange} name="financialModule_suppliersContracts_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersContracts_delete} onChange={this.handleChange} name="financialModule_suppliersContracts_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersContracts_export} onChange={this.handleChange} name="financialModule_suppliersContracts_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Billing Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_billingManagement_access} onChange={this.handleChange} name="financialModule_billingManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_billingManagement_create} onChange={this.handleChange} name="financialModule_billingManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_billingManagement_modify} onChange={this.handleChange} name="financialModule_billingManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_billingManagement_delete} onChange={this.handleChange} name="financialModule_billingManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_billingManagement_export} onChange={this.handleChange} name="financialModule_billingManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff Economic Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicManagement_access} onChange={this.handleChange} name="financialModule_staffEconomicManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicManagement_create} onChange={this.handleChange} name="financialModule_staffEconomicManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicManagement_modify} onChange={this.handleChange} name="financialModule_staffEconomicManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicManagement_delete} onChange={this.handleChange} name="financialModule_staffEconomicManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicManagement_export} onChange={this.handleChange} name="financialModule_staffEconomicManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff Economic Payments" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicPayments_access} onChange={this.handleChange} name="financialModule_staffEconomicPayments_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicPayments_create} onChange={this.handleChange} name="financialModule_staffEconomicPayments_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicPayments_modify} onChange={this.handleChange} name="financialModule_staffEconomicPayments_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicPayments_delete} onChange={this.handleChange} name="financialModule_staffEconomicPayments_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffEconomicPayments_export} onChange={this.handleChange} name="financialModule_staffEconomicPayments_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Suppliers Payments" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersPayments_access} onChange={this.handleChange} name="financialModule_suppliersPayments_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersPayments_create} onChange={this.handleChange} name="financialModule_suppliersPayments_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersPayments_modify} onChange={this.handleChange} name="financialModule_suppliersPayments_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersPayments_delete} onChange={this.handleChange} name="financialModule_suppliersPayments_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersPayments_export} onChange={this.handleChange} name="financialModule_suppliersPayments_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Purchase Order Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderManagement_access} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderManagement_create} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderManagement_modify} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderManagement_delete} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderManagement_export} onChange={this.handleChange} name="financialModule_purchaseOrderManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Travel Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelManagement_access} onChange={this.handleChange} name="financialModule_travelManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelManagement_modify} onChange={this.handleChange} name="financialModule_travelManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelManagement_export} onChange={this.handleChange} name="financialModule_travelManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Travel Request" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequest_access} onChange={this.handleChange} name="financialModule_travelRequest_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequest_create} onChange={this.handleChange} name="financialModule_travelRequest_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequest_modify} onChange={this.handleChange} name="financialModule_travelRequest_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequest_delete} onChange={this.handleChange} name="financialModule_travelRequest_delete" />}
+                    label="Download"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequest_cancel} onChange={this.handleChange} name="financialModule_travelRequest_cancel" />}
+                    label="Cancel"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequest_export} onChange={this.handleChange} name="financialModule_travelRequest_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Expense Record" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expenseRecord_access} onChange={this.handleChange} name="financialModule_expenseRecord_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expenseRecord_create} onChange={this.handleChange} name="financialModule_expenseRecord_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expenseRecord_modify} onChange={this.handleChange} name="financialModule_expenseRecord_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expenseRecord_download} onChange={this.handleChange} name="financialModule_expenseRecord_download" />}
-                      label="Download"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expenseRecord_export} onChange={this.handleChange} name="financialModule_expenseRecord_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Travel Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelManagement_access} onChange={this.handleChange} name="financialModule_travelManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelManagement_modify} onChange={this.handleChange} name="financialModule_travelManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelManagement_export} onChange={this.handleChange} name="financialModule_travelManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Expenses Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesManagement_access} onChange={this.handleChange} name="{financialModule_expensesManagement_access}" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesManagement_modify} onChange={this.handleChange} name="financialModule_expensesManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesManagement_download} onChange={this.handleChange} name="financialModule_expensesManagement_download" />}
-                      label="Download"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesManagement_export} onChange={this.handleChange} name="financialModule_expensesManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Expense Record" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expenseRecord_access} onChange={this.handleChange} name="financialModule_expenseRecord_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expenseRecord_create} onChange={this.handleChange} name="financialModule_expenseRecord_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expenseRecord_modify} onChange={this.handleChange} name="financialModule_expenseRecord_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expenseRecord_download} onChange={this.handleChange} name="financialModule_expenseRecord_download" />}
+                    label="Download"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expenseRecord_export} onChange={this.handleChange} name="financialModule_expenseRecord_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Companies" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_companies_access} onChange={this.handleChange} name="financialModule_companies_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_companies_create} onChange={this.handleChange} name="financialModule_companies_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_companies_modify} onChange={this.handleChange} name="financialModule_companies_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_companies_delete} onChange={this.handleChange} name="financialModule_companies_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_companies_export} onChange={this.handleChange} name="financialModule_companies_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Expenses Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesManagement_access} onChange={this.handleChange} name="financialModule_expensesManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesManagement_modify} onChange={this.handleChange} name="financialModule_expensesManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesManagement_download} onChange={this.handleChange} name="financialModule_expensesManagement_download" />}
+                    label="Download"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesManagement_export} onChange={this.handleChange} name="financialModule_expensesManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Type of Currency" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfCurrency_access} onChange={this.handleChange} name="financialModule_typeOfCurrency_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfCurrency_create} onChange={this.handleChange} name="financialModule_typeOfCurrency_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfCurrency_modify} onChange={this.handleChange} name="financialModule_typeOfCurrency_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfCurrency_delete} onChange={this.handleChange} name="financialModule_typeOfCurrency_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfCurrency_export} onChange={this.handleChange} name="financialModule_typeOfCurrency_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Companies" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_companies_access} onChange={this.handleChange} name="financialModule_companies_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_companies_create} onChange={this.handleChange} name="financialModule_companies_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_companies_modify} onChange={this.handleChange} name="financialModule_companies_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_companies_delete} onChange={this.handleChange} name="financialModule_companies_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_companies_export} onChange={this.handleChange} name="financialModule_companies_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Currency Management" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_currencyManagement_access} onChange={this.handleChange} name="financialModule_currencyManagement_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_currencyManagement_create} onChange={this.handleChange} name="financialModule_currencyManagement_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_currencyManagement_modify} onChange={this.handleChange} name="financialModule_currencyManagement_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_currencyManagement_delete} onChange={this.handleChange} name="financialModule_currencyManagement_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_currencyManagement_export} onChange={this.handleChange} name="financialModule_currencyManagement_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Type of Currency" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfCurrency_access} onChange={this.handleChange} name="financialModule_typeOfCurrency_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfCurrency_create} onChange={this.handleChange} name="financialModule_typeOfCurrency_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfCurrency_modify} onChange={this.handleChange} name="financialModule_typeOfCurrency_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfCurrency_delete} onChange={this.handleChange} name="financialModule_typeOfCurrency_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfCurrency_export} onChange={this.handleChange} name="financialModule_typeOfCurrency_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Contract Status" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contractStatus_access} onChange={this.handleChange} name="financialModule_contractStatus_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contractStatus_create} onChange={this.handleChange} name="financialModule_contractStatus_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contractStatus_modify} onChange={this.handleChange} name="financialModule_contractStatus_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contractStatus_delete} onChange={this.handleChange} name="financialModule_contractStatus_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_contractStatus_export} onChange={this.handleChange} name="financialModule_contractStatus_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="I.V.A%:" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_iva_access} onChange={this.handleChange} name="financialModule_iva_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_iva_create} onChange={this.handleChange} name="financialModule_iva_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_iva_modify} onChange={this.handleChange} name="financialModule_iva_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_iva_delete} onChange={this.handleChange} name="financialModule_iva_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_iva_export} onChange={this.handleChange} name="financialModule_iva_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Type of Retentions" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfRententions_access} onChange={this.handleChange} name="financialModule_typeOfRententions_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfRententions_create} onChange={this.handleChange} name="financialModule_typeOfRententions_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfRententions_modify} onChange={this.handleChange} name="financialModule_typeOfRententions_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfRententions_delete} onChange={this.handleChange} name="financialModule_typeOfRententions_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_typeOfRententions_export} onChange={this.handleChange} name="financialModule_typeOfRententions_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Currency Management" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_currencyManagement_access} onChange={this.handleChange} name="financialModule_currencyManagement_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_currencyManagement_create} onChange={this.handleChange} name="financialModule_currencyManagement_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_currencyManagement_modify} onChange={this.handleChange} name="financialModule_currencyManagement_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_currencyManagement_delete} onChange={this.handleChange} name="financialModule_currencyManagement_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_currencyManagement_export} onChange={this.handleChange} name="financialModule_currencyManagement_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Suppliers Types" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersTypes_access} onChange={this.handleChange} name="financialModule_suppliersTypes_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersTypes_create} onChange={this.handleChange} name="financialModule_suppliersTypes_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersTypes_modify} onChange={this.handleChange} name="financialModule_suppliersTypes_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersTypes_delete} onChange={this.handleChange} name="financialModule_suppliersTypes_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_suppliersTypes_export} onChange={this.handleChange} name="financialModule_suppliersTypes_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Contract Status" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contractStatus_access} onChange={this.handleChange} name="financialModule_contractStatus_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contractStatus_create} onChange={this.handleChange} name="financialModule_contractStatus_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contractStatus_modify} onChange={this.handleChange} name="financialModule_contractStatus_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contractStatus_delete} onChange={this.handleChange} name="financialModule_contractStatus_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_contractStatus_export} onChange={this.handleChange} name="financialModule_contractStatus_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="I.V.A%:" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_iva_access} onChange={this.handleChange} name="financialModule_iva_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_iva_create} onChange={this.handleChange} name="financialModule_iva_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_iva_modify} onChange={this.handleChange} name="financialModule_iva_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_iva_delete} onChange={this.handleChange} name="financialModule_iva_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_iva_export} onChange={this.handleChange} name="financialModule_iva_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Type of Retentions" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfRententions_access} onChange={this.handleChange} name="financialModule_typeOfRententions_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfRententions_create} onChange={this.handleChange} name="financialModule_typeOfRententions_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfRententions_modify} onChange={this.handleChange} name="financialModule_typeOfRententions_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfRententions_delete} onChange={this.handleChange} name="financialModule_typeOfRententions_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_typeOfRententions_export} onChange={this.handleChange} name="financialModule_typeOfRententions_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="External Suppliers" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_externalSuppliers_access} onChange={this.handleChange} name="financialModule_externalSuppliers_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_externalSuppliers_create} onChange={this.handleChange} name="financialModule_externalSuppliers_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_externalSuppliers_modify} onChange={this.handleChange} name="financialModule_externalSuppliers_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_externalSuppliers_delete} onChange={this.handleChange} name="financialModule_externalSuppliers_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_externalSuppliers_export} onChange={this.handleChange} name="financialModule_externalSuppliers_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Suppliers Types" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersTypes_access} onChange={this.handleChange} name="financialModule_suppliersTypes_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersTypes_create} onChange={this.handleChange} name="financialModule_suppliersTypes_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersTypes_modify} onChange={this.handleChange} name="financialModule_suppliersTypes_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersTypes_delete} onChange={this.handleChange} name="financialModule_suppliersTypes_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_suppliersTypes_export} onChange={this.handleChange} name="financialModule_suppliersTypes_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Purchase Order Acceptance" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderAcceptance_access} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderAcceptance_create} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderAcceptance_modify} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderAcceptance_delete} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_purchaseOrderAcceptance_export} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="External Suppliers" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_externalSuppliers_access} onChange={this.handleChange} name="financialModule_externalSuppliers_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_externalSuppliers_create} onChange={this.handleChange} name="financialModule_externalSuppliers_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_externalSuppliers_modify} onChange={this.handleChange} name="financialModule_externalSuppliers_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_externalSuppliers_delete} onChange={this.handleChange} name="financialModule_externalSuppliers_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_externalSuppliers_export} onChange={this.handleChange} name="financialModule_externalSuppliers_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Business Expense Types" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_businessExpenseTypes_access} onChange={this.handleChange} name="financialModule_businessExpenseTypes_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_businessExpenseTypes_create} onChange={this.handleChange} name="financialModule_businessExpenseTypes_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_businessExpenseTypes_modify} onChange={this.handleChange} name="financialModule_businessExpenseTypes_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_businessExpenseTypes_delete} onChange={this.handleChange} name="financialModule_businessExpenseTypes_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_businessExpenseTypes_export} onChange={this.handleChange} name="financialModule_businessExpenseTypes_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Request Status" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_requestStatus_access} onChange={this.handleChange} name="financialModule_requestStatus_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_requestStatus_create} onChange={this.handleChange} name="financialModule_requestStatus_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_requestStatus_modify} onChange={this.handleChange} name="financialModule_requestStatus_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_requestStatus_delete} onChange={this.handleChange} name="financialModule_requestStatus_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_requestStatus_export} onChange={this.handleChange} name="financialModule_requestStatus_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Travel Request Email Address" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_access} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_create} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_modify} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_delete} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_travelRequestEmailAddress_export} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Purchase Order Acceptance" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderAcceptance_access} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderAcceptance_create} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderAcceptance_modify} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderAcceptance_delete} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_purchaseOrderAcceptance_export} onChange={this.handleChange} name="financialModule_purchaseOrderAcceptance_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Staff Expenses Types" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffExpensesTypes_access} onChange={this.handleChange} name="financialModule_staffExpensesTypes_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffExpensesTypes_create} onChange={this.handleChange} name="financialModule_staffExpensesTypes_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffExpensesTypes_modify} onChange={this.handleChange} name="financialModule_staffExpensesTypes_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffExpensesTypes_delete} onChange={this.handleChange} name="financialModule_staffExpensesTypes_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_staffExpensesTypes_export} onChange={this.handleChange} name="financialModule_staffExpensesTypes_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Business Expense Types" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_businessExpenseTypes_access} onChange={this.handleChange} name="financialModule_businessExpenseTypes_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_businessExpenseTypes_create} onChange={this.handleChange} name="financialModule_businessExpenseTypes_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_businessExpenseTypes_modify} onChange={this.handleChange} name="financialModule_businessExpenseTypes_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_businessExpenseTypes_delete} onChange={this.handleChange} name="financialModule_businessExpenseTypes_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_businessExpenseTypes_export} onChange={this.handleChange} name="financialModule_businessExpenseTypes_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Request Status" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_requestStatus_access} onChange={this.handleChange} name="financialModule_requestStatus_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_requestStatus_create} onChange={this.handleChange} name="financialModule_requestStatus_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_requestStatus_modify} onChange={this.handleChange} name="financialModule_requestStatus_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_requestStatus_delete} onChange={this.handleChange} name="financialModule_requestStatus_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_requestStatus_export} onChange={this.handleChange} name="financialModule_requestStatus_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Travel Request Email Address" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequestEmailAddress_access} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequestEmailAddress_create} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequestEmailAddress_modify} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequestEmailAddress_delete} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_travelRequestEmailAddress_export} onChange={this.handleChange} name="financialModule_travelRequestEmailAddress_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Persons Type" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_personsTypes_access} onChange={this.handleChange} name="financialModule_personsTypes_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_personsTypes_create} onChange={this.handleChange} name="financialModule_personsTypes_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_personsTypes_modify} onChange={this.handleChange} name="financialModule_personsTypes_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_personsTypes_delete} onChange={this.handleChange} name="financialModule_personsTypes_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_personsTypes_export} onChange={this.handleChange} name="financialModule_personsTypes_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Staff Expenses Types" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffExpensesTypes_access} onChange={this.handleChange} name="financialModule_staffExpensesTypes_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffExpensesTypes_create} onChange={this.handleChange} name="financialModule_staffExpensesTypes_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffExpensesTypes_modify} onChange={this.handleChange} name="financialModule_staffExpensesTypes_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffExpensesTypes_delete} onChange={this.handleChange} name="financialModule_staffExpensesTypes_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_staffExpensesTypes_export} onChange={this.handleChange} name="financialModule_staffExpensesTypes_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Voucher Types" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_voucherType_access} onChange={this.handleChange} name="financialModule_voucherType_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_voucherType_create} onChange={this.handleChange} name="financialModule_voucherType_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_voucherType_modify} onChange={this.handleChange} name="financialModule_voucherType_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_voucherType_delete} onChange={this.handleChange} name="financialModule_voucherType_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_voucherType_export} onChange={this.handleChange} name="financialModule_voucherType_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Persons Type" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_personsTypes_access} onChange={this.handleChange} name="financialModule_personsTypes_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_personsTypes_create} onChange={this.handleChange} name="financialModule_personsTypes_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_personsTypes_modify} onChange={this.handleChange} name="financialModule_personsTypes_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_personsTypes_delete} onChange={this.handleChange} name="financialModule_personsTypes_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_personsTypes_export} onChange={this.handleChange} name="financialModule_personsTypes_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Expenses Status" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesStatus_access} onChange={this.handleChange} name="financialModule_expensesStatus_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesStatus_create} onChange={this.handleChange} name="financialModule_expensesStatus_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesStatus_modify} onChange={this.handleChange} name="financialModule_expensesStatus_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesStatus_delete} onChange={this.handleChange} name="financialModule_expensesStatus_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesStatus_export} onChange={this.handleChange} name="financialModule_expensesStatus_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Voucher Types" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_voucherType_access} onChange={this.handleChange} name="financialModule_voucherType_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_voucherType_create} onChange={this.handleChange} name="financialModule_voucherType_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_voucherType_modify} onChange={this.handleChange} name="financialModule_voucherType_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_voucherType_delete} onChange={this.handleChange} name="financialModule_voucherType_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_voucherType_export} onChange={this.handleChange} name="financialModule_voucherType_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-              <AccordionDetails>
-                <ListItem button style={{ width: '35%' }}>
-                  <ListItemIcon>
-                    <SendIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Expenses Email Address" />
-                </ListItem>
-                <FormControl component="fieldset" className={classes.formControl}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesEmailAddress_access} onChange={this.handleChange} name="financialModule_expensesEmailAddress_access" />}
-                      label="Access"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesEmailAddress_create} onChange={this.handleChange} name="financialModule_expensesEmailAddress_create" />}
-                      label="Create"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesEmailAddress_modify} onChange={this.handleChange} name="financialModule_expensesEmailAddress_modify" />}
-                      label="Modify"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesEmailAddress_delete} onChange={this.handleChange} name="financialModule_expensesEmailAddress_delete" />}
-                      label="Delete"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={financialModule_expensesEmailAddress_export} onChange={this.handleChange} name="financialModule_expensesEmailAddress_export" />}
-                      label="Export"
-                    />
-                  </FormGroup>
-                </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Expenses Status" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesStatus_access} onChange={this.handleChange} name="financialModule_expensesStatus_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesStatus_create} onChange={this.handleChange} name="financialModule_expensesStatus_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesStatus_modify} onChange={this.handleChange} name="financialModule_expensesStatus_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesStatus_delete} onChange={this.handleChange} name="financialModule_expensesStatus_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesStatus_export} onChange={this.handleChange} name="financialModule_expensesStatus_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-              </AccordionDetails>
-            </Accordion>
-            <br />
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Expenses Email Address" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesEmailAddress_access} onChange={this.handleChange} name="financialModule_expensesEmailAddress_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesEmailAddress_create} onChange={this.handleChange} name="financialModule_expensesEmailAddress_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesEmailAddress_modify} onChange={this.handleChange} name="financialModule_expensesEmailAddress_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesEmailAddress_delete} onChange={this.handleChange} name="financialModule_expensesEmailAddress_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={financialModule_expensesEmailAddress_export} onChange={this.handleChange} name="financialModule_expensesEmailAddress_export" />}
+                    label="Export"
+                  />
+                </FormGroup>
+              </FormControl>
 
-            <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-              {isEmpty(this.props.location.state)
-                ? (
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    size="medium"
-                    onClick={this.handleSubmit}
-                  >
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel6'} onChange={this.handleChangePanel('panel6')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography className={classes.heading}>
+                6. translation
+                <Checkbox onChange={this.handleChangeAdminModule('translation')} />
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Default sentences" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_defaultSentences_access} onChange={this.handleChange} name="translationModule_defaultSentences_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_defaultSentences_create} onChange={this.handleChange} name="translationModule_defaultSentences_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_defaultSentences_modify} onChange={this.handleChange} name="translationModule_defaultSentences_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_defaultSentences_delete} onChange={this.handleChange} name="translationModule_defaultSentences_delete" />}
+                    label="Delete"
+                  />
+                </FormGroup>
+              </FormControl>
+            </AccordionDetails>
+            <AccordionDetails>
+              <ListItem button style={{ width: '35%' }}>
+                <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon>
+                <ListItemText primary="Translation sentences" />
+              </ListItem>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_translationSentences_access} onChange={this.handleChange} name="translationModule_translationSentences_access" />}
+                    label="Access"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_translationSentences_create} onChange={this.handleChange} name="translationModule_translationSentences_create" />}
+                    label="Create"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_translationSentences_modify} onChange={this.handleChange} name="translationModule_translationSentences_modify" />}
+                    label="Modify"
+                  />
+                  <FormControlLabel
+                    control={<Checkbox checked={translationModule_translationSentences_delete} onChange={this.handleChange} name="translationModule_translationSentences_delete" />}
+                    label="Delete"
+                  />
+                </FormGroup>
+              </FormControl>
+
+            </AccordionDetails>
+          </Accordion>
+          <br />
+
+          <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
+            {isEmpty(this.props.location.state)
+              ? (
+                <Button
+                  color="primary"
+                  variant="contained"
+                  size="medium"
+                  onClick={this.handleSubmit}
+                >
                     Save role
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    size="medium"
-                    onClick={this.handleSubmit}
-                  >
+                </Button>
+              ) : (
+                <Button
+                  color="primary"
+                  variant="contained"
+                  size="medium"
+                  onClick={this.handleSubmit}
+                >
                     Save Actions
-                  </Button>
-                )
-              }
-            </div>
-          </PapperBlock>
-        </div>
-      );
-    }
+                </Button>
+              )
+            }
+          </div>
+        </PapperBlock>
+      </div>
+    );
+  }
 }
 
 

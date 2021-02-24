@@ -43,19 +43,25 @@ module.exports = [
             key: 'commercial_action',
             name: 'Commercial Action',
             link: '/app/commercial-action'
+          },
+          {
+            key: 'commercialDocumentManager',
+            name: 'commercial_document_manager',
+            link: '/app/gestion-commercial/document-manager',
+            icon: 'ios-newspaper-outline',
           }
         ]
       },
-      {
+      /*      {
         key: 'commercialDocumentManager',
         name: 'commercial_document_manager',
         icon: 'ios-newspaper-outline',
         link: '/app/gestion-commercial/document-manager',
         keyParent: 'commercial'
-      },
+      }, */
       {
         key: 'commercial_basic_table',
-        name: 'CommercialBasic Tables',
+        name: 'Commercial Basic Tables',
         icon: 'ios-newspaper-outline',
         keyParent: 'commercial',
         child: [
@@ -464,7 +470,7 @@ module.exports = [
       }
     ]
   },
-  {
+  /* {
     key: 'errors',
     name: 'Errors',
     icon: 'ios-paw-outline',
@@ -487,8 +493,8 @@ module.exports = [
         icon: 'ios-warning-outline'
       }
     ]
-  },
-  {
+  }, */
+  /* {
     key: 'menu_levels',
     name: 'Menu Levels',
     multilevel: true,
@@ -515,13 +521,13 @@ module.exports = [
         ]
       }
     ]
-  },
-  {
+  }, */
+  /* {
     key: 'no_child',
     name: 'One Level Menu',
     icon: 'ios-document-outline',
     linkParent: '/app'
-  },
+  }, */
   {
     key: 'administration',
     name: 'Administration',
@@ -529,7 +535,7 @@ module.exports = [
     child: [
       {
         key: 'roles',
-        name: 'Roles',
+        name: 'Roles Management',
         link: '/app/data/administration/roles'
       },
       {
@@ -537,16 +543,16 @@ module.exports = [
         name: 'Users Management',
         link: '/app/data/administration/users'
       },
-      {
-        key: 'roles_abilities',
-        name: 'Actions Management',
-        link: '/app/data/administration/role-actions'
-      } /* ,
-    {
-        key: 'machines',
-        name: 'machines',
-        link: '/app/data/administration/machines'
-      } */
+      /* {
+         key: 'roles_abilities',
+         name: 'Actions Management',
+         link: '/app/data/administration/role-actions'
+       }  ,
+     {
+         key: 'machines',
+         name: 'machines',
+         link: '/app/data/administration/machines'
+       } */
     ]
   },
   {
