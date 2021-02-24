@@ -19,6 +19,7 @@ import notification from '../../../../components/Notification/Notification';
 import { DateDialog } from './DateDialog';
 
 import avatarApi from '../../../../api/images/avatars';
+import Avatar from '@material-ui/core/Avatar';
 
 let self = null;
 
@@ -302,8 +303,8 @@ Assign staff to selected operation
                             ? (
                               <div id={item.id} style={{ margin: 10 }}>
                                 <Tooltip title={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`}>
-                                  <img src={avatarApi[parseInt(item.avatar)]} alt={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`} style={{ width: 40, borderRadius: '50%' }} />
-                                  {/* <Avatar className={classes.avatar} alt={row.name} src={avatarApi[parseInt(row.avatar)]} /> */}
+                                  <img src={item.avatar} alt={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`} style={{ width: 40, borderRadius: '50%' }} />
+                                  {/* <Avatar className={classes.avatar} alt={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`} src={item.avatar} /> */}
                                 </Tooltip>
                               </div>
                             ) : null}
@@ -343,8 +344,8 @@ Assign staff to selected operation
                         >
                           <div id={item.id} style={{ margin: 10 }}>
                             <Tooltip title={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`}>
-                              <img src={avatarApi[parseInt(item.avatar)]} alt={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`} style={{ width: 40, borderRadius: '50%' }} />
-                              {/* <Avatar className={classes.avatar} alt={row.name} src={avatarApi[parseInt(row.avatar)]} /> */}
+                              <img src={item.avatar} alt={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`} style={{ width: 40, borderRadius: '50%' }} />
+                              {/* <Avatar className={classes.avatar} alt={`${item.name} ${item.fatherFamilyName} ${item.motherFamilyName}`} src={item.avatar} /> */}
                             </Tooltip>
                           </div>
                         </div>

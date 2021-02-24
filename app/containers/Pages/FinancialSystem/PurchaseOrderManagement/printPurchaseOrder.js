@@ -123,23 +123,24 @@ class PrintPurchaseOrder extends React.Component {
                 alignItems="flex-start"
                 direction="row"
               >
-                <Grid item xs={9}>
-                  <TextField
-                    id="companyDataEmit"
-                    label="Company Emit"
-                    name="companyDataEmit"
-                    value={purchaseOrder.companyEmit.name}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={6}>
                   {
                     purchaseOrder.companyLogo ? (
                       <Avatar alt="Company Logo" src={purchaseOrder.companyLogo} className={classes.medium} />
                     ) : (<div />)
                   }
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    id="companyDataEmit"
+                    label="Company Emit"
+                    name="companyDataEmit"
+                    value={purchaseOrder.companyEmit.name}
+                    fullWidth
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -236,7 +237,14 @@ class PrintPurchaseOrder extends React.Component {
                     alignItems="flex-start"
                     direction="row"
                   >
-                    <Grid item xs={9}>
+                    <Grid item xs={6}>
+                      {
+                        purchaseOrder.internLogo ? (
+                          <Avatar alt="Company Logo" src={purchaseOrder.internLogo} className={classes.medium} />
+                        ) : (<div />)
+                      }
+                    </Grid>
+                    <Grid item xs={12}>
                       <TextField
                         id="receptionSupplierInternal"
                         label="Reception Supplier"
@@ -247,13 +255,6 @@ class PrintPurchaseOrder extends React.Component {
                           readOnly: true,
                         }}
                       />
-                    </Grid>
-                    <Grid item xs={3}>
-                      {
-                        purchaseOrder.internLogo ? (
-                          <Avatar alt="Company Logo" src={purchaseOrder.internLogo} className={classes.medium} />
-                        ) : (<div />)
-                      }
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
@@ -308,11 +309,10 @@ class PrintPurchaseOrder extends React.Component {
               <Grid item xs={1}>
                 <TextField
                   id="itemNames"
-                  label="Concept Name"
+                  label="Name"
                   name="itemNames"
                   value={purchaseOrder.itemNames[row]}
                   multiline
-                  rows={1}
                   fullWidth
                   required
                   InputLabelProps={{
@@ -323,14 +323,13 @@ class PrintPurchaseOrder extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <TextField
                   id="description"
                   label="Description"
                   name="description"
                   value={purchaseOrder.description[row]}
                   multiline
-                  rows={1}
                   fullWidth
                   required
                   InputLabelProps={{
@@ -346,7 +345,7 @@ class PrintPurchaseOrder extends React.Component {
                   id="unityValue"
                   label="Unity Value"
                   name="unityValue"
-                  value={purchaseOrder.unityValue[row]}
+                  value={Number(purchaseOrder.unityValue[row]).toFixed(2)}
                   type="number"
                   fullWidth
                   required
@@ -384,7 +383,7 @@ class PrintPurchaseOrder extends React.Component {
                   <Grid item xs={6}>
                     <TextField
                       id="unityNumber"
-                      label="N° of Unity"
+                      label="N° Unity"
                       name="unityNumber"
                       value={purchaseOrder.unityNumber[row]}
                       fullWidth
@@ -404,7 +403,7 @@ class PrintPurchaseOrder extends React.Component {
                   id="valor"
                   label="Value"
                   name="valor"
-                  value={purchaseOrder.valor[row]}
+                  value={Number(purchaseOrder.valor[row]).toFixed(2)}
                   fullWidth
                   InputProps={{
                     readOnly: true,
@@ -414,14 +413,14 @@ class PrintPurchaseOrder extends React.Component {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={5}>
+              <Grid item xs={12} md={3}>
                 <Grid
                   container
                   spacing={1}
                   alignItems="flex-start"
                   direction="row"
                 >
-                  <Grid item xs={4}>
+                  <Grid item xs={6}>
                     <TextField
                       id="givingDate"
                       label="Giving Date"
@@ -438,29 +437,12 @@ class PrintPurchaseOrder extends React.Component {
                       required
                     />
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={6}>
                     <TextField
                       id="billingDate"
                       label="Billing Date"
                       name="billingDate"
                       value={purchaseOrder.billingDate[row]}
-                      type="date"
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                      fullWidth
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={4}>
-                    <TextField
-                      id="paymentDate"
-                      label="Payment  Date"
-                      name="paymentDate"
-                      value={purchaseOrder.paymentDate[row]}
                       type="date"
                       InputLabelProps={{
                         shrink: true,
@@ -490,7 +472,7 @@ class PrintPurchaseOrder extends React.Component {
                 id="totalLocal"
                 label="Total Value in Local Currency"
                 name="totalLocal"
-                value={purchaseOrder.totalLocal}
+                value={Number(purchaseOrder.totalLocal).toFixed(2)}
                 type="number"
                 fullWidth
                 InputLabelProps={{
@@ -521,7 +503,7 @@ class PrintPurchaseOrder extends React.Component {
                 id="totalEuro"
                 label="Total Value in EURO"
                 name="totalEuro"
-                value={purchaseOrder.totalEuro}
+                value={Number(purchaseOrder.totalEuro).toFixed(2)}
                 type="number"
                 fullWidth
                 InputLabelProps={{
@@ -564,7 +546,7 @@ class PrintPurchaseOrder extends React.Component {
                 id="totalIVALocal"
                 label="I.V.A Value in Local Currency"
                 name="totalIVALocal"
-                value={purchaseOrder.valueIVALocal}
+                value={Number(purchaseOrder.valueIVALocal).toFixed(2)}
                 type="number"
                 fullWidth
                 InputLabelProps={{
@@ -580,7 +562,7 @@ class PrintPurchaseOrder extends React.Component {
                 id="totalIVAEuro"
                 label="I.V.A Value in EURO"
                 name="totalIVAEuro"
-                value={purchaseOrder.valueIVAEuro}
+                value={Number(purchaseOrder.valueIVAEuro).toFixed(2)}
                 type="number"
                 fullWidth
                 InputLabelProps={{
@@ -618,7 +600,7 @@ class PrintPurchaseOrder extends React.Component {
                   id="totalAmountLocal"
                   label="Total Amount in Local Currency"
                   name="totalAmountLocal"
-                  value={purchaseOrder.totalAmountLocal}
+                  value={Number(purchaseOrder.totalAmountLocal).toFixed(2)}
                   type="number"
                   fullWidth
                   InputLabelProps={{
@@ -649,7 +631,7 @@ class PrintPurchaseOrder extends React.Component {
                   id="totalAmountEuro"
                   label="Total Amount in EURO"
                   name="totalAmountEuro"
-                  value={purchaseOrder.totalAmountEuro}
+                  value={Number(purchaseOrder.totalAmountEuro).toFixed(2)}
                   type="number"
                   fullWidth
                   InputLabelProps={{
@@ -707,7 +689,7 @@ class PrintPurchaseOrder extends React.Component {
             <Grid item xs={12} md={2}>
               <TextField
                 id="paymentMethod"
-                label="Method of Payment"
+                label="Payment Method"
                 name="paymentMethod"
                 value={purchaseOrder.paymentMethod}
                 fullWidth
@@ -739,7 +721,7 @@ class PrintPurchaseOrder extends React.Component {
                   </Grid>
                   <Grid item xs={5}>
                     <TextField
-                      label="Term Description"
+                      label="Description"
                       name="termDescription"
                       value={purchaseOrder.termDescription[row]}
                       fullWidth

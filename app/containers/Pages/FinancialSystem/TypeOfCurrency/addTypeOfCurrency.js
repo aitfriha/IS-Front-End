@@ -42,7 +42,7 @@ class AddTypeOfCurrency extends React.Component {
         currencyName, currencyCode
       };
       const code = currencyCode.toString();
-      if (code.length < 3) {
+      if (code.length < 4) {
         TypeOfCurrencylService.saveTypeOfCurrency(TypeOfCurrency).then(result => {
           console.log(result);
           history.push('/app/gestion-financial/Currency-Type');

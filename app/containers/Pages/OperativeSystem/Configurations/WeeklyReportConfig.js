@@ -73,9 +73,12 @@ class WeeklyReportConfig extends React.Component {
     const { changeTheme } = this.props;
     changeTheme('greenTheme');
 
-    const { getWeeklyReportConfig, weeklyReportConfig } = this.props;
+    const { getWeeklyReportConfig } = this.props;
     getWeeklyReportConfig();
+  }
 
+  componentWillReceiveProps(newProps) {
+    let weeklyReportConfig = newProps.weeklyReportConfig;
     this.setState({
       numberOfDays: (weeklyReportConfig && weeklyReportConfig.numberOfDays) ? weeklyReportConfig.numberOfDays : this.state.numberOfDays,
       employees: (weeklyReportConfig && weeklyReportConfig.employees) ? weeklyReportConfig.employees : this.state.employees,
