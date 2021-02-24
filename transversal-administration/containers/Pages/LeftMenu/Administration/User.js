@@ -354,13 +354,13 @@ class User extends React.Component {
 
   addUser = () => {
     const {
-      userEmail, firstName, fatherFamilyName, motherFamilyName, actif,role
+      userEmail, firstName, fatherFamilyName, motherFamilyName, actif, role
     } = this.state;
     const newData = {
       userCompanyId: '37',
       userNationalId: '37',
       userPassportId: '37',
-      userEmail: userEmail,
+      userEmail,
       userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
       userMobileNumber: '3711111',
       userStatus: 'status',
@@ -415,11 +415,11 @@ class User extends React.Component {
 
 
                   <Select
-                    multiple
+                    /* multiple */
                     value={fieldProps.value ? fieldProps.value : []}
                     onChange={e => fieldProps.onChange(e.target.value)}
                     input={<Input />}
-                    renderValue={(selected) => selected.join(', ')}
+                    /* renderValue={(selected) => selected.join(', ')} */
                   >
                     {Object.values(fieldProps.columnDef.lookup).map((name) => (
                       <MenuItem key={name} value={name}>
@@ -474,6 +474,7 @@ class User extends React.Component {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
+              newData.userRolesIds = [newData.userRolesIds];
               updateUser(newData);
               this.editingPromiseResolveEdit = resolve;
             }).then((result) => {
@@ -554,7 +555,7 @@ class User extends React.Component {
                 <InputLabel>Select the Role</InputLabel>
                 <Select
                   name="role"
-                  multiple
+                  /* multiple */
                   value={role}
                   input={<Input />}
                   onChange={this.handleChangeRoles}
