@@ -398,7 +398,6 @@ class AddSuppliersContract extends React.Component {
                     </Grid>
                   </Grid>
                 ) : (<div />)}
-
                 <br />
                 <FormControl component="fieldset">
                   <FormLabel component="legend"> ● Client Type</FormLabel>

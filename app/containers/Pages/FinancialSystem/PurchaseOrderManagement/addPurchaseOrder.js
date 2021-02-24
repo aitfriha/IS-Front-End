@@ -24,6 +24,8 @@ import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import CurrencyService from '../../../Services/CurrencyService';
 import IvaService from '../../../Services/IvaService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
+import ClientService from '../../../Services/ClientService';
+import ContractService from '../../../Services/ContractService';
 
 const useStyles = makeStyles();
 
@@ -49,6 +51,11 @@ class AddPurchaseOrder extends React.Component {
       ivasCountries: [],
       ivaStates: [],
       ivaState: '',
+      clients: [],
+      clientId: '',
+      contracts: [],
+      contractsClient: [],
+      contractId: '',
       nbrConcepts: ['1'],
       termsListe: ['1'],
       itemNames: [],
@@ -73,7 +80,10 @@ class AddPurchaseOrder extends React.Component {
       totalAmountRetentions: '',
       totalIvaRetention: '',
       paymentMethod: '',
-      localCurrency: ''
+      localCurrency: '',
+      typeClient: '',
+      poClient: false,
+      contractClient: false,
     };
   }
 
@@ -91,6 +101,14 @@ class AddPurchaseOrder extends React.Component {
       console.log(result.data);
       this.setState({ ivasCountries: result.data });
     });
+    ClientService.getClients().then(result => {
+      this.setState({ clients: result.data.payload });
+    });
+    ContractService.getContract().then(result => {
+      // eslint-disable-next-line array-callback-return
+      this.setState({ contracts: result.data, contractsClient: result.data });
+      console.log(this.state);
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -105,14 +123,21 @@ class AddPurchaseOrder extends React.Component {
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
         termsListe, termDescription, termTitle, factor,
         paymentMethod, ivaRetentions, totalAmountRetentions, totalIvaRetention,
-        localCurrency, totalLocal, totalEuro, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
+        localCurrency, totalLocal, totalEuro, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro,
+        typeClient, clientId, contractId
       } = this.state;
       const companyEmit = { _id: companyDataEmit };
       const externalSupplierReception = { _id: receptionSupplierExternal };
       const internalSupplierReception = { _id: receptionSupplierInternal };
       const currency = { _id: localCurrency };
+      const client = { _id: clientId };
       const iva = { _id: ivaState };
+      let financialContract = { _id: '' };
+      if (typeClient === 'contract') financialContract = { _id: contractId };
       const PurchaseOrder = {
+        client,
+        typeClient,
+        financialContract,
         iva,
         currency,
         factor,
@@ -233,6 +258,16 @@ class AddPurchaseOrder extends React.Component {
           console.log(result.data);
           this.setState({ ivaStates: result.data });
         });
+      }
+      if (ev.target.name === 'typeClient') {
+        if (ev.target.value === 'contract') this.setState({ contractClient: true, poClient: false });
+        else this.setState({ poClient: true, contractClient: false });
+      }
+      if (ev.target.name === 'clientId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab2 = this.state.contracts;
+        const tabClient = tab2.filter((row) => (row.client._id === ev.target.value));
+        this.setState({ contractsClient: tabClient });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
@@ -400,7 +435,8 @@ class AddPurchaseOrder extends React.Component {
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
         termsListe, termDescription, termTitle,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
-        localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro
+        localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro,
+        contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId
       } = this.state;
       return (
         <div>
@@ -425,6 +461,114 @@ class AddPurchaseOrder extends React.Component {
                 </IconButton>
               </Grid>
             </Grid>
+            <br />
+            <Typography variant="subtitle2" component="h2" color="primary">
+              ►   Client Informations
+            </Typography>
+            <br />
+            <Grid
+              container
+              spacing={2}
+              alignItems="flex-start"
+              direction="row"
+              justify="center"
+            >
+              <Grid item xs={12} md={7} sm={7}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend"> ● Client Type</FormLabel>
+                  <RadioGroup row aria-label="position" name="typeClient" value={typeClient} onChange={this.handleChange}>
+                    <FormControlLabel
+                      value="contract"
+                      control={<Radio color="primary" />}
+                      label="Contract Client"
+                      labelPlacement="start"
+                    />
+                    <FormControlLabel
+                      value="po"
+                      control={<Radio color="primary" />}
+                      label="Purchase Order Client"
+                      labelPlacement="start"
+                    />
+                  </RadioGroup>
+                </FormControl>
+                <br />
+                {contractClient ? (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                    justify="center"
+                  >
+                    <Grid item xs={12} md={5}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Select the client</InputLabel>
+                        <Select
+                          name="clientId"
+                          value={clientId}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            clients.map((clt) => (
+                              <MenuItem key={clt.clientId} value={clt.clientId}>
+                                {clt.name}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Select the Contract</InputLabel>
+                        <Select
+                          name="contractId"
+                          value={contractId}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            contractsClient.map((clt) => (
+                              <MenuItem key={clt.financialContractId} value={clt.financialContractId}>
+                                {clt.contractTitle}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                ) : (<div />)}
+                {poClient ? (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                    justify="center"
+                  >
+                    <Grid item xs={12} md={7}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Select the client</InputLabel>
+                        <Select
+                          name="clientId"
+                          value={clientId}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            clients.map((clt) => (
+                              <MenuItem key={clt.clientId} value={clt.clientId}>
+                                {clt.name}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                ) : (<div />)}
+              </Grid>
+            </Grid>
+            <br />
             <Typography variant="subtitle2" component="h2" color="primary">
               ►   General Purchase Order Informations
             </Typography>
