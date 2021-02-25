@@ -2020,8 +2020,8 @@ class PurchaseOrderBlock extends React.Component {
             onClose={this.handleClose}
             aria-labelledby="alert-dialog-slide-title"
             aria-describedby="alert-dialog-slide-description"
-            fullWidth="lg"
-            maxWidth="lg"
+            fullWidth=""
+            maxWidth=""
           >
             <DialogTitle id="alert-dialog-slide-title"> Print Purchase Order</DialogTitle>
             <DialogContent dividers>
