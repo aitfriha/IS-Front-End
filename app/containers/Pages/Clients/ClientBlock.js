@@ -502,7 +502,17 @@ class ClientBlock extends React.Component {
     getAllClient();
   }
 
-
+  removeByAttr = function (arr, attr, value) {
+    let i = arr.length;
+    while (i--) {
+      if (arr[i]
+          && arr[i].hasOwnProperty(attr)
+          && (arguments.length > 2 && arr[i][attr] === value)) {
+        arr.splice(i, 1);
+      }
+    }
+    return arr;
+  }
   /* handleAssignment = (tableMeta) => {
     const { data } = this.state;
     const { add, back } = this.props;
@@ -514,23 +524,46 @@ class ClientBlock extends React.Component {
   render() {
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, clientResponse, allClients, allStateCountrys, allCitys
+      errors, isLoading, clientResponse, allClients, allStateCountrys, allCitys, logedUser
     } = this.props;
     const {
       data, columns, openPopUp, selectedClient
     } = this.state;
-    const options = {
-      fixedHeader: true,
-      fixedSelectColumn: false,
-      filter: true,
-      selectableRows: false,
-      filterType: 'dropdown',
-      responsive: 'stacked',
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar csvData={data} url="/app/gestion-commercial/clients/create-client" tooltip="Add Client" />
-      )
-    };
+    const thelogedUser = JSON.parse(logedUser);
+    let options = {};
+    let download = false;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_customers_export == true) {
+      download = true;
+    }
+    if (thelogedUser.userRoles[0].actionsNames.commercial_customers_modify == false) {
+      this.removeByAttr(columns, 'name', 'Actions');
+    }
+    if (thelogedUser.userRoles[0].actionsNames.commercial_customers_create == true) {
+      options = {
+        fixedHeader: true,
+        fixedSelectColumn: false,
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        rowsPerPage: 10,
+        download,
+        customToolbar: () => (
+          <CustomToolbar csvData={data} url="/app/gestion-commercial/clients/create-client" tooltip="Add Client" />
+        )
+      };
+    } else {
+      options = {
+        fixedHeader: true,
+        fixedSelectColumn: false,
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        rowsPerPage: 10,
+        download,
+      };
+    }
     return (
       <div>
         <MUIDataTable title="The Clients List" data={allClients && allClients} columns={columns} options={options} />
@@ -593,6 +626,7 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,

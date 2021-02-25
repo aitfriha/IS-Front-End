@@ -391,8 +391,9 @@ class Commercial extends React.Component {
     const title = brand.name + ' - Assignments';
     const description = brand.desc;
     const {
-      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment, clientResponse, isLoading, errors
+      classes, allClients, allStaffs, isLoadingAssignment, assignmentResponse, errorsAssignment, clientResponse, isLoading, errors, logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       addresses,
       responsibleAssignments,
@@ -409,7 +410,17 @@ class Commercial extends React.Component {
     (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
     /* (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolveImport(errorsAssignment); */
     (!isLoading && clientResponse === '') && this.editingPromiseResolveImport(errors);
-
+    let exporte = true; let deleteAction = true;let assign = true;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_export == false) {
+      exporte = true;
+    }
+    console.log(thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_delete);
+    if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_delete == false) {
+      deleteAction = true;
+    }
+    if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_create == false) {
+      assign = true;
+    }
     return (
       <div>
         <Helmet>
@@ -513,25 +524,23 @@ class Commercial extends React.Component {
                   }}
                   onSelectionChange={(rows) => this.selectedRowsInTable(rows)}
                   actions={[
-                    /* {
-                      tooltip: 'Import',
-                      icon: 'import_contacts',
-                      onClick: (evt, data) => this.handleOnFileLoad(data)
-                    }, */
                     {
                       icon: 'delete',
                       tooltip: 'Delete User',
+                      disabled: deleteAction,
                       onClick: (event, rowData) => this.deleteAssignement(event, rowData)
                     },
                     {
                       tooltip: 'Assign',
                       icon: 'assignment_ind',
+                      disabled: assign,
                       onClick: (evt, data) => this.selectedRows(data)
                     },
                     {
                       icon: 'save_alt',
                       tooltip: 'Export excel',
                       isFreeAction: true,
+                      disabled: exporte,
                       onClick: () => {
                         const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                         const fileExtension = '.xlsx';
@@ -552,47 +561,6 @@ class Commercial extends React.Component {
                       }
                     }
                   ]}
-                  editable={{
-                    /*     onRowAdd: newData => new Promise((resolve) => {
-                      // add measurement unit action
-                      addCommercialOperationStatus(newData);
-                      this.editingPromiseResolve = resolve;
-                    }).then((result) => {
-                      if (isString(result)) {
-                        // Fetch data
-                        getAllCommercialOperationStatus();
-                        notification('success', result);
-                      } else {
-                        notification('danger', result);
-                      }
-                    }), */
-                    /*          onRowUpdate: (newData) => new Promise((resolve) => {
-                      // update CommercialOperationStatus unit action
-                      updateCommercialOperationStatus(newData);
-                      this.editingPromiseResolve = resolve;
-                    }).then((result) => {
-                      if (isString(result)) {
-                        // Fetch data
-                        getAllCommercialOperationStatus();
-                        notification('success', result);
-                      } else {
-                        notification('danger', result);
-                      }
-                    }), */
-                    /*    onRowDelete: oldData => new Promise((resolve) => {
-                      // delete CommercialOperationStatus action
-                      deleteCommercialOperationStatus(oldData.commercialOperationStatusId);
-                      this.editingPromiseResolve = resolve;
-                    }).then((result) => {
-                      if (isString(result)) {
-                        // Fetch data
-                        getAllCommercialOperationStatus();
-                        notification('success', result);
-                      } else {
-                        notification('danger', result);
-                      }
-                    }), */
-                  }}
                   components={{
                     Toolbar: props => (
                       <div>
@@ -853,6 +821,7 @@ const mapStateToProps = state => ({
   assignmentResponse: state.getIn(['assignments']).assignmentResponse,
   isLoadingAssignment: state.getIn(['assignments']).isLoading,
   errorsAssignment: state.getIn(['assignments']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClient,
