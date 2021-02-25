@@ -25,6 +25,8 @@ class PrintPurchaseOrder extends React.Component {
         companyNIF: '',
         companyAddress: '',
         currency: { typeOfCurrency: '' },
+        client: { name: '' },
+        financialContract: { name: '', taxeIdentityNumber: '' },
         iva: { stateCountry: { country: { countryName: '' } } },
         receptionSupplierExternal: { companyName: '' },
         receptionSupplierInternal: { name: '' },
@@ -97,19 +99,52 @@ class PrintPurchaseOrder extends React.Component {
             <Grid item xs={12} md={4} />
             <Grid item xs={12} md={5} />
             <Grid item xs={12} md={3}>
-              <TextField
-                id="purchaseNumber"
-                label="Purchase Order Number"
-                name="purchaseNumber"
-                value={purchaseOrder.purchaseNumber}
-                InputProps={{
-                  readOnly: true,
-                }}
-              />
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+              >
+                <Grid item xs={12}>
+                  <TextField
+                    id="purchaseNumber"
+                    label="Purchase Order Number"
+                    name="purchaseNumber"
+                    value={purchaseOrder.purchaseNumber}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    id="client"
+                    label="Client Name"
+                    name="client"
+                    value={purchaseOrder.client.name}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  {
+                    (purchaseOrder.financialContract._id !== '') ? (
+                      <TextField
+                        id="financialContractId"
+                        label="Contract NIF"
+                        name="financialContractId"
+                        value={purchaseOrder.financialContract.taxeIdentityNumber}
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    ) : (<div />)
+                  }
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
-          <br />
-          <br />
           <Grid
             container
             spacing={8}
