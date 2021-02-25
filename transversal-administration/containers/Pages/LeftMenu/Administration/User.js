@@ -54,6 +54,8 @@ class User extends React.Component {
     const { intl } = props;
     this.editingPromiseResolve = () => {
     };
+    this.editingPromiseResolveEdit = () => {
+    };
     this.state = {
       firstName: '',
       fatherFamilyName: '',
@@ -352,13 +354,13 @@ class User extends React.Component {
 
   addUser = () => {
     const {
-      userEmail, firstName, fatherFamilyName, motherFamilyName, actif,role
+      userEmail, firstName, fatherFamilyName, motherFamilyName, actif, role
     } = this.state;
     const newData = {
       userCompanyId: '37',
       userNationalId: '37',
       userPassportId: '37',
-      userEmail: userEmail,
+      userEmail,
       userFullName: firstName + ' ' + fatherFamilyName + ' ' + motherFamilyName,
       userMobileNumber: '3711111',
       userStatus: 'status',
@@ -397,6 +399,8 @@ class User extends React.Component {
       // Sent resolve to editing promises
     (!isLoading && userResponse) && this.editingPromiseResolve(userResponse);
     (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
+    (!isLoading && userResponse) && this.editingPromiseResolveEdit(userResponse);
+    (!isLoading && !userResponse) && this.editingPromiseResolveEdit(errors);
     console.log(JSON.parse(localStorage.getItem('logedUser')));
     return (
       <div>
@@ -411,11 +415,11 @@ class User extends React.Component {
 
 
                   <Select
-                    multiple
+                    /* multiple */
                     value={fieldProps.value ? fieldProps.value : []}
                     onChange={e => fieldProps.onChange(e.target.value)}
                     input={<Input />}
-                    renderValue={(selected) => selected.join(', ')}
+                    /* renderValue={(selected) => selected.join(', ')} */
                   >
                     {Object.values(fieldProps.columnDef.lookup).map((name) => (
                       <MenuItem key={name} value={name}>
@@ -470,9 +474,9 @@ class User extends React.Component {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
-              return;
+              newData.userRolesIds = [newData.userRolesIds];
               updateUser(newData);
-              this.editingPromiseResolve = resolve;
+              this.editingPromiseResolveEdit = resolve;
             }).then((result) => {
               if (isString(result)) {
                 // Fetch data
@@ -551,7 +555,7 @@ class User extends React.Component {
                 <InputLabel>Select the Role</InputLabel>
                 <Select
                   name="role"
-                  multiple
+                  /* multiple */
                   value={role}
                   input={<Input />}
                   onChange={this.handleChangeRoles}

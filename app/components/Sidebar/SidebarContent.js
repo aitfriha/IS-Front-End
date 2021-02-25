@@ -10,6 +10,8 @@ import Avatar from '@material-ui/core/Avatar';
 import brand from 'dan-api/dummy/brand';
 import dummy from 'dan-api/dummy/dummyContents';
 import logo from 'dan-images/logo.svg';
+import { connect } from 'react-redux';
+import { injectIntl } from 'react-intl';
 import MainMenu from './MainMenu';
 import styles from './sidebar-jss';
 
@@ -44,7 +46,7 @@ function SidebarContent(props) {
     changeStatus,
     isLogin
   } = props;
-
+  const us = JSON.parse(localStorage.getItem('logedUser'));
   const setStatus = st => {
     switch (st) {
       case 'online':
@@ -76,7 +78,7 @@ function SidebarContent(props) {
               className={classNames(classes.avatar, classes.bigAvatar)}
             />
             <div>
-              <h4>{dummy.user.name}</h4>
+              <h4>{us.userFullName.substring(0, us.userFullName.lastIndexOf(' '))}</h4>
               <Button size="small" onClick={openMenuStatus}>
                 <i className={classNames(classes.dotStatus, setStatus(status))} />
                 {status}
@@ -148,5 +150,10 @@ SidebarContent.defaultProps = {
   anchorEl: null,
   isLogin: true,
 };
-
-export default withStyles(styles)(SidebarContent);
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+export default withStyles(styles)(connect(
+  mapStateToProps,
+  null
+)(SidebarContent));
