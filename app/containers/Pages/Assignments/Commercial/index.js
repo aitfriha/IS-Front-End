@@ -312,7 +312,6 @@ class Commercial extends React.Component {
   };
 
   selectedRows = (rows) => {
-    console.log('ffffffffffffffffffffffffffffff');
     const listClientToUpdate = rows.map((row) => row.clientId);
     this.setState({ listClientToUpdate });
     this.setState({ openPopUp: true });
@@ -402,15 +401,16 @@ class Commercial extends React.Component {
       openPopUpDelete,
       type, countries, country,
       notifMessage, client, clients,
-      columns, openPopUp, typeResponsible, staff, openPopUpImport, display
+      columns, openPopUp, typeResponsible, staff, openPopUpImport
     } = this.state;
+    let {display} =this.state;
     (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
     (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
     (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
     (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
     /* (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolveImport(errorsAssignment); */
     (!isLoading && clientResponse === '') && this.editingPromiseResolveImport(errors);
-    let exporte = true; let deleteAction = true;let assign = true;
+    let exporte = false; let deleteAction = false;let assign = false;
     if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_export == false) {
       exporte = true;
     }
@@ -421,6 +421,10 @@ class Commercial extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_create == false) {
       assign = true;
     }
+    if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_import == false) {
+      display = 'none';
+    }
+
     return (
       <div>
         <Helmet>

@@ -49,9 +49,9 @@ import AddContact from '../Contact/addContact';
     },
   },
 }); */
-var legalAreaContacts = [];
-var procurementDepartmentContacts = [];
-var qualificationProcessContacts = [];
+let legalAreaContacts = [];
+let procurementDepartmentContacts = [];
+let qualificationProcessContacts = [];
 class commercialOperationList extends React.Component {
   constructor(props) {
     super(props);
@@ -500,18 +500,17 @@ class commercialOperationList extends React.Component {
     this.setState({ contactDecisionMaker: '' });
     this.setState({ contactCloseToDecisionMaker: '' });
     this.setState({ contactTechnicalLeader: '' });
-    procurementDepartmentContacts=[];
-    legalAreaContacts=[];
-    qualificationProcessContacts=[];
+    procurementDepartmentContacts = [];
+    legalAreaContacts = [];
+    qualificationProcessContacts = [];
     for (const cle in data) {
       console.log(data[cle]);
       if (data[cle].supplierType === 'decision - maker' && data[cle].suppliersArea === 'Suppliers Area') {
         this.setState({ contactDecisionMaker: data[cle].firstName + ' ' + data[cle].fatherFamilyName });
       }
       if (data[cle].supplierType === 'Other contact' && data[cle].suppliersArea === 'Suppliers Area') {
-        qualificationProcessContacts.push(data[cle].firstName + ' ' + data[cle].fatherFamilyName );
+        qualificationProcessContacts.push(data[cle].firstName + ' ' + data[cle].fatherFamilyName);
         this.setState({ contactOtherContactList: qualificationProcessContacts });
-
       }
       if (data[cle].supplierType === 'close to the decision - maker') {
         this.setState({ contactCloseToDecisionMaker: data[cle].firstName + ' ' + data[cle].fatherFamilyName });
@@ -555,9 +554,9 @@ class commercialOperationList extends React.Component {
       viewProgress, openPopUp, oprationName, contactOtherContactList, contactCloseToDecisionMaker, contactTechnicalLeader, legalAreaContactsList, procurementDepartmentContactList, contactDecisionMaker
     } = this.state;
     const {
-      allClients, allCommercialOperations
+      allClients, allCommercialOperations, logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
     const title = brand.name + ' - Commercial Operations';
     const description = brand.desc;
     const { data, columns } = this.state;
@@ -569,7 +568,13 @@ class commercialOperationList extends React.Component {
       filterType: 'dropdown',
       rowsPerPage: 10,
       customToolbar: () => (
-        <CustomToolbar csvData={data} url="/app/gestion-commercial/Add-Operation" tooltip="add new Operation" />
+        <CustomToolbar
+          csvData={allCommercialOperations}
+          url="/app/gestion-commercial/Add-Operation"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.commercial_commercialOperation_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.commercial_commercialOperation_export}
+          tooltip="add new Operation"
+        />
       )
     };
 
@@ -672,12 +677,12 @@ class commercialOperationList extends React.Component {
                 ) : ''
                 }
                 {contactOtherContactList.map(contact => (
-                    <div style={{ display: 'flex' }}>
+                  <div style={{ display: 'flex' }}>
                       contact 1 &nbsp;
-                      <span style={{ color: 'blue' }}>{contact}</span>
-                    </div>
+                    <span style={{ color: 'blue' }}>{contact}</span>
+                  </div>
                 ))}
-                {(contactDecisionMaker == '' && contactCloseToDecisionMaker == '' && contactOtherContactList.length==0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : ''}
+                {(contactDecisionMaker == '' && contactCloseToDecisionMaker == '' && contactOtherContactList.length == 0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : ''}
                 <br />
               </Grid>
               <Grid
@@ -695,7 +700,7 @@ class commercialOperationList extends React.Component {
                     <span style={{ color: 'blue' }}>{contact}</span>
                   </div>
                 ))}
-                {(procurementDepartmentContactList.length==0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : '' }
+                {(procurementDepartmentContactList.length == 0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : '' }
                 <br />
               </Grid>
               <Grid
@@ -713,7 +718,7 @@ class commercialOperationList extends React.Component {
                     <span style={{ color: 'blue' }}>{contact}</span>
                   </div>
                 ))}
-                {(legalAreaContactsList.length==0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : '' }
+                {(legalAreaContactsList.length == 0) ? <span style={{ color: 'blue' }}>no contact assigned !</span> : '' }
                 <br />
               </Grid>
 
@@ -763,6 +768,8 @@ const mapStateToProps = state => ({
   commercialOperationResponse: state.getIn(['commercialOperation']).commercialOperationResponse,
   isLoadingCommercialOperation: state.getIn(['commercialOperation']).isLoading,
   errorsCommercialOperation: state.getIn(['commercialOperation']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addClientCommercial,

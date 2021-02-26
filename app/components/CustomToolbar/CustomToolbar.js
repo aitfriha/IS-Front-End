@@ -17,10 +17,10 @@ class CustomToolbar extends React.Component {
     const fileExtension = '.xlsx';
     console.log(csvData);
     const ws = XLSX.utils.json_to_sheet(csvData);
-    const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], {type: fileType});
-    FileSaver.saveAs(data, "Clients" + fileExtension);
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, 'Clients' + fileExtension);
   }
 
   handleGoToAddClient = () => {
@@ -29,19 +29,44 @@ class CustomToolbar extends React.Component {
   }
 
   render() {
-    const { classes, tooltip } = this.props;
+    const {
+      classes, tooltip, hasAddRole, hasExportRole
+    } = this.props;
+    console.log('hasAccessRole', hasAddRole);
+    if (hasAddRole == undefined && hasExportRole == undefined) {
+      return (
+        <React.Fragment>
+          <Tooltip title="export in Excel" className={classes.toolbarBtn}>
+            <IconButton onClick={this.handleClick}>
+              <GetAppIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={tooltip} className={classes.toolbarBtn}>
+            <IconButton onClick={this.handleGoToAddClient}>
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        </React.Fragment>
+      );
+    }
     return (
       <React.Fragment>
-        <Tooltip title="export in Excel" className={classes.toolbarBtn}>
-          <IconButton onClick={this.handleClick}>
-            <GetAppIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={tooltip} className={classes.toolbarBtn}>
-          <IconButton onClick={this.handleGoToAddClient}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
+        {hasAddRole ? (
+          <Tooltip title="export in Excel" className={classes.toolbarBtn}>
+            <IconButton onClick={this.handleClick}>
+              <GetAppIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (null)
+        }
+        {hasExportRole ? (
+          <Tooltip title={tooltip} className={classes.toolbarBtn}>
+            <IconButton onClick={this.handleGoToAddClient}>
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (null)
+        }
       </React.Fragment>
     );
   }

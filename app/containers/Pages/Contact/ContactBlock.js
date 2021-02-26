@@ -16,9 +16,9 @@ import { getAllClient } from '../../../redux/client/actions';
 import { getAllContact } from '../../../redux/contact/actions';
 import CountryService from '../../Services/CountryService';
 import EditContact from './editContact';
-import EditClient from "../Clients/EditClient";
-import { getAllStateByCountry } from "../../../redux/stateCountry/actions";
-import { getAllCityByState } from "../../../redux/city/actions";
+import EditClient from '../Clients/EditClient';
+import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../redux/city/actions';
 
 class ContactBlock extends React.Component {
   constructor(props) {
@@ -388,7 +388,7 @@ class ContactBlock extends React.Component {
     this.setState({ openPopUp: true });
     getAllCityByState(data[22]); */
 
-    const { allContacts,getAllStateByCountry,getAllCityByState } = this.props;
+    const { allContacts, getAllStateByCountry, getAllCityByState } = this.props;
     for (const key in allContacts) {
       if (allContacts[key].contactId === data[0]) {
         this.setState({ selectedContact: allContacts[key] });
@@ -406,8 +406,11 @@ class ContactBlock extends React.Component {
   }
 
   render() {
-    const { allContacts, allStateCountrys, allCitys } = this.props;
+    const {
+      allContacts, allStateCountrys, allCitys, logedUser
+    } = this.props;
     const { columns, openPopUp, selectedContact } = this.state;
+    const thelogedUser = JSON.parse(logedUser);
     const options = {
       fixedHeader: true,
       fixedSelectColumn: false,
@@ -416,8 +419,15 @@ class ContactBlock extends React.Component {
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
+      download: false,
       customToolbar: () => (
-        <CustomToolbar url="/app/gestion-commercial/contact/addContact" tooltip="Add contact" />
+        <CustomToolbar
+          url="/app/gestion-commercial/contact/addContact"
+          tooltip="Add contact"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.commercial_clientContact_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.commercial_clientContact_export}
+          csvData={allContacts}
+        />
       )
     };
 
@@ -425,7 +435,7 @@ class ContactBlock extends React.Component {
       <div>
         <MUIDataTable
           title="Contacts"
-          data={allContacts && allContacts}
+          data={allContacts}
           columns={columns}
           options={options}
         />
@@ -441,7 +451,7 @@ class ContactBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-slide-title"> Update contact</DialogTitle>
           <DialogContent dividers>
-            <EditContact selectedContact={ selectedContact} allStateCountrys={allStateCountrys} allCitys={allCitys} handleClose={this.handleClose} />
+            <EditContact selectedContact={selectedContact} allStateCountrys={allStateCountrys} allCitys={allCitys} handleClose={this.handleClose} />
           </DialogContent>
           <DialogActions>
             <Button color="secondary" onClick={this.handleClose}>
@@ -480,6 +490,7 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
