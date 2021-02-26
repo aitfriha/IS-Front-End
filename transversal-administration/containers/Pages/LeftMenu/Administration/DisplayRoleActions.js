@@ -80,7 +80,7 @@ class DisplayRoleActions extends React.Component {
 
       commercial_commercialAssignments_access: false,
       commercial_commercialAssignments_create: false,
-      commercial_commercialAssignments_modify: false,
+      commercial_commercialAssignments_import: false,
       commercial_commercialAssignments_delete: false,
       commercial_commercialAssignments_export: false,
 
@@ -471,7 +471,7 @@ class DisplayRoleActions extends React.Component {
       commercial_customers_export,
       commercial_commercialAssignments_access,
       commercial_commercialAssignments_create,
-      commercial_commercialAssignments_modify,
+      commercial_commercialAssignments_import,
       commercial_commercialAssignments_delete,
       commercial_commercialAssignments_export,
       commercial_clientContact_access,
@@ -764,7 +764,7 @@ class DisplayRoleActions extends React.Component {
         commercial_customers_export,
         commercial_commercialAssignments_access,
         commercial_commercialAssignments_create,
-        commercial_commercialAssignments_modify,
+        commercial_commercialAssignments_import,
         commercial_commercialAssignments_delete,
         commercial_commercialAssignments_export,
         commercial_clientContact_access,
@@ -1085,7 +1085,7 @@ class DisplayRoleActions extends React.Component {
         commercial_customers_export,
         commercial_commercialAssignments_access,
         commercial_commercialAssignments_create,
-        commercial_commercialAssignments_modify,
+        commercial_commercialAssignments_import,
         commercial_commercialAssignments_delete,
         commercial_commercialAssignments_export,
         commercial_clientContact_access,
@@ -1619,8 +1619,8 @@ class DisplayRoleActions extends React.Component {
                       label="Create"
                     />
                     <FormControlLabel
-                      control={<Checkbox checked={commercial_commercialAssignments_modify} onChange={this.handleChange} name="commercial_commercialAssignments_modify" />}
-                      label="Modify"
+                      control={<Checkbox checked={commercial_commercialAssignments_import} onChange={this.handleChange} name="commercial_commercialAssignments_import" />}
+                      label="Import"
                     />
                     <FormControlLabel
                       control={<Checkbox checked={commercial_commercialAssignments_delete} onChange={this.handleChange} name="commercial_commercialAssignments_delete" />}

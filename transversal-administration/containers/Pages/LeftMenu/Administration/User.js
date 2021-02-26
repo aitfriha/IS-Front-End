@@ -371,6 +371,7 @@ class User extends React.Component {
     };
     const { addUser, getAllUsers } = this.props;
     new Promise((resolve) => {
+      newData.userRolesIds = [newData.userRolesIds];
       addUser(newData);
       this.editingPromiseResolve = resolve;
     }).then((result) => {
