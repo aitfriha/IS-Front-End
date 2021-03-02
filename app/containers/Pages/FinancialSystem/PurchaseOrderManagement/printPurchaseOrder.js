@@ -132,7 +132,7 @@ class PrintPurchaseOrder extends React.Component {
                   </Grid>
                   <Grid item xs={12}>
                     {
-                      (purchaseOrder.financialContract._id !== '') ? (
+                      (purchaseOrder.financialContract) ? (
                         <TextField
                           id="financialContractId"
                           label="Contract  NIF"
