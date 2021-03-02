@@ -82,44 +82,8 @@ class User extends React.Component {
             maxWidth: 140
           }
         },
-        /*               {
-                    title: intl.formatMessage({ id: 'user.company_id' }),
-                    field: 'userCompanyId',
-                    cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    }
-                }, */
-        /*                {
-                    title: intl.formatMessage({ id: 'user.national_id' }),
-                    field: 'userNationalId',
-                    cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    }
-                }, */
-        /*                {
-                    title: intl.formatMessage({ id: 'user.passport_id' }),
-                    field: 'userPassportId',
-                    cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    }
-                }, */
         {
-          title: intl.formatMessage({ id: 'email' }) + '*',
+          title: 'email*',
           field: 'userEmail',
           cellStyle: {
             width: 140,
@@ -131,16 +95,16 @@ class User extends React.Component {
           }
         },
         {
-          title: intl.formatMessage({ id: 'mobile' }),
+          title: 'mobile',
           field: 'userMobileNumber',
-          /*           cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    } */
+          cellStyle: {
+            width: 140,
+            maxWidth: 140
+          },
+          headerStyle: {
+            width: 140,
+            maxWidth: 140
+          }
         },
         {
           title: 'roles*',
@@ -171,73 +135,33 @@ class User extends React.Component {
             maxWidth: 140
           }
         },
-        /*        {
-          title: 'status',
-          field: 'userStatus',
-          lookup: {
-            online: 'online',
-            offline: 'offline',
-          },
-                     cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    }
-        }, */
-        {
-          title: intl.formatMessage({ id: 'department' }),
-          field: 'userDepartmentId',
-        /*            cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    } */
-        },
-        /*                {
-                    title: intl.formatMessage({ id: 'user.default_country_language' }) + '*',
-                    field: 'userCountryLanguage',
-                    cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    }
-                }, */
         {
           title: 'creation date',
           field: 'userCreatedAt',
           type: 'date',
           editable: 'never',
-          /*                cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    } */
+          cellStyle: {
+            width: 140,
+            maxWidth: 140
+          },
+          headerStyle: {
+            width: 140,
+            maxWidth: 140
+          }
         },
         {
           title: 'last update',
           field: 'userUpdatedAt',
           type: 'date',
           editable: 'never',
-          /*                    cellStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    },
-                    headerStyle: {
-                        width: 140,
-                        maxWidth: 140
-                    } */
+          cellStyle: {
+            width: 140,
+            maxWidth: 140
+          },
+          headerStyle: {
+            width: 140,
+            maxWidth: 140
+          }
         },
       ]
     };
@@ -284,7 +208,6 @@ class User extends React.Component {
 
     if (!isEmpty(props.allRoles) || !isEmpty(props.allDepartments)) {
       state.columns.find(e => e.field === 'userRolesIds').lookup = subjectColumnLookupAdapterRole(props.allRoles);
-      state.columns.find(e => e.field === 'userDepartmentId').lookup = subjectColumnLookupAdapterDepartment(props.allDepartments);
       //  state.columns.find(e => e.field === 'userCountryLanguage').lookup = subjectColumnLookupAdapterLanguage(['en-US', ...props.systemTranslateLanguages]);
       return state.columns;
     }

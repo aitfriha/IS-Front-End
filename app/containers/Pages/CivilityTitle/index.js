@@ -33,16 +33,12 @@ class StatusOfCommercialOperation extends React.Component {
         {
           // eslint-disable-next-line no-useless-concat
           title: 'Name' + '*',
-          field: 'name',
-          /* cellStyle: { width: 100, maxWidth: 100 },
-          headerStyle: { width: 130, maxWidth: 130 } */
+          field: 'name'
         },
         {
           // eslint-disable-next-line no-useless-concat
           title: 'Code' + '*',
-          field: 'code',
-          /* cellStyle: { width: 100, maxWidth: 100 },
-          headerStyle: { width: 130, maxWidth: 130 } */
+          field: 'code'
         }
       ]
     };
@@ -96,10 +92,19 @@ render() {
   } = this.state;
   const {
     // eslint-disable-next-line no-shadow
-    errors, isLoading, civilityTitleResponse, addCivilityTitleStatus, getAllCivilityTitleStatus, allCivilityTitles, updateCivilityTitleStatus, deleteCivilityTitleStatus
+    errors, isLoading, civilityTitleResponse, addCivilityTitleStatus, getAllCivilityTitleStatus, allCivilityTitles, updateCivilityTitleStatus, deleteCivilityTitleStatus,logedUser
   } = this.props;
+  const thelogedUser = JSON.parse(logedUser);
   (!isLoading && civilityTitleResponse) && this.editingPromiseResolve(civilityTitleResponse);
   (!isLoading && !civilityTitleResponse) && this.editingPromiseResolve(errors);
+  let disableDelete = true;
+  if(thelogedUser.userRoles[0].actionsNames.commercial_titleType_add){
+    disableDelete=false;
+  }
+  let disableExport = false;
+  if(thelogedUser.userRoles[0].actionsNames.commercial_titleType_export){
+    disableExport=true;
+  }
   return (
     <div>
       <Helmet>
@@ -111,7 +116,6 @@ render() {
         <meta property="twitter:description" content={description} />
       </Helmet>
       <PapperBlock title="Title type Management" desc="" noMargin>
-        {/* <StatusOfCommercialOperationBlock onSelected={this.handleChangeSelectedStatus} status={status} /> */}
         <MaterialTable
           title=""
           columns={columns}
@@ -120,7 +124,7 @@ render() {
             exportFileName: 'title type List',
             // filtering: true,
             // draggable: true,
-            exportButton: true,
+            exportButton: disableExport,
             pageSize: 10,
             // grouping: true,
             actionsCellStyle: {
@@ -132,7 +136,7 @@ render() {
           }}
 
           editable={{
-            onRowAdd: newData => new Promise((resolve) => {
+            onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_titleType_add ? (newData => new Promise((resolve) => {
               // add measurement unit action
               addCivilityTitleStatus(newData);
               this.editingPromiseResolve = resolve;
@@ -144,8 +148,8 @@ render() {
               } else {
                 notification('danger', result);
               }
-            }),
-            onRowUpdate: (newData) => new Promise((resolve) => {
+            })):null,
+            onRowUpdate: thelogedUser.userRoles[0].actionsNames.commercial_titleType_modify ? ((newData) => new Promise((resolve) => {
               // update CommercialOperationStatus unit action
               updateCivilityTitleStatus(newData);
               this.editingPromiseResolve = resolve;
@@ -157,7 +161,7 @@ render() {
               } else {
                 notification('danger', result);
               }
-            }),
+            })):null,
             /*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialOperationStatus action
                 deleteCivilityTitleStatus(oldData.civilityTitleId);
@@ -177,6 +181,7 @@ render() {
             {
               icon: 'delete',
               tooltip: 'Delete User',
+              disabled: disableDelete,
               onClick: (event, rowData) => this.delete(event, rowData)
             }
           ]}
@@ -233,7 +238,9 @@ const mapStateToProps = state => ({
   allCivilityTitles: state.getIn(['civilityTitle']).allCivilityTitles,
   civilityTitleResponse: state.getIn(['civilityTitle']).civilityTitleResponse,
   isLoading: state.getIn(['civilityTitle']).isLoading,
-  errors: state.getIn(['civilityTitle']).errors
+  errors: state.getIn(['civilityTitle']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCivilityTitleStatus,

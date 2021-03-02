@@ -124,12 +124,12 @@ class ContactByOperationStatus extends React.Component {
   }
 
   componentDidMount() {
-    console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     // eslint-disable-next-line no-shadow
     const { getAllCommercialOperationStatus, getAllContactByOperation } = this.props;
     getAllCommercialOperationStatus();
     getAllContactByOperation();
   }
+
   refresh = () => {
     const { getAllContactByOperation } = this.props;
     getAllContactByOperation();
@@ -236,7 +236,7 @@ class ContactByOperationStatus extends React.Component {
       },
     ];
     console.log(objectsContactTypeMandatoryAttributes);
-    //return null;
+    // return null;
     const cbo = {
       statusId,
       description,
@@ -656,11 +656,11 @@ class ContactByOperationStatus extends React.Component {
       firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
     } = this.state;
     const {
-      classes, allCommercialOperationStatus, allContactByOperations, contactByOperationResponse, errorsContactByOperation, isLoadingContactByOperation
+      classes, allCommercialOperationStatus, allContactByOperations, contactByOperationResponse, errorsContactByOperation, isLoadingContactByOperation, logedUser
     } = this.props;
     (!isLoadingContactByOperation && contactByOperationResponse) && this.editingPromiseResolve(contactByOperationResponse);
     (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
-
+    const thelogedUser = JSON.parse(logedUser);
     return (
       <div>
         <Helmet>
@@ -704,25 +704,29 @@ class ContactByOperationStatus extends React.Component {
                 />
               </div>
             </Grid>
-            <Grid
-              item
-              xs={12}
-              md={5}
-              style={{ display: 'flex' }}
-            >
-              <Typography variant="subtitle2" color="primary" style={{ width: '20%' }}>Contact type</Typography>
-              <div style={{ width: '60%' }}>
-                <Button
-                  disabled={buttonControle}
-                  color="primary"
-                  variant="contained"
-                  size="small"
-                  onClick={this.handleOpenDialog}
-                >
-                Add contact Type
-                </Button>
-              </div>
-            </Grid>
+            {thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_create ? (
+              <Grid
+                item
+                xs={12}
+                md={5}
+                style={{ display: 'flex' }}
+              >
+                <Typography variant="subtitle2" color="primary" style={{ width: '20%' }}>Contact type</Typography>
+                <div style={{ width: '60%' }}>
+                  <Button
+                    disabled={buttonControle}
+                    color="primary"
+                    variant="contained"
+                    size="small"
+                    onClick={this.handleOpenDialog}
+                  >
+                      Add contact Type
+                  </Button>
+                </div>
+              </Grid>
+            ) : null
+            }
+
             <Grid
               item
               xs={12}
@@ -1130,7 +1134,9 @@ const mapStateToProps = state => ({
   allContactByOperations: state.getIn(['contactByOperations']).allContactByOperations,
   contactByOperationResponse: state.getIn(['contactByOperations']).contactByOperationResponse,
   isLoadingContactByOperation: state.getIn(['contactByOperations']).isLoading,
-  errorsContactByOperation: state.getIn(['contactByOperations']).errors
+  errorsContactByOperation: state.getIn(['contactByOperations']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialOperationStatus,

@@ -414,7 +414,6 @@ class Commercial extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_export == false) {
       exporte = true;
     }
-    console.log(thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_delete);
     if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_delete == false) {
       deleteAction = true;
     }

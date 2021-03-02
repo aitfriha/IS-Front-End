@@ -86,8 +86,6 @@ class serviceType extends React.Component {
     for (const key in serviceTypeNameCurrent) {
       theserviceType1.push(serviceTypeNameCurrent[key].name);
     }
-    console.log('serviceTypeNameCurrent ', theserviceType1);
-    console.log('operationCommercial ', operationCommercial);
     const { updateDeleteCommercialServiceType, getAllCommercialServiceType } = this.props;
     const promise = new Promise((resolve) => {
       updateDeleteCommercialServiceType(theserviceType1, operationCommercial);
@@ -111,7 +109,6 @@ class serviceType extends React.Component {
     for (const key in value) {
       for (const j in this.props.allCommercialServiceType) {
         if (this.props.allCommercialServiceType[j].name === value[key].name) {
-          console.log('AAAAAAAAAAAAAA');
           theserviceType.push(this.props.allCommercialServiceType[j]);
           // break;
         }
@@ -136,11 +133,21 @@ class serviceType extends React.Component {
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
+      logedUser,
       classes, errors, isLoading, commercialServiceTypeResponse, addCommercialServiceType, getAllCommercialServiceType, allCommercialServiceType, updateCommercialServiceType, deleteCommercialServiceType
     } = this.props;
     (!isLoading && commercialServiceTypeResponse) && this.editingPromiseResolve(commercialServiceTypeResponse);
     (!isLoading && !commercialServiceTypeResponse) && this.editingPromiseResolve(errors);
-    console.log(index);
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_export) {
+      exportButton = true;
+    }
+    let deletebutton = true;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_delete) {
+      deletebutton = false;
+    }
+
     return (
       <div>
         <Helmet>
@@ -161,7 +168,7 @@ class serviceType extends React.Component {
               exportFileName: 'Commercial Operation List',
               // filtering: true,
               // draggable: true,
-              exportButton: true,
+              exportButton,
               pageSize: 10,
               // grouping: true,
               actionsCellStyle: {
@@ -175,11 +182,12 @@ class serviceType extends React.Component {
               {
                 icon: 'delete',
                 tooltip: 'Delete User',
+                disabled: deletebutton,
                 onClick: (event, rowData) => this.handleDetails(rowData)
               }
             ]}
             editable={{
-              onRowAdd: newData => new Promise((resolve) => {
+              onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_create ? (newData => new Promise((resolve) => {
                 // add measurement unit action
                 addCommercialServiceType(newData);
                 this.editingPromiseResolve = resolve;
@@ -191,8 +199,8 @@ class serviceType extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
-              onRowUpdate: (newData) => new Promise((resolve) => {
+              })) : null,
+              onRowUpdate: thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_modify ? ((newData) => new Promise((resolve) => {
                 // update CommercialServiceType unit action
                 updateCommercialServiceType(newData);
                 this.editingPromiseResolve = resolve;
@@ -204,7 +212,7 @@ class serviceType extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
+              })) : null,
               /*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialServiceType action
                 deleteCommercialServiceType(oldData.serviceTypeId);
@@ -298,7 +306,9 @@ const mapStateToProps = state => ({
   allCommercialServiceType: state.getIn(['commercialServiceType']).allCommercialServiceType,
   commercialServiceTypeResponse: state.getIn(['commercialServiceType']).commercialServiceTypeResponse,
   isLoading: state.getIn(['commercialServiceType']).isLoading,
-  errors: state.getIn(['commercialServiceType']).errors
+  errors: state.getIn(['commercialServiceType']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialServiceType,
