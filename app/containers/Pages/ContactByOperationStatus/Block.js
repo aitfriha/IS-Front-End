@@ -39,7 +39,7 @@ class ContactByOperationStatusBlock extends React.Component {
     };
     this.editingPromiseResolveDelete = () => {
     };
-
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       openPopUp: false,
       c00: false,
@@ -125,12 +125,16 @@ class ContactByOperationStatusBlock extends React.Component {
           options: {
             customBodyRender: (value, data) => (
               <React.Fragment>
-                <IconButton onClick={() => this.updateStatus(data.rowIndex, data)}>
-                  <EditIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.deleteMondatoryAttributes(data.rowIndex, data)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                { thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_modify ? (
+                  <IconButton onClick={() => this.updateStatus(data.rowIndex, data)}>
+                    <EditIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                { thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_delete ? (
+                  <IconButton onClick={() => this.deleteMondatoryAttributes(data.rowIndex, data)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -430,28 +434,37 @@ class ContactByOperationStatusBlock extends React.Component {
   }
 
   render() {
+    const {
+      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes, openPopUpDelete,
+      firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
+    } = this.state;
+    const {
+      contacts, classes, logedUser,
+      isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation,
+    } = this.props;
+    const { columns } = this.state;
+    (!isLoadingContactByOperation && contactByOperationResponse === 'updated') && this.editingPromiseResolve(contactByOperationResponse);
+    // (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
+
+    (!isLoadingContactByOperation && contactByOperationResponse == 'deleted') && this.editingPromiseResolveDelete(contactByOperationResponse);
+    /*    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolveDelete(errorsContactByOperation); */
+    const thelogedUser = JSON.parse(logedUser);
+    if (!thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_modify && !thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_delete) {
+      columns[4] = '';
+    }
+    let download = false;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_export) {
+      download = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
+      download,
+      print: download
     };
-    const {
-      columns,
-      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes, openPopUpDelete,
-      firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
-    } = this.state;
-    const {
-      contacts, classes,
-      isLoadingContactByOperation, contactByOperationResponse, errorsContactByOperation,
-    } = this.props;
-
-    (!isLoadingContactByOperation && contactByOperationResponse === 'updated') && this.editingPromiseResolve(contactByOperationResponse);
-    // (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolve(errorsContactByOperation);
-
-    (!isLoadingContactByOperation && contactByOperationResponse == 'deleted') && this.editingPromiseResolveDelete(contactByOperationResponse);
-    /*    (!isLoadingContactByOperation && !contactByOperationResponse) && this.editingPromiseResolveDelete(errorsContactByOperation); */
     return (
       <div>
         <MUIDataTable
@@ -460,142 +473,6 @@ class ContactByOperationStatusBlock extends React.Component {
           columns={columns}
           options={options}
         />
-        {/*   <Dialog
-          open={openPopUp}
-          keepMounted
-          scroll="body"
-          onClose={this.handleClose}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
-          fullWidth
-          maxWidth="xl"
-        >
-          <DialogTitle id="alert-dialog-slide-title">
-            {' '}
-            Mondatory contact type for status :
-             <span style={{ color: 'blue' }}>{operationName}</span>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Grid
-              container
-              spacing={4}
-              direction="row"
-            >
-              <Grid item xs={12} md={4}>
-                <Chip
-                  label="Qualification Process Contacts"
-                  avatar={<Avatar>1</Avatar>}
-                  color="primary"
-                />
-                <Divider
-                  variant="fullWidth"
-                  style={{ marginBottom: '10px', marginTop: '10px' }}
-                />
-                <FormControl component="fieldset" className={classes.formControl}>
-                   <FormLabel component="legend">Qualification Process Contacts</FormLabel>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={c00} onChange={this.handleChangeCheck} name="c00" value="contact of the decision-maker" />}
-                      label="contact of the decision-maker"
-                    />
-                     <FormLabel component="legend">Label Placement</FormLabel>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={this.handleSubmitStatus}
-                    >
-                      Add
-                    </Button>
-                    <FormControlLabel
-                      control={<Checkbox checked={c01} onChange={this.handleChangeCheck} name="c01" value="contact of the technical leader" />}
-                      label="contact of the technical leader"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c02} onChange={this.handleChangeCheck} name="c02" value="contact of the person close to the decision-maker" />}
-                      label="contact of the person close to the decision-maker"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c03} onChange={this.handleChangeCheck} name="c03" value="Other contact 1" />}
-                      label="Other contact 1"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c04} onChange={this.handleChangeCheck} name="c04" value="Other contact 2" />}
-                      label="Other contact 2"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c05} onChange={this.handleChangeCheck} name="c05" value="Other contact 3" />}
-                      label="Other contact 3"
-                    />
-                  </FormGroup>
-                    <FormHelperText>Be careful</FormHelperText>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Chip
-                  label="Procurement Department"
-                  avatar={<Avatar>2</Avatar>}
-                  color="primary"
-                />
-                <Divider
-                  variant="fullWidth"
-                  style={{ marginBottom: '10px', marginTop: '10px' }}
-                />
-                <FormControl component="fieldset" className={classes.formControl}>
-                       <FormLabel component="legend">Assign responsibility</FormLabel>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={c10} onChange={this.handleChangeCheck} name="c10" value="pd contact 1" />}
-                      label="Contact 1"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c11} onChange={this.handleChangeCheck} name="c11" value="pd contact 2" />}
-                      label="Contact 2"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c12} onChange={this.handleChangeCheck} name="c12" value="pd contact 3" />}
-                      label="Contact 3"
-                    />
-                  </FormGroup>
-                   <FormHelperText>Be careful</FormHelperText>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Chip
-                  label="Legal Area"
-                  avatar={<Avatar>3</Avatar>}
-                  color="primary"
-                />
-                <Divider
-                  variant="fullWidth"
-                  style={{ marginBottom: '10px', marginTop: '10px' }}
-                />
-                <FormControl component="fieldset" className={classes.formControl}>
-                   <FormLabel component="legend">Assign responsibility</FormLabel>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={<Checkbox checked={c20} onChange={this.handleChangeCheck} name="c20" value="la contact 1" />}
-                      label="Contact 1"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c21} onChange={this.handleChangeCheck} name="c21" value="la contact 2" />}
-                      label="Contact 2"
-                    />
-                    <FormControlLabel
-                      control={<Checkbox checked={c22} onChange={this.handleChangeCheck} name="c22" value="la contact 3" />}
-                      label="Contact 3"
-                    />
-                  </FormGroup>
-                   <FormHelperText>Be careful</FormHelperText>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button color="secondary" onClick={this.handleClose}>
-              close
-            </Button>
-          </DialogActions>
-        </Dialog> */}
         <Dialog
           open={openPopUpAttributes}
           keepMounted
@@ -908,6 +785,8 @@ const mapStateToProps = state => ({
   contactByOperationResponse: state.getIn(['contactByOperations']).contactByOperationResponse,
   isLoadingContactByOperation: state.getIn(['contactByOperations']).isLoading,
   errorsContactByOperation: state.getIn(['contactByOperations']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllContactByOperation,

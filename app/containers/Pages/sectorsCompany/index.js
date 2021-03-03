@@ -38,6 +38,7 @@ class sector extends React.Component {
     super(props);
     this.editingPromiseResolve = () => {
     };
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       description1: '',
       description2: '',
@@ -80,17 +81,21 @@ class sector extends React.Component {
           }
         }, */
         {
-          label: ' ',
+          label: 'actions',
           name: ' ',
           options: {
             customBodyRender: (value, data) => (
               <React.Fragment>
-                <IconButton onClick={() => console.log('eee')}>
+                {/*              <IconButton onClick={() => console.log('eee')}>
                   <EditIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.delete(data.rowData[0], data.rowData[1], data.rowData[2])}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                </IconButton> */}
+                {thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_delete
+                  ? (
+                    <IconButton onClick={() => this.delete(data.rowData[0], data.rowData[1], data.rowData[2])}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null
+                }
               </React.Fragment>
             )
           }
@@ -125,8 +130,8 @@ class sector extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
-       // this.setState({ message: result.message });
-         this.setState({ message: 'Are you sure you want to delete ?'});
+        // this.setState({ message: result.message });
+        this.setState({ message: 'Are you sure you want to delete ?' });
         // notification('success', result);
         // getAllSectorCompany();
       //  getAllPrimarySectorCompany();
@@ -237,11 +242,11 @@ class sector extends React.Component {
     const title = brand.name + ' - Sectors';
     const description = brand.desc;
     const {
-      description1, description2, description3, thirdSectorName, isDisabled, columns, openPopUp, message
+      description1, description2, description3, thirdSectorName, isDisabled, openPopUp, message
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, sectorComapnyResponse, allSectorComapnys, allSectorPimaryComapnys, deleteSectorCompany
+      errors, isLoading, sectorComapnyResponse, allSectorComapnys, allSectorPimaryComapnys, deleteSectorCompany, logedUser
     } = this.props;
     (!isLoading && sectorComapnyResponse) && this.editingPromiseResolve(sectorComapnyResponse);
     (!isLoading && !sectorComapnyResponse) && this.editingPromiseResolve(errors);
@@ -253,21 +258,34 @@ class sector extends React.Component {
     } else {
       console.log('allSectorChildComapnys ', allSectorChildComapnys);
     }
-
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_export) {
+      exportButton = true;
+    }
+    let {columns} = this.state;
+    if (!thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_modify && !thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_delete) {
+      columns[3]='';
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allSectorComapnys}
           url="/app/gestion-commercial/sectors/create-sector"
           tooltip="add new Sector"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_export}
         />
       )
     };
+
     return (
       <div>
         <Helmet>
@@ -279,155 +297,156 @@ class sector extends React.Component {
           <meta property="twitter:description" content={description} />
         </Helmet>
         <PapperBlock title="Sectors" icon="ios-person" noMargin>
-          {/* xxxxxxxxxxxxx */}
-          <div>
-            <Grid
-              container
-              spacing={6}
-              direction="row"
-              justify="center"
-              alignItems="center"
-            >
+          {thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_create ? (
+            <div>
               <Grid
-                item
-                xs={12}
-                md={7}
-                style={{ display: 'flex', justifyContent: 'space-between' }}
+                container
+                spacing={6}
+                direction="row"
                 justify="center"
-                alignContent="center"
                 alignItems="center"
               >
-                <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>First Sector</Typography>
-                <div style={{ width: '35%' }}>
-                  {/*  <AutoComplete value={this.handleValueChange} placeholder="First Sector Name" data={sectors1} type="sector1" /> */}
-                  <Autocomplete
-                    id="combo-box-demo"
-                    name="firstSector"
-                    freeSolo
-                    options={allSectorPimaryComapnys}
-                    getOptionLabel={option => option.firstSectorName}
-                    onChange={this.handleValueChange1}
-                    onInputChange={this.handleinputChange1}
-                    style={{ marginTop: 15 }}
-                    renderInput={params => (
-                      <TextField
-                        fullWidth
-                        {...params}
-                        label="First Sector"
-                        variant="outlined"
-                      />
-                    )}
-                  />
-                </div>
-                <TextField
-                  id="outlined-basic"
-                  label="Description"
-                  variant="outlined"
-                  name="description1"
-                  value={description1}
-                  style={{ width: '48%' }}
-                  required
-                  /* className={classes.textField} */
-                  onChange={this.handleChange}
-                />
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                md={7}
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-                justify="center"
-                alignContent="center"
-                alignItems="center"
-              >
-                <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>Second Sector</Typography>
-                <div style={{ width: '35%' }}>
-                  <Autocomplete
-                    id="combo-box-demo"
-                    freeSolo
-                    name="secondSector"
-                    disabled={isDisabled}
-                    options={allSectorChildComapnys && allSectorChildComapnys}
-                    getOptionLabel={option => option.secondSectorName}
-                    onChange={this.handleValueChange2}
-                    onInputChange={this.handleinputChange2}
-                    style={{ marginTop: 15 }}
-                    renderInput={params => (
-                      <TextField
-                        fullWidth
-                        {...params}
-                        label="Second Sector"
-                        variant="outlined"
-                      />
-                    )}
-                  />
-                </div>
-                <TextField
-                  id="outlined-basic"
-                  label="Description"
-                  variant="outlined"
-                  name="description2"
-                  value={description2}
-                  style={{ width: '48%' }}
-                  required
-                  /* className={classes.textField} */
-                  onChange={this.handleChange}
-                />
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                md={7}
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-                justify="center"
-                alignContent="center"
-                alignItems="center"
-              >
-                <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>Third Sector</Typography>
-                <div style={{ width: '35%' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={7}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                  justify="center"
+                  alignContent="center"
+                  alignItems="center"
+                >
+                  <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>First Sector</Typography>
+                  <div style={{ width: '35%' }}>
+                    {/*  <AutoComplete value={this.handleValueChange} placeholder="First Sector Name" data={sectors1} type="sector1" /> */}
+                    <Autocomplete
+                      id="combo-box-demo"
+                      name="firstSector"
+                      freeSolo
+                      options={allSectorPimaryComapnys}
+                      getOptionLabel={option => option.firstSectorName}
+                      onChange={this.handleValueChange1}
+                      onInputChange={this.handleinputChange1}
+                      style={{ marginTop: 15 }}
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="First Sector"
+                          variant="outlined"
+                        />
+                      )}
+                    />
+                  </div>
                   <TextField
                     id="outlined-basic"
-                    label="Third Secor"
+                    label="Description"
                     variant="outlined"
-                    name="thirdSectorName"
-                    value={thirdSectorName}
-                    style={{ width: '100%' }}
+                    name="description1"
+                    value={description1}
+                    style={{ width: '48%' }}
+                    required
+                    /* className={classes.textField} */
+                    onChange={this.handleChange}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={7}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                  justify="center"
+                  alignContent="center"
+                  alignItems="center"
+                >
+                  <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>Second Sector</Typography>
+                  <div style={{ width: '35%' }}>
+                    <Autocomplete
+                      id="combo-box-demo"
+                      freeSolo
+                      name="secondSector"
+                      disabled={isDisabled}
+                      options={allSectorChildComapnys && allSectorChildComapnys}
+                      getOptionLabel={option => option.secondSectorName}
+                      onChange={this.handleValueChange2}
+                      onInputChange={this.handleinputChange2}
+                      style={{ marginTop: 15 }}
+                      renderInput={params => (
+                        <TextField
+                          fullWidth
+                          {...params}
+                          label="Second Sector"
+                          variant="outlined"
+                        />
+                      )}
+                    />
+                  </div>
+                  <TextField
+                    id="outlined-basic"
+                    label="Description"
+                    variant="outlined"
+                    name="description2"
+                    value={description2}
+                    style={{ width: '48%' }}
+                    required
+                    /* className={classes.textField} */
+                    onChange={this.handleChange}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={7}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                  justify="center"
+                  alignContent="center"
+                  alignItems="center"
+                >
+                  <Typography variant="subtitle2" color="primary" style={{ width: '12%' }}>Third Sector</Typography>
+                  <div style={{ width: '35%' }}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Third Secor"
+                      variant="outlined"
+                      name="thirdSectorName"
+                      value={thirdSectorName}
+                      style={{ width: '100%' }}
+                      required
+                      /*  className={classes.textField} */
+                      onChange={this.handleValueChange3}
+                    />
+                  </div>
+                  <TextField
+                    id="outlined-basic"
+                    label="Description"
+                    variant="outlined"
+                    name="description3"
+                    value={description3}
+                    style={{ width: '48%' }}
                     required
                     /*  className={classes.textField} */
-                    onChange={this.handleValueChange3}
+                    onChange={this.handleChange}
                   />
-                </div>
-                <TextField
-                  id="outlined-basic"
-                  label="Description"
-                  variant="outlined"
-                  name="description3"
-                  value={description3}
-                  style={{ width: '48%' }}
-                  required
-                  /*  className={classes.textField} */
-                  onChange={this.handleChange}
-                />
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                md={7}
-                style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}
-              >
-                <Button
-                  color="primary"
-                  variant="contained"
-                  size="medium"
-                  onClick={this.handleSubmitSector}
-                  /*   disabled={!sector2 || !sector1 || !sector3} */
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={7}
+                  style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}
                 >
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    size="medium"
+                    onClick={this.handleSubmitSector}
+                  /*   disabled={!sector2 || !sector1 || !sector3} */
+                  >
                   Save Sector
-                </Button>
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          </div>
-          {/* xxxxxxxxxxxxx */}
+            </div>
+          ) : null
+          }
           <div>
             <MUIDataTable
               title="The Sectors List"
@@ -450,9 +469,9 @@ class sector extends React.Component {
           <DialogTitle id="alert-dialog-slide-title"> Delete Sector </DialogTitle>
           <DialogContent dividers>
             {message !== 'Are you sure you want to delete ?' ? (
-                <p style={{ color: 'red' }}>{message}</p>
+              <p style={{ color: 'red' }}>{message}</p>
             ) : (
-                <p>{message}</p>
+              <p>{message}</p>
             )}
           </DialogContent>
           <DialogActions>
@@ -492,6 +511,7 @@ const mapStateToProps = state => ({
   errors: state.getIn(['sectorCompany']).errors,
 
   allSectorPimaryComapnys: state.getIn(['sectorCompany']).allSectorPimaryComapnys,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addSectorCompany,

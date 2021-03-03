@@ -141,9 +141,9 @@ class StateCountry extends React.Component {
     // eslint-disable-next-line no-shadow
     const {
       // eslint-disable-next-line no-shadow
-      classes, allCitys, cityResponse, isLoading, errors, addCity, getAllCitys
+      classes, allCitys, cityResponse, isLoading, errors, addCity, getAllCitys, logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
     const { columns, columns2 } = this.state;
     const options = {
       filter: true,
@@ -160,6 +160,10 @@ class StateCountry extends React.Component {
         />
       )
     };
+    let exporte = false;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_countriesStatesCities_create == false) {
+      exporte = true;
+    }
     // Sent resolve to editing promises
     (!isLoading && cityResponse) && this.editingPromiseResolve(cityResponse);
     (!isLoading && !cityResponse) && this.editingPromiseResolve(errors);
@@ -174,69 +178,6 @@ class StateCountry extends React.Component {
           <meta property="twitter:description" content={description} />
         </Helmet>
         <PapperBlock title="Counries States Cities" desc="" noMargin>
-          {/*   <CSVReader
-            ref={buttonRef}
-            onFileLoad={this.handleOnFileLoad}
-            noClick
-            noDrag
-            onRemoveFile={this.handleOnRemoveFile}
-          >
-            {({ file }) => (
-              <aside
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  marginBottom: 10,
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="default"
-                  component="span"
-                  startIcon={<CloudUploadIcon />}
-                  onClick={this.handleOpenDialog}
-                  style={{
-                    marginRight: 10
-                  }}
-                >
-                  import
-                </Button>
-                <div
-                  style={{
-                    borderWidth: 1,
-                    borderStyle: 'solid',
-                    borderColor: '#ccc',
-                    height: 36,
-                    lineHeight: 1.5,
-                    marginTop: 1,
-                    marginBottom: 5,
-                    paddingLeft: 13,
-                    paddingTop: 3,
-                    width: '60%'
-                  }}
-                >
-                  {file && file.name}
-                </div>
-                <Button
-                  style={{
-                    borderRadius: 0,
-                    marginLeft: 0,
-                    marginRight: 0,
-                    paddingLeft: 20,
-                    paddingRight: 20
-                  }}
-                  type="button"
-                  className={classes.heightImport}
-                  onClick={this.handleRemoveFile}
-                >
-                   <FormattedMessage
-                    id="button.remove.label"
-                  />
-                  remove
-                </Button>
-              </aside>
-            )}
-          </CSVReader> */}
           <Formik
             enableReinitialize
             initialValues={{
@@ -284,74 +225,69 @@ class StateCountry extends React.Component {
                   onSubmit={handleSubmit}
                   encType="multipart/form-data"
                 >
-                  <FormControl className={classes.formControl} fullWidth>
-                    <Select
-                      id="country"
-                      name="country"
-                      label="country"
-                      options={this.updatedCountries}
-                      value={values.country}
-                      onChange={value => {
-                        setFieldValue('country', value);
-                        setFieldValue('state', null);
-                        setFieldValue('city', null);
-                      }}
-                      placeholder="Country"
-                      /*   onChange={value => {
-                          setValues({ country: value, state: null, city: null }, false);
-                        }} */
-                    />
-                  </FormControl>
-                  <p />
-                  <FormControl className={classes.formControl} fullWidth>
-                    <Select
-                      id="state"
-                      name="state"
-                      options={this.updatedStates(values.country ? values.country.value : null)}
-                      value={values.state}
-                      /*   onChange={value => {
+                  {thelogedUser.userRoles[0].actionsNames.commercial_countriesStatesCities_create
+                    ? (
+                      <div>
+                        <FormControl className={classes.formControl} fullWidth>
+                          <Select
+                            id="country"
+                            name="country"
+                            label="country"
+                            options={this.updatedCountries}
+                            value={values.country}
+                            onChange={value => {
+                              setFieldValue('country', value);
+                              setFieldValue('state', null);
+                              setFieldValue('city', null);
+                            }}
+                            placeholder="Country"
+                          />
+                        </FormControl>
+                        <p />
+                        <FormControl className={classes.formControl} fullWidth>
+                          <Select
+                            id="state"
+                            name="state"
+                            options={this.updatedStates(values.country ? values.country.value : null)}
+                            value={values.state}
+                            /*   onChange={value => {
                         setValues({ state: value, city: null }, false);
                       }} */
-                      placeholder="state"
-                      onChange={value => {
-                        setFieldValue('state', value);
-                        setFieldValue('city', null);
-                      }}
-                    />
-                  </FormControl>
-                  <p />
-                  <FormControl className={classes.formControl} fullWidth>
-                    <Select
-                      id="city"
-                      name="city"
-                      options={this.updatedCities(values.state ? values.state.value : null)}
-                      value={values.city}
-                      // onChange={value => setFieldValue('city', value)}
-                      placeholder="City"
-                      onChange={value => {
-                        setFieldValue('city', value);
-                      }}
-                    />
-                  </FormControl>
-                  <div className={classes.btnCenter} style={{ marginTop: 5 }}>
-                    <Button
-                      className={classes.textField}
-                      color="primary"
-                      variant="contained"
-                      size="small"
-                      type="submit"
-                    >
+                            placeholder="state"
+                            onChange={value => {
+                              setFieldValue('state', value);
+                              setFieldValue('city', null);
+                            }}
+                          />
+                        </FormControl>
+                        <p />
+                        <FormControl className={classes.formControl} fullWidth>
+                          <Select
+                            id="city"
+                            name="city"
+                            options={this.updatedCities(values.state ? values.state.value : null)}
+                            value={values.city}
+                            // onChange={value => setFieldValue('city', value)}
+                            placeholder="City"
+                            onChange={value => {
+                              setFieldValue('city', value);
+                            }}
+                          />
+                        </FormControl>
+                        <div className={classes.btnCenter} style={{ marginTop: 5 }}>
+                          <Button
+                            className={classes.textField}
+                            color="primary"
+                            variant="contained"
+                            size="small"
+                            type="submit"
+                          >
                       Save
-                    </Button>
-                  </div>
-                  {/*                  <div style={{ marginTop: 20 }}>
-                    <MUIDataTable
-                      title=""
-                      data={allCitys && allCitys}
-                      columns={columns}
-                      options={options}
-                    />
-                  </div> */}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : ''
+                  }
                   <div style={{ marginTop: 20 }}>
                     <MaterialTable
                       title=""
@@ -362,12 +298,12 @@ class StateCountry extends React.Component {
                           icon: 'save_alt',
                           tooltip: 'Export excel',
                           isFreeAction: true,
+                          disabled: exporte,
                           onClick: () => {
                             const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                             const fileExtension = '.xlsx';
-                              console.log(allCitys);
                             const ws = XLSX.utils.json_to_sheet(allCitys);
-                              ws["F1"]="";
+                            ws.F1 = '';
                             console.log(ws);
                             const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
                             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
@@ -395,74 +331,82 @@ class StateCountry extends React.Component {
                         Toolbar: props => (
                           <div>
                             <MTableToolbar {...props} />
-                            <div style={{
-                              padding: '-50px 50px', marginTop: '-42px', marginLeft: '20px', marginBottom: '20px', width: '50%'
-                            }}
-                            >
-                              <CSVReader
-                                ref={buttonRef}
-                                onFileLoad={this.handleOnFileLoad}
-                                noClick
-                                noDrag
-                                onRemoveFile={this.handleOnRemoveFile}
-                              >
-                                {({ file }) => (
-                                  <aside
-                                    style={{
-                                      display: 'flex',
-                                      flexDirection: 'row',
-                                      marginBottom: 10,
-                                    }}
+                            {thelogedUser.userRoles[0].actionsNames.commercial_countriesStatesCities_create
+                              ? (
+                                <div style={{
+                                  padding: '-50px 50px',
+                                  marginTop: '-42px',
+                                  marginLeft: '20px',
+                                  marginBottom: '20px',
+                                  width: '50%'
+                                }}
+                                >
+                                  <CSVReader
+                                    ref={buttonRef}
+                                    onFileLoad={this.handleOnFileLoad}
+                                    noClick
+                                    noDrag
+                                    onRemoveFile={this.handleOnRemoveFile}
                                   >
-                                    <Button
-                                      variant="contained"
-                                      color="primary"
-                                      component="span"
-                                      className={classes.heightImport}
-                                      startIcon={<CloudUploadIcon />}
-                                      onClick={this.handleOpenDialog}
-                                      style={{
-                                        marginRight: 10
-                                      }}
-                                    >
+                                    {({ file }) => (
+                                      <aside
+                                        style={{
+                                          display: 'flex',
+                                          flexDirection: 'row',
+                                          marginBottom: 10,
+                                        }}
+                                      >
+                                        <Button
+                                          variant="contained"
+                                          color="primary"
+                                          component="span"
+                                          className={classes.heightImport}
+                                          startIcon={<CloudUploadIcon />}
+                                          onClick={this.handleOpenDialog}
+                                          style={{
+                                            marginRight: 10
+                                          }}
+                                        >
 
-                                        Import
+                                                Import
 
-                                    </Button>
-                                    <div
-                                      style={{
-                                        borderWidth: 1,
-                                        borderStyle: 'solid',
-                                        borderColor: '#ccc',
-                                        height: 36,
-                                        lineHeight: 1.5,
-                                        marginTop: 1,
-                                        marginBottom: 5,
-                                        paddingLeft: 13,
-                                        paddingTop: 3,
-                                        width: '60%'
-                                      }}
-                                    >
-                                      {file && file.name}
-                                    </div>
-                                    <Button
-                                      style={{
-                                        borderRadius: 0,
-                                        marginLeft: 0,
-                                        marginRight: 0,
-                                        paddingLeft: 20,
-                                        paddingRight: 20
-                                      }}
-                                      type="button"
-                                      className={classes.heightImport}
-                                      onClick={this.handleRemoveFile}
-                                    >
-                                      remove
-                                    </Button>
-                                  </aside>
-                                )}
-                              </CSVReader>
-                            </div>
+                                        </Button>
+                                        <div
+                                          style={{
+                                            borderWidth: 1,
+                                            borderStyle: 'solid',
+                                            borderColor: '#ccc',
+                                            height: 36,
+                                            lineHeight: 1.5,
+                                            marginTop: 1,
+                                            marginBottom: 5,
+                                            paddingLeft: 13,
+                                            paddingTop: 3,
+                                            width: '60%'
+                                          }}
+                                        >
+                                          {file && file.name}
+                                        </div>
+                                        <Button
+                                          style={{
+                                            borderRadius: 0,
+                                            marginLeft: 0,
+                                            marginRight: 0,
+                                            paddingLeft: 20,
+                                            paddingRight: 20
+                                          }}
+                                          type="button"
+                                          className={classes.heightImport}
+                                          onClick={this.handleRemoveFile}
+                                        >
+                                                remove
+                                        </Button>
+                                      </aside>
+                                    )}
+                                  </CSVReader>
+                                </div>
+                              ) : ''
+                            }
                           </div>
                         ),
                       }}
@@ -491,7 +435,8 @@ const mapStateToProps = state => ({
   allCitys: state.getIn(['cities']).allCitys,
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoading: state.getIn(['cities']).isLoading,
-  errors: state.getIn(['cities']).errors
+  errors: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   addCity,

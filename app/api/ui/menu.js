@@ -34,11 +34,11 @@ module.exports = [
             link: '/app/gestion-commercial/Commercial-Operations',
             icon: 'ios-people-outline'
           },
-          {
+/*          {
             key: 'country_assignment',
             name: 'Country assignment',
             link: '/app/configurations/countries'
-          },
+          },*/
           {
             key: 'commercial_action',
             name: 'Commercial Action',

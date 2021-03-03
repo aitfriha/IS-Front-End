@@ -66,7 +66,7 @@ class LeftSidebarLayout extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.commercial_countriesStatesCities_access == false) {
       this.access('commercial', 'commercial_basic_table', 'States');
     }
-    if (thelogedUser.userRoles[0].actionsNames.commercial_countriesStatesCities_access == false) {
+    if (thelogedUser.userRoles[0].actionsNames.commercial_StateOfCommercialOperation_access == false) {
       this.access('commercial', 'commercial_basic_table', 'status_of_commercial_operation');
     }
     if (thelogedUser.userRoles[0].actionsNames.commercial_contactByOperationStatus_access == false) {

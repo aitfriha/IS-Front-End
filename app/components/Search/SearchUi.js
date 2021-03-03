@@ -121,6 +121,7 @@ function SearchUi(props) {
 
   return (
     <Autosuggest
+
       theme={{
         container: classes.containerSearch,
         suggestionsContainerOpen: classes.suggestionsContainerOpen,

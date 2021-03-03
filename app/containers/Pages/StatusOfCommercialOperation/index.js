@@ -70,8 +70,13 @@ class StatusOfCommercialOperation extends React.Component {
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus, deleteCommercialOperationStatus
+      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus, deleteCommercialOperationStatus,logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exporte = true;
+    if (thelogedUser.userRoles[0].actionsNames.commercial_StateOfCommercialOperation_export == false) {
+      exporte = false;
+    }
     (!isLoading && commercialOperationStatusResponse) && this.editingPromiseResolve(commercialOperationStatusResponse);
     (!isLoading && !commercialOperationStatusResponse) && this.editingPromiseResolve(errors);
     return (
@@ -94,7 +99,7 @@ class StatusOfCommercialOperation extends React.Component {
               exportFileName: 'Commercial Operation List',
               // filtering: true,
               // draggable: true,
-              exportButton: true,
+              exportButton: exporte,
               pageSize: 10,
               // grouping: true,
               actionsCellStyle: {
@@ -104,8 +109,9 @@ class StatusOfCommercialOperation extends React.Component {
               },
               actionsColumnIndex: -1
             }}
+
             editable={{
-              onRowAdd: newData => new Promise((resolve) => {
+              onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_StateOfCommercialOperation_create ? (newData => new Promise((resolve) => {
                 // add measurement unit action
                 addCommercialOperationStatus(newData);
                 this.editingPromiseResolve = resolve;
@@ -117,8 +123,8 @@ class StatusOfCommercialOperation extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
-              onRowUpdate: (newData) => new Promise((resolve) => {
+              })) : null,
+              onRowUpdate: thelogedUser.userRoles[0].actionsNames.commercial_StateOfCommercialOperation_modify ? ((newData) => new Promise((resolve) => {
                 // update CommercialOperationStatus unit action
                 updateCommercialOperationStatus(newData);
                 this.editingPromiseResolve = resolve;
@@ -130,8 +136,8 @@ class StatusOfCommercialOperation extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
-              onRowDelete: oldData => new Promise((resolve) => {
+              })) : null,
+              onRowDelete: thelogedUser.userRoles[0].actionsNames.commercial_StateOfCommercialOperation_delete ? (oldData => new Promise((resolve) => {
                 // delete CommercialOperationStatus action
                 deleteCommercialOperationStatus(oldData.commercialOperationStatusId);
                 this.editingPromiseResolve = resolve;
@@ -143,7 +149,7 @@ class StatusOfCommercialOperation extends React.Component {
                 } else {
                   notification('danger', result);
                 }
-              }),
+              })) : null,
             }}
           />
         </PapperBlock>
@@ -167,7 +173,8 @@ const mapStateToProps = state => ({
   allCommercialOperationStatuss: state.getIn(['commercialOperationStatus']).allCommercialOperationStatuss,
   commercialOperationStatusResponse: state.getIn(['commercialOperationStatus']).commercialOperationStatusResponse,
   isLoading: state.getIn(['commercialOperationStatus']).isLoading,
-  errors: state.getIn(['commercialOperationStatus']).errors
+  errors: state.getIn(['commercialOperationStatus']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialOperationStatus,
