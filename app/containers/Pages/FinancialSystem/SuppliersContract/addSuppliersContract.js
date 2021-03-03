@@ -180,7 +180,8 @@ class AddSuppliersContract extends React.Component {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const tab1 = this.state.purchaseOrders; const tab2 = this.state.contracts;
         const tabClient = tab2.filter((row) => (row.client._id === ev.target.value));
-        this.setState({ purchaseOrdersClient: tab1, contractsClient: tabClient });
+        const tabPurchaseOrder = tab1.filter((row) => (row.client._id === ev.target.value));
+        this.setState({ purchaseOrdersClient: tabPurchaseOrder, contractsClient: tabClient });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
