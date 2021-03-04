@@ -276,13 +276,9 @@ class PrintPurchaseOrder extends React.Component {
                       alignItems="flex-start"
                       direction="row"
                     >
-                      <Grid item xs={6}>
-                        {
-                          purchaseOrder.internLogo ? (
-                            <Avatar alt="Company Logo" src={purchaseOrder.internLogo} className={classes.medium} />
-                          ) : (<div />)
-                        }
-                      </Grid>
+                      <Grid item xs={12} />
+                      <Grid item xs={12} />
+                      <Grid item xs={12} />
                       <Grid item xs={12}>
                         <TextField
                           id="receptionSupplierInternal"
