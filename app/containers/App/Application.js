@@ -50,6 +50,8 @@ import {
   AddContract,
   SuppliersContract,
   AddSuppliersContract,
+  SuppliersPayment,
+  AddSuppliersPayment,
   ExternalSupplier,
   AddExternalSupplier,
   PurchaseOrderAcceptance,
@@ -497,6 +499,16 @@ function Application(props) {
           exact
           path="/app/gestion-financial/Add-Suppliers-Contract"
           component={AddSuppliersContract}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Suppliers Payment"
+          component={SuppliersPayment}
+        />
+        <Route
+          exact
+          path="/app/gestion-financial/Add Suppliers-Payment"
+          component={AddSuppliersPayment}
         />
         <Route
           exact
