@@ -4953,7 +4953,7 @@ class DocumentManager extends React.Component {
 
 
   handlerecursiveAddFav(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0].name + ' fue seleccionado como favorito'
+    let msg = 'El archivo ' + lista[0].name + ' fue seleccionado como favorito'
     //let encontrado = rows.find(fila => lista[0] === fila.name)
     nuxeo.operation('Document.AddToFavorites')
       .input(lista[0].path)
@@ -4987,11 +4987,11 @@ class DocumentManager extends React.Component {
     let seleccionados = this.devuelveseleccionados();
     let contador = 1;
     this.handlerecursiveRemoveFav(seleccionados, contador, seleccionados.length);
-    //let msg = 'El achrivo ' + seleccionados[0] + ' ya no es favorito'
+    //let msg = 'El archivo ' + seleccionados[0] + ' ya no es favorito'
   }
 
   handlerecursiveRemoveFav(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0].name + ' ya no es favorito'
+    let msg = 'El archivo ' + lista[0].name + ' ya no es favorito'
     nuxeo.operation('Document.RemoveFromFavorites')
       .input(lista[0].path)
       .execute()
@@ -5107,7 +5107,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveMover = (lista, cont, longt) => {
-    let msg = 'El achrivo ' + lista[0].name + ' fue movido satisfactoriamente'
+    let msg = 'El archivo ' + lista[0].name + ' fue movido satisfactoriamente'
     if (this.state.mover.pathmovorigen.length > 1) {
       msg = 'Los archivos fueron movidos satisfactoriamente'
     }
@@ -5174,7 +5174,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveEliminar(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
+    let msg = 'El archivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
     if (self.state.acciones.elimadmin) {
       let msg = 'La seción ' + lista[0].name + ' fue eliminada satisfactoriamente'
     }
@@ -5238,7 +5238,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveRecuperar(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0] + ' fue recuperado satisfactoriamente'
+    let msg = 'El archivo ' + lista[0] + ' fue recuperado satisfactoriamente'
     let encontrado = rows.find(fila => lista[0] === fila.name)
     nuxeo.operation('Document.Untrash')
       .input(encontrado.path)
@@ -5272,7 +5272,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursivePurgue(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0] + ' fue eliminado satisfactoriamente'
+    let msg = 'El archivo ' + lista[0] + ' fue eliminado satisfactoriamente'
     let encontrado = rows.find(fila => lista[0] === fila.name)
     nuxeo.repository()
       .delete(encontrado.path)
@@ -5314,7 +5314,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveDeletePerm(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
+    let msg = 'El archivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
     nuxeo.repository()
       .delete(lista[0].path)
       .then(function (res) {
@@ -7443,7 +7443,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveDownload(lista, cont, longt) {
-    let msg = 'El achrivo ' + lista[0].name + ' fue descargado satisfactoriamente.'
+    let msg = 'El archivo ' + lista[0].name + ' fue descargado satisfactoriamente.'
     if (lista[0].tipo === 'Folder') {
       nuxeo.operation('Blob.BulkDownload')
         .input(lista[0].path)
@@ -7593,7 +7593,7 @@ class DocumentManager extends React.Component {
           denom = denom + '(' + rep + ').' + array[array.length - 1];
           self.handleBuscarRepetidos(denom, rep, lista, cont, longt);
         } else {
-          let msg = 'El achrivo ' + denomadd + ' fue importado satisfactoriamente'
+          let msg = 'El archivo ' + denomadd + ' fue importado satisfactoriamente'
           //console.log(lista[0]);    
           var blob = new Nuxeo.Blob({ content: lista[0], name: denomadd, mimeType: lista[0].type, size: lista[0].size })
           // console.log(blob);
@@ -9072,7 +9072,6 @@ class DocumentManager extends React.Component {
                                                         <Tooltip title='Editar Permiso'>
                                                           <IconButton aria-label="settings" disabled={row.mostrarformulario}>
                                                             <Create color='primary'
-                                                              style={{ fontSize: '18px' }}
                                                               onClick={(e) => this.prepararActPermiso(index)}
                                                             />
                                                           </IconButton>
@@ -9080,16 +9079,15 @@ class DocumentManager extends React.Component {
                                                         <Tooltip title={'Dejar de compartir con este usuario'}>
                                                           <IconButton aria-label="settings">
                                                             <Delete color='primary'
-                                                              style={{ fontSize: '18px' }}
                                                               onClick={(e) => this.handleDeleteShare(row, 'compartidos')} />
                                                           </IconButton>
                                                         </Tooltip>
                                                       </div>
                                                     </div>
 
-                                                    <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                    <div style={{ padding: '0px 0px 0px 2px' }}>
                                                       <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                        color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                        color="primary" style={{ marginLeft: '5px', marginBottom: '5px' }} />
                                                       </Typography>
                                                       <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
                                                         <b>Compartió: </b> {row.creator}
@@ -9698,7 +9696,7 @@ class DocumentManager extends React.Component {
                                       <div style={{ textAlign: 'center', height: '325px' }} >
                                         <div className={classes.margin}>
                                           <Grid container>
-                                            <Grid item style={{ marginTop: '10px' }}>
+                                            <Grid item >
                                               <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
                                             </Grid>
                                             <Grid item style={{ width: '280px' }}>
@@ -9718,7 +9716,7 @@ class DocumentManager extends React.Component {
                                                       <MenuList>
                                                         {this.state.usersygroups.listusersygrups.length > 0 ? (
                                                           this.state.usersygroups.listusersygrups.map((row, index) => {
-                                                            return <MenuItem style={{ fontSize: '14px', height: '20px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
+                                                            return <MenuItem key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
                                                               <Tooltip title={row.name}>
                                                                 <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
                                                                   {row.avatar}
@@ -9736,7 +9734,7 @@ class DocumentManager extends React.Component {
                                                 </Popper>
                                               </FormControl>
                                             </Grid>
-                                            <Grid item style={{ marginTop: '10px' }}>
+                                            <Grid item >
                                               <Tooltip title="Otorgar permiso">
                                                 <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
                                                   <Done />
