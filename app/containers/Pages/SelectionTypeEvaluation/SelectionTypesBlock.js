@@ -38,62 +38,69 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class SelectionTypesBlock extends React.Component {
-  state = {
-    selectionType: {},
-    index: -1,
-    selectionTypes: [],
-    isSelectionTypeEdit: false,
-    isSelectionTypeDelete: false,
-    description: '',
-    selectionTypeName: ''
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      selectionType: {},
+      index: -1,
+      selectionTypes: [],
+      isSelectionTypeEdit: false,
+      isSelectionTypeDelete: false,
+      description: '',
+      selectionTypeName: '',
+      columns: [
+        {
+          name: 'selectionTypeId',
+          label: 'Selection Type Id',
+          options: {
+            display: false,
+            filter: falselo
+          }
+        },
+        {
+          name: 'name',
+          label: 'Name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Type',
+          name: 'type',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
 
-  editingPromiseResolve = () => {};
-
-  columns = [
-    {
-      name: 'selectionTypeId',
-      label: 'Selection Type Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'name',
-      label: 'Name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Type',
-      name: 'type',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+    this.editingPromiseResolve = () => {
+    };
+  }
 
   componentDidMount() {
     const { changeTheme } = this.props;
@@ -226,28 +233,38 @@ class SelectionTypesBlock extends React.Component {
       allSelectionTypeEvaluation,
       isLoadingselectionTypeEvaluation,
       selectionTypeEvaluationResponse,
-      errorselectionTypeEvaluation
+      errorselectionTypeEvaluation,
+      logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       isSelectionTypeEdit,
       isSelectionTypeDelete,
       selectionTypes,
       index,
       selectionTypeName,
-      description
+      description,
+      columns
     } = this.state;
-
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allSelectionTypeEvaluation}
           url="/app/hh-rr/selectionTypeEvaluation/create-type"
           tooltip="add new selection type"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_export}
         />
       )
     };
@@ -352,7 +369,7 @@ class SelectionTypesBlock extends React.Component {
           <MUIDataTable
             title=""
             data={allSelectionTypeEvaluation}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -427,7 +444,8 @@ const mapStateToProps = state => ({
     .selectionTypeEvaluationResponse,
   isLoadingselectionTypeEvaluation: state.getIn(['selectionTypeEvaluations'])
     .isLoading,
-  errorselectionTypeEvaluation: state.getIn(['selectionTypeEvaluations']).errors
+  errorselectionTypeEvaluation: state.getIn(['selectionTypeEvaluations']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

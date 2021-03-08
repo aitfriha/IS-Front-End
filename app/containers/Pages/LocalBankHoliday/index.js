@@ -46,109 +46,118 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class LocalBankHoliday extends React.Component {
-  state = {
-    name: '',
-    code: '',
-    type: '',
-    description: '',
-    startDate: new Date(),
-    endDate: new Date(),
-    minEndDate: new Date(),
-    companyId: '',
-    isStartDateError: false,
-    isEndDateError: false,
-    isDialogOpen: false,
-    isRelated: false,
-    localBankHolidaySelected: {}
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      name: '',
+      code: '',
+      type: '',
+      description: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      minEndDate: new Date(),
+      companyId: '',
+      isStartDateError: false,
+      isEndDateError: false,
+      isDialogOpen: false,
+      isRelated: false,
+      localBankHolidaySelected: {},
+      columns: [
+        {
+          name: 'localBankHolidayId',
+          label: 'Local Bank Holiday Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'name',
+          label: 'Name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Code',
+          name: 'code',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Type',
+          name: 'type',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Company',
+          name: 'companyName',
+          options: {
+            filter: true
+          }
+        },
 
-  editingPromiseResolve1 = () => {};
-
-  editingPromiseResolve2 = () => {};
-
-  columns = [
-    {
-      name: 'localBankHolidayId',
-      label: 'Local Bank Holiday Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'name',
-      label: 'Name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Code',
-      name: 'code',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Type',
-      name: 'type',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Company',
-      name: 'companyName',
-      options: {
-        filter: true
-      }
-    },
-
-    {
-      label: 'Start Date',
-      name: 'startDate',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'End Date',
-      name: 'endDate',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Total Days',
-      name: 'totalDays',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleDelete(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+        {
+          label: 'Start Date',
+          name: 'startDate',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'End Date',
+          name: 'endDate',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Total Days',
+          name: 'totalDays',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_delete
+                  ? (
+                    <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
+    this.editingPromiseResolve1 = () => {
+    };
+    this.editingPromiseResolve2 = () => {
+    };
+  }
 
   componentDidMount() {
     const { changeTheme, getAllLocalBankHoliday } = this.props;
@@ -325,8 +334,14 @@ class LocalBankHoliday extends React.Component {
       errorLocalBankHoliday,
       isLoadingStaffContract,
       staffContractResponse,
-      errorStaffContract
+      errorStaffContract,
+      logedUser,
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_export) {
+      exportButton = true;
+    }
     const {
       name,
       code,
@@ -337,7 +352,8 @@ class LocalBankHoliday extends React.Component {
       minEndDate,
       isStartDateError,
       isEndDateError,
-      isDialogOpen
+      isDialogOpen,
+      columns
     } = this.state;
     console.log(allLocalBankHolidayByCompany);
     const title = brand.name + ' - Types of legal category';
@@ -347,12 +363,16 @@ class LocalBankHoliday extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allLocalBankHoliday}
           url="/app/hh-rr/localBankHoliday/create-local-bank-holiday"
           tooltip="add new legal category type"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_export}
         />
       )
     };
@@ -507,7 +527,7 @@ class LocalBankHoliday extends React.Component {
           <MUIDataTable
             title=""
             data={allLocalBankHoliday}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -528,7 +548,8 @@ const mapStateToProps = state => ({
   isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
   errorStaffContract: state.getIn(['staffContracts']).errors,
   allStaffContractByLocalBankHoliday: state.getIn(['staffContracts'])
-    .allStaffContractByLocalBankHoliday
+    .allStaffContractByLocalBankHoliday,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

@@ -40,131 +40,140 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const useStyles = makeStyles(styles);
 
 class AbsenceRequest extends React.Component {
-  state = {
-    isOpenDocument: false,
-    isOpenDocumentsList: false,
-    docExtension: '',
-    docIndex: 0,
-    pageNumber: 1,
-    absenceRequestSelected: {},
-    responseType: '',
-    isRespondDialog: false,
-    selectedRequestId: '',
-    isConfirmProcess: false
-  };
-
-  editingPromiseResolve = () => {};
-
-  columns = [
-    {
-      name: 'absenceRequestId',
-      label: 'Absence Request Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'state',
-      label: '',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>{this.renderStateAvatar(value)}</React.Fragment>
-        )
-      }
-    },
-    {
-      name: 'absenceTypeName',
-      label: 'Absence Type',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Staff',
-      name: 'staffName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Start Date',
-      name: 'startDate',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'End Date',
-      name: 'endDate',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Absence Days',
-      name: 'absenceDays',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Absence Hours Rate',
-      name: 'hourRate',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Document',
-      name: 'documentList',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value && value[0] ? (
-              <IconButton
-                onClick={() => this.handleOpenDocumentListDialog(tableMeta)}
-              >
-                <VisibilityIcon color="secondary" />
-              </IconButton>
-            ) : (
-              <div>-</div>
-            )}
-          </React.Fragment>
-        )
-      }
-    },
-    {
-      label: ' ',
-      name: 'state',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value === 'In progress' && (
-              <div>
-                <Tooltip title="Accept">
+  constructor(props) {
+    super(props);
+    this.editingPromiseResolve = () => {};
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      isOpenDocument: false,
+      isOpenDocumentsList: false,
+      docExtension: '',
+      docIndex: 0,
+      pageNumber: 1,
+      absenceRequestSelected: {},
+      responseType: '',
+      isRespondDialog: false,
+      selectedRequestId: '',
+      isConfirmProcess: false,
+      columns: [
+        {
+          name: 'absenceRequestId',
+          label: 'Absence Request Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'state',
+          label: '',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>{this.renderStateAvatar(value)}</React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'absenceTypeName',
+          label: 'Absence Type',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Staff',
+          name: 'staffName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Start Date',
+          name: 'startDate',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'End Date',
+          name: 'endDate',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Absence Days',
+          name: 'absenceDays',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Absence Hours Rate',
+          name: 'hourRate',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Document',
+          name: 'documentList',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value && value[0] ? (
                   <IconButton
-                    onClick={() => this.handleOpenRespondDialog(tableMeta, 'Accept')
-                    }
+                    onClick={() => this.handleOpenDocumentListDialog(tableMeta)}
                   >
-                    <DoneIcon color="primary" />
+                    <VisibilityIcon color="secondary" />
                   </IconButton>
-                </Tooltip>
-                <Tooltip title="Reject">
-                  <IconButton
-                    onClick={() => this.handleOpenRespondDialog(tableMeta, 'Reject')
-                    }
-                  >
-                    <ClearIcon color="primary" />
-                  </IconButton>
-                </Tooltip>
-              </div>
-            )}
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+                ) : (
+                  <div>-</div>
+                )}
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: ' ',
+          name: 'state',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value === 'In progress' && (
+                  <div>
+                    {thelogedUser.userRoles[0].actionsNames.hh_absenceConsult_modify
+                      ? (
+                        <Tooltip title="Accept">
+                          <IconButton
+                            onClick={() => this.handleOpenRespondDialog(tableMeta, 'Accept')
+                            }
+                          >
+                            <DoneIcon color="primary" />
+                          </IconButton>
+                        </Tooltip>
+                      ) : null}
+                    {thelogedUser.userRoles[0].actionsNames.hh_absenceConsult_modify
+                      ? (
+                        <Tooltip title="Reject">
+                          <IconButton
+                            onClick={() => this.handleOpenRespondDialog(tableMeta, 'Reject')
+                            }
+                          >
+                            <ClearIcon color="primary" />
+                          </IconButton>
+                        </Tooltip>
+                      ) : null}
+                  </div>
+                )}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
+  }
+
 
   componentDidMount() {
     const { changeTheme, getAllAbsenceRequest } = this.props;
@@ -341,7 +350,8 @@ class AbsenceRequest extends React.Component {
       allAbsenceRequest,
       isLoadingAbsenceRequest,
       absenceRequestResponse,
-      errorAbsenceRequest
+      errorAbsenceRequest,
+      logedUser
     } = this.props;
     const {
       pageNumber,
@@ -351,16 +361,24 @@ class AbsenceRequest extends React.Component {
       docExtension,
       responseType,
       isRespondDialog,
-      isConfirmProcess
+      isConfirmProcess,
+      columns
     } = this.state;
     const title = brand.name + ' - Absence Consult';
     const { desc } = brand;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_absenceConsult_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
-      rowsPerPage: 10
+      rowsPerPage: 10,
+      download: exportButton,
+      print :exportButton
     };
     !isLoadingAbsenceRequest
       && absenceRequestResponse
@@ -368,7 +386,7 @@ class AbsenceRequest extends React.Component {
     !isLoadingAbsenceRequest
       && !absenceRequestResponse
       && this.editingPromiseResolve(errorAbsenceRequest);
-    console.log(allAbsenceRequest);
+
     return (
       <div>
         <Helmet>
@@ -511,7 +529,7 @@ class AbsenceRequest extends React.Component {
           <MUIDataTable
             title=""
             data={allAbsenceRequest}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -525,7 +543,9 @@ const mapStateToProps = state => ({
   absenceRequestResponse: state.getIn(['absenceRequests'])
     .absenceRequestResponse,
   isLoadingAbsenceRequest: state.getIn(['absenceRequests']).isLoading,
-  errorAbsenceRequest: state.getIn(['absenceRequests']).errors
+  errorAbsenceRequest: state.getIn(['absenceRequests']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

@@ -58,83 +58,93 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class LevelsBlock extends React.Component {
-  state = {
-    level: {},
-    levels: [],
-    index1: -1,
-    index2: -1,
-    staffs: [],
-    staffAssigned: [],
-    staffNotAssigned: [],
-    originalLevelStaffs: [],
-    levelStaffs: [],
-    isStaffAssignation: false,
-    isLevelEdit: false,
-    isLevelDelete: false,
-    leader: null,
-    oldLeader: null,
-    newLeader: null,
-    description: '',
-    levelName: '',
-    isViewHistory: false
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      level: {},
+      levels: [],
+      index1: -1,
+      index2: -1,
+      staffs: [],
+      staffAssigned: [],
+      staffNotAssigned: [],
+      originalLevelStaffs: [],
+      levelStaffs: [],
+      isStaffAssignation: false,
+      isLevelEdit: false,
+      isLevelDelete: false,
+      leader: null,
+      oldLeader: null,
+      newLeader: null,
+      description: '',
+      levelName: '',
+      isViewHistory: false,
+      columns: [
+        {
+          name: 'levelId',
+          label: 'Level Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'name',
+          label: 'Name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Type',
+          name: 'type',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Company',
+          name: 'companyName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureDefinition_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureDefinition_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDelete(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
 
-  editingPromiseResolve = () => {};
-
-  columns = [
-    {
-      name: 'levelId',
-      label: 'Level Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'name',
-      label: 'Name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Type',
-      name: 'type',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Company',
-      name: 'companyName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDelete(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+    this.editingPromiseResolve = () => {
+    };
+  }
 
   componentDidMount() {
     const { changeTheme } = this.props;
@@ -531,7 +541,8 @@ class LevelsBlock extends React.Component {
       isLoadingadministrativeStructureLevel,
       administrativeStructureLevelResponse,
       erroradministrativeStructureLevel,
-      allAdministrativeStructureAssignationHistoryByLevel
+      allAdministrativeStructureAssignationHistoryByLevel,
+      logedUser
     } = this.props;
     const {
       isStaffAssignation,
@@ -549,19 +560,29 @@ class LevelsBlock extends React.Component {
       newLeader,
       levelName,
       description,
-      isViewHistory
+      isViewHistory,
+      columns
     } = this.state;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureAssignation_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
+      download: exportButton,
+      print: exportButton,
       customToolbar: () => (
         <CustomToolbar
           csvData={allAdministrativeStructureLevel}
           url="/app/hh-rr/administrativeStructure/create-level"
           tooltip="add new Level"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureDefinition_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureDefinition_export}
         />
       )
     };
@@ -995,7 +1016,7 @@ class LevelsBlock extends React.Component {
           <MUIDataTable
             title=""
             data={allAdministrativeStructureLevel}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -1132,7 +1153,8 @@ const mapStateToProps = state => ({
   ]).errors,
   allAdministrativeStructureAssignationHistoryByLevel: state.getIn([
     'administrativeStructureAssignationHistories'
-  ]).allAdministrativeStructureAssignationHistoryByLevel
+  ]).allAdministrativeStructureAssignationHistoryByLevel,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

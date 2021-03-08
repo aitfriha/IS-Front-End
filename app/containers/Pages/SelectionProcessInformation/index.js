@@ -64,413 +64,422 @@ const inputCurriculumDoc = React.createRef();
 const inputAttitudeTestDoc = React.createRef();
 
 class SelectionProcessInformation extends React.Component {
-  state = {
-    isEditDialogOpen: false,
-    isDeleteDialogOpen: false,
-    isOpenDocument: false,
-    isOpenKnowledge: false,
-    selectionProcessInformationSelected: null,
-    doc: {},
-    docName: '',
-    pageNumber: 1,
-    firstName: '',
-    fatherFamilyName: '',
-    motherFamilyName: '',
-    profile: '',
-    testDate: new Date(),
-    energy: '',
-    adaptability: '',
-    integrity: '',
-    interpersonalSensitivity: '',
-    economicCandidateProposal: 0,
-    economicCandidateProposalInEuro: 0.0,
-    economicClaimsValue: 0,
-    economicClaimsValueInEuro: 0.0,
-    economicClaimsRange1: 0,
-    economicClaimsRange1InEuro: 0,
-    economicClaimsRange2: 0,
-    economicClaimsRange2InEuro: 0,
-    candidateProposalType: '',
-    candidateSalaryType: '',
-    economicClaimsType: '',
-    economicCompanyProposal: 0,
-    economicCompanyProposalInEuro: 0.0,
-    objectives: 0,
-    objectivesInEuro: 0.0,
-    companyProposalType: '',
-    companySalaryType: '',
-    checkedKnowledges: [],
-    experiences: [],
-    economicProposalDoc: {},
-    curriculumDoc: {},
-    attitudeTestDoc: {},
-    currencies: [],
-    currency: '',
-    allSelectionProcesses: [],
-    filteredSelectionProcesses: [],
-    filterCheckedKnowledges: [],
-    filterExperiences: [],
-    isFilterDialogOpen: false
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.editingPromiseResolve = () => {};
+    this.state = {
+      isEditDialogOpen: false,
+      isDeleteDialogOpen: false,
+      isOpenDocument: false,
+      isOpenKnowledge: false,
+      selectionProcessInformationSelected: null,
+      doc: {},
+      docName: '',
+      pageNumber: 1,
+      firstName: '',
+      fatherFamilyName: '',
+      motherFamilyName: '',
+      profile: '',
+      testDate: new Date(),
+      energy: '',
+      adaptability: '',
+      integrity: '',
+      interpersonalSensitivity: '',
+      economicCandidateProposal: 0,
+      economicCandidateProposalInEuro: 0.0,
+      economicClaimsValue: 0,
+      economicClaimsValueInEuro: 0.0,
+      economicClaimsRange1: 0,
+      economicClaimsRange1InEuro: 0,
+      economicClaimsRange2: 0,
+      economicClaimsRange2InEuro: 0,
+      candidateProposalType: '',
+      candidateSalaryType: '',
+      economicClaimsType: '',
+      economicCompanyProposal: 0,
+      economicCompanyProposalInEuro: 0.0,
+      objectives: 0,
+      objectivesInEuro: 0.0,
+      companyProposalType: '',
+      companySalaryType: '',
+      checkedKnowledges: [],
+      experiences: [],
+      economicProposalDoc: {},
+      curriculumDoc: {},
+      attitudeTestDoc: {},
+      currencies: [],
+      currency: '',
+      allSelectionProcesses: [],
+      filteredSelectionProcesses: [],
+      filterCheckedKnowledges: [],
+      filterExperiences: [],
+      isFilterDialogOpen: false,
+      columns: [
+        {
+          name: 'selectionProcessId',
+          label: 'Selection Process Id',
+          options: {
+            display: false,
+            filter: false,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          name: 'firstName',
+          label: 'First Name',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          name: 'fatherFamilyName',
+          label: 'Father Family Name',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          name: 'motherFamilyName',
+          label: 'Mother Family Name',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          name: 'profile',
+          label: 'Profile',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Test Date',
+          name: 'testDate',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Energy',
+          name: 'energy',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Adaptability',
+          name: 'adaptability',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Integrity',
+          name: 'integrity',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Interpersonal Sensitivity',
+          name: 'interpersonalSensitivity',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Candidate Proposal Type',
+          name: 'candidateProposalType',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Candidate Salary Type',
+          name: 'candidateSalaryType',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Candidate Proposal',
+          name: 'economicCandidateProposal',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Candidate Proposal (€)',
+          name: 'economicCandidateProposalInEuro',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Claims Type',
+          name: 'economicClaimsType',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Claims Value',
+          name: 'economicClaimsValue',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
 
-  editingPromiseResolve = () => {};
+        {
+          label: 'Economic Claims Value (€)',
+          name: 'economicClaimsValueInEuro',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Claims Range 1',
+          name: 'economicClaimsRange1',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Claims Range 1 (€)',
+          name: 'economicClaimsRange1InEuro',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Claims Range 2',
+          name: 'economicClaimsRange2',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Claims Range 2 (€)',
+          name: 'economicClaimsRange2InEuro',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Company Proposal Type',
+          name: 'companyProposalType',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Company Salary Type',
+          name: 'companySalaryType',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Company Proposal',
+          name: 'economicCompanyProposal',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Economic Company Proposal (€)',
+          name: 'economicCompanyProposalInEuro',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Company Objectives',
+          name: 'objectives',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
 
-  columns = [
-    {
-      name: 'selectionProcessId',
-      label: 'Selection Process Id',
-      options: {
-        display: false,
-        filter: false,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      name: 'firstName',
-      label: 'First Name',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      name: 'fatherFamilyName',
-      label: 'Father Family Name',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      name: 'motherFamilyName',
-      label: 'Mother Family Name',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      name: 'profile',
-      label: 'Profile',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Test Date',
-      name: 'testDate',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Energy',
-      name: 'energy',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Adaptability',
-      name: 'adaptability',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Integrity',
-      name: 'integrity',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Interpersonal Sensitivity',
-      name: 'interpersonalSensitivity',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Candidate Proposal Type',
-      name: 'candidateProposalType',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Candidate Salary Type',
-      name: 'candidateSalaryType',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Candidate Proposal',
-      name: 'economicCandidateProposal',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Candidate Proposal (€)',
-      name: 'economicCandidateProposalInEuro',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Claims Type',
-      name: 'economicClaimsType',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Claims Value',
-      name: 'economicClaimsValue',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
+        {
+          label: 'Company Objectives (€)',
+          name: 'objectivesInEuro',
+          options: {
+            filter: true,
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps()
+          }
+        },
+        {
+          label: 'Knowledges and Experiences',
+          name: 'knowledge',
+          options: {
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps(),
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value ? (
+                  <IconButton
+                    onClick={() => this.handleOpenKnowledgeDialog(tableMeta)}
+                  >
+                    <VisibilityIcon color="secondary" />
+                  </IconButton>
+                ) : (
+                  <div>-</div>
+                )}
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: 'Economic Proposal Doc',
+          name: 'economicProposalDoc',
+          options: {
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps(),
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value ? (
+                  <IconButton
+                    onClick={() => this.handleOpenDocumentDialog(
+                      tableMeta,
+                      'economicProposalDoc'
+                    )
+                    }
+                  >
+                    <VisibilityIcon color="secondary" />
+                  </IconButton>
+                ) : (
+                  <div>-</div>
+                )}
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: 'Curriculum Doc',
+          name: 'curriculumDoc',
+          options: {
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps(),
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value ? (
+                  <IconButton
+                    onClick={() => this.handleOpenDocumentDialog(tableMeta, 'curriculumDoc')
+                    }
+                  >
+                    <VisibilityIcon color="secondary" />
+                  </IconButton>
+                ) : (
+                  <div>-</div>
+                )}
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: 'Attitude Test Doc',
+          name: 'attitudeTestDoc',
+          options: {
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps(),
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value ? (
+                  <IconButton
+                    onClick={() => this.handleOpenDocumentDialog(tableMeta, 'attitudeTestDoc')
+                    }
+                  >
+                    <VisibilityIcon color="secondary" />
+                  </IconButton>
+                ) : (
+                  <div>-</div>
+                )}
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            setCellProps: () => this.setCellProps(),
+            setCellHeaderProps: () => this.setCellHeaderProps(),
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenEditDialog(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
+  }
 
-    {
-      label: 'Economic Claims Value (€)',
-      name: 'economicClaimsValueInEuro',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Claims Range 1',
-      name: 'economicClaimsRange1',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Claims Range 1 (€)',
-      name: 'economicClaimsRange1InEuro',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Claims Range 2',
-      name: 'economicClaimsRange2',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Claims Range 2 (€)',
-      name: 'economicClaimsRange2InEuro',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Company Proposal Type',
-      name: 'companyProposalType',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Company Salary Type',
-      name: 'companySalaryType',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Company Proposal',
-      name: 'economicCompanyProposal',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Economic Company Proposal (€)',
-      name: 'economicCompanyProposalInEuro',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Company Objectives',
-      name: 'objectives',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-
-    {
-      label: 'Company Objectives (€)',
-      name: 'objectivesInEuro',
-      options: {
-        filter: true,
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps()
-      }
-    },
-    {
-      label: 'Knowledges and Experiences',
-      name: 'knowledge',
-      options: {
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps(),
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value ? (
-              <IconButton
-                onClick={() => this.handleOpenKnowledgeDialog(tableMeta)}
-              >
-                <VisibilityIcon color="secondary" />
-              </IconButton>
-            ) : (
-              <div>-</div>
-            )}
-          </React.Fragment>
-        )
-      }
-    },
-    {
-      label: 'Economic Proposal Doc',
-      name: 'economicProposalDoc',
-      options: {
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps(),
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value ? (
-              <IconButton
-                onClick={() => this.handleOpenDocumentDialog(
-                  tableMeta,
-                  'economicProposalDoc'
-                )
-                }
-              >
-                <VisibilityIcon color="secondary" />
-              </IconButton>
-            ) : (
-              <div>-</div>
-            )}
-          </React.Fragment>
-        )
-      }
-    },
-    {
-      label: 'Curriculum Doc',
-      name: 'curriculumDoc',
-      options: {
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps(),
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value ? (
-              <IconButton
-                onClick={() => this.handleOpenDocumentDialog(tableMeta, 'curriculumDoc')
-                }
-              >
-                <VisibilityIcon color="secondary" />
-              </IconButton>
-            ) : (
-              <div>-</div>
-            )}
-          </React.Fragment>
-        )
-      }
-    },
-    {
-      label: 'Attitude Test Doc',
-      name: 'attitudeTestDoc',
-      options: {
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps(),
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value ? (
-              <IconButton
-                onClick={() => this.handleOpenDocumentDialog(tableMeta, 'attitudeTestDoc')
-                }
-              >
-                <VisibilityIcon color="secondary" />
-              </IconButton>
-            ) : (
-              <div>-</div>
-            )}
-          </React.Fragment>
-        )
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        setCellProps: () => this.setCellProps(),
-        setCellHeaderProps: () => this.setCellHeaderProps(),
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenEditDialog(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
 
   columnOptions = {
     filter: true,
@@ -1150,7 +1159,8 @@ class SelectionProcessInformation extends React.Component {
       isLoadingSelectionProcessInformation,
       selectionProcessInformationResponse,
       errorSelectionProcessInformation,
-      allSelectionTypeEvaluation
+      allSelectionTypeEvaluation,
+      logedUser
     } = this.props;
     const {
       filteredSelectionProcesses,
@@ -1196,9 +1206,14 @@ class SelectionProcessInformation extends React.Component {
       currencies,
       filterCheckedKnowledges,
       filterExperiences,
-      isFilterDialogOpen
+      isFilterDialogOpen,
+      columns
     } = this.state;
-    console.log(filteredSelectionProcesses);
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_export) {
+      exportButton = true;
+    }
     const title = brand.name + ' - Selection process information';
     const { desc } = brand;
     const options = {
@@ -1208,12 +1223,16 @@ class SelectionProcessInformation extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={filteredSelectionProcesses}
           url="/app/hh-rr/selectionProcessInformation/add-selection-process"
           tooltip="add new selection process"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_export}
         />
       )
     };
@@ -2277,7 +2296,7 @@ class SelectionProcessInformation extends React.Component {
           <MUIDataTable
             title=""
             data={filteredSelectionProcesses}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -2299,7 +2318,8 @@ const mapStateToProps = state => ({
     'selectionProcessInformations'
   ]).errors,
   allSelectionTypeEvaluation: state.getIn(['selectionTypeEvaluations'])
-    .allSelectionTypeEvaluation
+    .allSelectionTypeEvaluation,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

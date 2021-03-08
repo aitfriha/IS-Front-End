@@ -22,7 +22,7 @@ const styles = {};
 
 class StatusOfCommercialOperation extends React.Component {
   constructor(props) {
-    super(props);
+      super(props);
     this.editingPromiseResolve = () => {
     };
     this.state = {
