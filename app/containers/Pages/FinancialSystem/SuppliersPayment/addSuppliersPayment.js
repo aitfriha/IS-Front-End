@@ -19,25 +19,20 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import history from '../../../../utils/history';
 import { ThemeContext } from '../../../App/ThemeWrapper';
-import SuppliersContractService from '../../../Services/SuppliersContractService';
+import SuppliersPaymentService from '../../../Services/SuppliersPaymentService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
-import CurrencyService from '../../../Services/CurrencyService';
 import ClientService from '../../../Services/ClientService';
 import ContractService from '../../../Services/ContractService';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
 
 const useStyles = makeStyles();
 
-class AddSuppliersContract extends React.Component {
+class AddSuppliersPayment extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
-      codeContract: '',
       codeSupplier: '',
-      changeFactor: 1,
-      currencies: [],
       clients: [],
       clientId: '',
       contracts: [],
@@ -46,11 +41,9 @@ class AddSuppliersContract extends React.Component {
       purchaseOrders: [],
       purchaseOrdersClient: [],
       purchaseOrderId: '',
-      currencyId: '',
-      contractTradeVolume: 0,
-      contractTradeVolumeEuro: 0,
-      commercialOperationInfo: [],
-      document: '',
+      supplierBill: '',
+      paymentDate: '',
+      reelPaymentDate: '',
       companies: [],
       externalSuppliers: [],
       externalSupplierId: '',
@@ -78,9 +71,6 @@ class AddSuppliersContract extends React.Component {
       console.log(result);
       this.setState({ externalSuppliers: result.data });
     });
-    CurrencyService.getFilteredCurrency().then(result => {
-      this.setState({ currencies: result.data });
-    });
     ClientService.getClients().then(result => {
       this.setState({ clients: result.data.payload });
     });
@@ -102,7 +92,7 @@ class AddSuppliersContract extends React.Component {
       const reader = new FileReader();
       console.log(e.target.files);
       reader.onload = function (ev) {
-        this.setState({ document: ev.target.result });
+        this.setState({ supplierBill: ev.target.result });
       }.bind(this);
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -114,10 +104,9 @@ class AddSuppliersContract extends React.Component {
 
     handleSubmit = () => {
       const {
-        name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type, typeClient,
-        currencyId, contractTradeVolume, contractTradeVolumeEuro, changeFactor, clientId, purchaseOrderId, contractId
+        codeSupplier, supplierBill, externalSupplierId, financialCompanyId, type, typeClient,
+        clientId, purchaseOrderId, contractId, reelPaymentDate, paymentDate
       } = this.state;
-      const currency = { _id: currencyId };
       const client = { _id: clientId };
       let financialCompany = { _id: '' };
       let externalSupplier = { _id: '' };
@@ -127,35 +116,31 @@ class AddSuppliersContract extends React.Component {
       if (externalSupplierId !== '') externalSupplier = { _id: externalSupplierId };
       if (typeClient === 'contract') financialContract = { _id: contractId };
       if (typeClient === 'po') purchaseOrder = { _id: purchaseOrderId };
-      const SuppliersContract = {
-        name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type, typeClient, contractTradeVolume, contractTradeVolumeEuro, changeFactor, client, currency, purchaseOrder, financialContract
+      const SupplierPayment = {
+        codeSupplier,
+        supplierBill,
+        externalSupplier,
+        financialCompany,
+        type,
+        typeClient,
+        paymentDate,
+        reelPaymentDate,
+        client,
+        purchaseOrder,
+        financialContract
       };
-      console.log(SuppliersContract);
-      SuppliersContractService.saveSuppliersContract(SuppliersContract).then(result => {
+      console.log(SupplierPayment);
+      SuppliersPaymentService.saveSuppliersPayment(SupplierPayment).then(result => {
         console.log(result);
-        history.push('/app/gestion-financial/Suppliers Contract');
+        history.push('/app/gestion-financial/Suppliers Payment');
       });
     }
 
     handleGoBack = () => {
-      history.push('/app/gestion-financial/Suppliers Contract');
+      history.push('/app/gestion-financial/Suppliers Payment');
     }
 
     handleChange = (ev) => {
-      let changeFactor;
-      if (ev.target.name === 'currencyId') {
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const tradeValue = this.state.contractTradeVolume;
-        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
-        this.state.currencies.map(currency => {
-          // eslint-disable-next-line prefer-destructuring
-          if (currency.currencyId === ev.target.value) {
-            // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor;
-          }
-        });
-        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
-      }
       if (ev.target.name === 'type') {
         if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
         else this.setState({ haveInternal: true, haveExternal: false });
@@ -163,7 +148,7 @@ class AddSuppliersContract extends React.Component {
       if (ev.target.name === 'externalSupplierId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.externalSuppliers.map(row => {
-          if (row.externalSupplierId === ev.target.value) this.setState({ codeSupplier: row.code, codeContract: row.code, financialCompanyId: '' });
+          if (row.externalSupplierId === ev.target.value) this.setState({ codeSupplier: row.code, financialCompanyId: '' });
         });
       }
       if (ev.target.name === 'financialCompanyId') {
@@ -188,12 +173,11 @@ class AddSuppliersContract extends React.Component {
 
     render() {
       console.log(this.state);
-      const title = brand.name + ' - Add New Supplier Contract';
+      const title = brand.name + ' - Add New Supplier Payment';
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        name, codeSupplier, companies, externalSuppliers, type, document,
-        currencyId, contractTradeVolume, contractTradeVolumeEuro, currencies,
+        codeSupplier, companies, externalSuppliers, type, supplierBill, reelPaymentDate, paymentDate,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId, purchaseOrdersClient, purchaseOrderId
       } = this.state;
@@ -208,7 +192,7 @@ class AddSuppliersContract extends React.Component {
             <meta property="twitter:description" content={desc} />
           </Helmet>
           <PapperBlock
-            title="Supplier Contract"
+            title="Supplier Payment"
             desc="Please, Fill in the fields"
             icon="ios-add-circle"
           >
@@ -231,72 +215,6 @@ class AddSuppliersContract extends React.Component {
               justify="center"
             >
               <Grid item xs={12} md={6}>
-                <TextField
-                  id="name"
-                  label="Name"
-                  variant="outlined"
-                  name="name"
-                  value={name}
-                  required
-                  fullWidth
-                  onChange={this.handleChange}
-                />
-                <br />
-                <br />
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="flex-start"
-                  direction="row"
-                >
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      id="Contract Trade Volume"
-                      label="Contract Trade Volume"
-                      type="number"
-                      name="contractTradeVolume"
-                      value={contractTradeVolume}
-                      onChange={this.handleChange}
-                      fullWidth
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={5}>
-                    <FormControl fullWidth required>
-                      <InputLabel>Select Currency</InputLabel>
-                      <Select
-                        name="currencyId"
-                        value={currencyId}
-                        onChange={this.handleChange}
-                      >
-                        {
-                          currencies.map((clt) => (
-                            <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                              {clt.typeOfCurrency.currencyName}
-                            </MenuItem>
-                          ))
-                        }
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <TextField
-                      id="contractTradeVolumeEuro"
-                      label="Trade Value (Euro)"
-                      type="number"
-                      name="contractTradeVolumeEuro"
-                      value={contractTradeVolumeEuro}
-                      onChange={this.handleChange}
-                      fullWidth
-                      required
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-                <br />
-                <br />
                 <FormControl component="fieldset">
                   <FormLabel component="legend"> ● Supplier Type</FormLabel>
                   <RadioGroup row aria-label="position" name="type" value={type} onChange={this.handleChange}>
@@ -512,6 +430,48 @@ class AddSuppliersContract extends React.Component {
                 ) : (<div />)}
                 <br />
                 <br />
+                <Grid
+                  container
+                  spacing={3}
+                  alignItems="flex-start"
+                  direction="row"
+                  justify="center"
+                >
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      id="paymentDate"
+                      label="Payment Date"
+                      variant="outlined"
+                      name="paymentDate"
+                      value={paymentDate}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={this.handleChange}
+                      type="date"
+                      required
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      id="reelPaymentDate"
+                      label="Reel Payment Date"
+                      variant="outlined"
+                      name="reelPaymentDate"
+                      value={reelPaymentDate}
+                      onChange={this.handleChange}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      type="date"
+                      required
+                      fullWidth
+                    />
+                  </Grid>
+                </Grid>
+                <br />
+                <br />
                 <FormControl>
                   <input
                     style={{ display: 'none' }}
@@ -526,15 +486,15 @@ class AddSuppliersContract extends React.Component {
                       component="span"
                       startIcon={<Image color="primary" />}
                     >
-                      Document
+                      Supplier Bill
                     </Button>
                   </FormLabel>
                 </FormControl>
                 <br />
                 <br />
                 {
-                  document ? (
-                    <Avatar alt="User Name" src={document} />
+                  supplierBill ? (
+                    <Avatar alt="User Name" src={supplierBill} />
                   ) : (<div />)
                 }
               </Grid>
@@ -555,7 +515,7 @@ class AddSuppliersContract extends React.Component {
 
 
 const AddSuppliersContractMapped = connect(
-)(AddSuppliersContract);
+)(AddSuppliersPayment);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

@@ -16,26 +16,21 @@ import { Image } from '@material-ui/icons';
 import Avatar from '@material-ui/core/Avatar';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 import FinancialCompanyService from '../../../Services/FinancialCompanyService';
-import SuppliersContractService from '../../../Services/SuppliersContractService';
+import SuppliersPaymentService from '../../../Services/SuppliersPaymentService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
-import CurrencyService from '../../../Services/CurrencyService';
 import ClientService from '../../../Services/ClientService';
 import ContractService from '../../../Services/ContractService';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
 
 const useStyles = makeStyles();
 
-class SuppliersContractBlock extends React.Component {
+class SuppliersPaymentBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      supplierContractId: '',
-      name: '',
       codeContract: '',
       codeSupplier: '',
-      changeFactor: 1,
-      currencies: [],
       clients: [],
       clientId: '',
       contracts: [],
@@ -44,10 +39,9 @@ class SuppliersContractBlock extends React.Component {
       purchaseOrders: [],
       purchaseOrdersClient: [],
       purchaseOrderId: '',
-      currencyId: '',
-      contractTradeVolume: 0,
-      contractTradeVolumeEuro: 0,
-      document: '',
+      supplierBill: '',
+      paymentDate: '',
+      ReelPaymentDate: '',
       companies: [],
       externalSuppliers: [],
       externalSupplierId: '',
@@ -62,56 +56,6 @@ class SuppliersContractBlock extends React.Component {
       openPopUp: false,
       row: [],
       columns: [
-        {
-          label: 'Contract Name',
-          name: 'name',
-          options: {
-            filter: true,
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
-        {
-          label: 'Code Contract',
-          name: 'codeContract',
-          options: {
-            filter: true,
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-          }
-        },
         {
           label: 'Client',
           name: 'client',
@@ -362,8 +306,8 @@ class SuppliersContractBlock extends React.Component {
           }
         },
         {
-          label: 'Contract Trade Volume',
-          name: 'contractTradeVolume',
+          label: 'Payment Date ',
+          name: 'paymentDate',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -384,43 +328,18 @@ class SuppliersContractBlock extends React.Component {
                 zIndex: 101
               }
             }),
-          }
-        },
-        {
-          label: 'Currency',
-          name: 'currency',
-          options: {
-            filter: true,
-            customBodyRender: (currency) => (
+            customBodyRender: (value) => (
               <React.Fragment>
                 {
-                  currency ? currency.typeOfCurrency.currencyCode : ''
+                  value ? value.toString().slice(0, 10) : ''
                 }
               </React.Fragment>
-            ),
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
+            )
           }
         },
         {
-          label: 'contractTradeVolume (€) ',
-          name: 'contractTradeVolumeEuro',
+          label: 'Reel Payment Date',
+          name: 'reelPaymentDate',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -441,17 +360,24 @@ class SuppliersContractBlock extends React.Component {
                 zIndex: 101
               }
             }),
-          }
-        },
-        {
-          label: 'Signed Contract Doc',
-          name: 'document',
-          options: {
-            filter: true,
-            customBodyRender: (document) => (
+            customBodyRender: (value) => (
               <React.Fragment>
                 {
-                  document ? 'Yes' : 'No'
+                  value ? value.toString().slice(0, 10) : ''
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: 'Supplier Bill Doc',
+          name: 'supplierBill',
+          options: {
+            filter: true,
+            customBodyRender: (supplierBill) => (
+              <React.Fragment>
+                {
+                  supplierBill ? 'Yes' : 'No'
                 }
               </React.Fragment>
             ),
@@ -517,7 +443,7 @@ class SuppliersContractBlock extends React.Component {
   }
 
   componentDidMount() {
-    SuppliersContractService.getSuppliersContract().then(result => {
+    SuppliersPaymentService.getSuppliersPayment().then(result => {
       console.log(result);
       this.setState({ datas: result.data });
     });
@@ -528,9 +454,6 @@ class SuppliersContractBlock extends React.Component {
     ExternalSuppliersService.getExternalSuppliers().then(result => {
       console.log(result);
       this.setState({ externalSuppliers: result.data });
-    });
-    CurrencyService.getFilteredCurrency().then(result => {
-      this.setState({ currencies: result.data });
     });
     ClientService.getClients().then(result => {
       this.setState({ clients: result.data.payload });
@@ -556,19 +479,15 @@ class SuppliersContractBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].supplierContractId;
-      SuppliersContractService.getSuppliersContractById(id).then(result => {
+      const id = this.state.datas[index].supplierPaymentId;
+      SuppliersPaymentService.getSuppliersPaymentById(id).then(result => {
         console.log(result);
         this.setState({
-          supplierContractId: id,
-          name: result.data.name,
-          codeContract: result.data.codeContract,
+          supplierPaymentId: id,
           codeSupplier: result.data.codeSupplier,
-          changeFactor: result.data.changeFactor,
-          currencyId: result.data.currency._id,
-          contractTradeVolume: result.data.contractTradeVolume,
-          contractTradeVolumeEuro: result.data.contractTradeVolumeEuro,
-          document: result.data.document,
+          supplierBill: result.data.supplierBill,
+          paymentDate: result.data.paymentDate ? result.data.paymentDate.toString().slice(0, 10) : '---',
+          reelPaymentDate: result.data.reelPaymentDate ? result.data.reelPaymentDate.toString().slice(0, 10) : '---',
           externalSupplierId: result.data.type === 'external' ? result.data.externalSupplier._id : '',
           financialCompanyId: result.data.type === 'internal' ? result.data.financialCompany._id : '',
           type: result.data.type,
@@ -589,10 +508,10 @@ class SuppliersContractBlock extends React.Component {
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
             + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-      const id = this.state.datas[index].supplierContractId;
+      const id = this.state.datas[index].supplierPaymentId;
       console.log(id);
       // eslint-disable-next-line array-callback-return,react/destructuring-assignment
-      SuppliersContractService.deleteSuppliersContract(id).then(result => {
+      SuppliersPaymentService.deleteSuppliersPayment(id).then(result => {
         this.setState({ datas: result.data });
       });
     };
@@ -607,7 +526,7 @@ class SuppliersContractBlock extends React.Component {
         const reader = new FileReader();
         console.log(e.target.files);
         reader.onload = function (ev) {
-          this.setState({ document: ev.target.result });
+          this.setState({ supplierBill: ev.target.result });
         }.bind(this);
         reader.readAsDataURL(e.target.files[0]);
       }
@@ -619,10 +538,9 @@ class SuppliersContractBlock extends React.Component {
 
     handleSave = () => {
       const {
-        supplierContractId, name, codeContract, codeSupplier, document, externalSupplierId, financialCompanyId, type, typeClient,
-        currencyId, contractTradeVolume, contractTradeVolumeEuro, changeFactor, clientId, purchaseOrderId, contractId
+        supplierPaymentId, codeSupplier, supplierBill, externalSupplierId, financialCompanyId, type, typeClient,
+        clientId, purchaseOrderId, contractId, reelPaymentDate, paymentDate
       } = this.state;
-      const currency = { _id: currencyId };
       const client = { _id: clientId };
       let financialCompany = { _id: '' };
       let externalSupplier = { _id: '' };
@@ -633,32 +551,29 @@ class SuppliersContractBlock extends React.Component {
       if (typeClient === 'contract') financialContract = { _id: contractId };
       if (typeClient === 'po') purchaseOrder = { _id: purchaseOrderId };
       const SuppliersContract = {
-        supplierContractId, name, codeContract, codeSupplier, document, externalSupplier, financialCompany, type, typeClient, currency, contractTradeVolume, contractTradeVolumeEuro, changeFactor, client, purchaseOrder, financialContract
+        supplierPaymentId,
+        codeSupplier,
+        supplierBill,
+        externalSupplier,
+        financialCompany,
+        type,
+        typeClient,
+        client,
+        purchaseOrder,
+        financialContract,
+        reelPaymentDate,
+        paymentDate
       };
       console.log(SuppliersContract);
-      SuppliersContractService.updateSuppliersContract(SuppliersContract).then(result => {
+      SuppliersPaymentService.updateSuppliersPayment(SuppliersContract).then(result => {
         this.setState({ datas: result.data, openPopUp: false });
       });
     };
 
     handleChange = (ev) => {
-      let changeFactor;
-      if (ev.target.name === 'currencyId') {
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const tradeValue = this.state.contractTradeVolume;
-        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
-        this.state.currencies.map(currency => {
-          // eslint-disable-next-line prefer-destructuring
-          if (currency.currencyId === ev.target.value) {
-            // eslint-disable-next-line prefer-destructuring
-            changeFactor = currency.changeFactor;
-          }
-        });
-        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
-      }
       if (ev.target.name === 'type') {
-        if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false, financialCompanyId: '' });
-        else this.setState({ haveInternal: true, haveExternal: false, externalSupplierId: '' });
+        if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
+        else this.setState({ haveInternal: true, haveExternal: false });
       }
       if (ev.target.name === 'externalSupplierId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
@@ -669,7 +584,7 @@ class SuppliersContractBlock extends React.Component {
       if (ev.target.name === 'financialCompanyId') {
         // eslint-disable-next-line react/destructuring-assignment,array-callback-return
         this.state.companies.map(row => {
-          if (row.financialCompanyId === ev.target.value) this.setState({ codeSupplier: row.code, externalSupplierId: '' });
+          if (row.financialCompanyId === ev.target.value) this.setState({ codeSupplier: row.code, codeContract: row.code, externalSupplierId: '' });
         });
       }
       if (ev.target.name === 'typeClient') {
@@ -690,8 +605,7 @@ class SuppliersContractBlock extends React.Component {
       console.log(this.state);
       const {
         columns, openPopUp, datas,
-        name, codeSupplier, companies, externalSuppliers, type, document,
-        currencyId, contractTradeVolume, contractTradeVolumeEuro, currencies,
+        codeSupplier, companies, externalSuppliers, type, supplierBill, reelPaymentDate, paymentDate,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId, purchaseOrdersClient, purchaseOrderId
       } = this.state;
@@ -704,8 +618,8 @@ class SuppliersContractBlock extends React.Component {
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
-            url="/app/gestion-financial/Add-Suppliers-Contract"
-            tooltip="Add New Supplier Contract"
+            url="/app/gestion-financial/Add Suppliers-Payment"
+            tooltip="Add New Supplier Payment"
           />
         )
       };
@@ -713,7 +627,7 @@ class SuppliersContractBlock extends React.Component {
       return (
         <div>
           <MUIDataTable
-            title="The Suppliers Contract List"
+            title="The Suppliers Payment List"
             data={datas}
             columns={columns}
             options={options}
@@ -738,72 +652,6 @@ class SuppliersContractBlock extends React.Component {
                 justify="center"
               >
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    id="name"
-                    label="Name"
-                    variant="outlined"
-                    name="name"
-                    value={name}
-                    required
-                    fullWidth
-                    onChange={this.handleChange}
-                  />
-                  <br />
-                  <br />
-                  <Grid
-                    container
-                    spacing={2}
-                    alignItems="flex-start"
-                    direction="row"
-                  >
-                    <Grid item xs={12} md={4}>
-                      <TextField
-                        id="Contract Trade Volume"
-                        label="Contract Trade Volume"
-                        type="number"
-                        name="contractTradeVolume"
-                        value={contractTradeVolume}
-                        onChange={this.handleChange}
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={5}>
-                      <FormControl fullWidth required>
-                        <InputLabel>Select Currency</InputLabel>
-                        <Select
-                          name="currencyId"
-                          value={currencyId}
-                          onChange={this.handleChange}
-                        >
-                          {
-                            currencies.map((clt) => (
-                              <MenuItem key={clt.currencyId} value={clt.currencyId}>
-                                {clt.typeOfCurrency.currencyName}
-                              </MenuItem>
-                            ))
-                          }
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                      <TextField
-                        id="contractTradeVolumeEuro"
-                        label="Trade Value (Euro)"
-                        type="number"
-                        name="contractTradeVolumeEuro"
-                        value={contractTradeVolumeEuro}
-                        onChange={this.handleChange}
-                        fullWidth
-                        required
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                  <br />
-                  <br />
                   <FormControl component="fieldset">
                     <FormLabel component="legend"> ● Supplier Type</FormLabel>
                     <RadioGroup row aria-label="position" name="type" value={type} onChange={this.handleChange}>
@@ -1019,6 +867,48 @@ class SuppliersContractBlock extends React.Component {
                   ) : (<div />)}
                   <br />
                   <br />
+                  <Grid
+                    container
+                    spacing={3}
+                    alignItems="flex-start"
+                    direction="row"
+                    justify="center"
+                  >
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        id="paymentDate"
+                        label="Payment Date"
+                        variant="outlined"
+                        name="paymentDate"
+                        value={paymentDate}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        onChange={this.handleChange}
+                        type="date"
+                        required
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        id="reelPaymentDate"
+                        label="Reel Payment Date"
+                        variant="outlined"
+                        name="reelPaymentDate"
+                        value={reelPaymentDate}
+                        onChange={this.handleChange}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        type="date"
+                        required
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                  <br />
+                  <br />
                   <FormControl>
                     <input
                       style={{ display: 'none' }}
@@ -1033,15 +923,15 @@ class SuppliersContractBlock extends React.Component {
                         component="span"
                         startIcon={<Image color="primary" />}
                       >
-                        Document
+                        Supplier Bill
                       </Button>
                     </FormLabel>
                   </FormControl>
                   <br />
                   <br />
                   {
-                    document ? (
-                      <Avatar alt="User Name" src={document} />
+                    supplierBill ? (
+                      <Avatar alt="User Name" src={supplierBill} />
                     ) : (<div />)
                   }
                 </Grid>
@@ -1064,10 +954,10 @@ class SuppliersContractBlock extends React.Component {
       );
     }
 }
-const PurchaseOrderMapped = connect()(SuppliersContractBlock);
+const SuppliersPaymentMapped = connect()(SuppliersPaymentBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();
-  return <PurchaseOrderMapped changeTheme={changeTheme} classes={classes} />;
+  return <SuppliersPaymentMapped changeTheme={changeTheme} classes={classes} />;
 };

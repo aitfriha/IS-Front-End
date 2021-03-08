@@ -240,7 +240,7 @@ class BillingBlock extends React.Component {
         },
         {
           name: 'reelPaymentDay',
-          label: 'Real Payment Date',
+          label: 'Reel Payment Date',
           options: {
             filter: true,
             setCellProps: () => ({
@@ -272,7 +272,7 @@ class BillingBlock extends React.Component {
         },
         {
           name: 'reelPaymentDays',
-          label: 'Real Payment Days',
+          label: 'Reel Payment Days',
           options: {
             filter: true,
             setCellProps: () => ({
