@@ -368,8 +368,8 @@ class User extends React.Component {
             pageSize: 10,
             actionsCellStyle: {
               paddingLeft: 30,
-              width: 140,
-              maxWidth: 140,
+              width: '1%',
+              maxWidth: '1%',
             },
           }}
           actions={[

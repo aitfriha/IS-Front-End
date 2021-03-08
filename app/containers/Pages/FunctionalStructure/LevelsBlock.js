@@ -59,92 +59,100 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class LevelsBlock extends React.Component {
-  state = {
-    level: {},
-    levels: [],
-    index1: -1,
-    index2: -1,
-    staffs: [],
-    staffAssigned: [],
-    staffNotAssigned: [],
-    originalLevelStaffs: [],
-    levelStaffs: [],
-    isStaffAssignation: false,
-    isLevelEdit: false,
-    isLevelDelete: false,
-    leader: null,
-    oldLeader: null,
-    newLeader: null,
-    description: '',
-    levelName: '',
-    isProductionLevel: '',
-    isCommercialLevel: '',
-    isViewHistory: false
-  };
-
-  editingPromiseResolve = () => {};
-
-  columns = [
-    {
-      name: 'levelId',
-      label: 'Level Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'name',
-      label: 'Name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Type',
-      name: 'type',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Is production level?',
-      name: 'isProductionLevel',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Is commercial level?',
-      name: 'isCommercialLevel',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDelete(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+  constructor(props) {
+    super(props);
+    this.editingPromiseResolve = () => {};
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      level: {},
+      levels: [],
+      index1: -1,
+      index2: -1,
+      staffs: [],
+      staffAssigned: [],
+      staffNotAssigned: [],
+      originalLevelStaffs: [],
+      levelStaffs: [],
+      isStaffAssignation: false,
+      isLevelEdit: false,
+      isLevelDelete: false,
+      leader: null,
+      oldLeader: null,
+      newLeader: null,
+      description: '',
+      levelName: '',
+      isProductionLevel: '',
+      isCommercialLevel: '',
+      isViewHistory: false,
+      columns: [
+        {
+          name: 'levelId',
+          label: 'Level Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'name',
+          label: 'Name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Type',
+          name: 'type',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Is production level?',
+          name: 'isProductionLevel',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Is commercial level?',
+          name: 'isCommercialLevel',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDelete(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
+  }
 
   componentDidMount() {
     const { changeTheme } = this.props;
@@ -550,7 +558,8 @@ class LevelsBlock extends React.Component {
       isLoadingfunctionalStructureLevel,
       functionalStructureLevelResponse,
       errorfunctionalStructureLevel,
-      allFunctionalStructureAssignationHistoryByLevel
+      allFunctionalStructureAssignationHistoryByLevel,
+      logedUser
     } = this.props;
     const {
       isStaffAssignation,
@@ -570,22 +579,29 @@ class LevelsBlock extends React.Component {
       description,
       isProductionLevel,
       isCommercialLevel,
-      isViewHistory
+      isViewHistory,
+      columns
     } = this.state;
-
-    console.log(staffAssigned);
-
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 10,
+      download: exportButton,
+      print: exportButton,
       customToolbar: () => (
         <CustomToolbar
           csvData={allFunctionalStructureLevel}
           url="/app/hh-rr/functionalStructure/create-level"
           tooltip="add new Level"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_export}
         />
       )
     };
@@ -1023,7 +1039,7 @@ class LevelsBlock extends React.Component {
           <MUIDataTable
             title=""
             data={allFunctionalStructureLevel}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -1156,7 +1172,9 @@ const mapStateToProps = state => ({
     .errors,
   allFunctionalStructureAssignationHistoryByLevel: state.getIn([
     'functionalStructureAssignationHistories'
-  ]).allFunctionalStructureAssignationHistoryByLevel
+  ]).allFunctionalStructureAssignationHistoryByLevel,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

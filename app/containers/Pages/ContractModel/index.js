@@ -39,70 +39,78 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class ContractModel extends React.Component {
-  state = {
-    code: '',
-    name: '',
-    description: '',
-    isDialogOpen: false,
-    isDeleteDialogOpen: false,
-    isRelated: false,
-    contractModelSelected: {},
-    replaceContractModelList: [],
-    oldId: '',
-    newId: ''
-  };
+  constructor(props) {
+    super(props);
+    this.editingPromiseResolve1 = () => {};
+    this.editingPromiseResolve2 = () => {};
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      code: '',
+      name: '',
+      description: '',
+      isDialogOpen: false,
+      isDeleteDialogOpen: false,
+      isRelated: false,
+      contractModelSelected: {},
+      replaceContractModelList: [],
+      oldId: '',
+      newId: '',
+      columns: [
+        {
+          name: 'contractModelId',
+          label: 'Contract Model Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'code',
+          label: 'Code',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Name',
+          name: 'name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_contractModels_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_contractModels_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
+  }
 
-  editingPromiseResolve1 = () => {};
-
-  editingPromiseResolve2 = () => {};
-
-  columns = [
-    {
-      name: 'contractModelId',
-      label: 'Contract Model Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'code',
-      label: 'Code',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Name',
-      name: 'name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
 
   componentDidMount() {
     const { changeTheme, getAllContractModel } = this.props;
@@ -225,9 +233,14 @@ class ContractModel extends React.Component {
       errorContractModel,
       isLoadingStaffContract,
       staffContractResponse,
-      errorStaffContract
+      errorStaffContract,
+      logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_contractModels_export) {
+      exportButton = true;
+    }
     const {
       code,
       name,
@@ -236,7 +249,8 @@ class ContractModel extends React.Component {
       isDeleteDialogOpen,
       isRelated,
       replaceContractModelList,
-      newId
+      newId,
+      columns
     } = this.state;
     const title = brand.name + ' - Contract Models';
     const { desc } = brand;
@@ -245,12 +259,16 @@ class ContractModel extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allContractModel}
           url="/app/hh-rr/contractModel/create-contract-model"
           tooltip="add new contract model"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_contractModels_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_contractModels_export}
         />
       )
     };
@@ -432,7 +450,7 @@ class ContractModel extends React.Component {
           <MUIDataTable
             title=""
             data={allContractModel}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -450,7 +468,8 @@ const mapStateToProps = state => ({
   isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
   errorStaffContract: state.getIn(['staffContracts']).errors,
   allStaffContractByContractModel: state.getIn(['staffContracts'])
-    .allStaffContractByContractModel
+    .allStaffContractByContractModel,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

@@ -441,8 +441,10 @@ class StaffProfileEconomicContractInformation extends Component {
       isLoadingStaffEconomicContractInformation,
       staffEconomicContractInformationResponse,
       errorStaffEconomicContractInformation,
-      allStaffEconomicContractInformationHistoryByContract
+      allStaffEconomicContractInformationHistoryByContract,
+      logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       contractSalary,
       companyContractCost,
@@ -478,7 +480,10 @@ class StaffProfileEconomicContractInformation extends Component {
       localCurrency,
       currencyCode
     } = this.state;
-
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_export) {
+      exportButton = true;
+    }
     const history = allStaffEconomicContractInformationHistoryByContract;
 
     const options = {
@@ -487,6 +492,8 @@ class StaffProfileEconomicContractInformation extends Component {
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 3,
+      download: exportButton,
+      print: exportButton,
       rowsPerPageOptions: [3]
     };
 
@@ -529,6 +536,8 @@ class StaffProfileEconomicContractInformation extends Component {
                   disabled={!isViewHistory}
                 />
               </Tooltip>
+              {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_modify
+                  ? (
               <Tooltip title="Edit">
                 <Button
                   name="personalInformation"
@@ -537,7 +546,7 @@ class StaffProfileEconomicContractInformation extends Component {
                   endIcon={<EditIcon />}
                   onClick={this.handleOpenEdit}
                 />
-              </Tooltip>
+              </Tooltip>):null}
             </div>
           ) : (
             <div />
@@ -1532,7 +1541,8 @@ const mapStateToProps = state => ({
   ]).isLoading,
   errorStaffEconomicContractInformation: state.getIn([
     'staffEconomicContractInformations'
-  ]).errors
+  ]).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

@@ -178,7 +178,7 @@ class LeftSidebarLayout extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureAssignation_access == false) {
       this.access('hhrrSystem', 'hhrr_manager', 'administrativeStructure');
     }
-    if (thelogedUser.userRoles[0].actionsNames.hh_functionalStructureAssignation_access == false) {
+    if (thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureDefinition_access == false) {
       this.access('hhrrSystem', 'hhrr_manager', 'functionalStructure');
     }
     if (thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_access == false) {

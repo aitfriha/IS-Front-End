@@ -2295,7 +2295,7 @@ class RoleActions extends React.Component {
                   />
                   <FormControlLabel
                     control={<Checkbox checked={hh_absenceConsult_modify} onChange={this.handleChange} name="hh_absenceConsult_modify" />}
-                    label="Modify"
+                    label="Modify (Accept Reject)"
                   />
                   <FormControlLabel
                     control={<Checkbox checked={hh_absenceConsult_export} onChange={this.handleChange} name="hh_absenceConsult_export" />}

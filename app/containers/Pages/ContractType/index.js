@@ -39,84 +39,95 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class ContractType extends React.Component {
-  state = {
-    code: '',
-    name: '',
-    description: '',
-    isDialogOpen: false,
-    isDeleteDialogOpen: false,
-    isRelated: false,
-    contractTypeSelected: {},
-    replaceContractTypeList: [],
-    oldId: '',
-    newId: ''
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      code: '',
+      name: '',
+      description: '',
+      isDialogOpen: false,
+      isDeleteDialogOpen: false,
+      isRelated: false,
+      contractTypeSelected: {},
+      replaceContractTypeList: [],
+      oldId: '',
+      newId: '',
+      columns: [
+        {
+          name: 'contractTypeId',
+          label: 'Contract Type Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'code',
+          label: 'Code',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Name',
+          name: 'name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Country',
+          name: 'countryName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'State',
+          name: 'stateName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_typesOfContracts_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_typesOfContracts_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
 
-  editingPromiseResolve1 = () => {};
+    this.editingPromiseResolve1 = () => {
+    };
 
-  editingPromiseResolve2 = () => {};
-
-  columns = [
-    {
-      name: 'contractTypeId',
-      label: 'Contract Type Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'code',
-      label: 'Code',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Name',
-      name: 'name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Country',
-      name: 'countryName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'State',
-      name: 'stateName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+    this.editingPromiseResolve2 = () => {
+    };
+  }
 
   componentDidMount() {
     const { changeTheme, getAllContractType } = this.props;
@@ -243,9 +254,10 @@ class ContractType extends React.Component {
       errorContractType,
       isLoadingStaffContract,
       staffContractResponse,
-      errorStaffContract
+      errorStaffContract,
+      logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
     const {
       code,
       name,
@@ -254,8 +266,13 @@ class ContractType extends React.Component {
       isDeleteDialogOpen,
       isRelated,
       replaceContractTypeList,
-      newId
+      newId,
+      columns
     } = this.state;
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_typesOfContracts_export) {
+      exportButton = true;
+    }
     const title = brand.name + ' - Types of staff contract';
     const { desc } = brand;
     const options = {
@@ -263,12 +280,16 @@ class ContractType extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allContractType}
           url="/app/hh-rr/contractType/create-contract-type"
           tooltip="add new staff contract type"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_typesOfContracts_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_typesOfContracts_export}
         />
       )
     };
@@ -453,7 +474,7 @@ class ContractType extends React.Component {
           <MUIDataTable
             title=""
             data={allContractType}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -471,7 +492,8 @@ const mapStateToProps = state => ({
   isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
   errorStaffContract: state.getIn(['staffContracts']).errors,
   allStaffContractByContractType: state.getIn(['staffContracts'])
-    .allStaffContractByContractType
+    .allStaffContractByContractType,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

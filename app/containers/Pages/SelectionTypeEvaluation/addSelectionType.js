@@ -184,8 +184,10 @@ class AddSelectionType extends React.Component {
       allSelectionTypeEvaluation,
       isLoadingselectionTypeEvaluation,
       selectionTypeEvaluationResponse,
-      errorselectionTypeEvaluation
+      errorselectionTypeEvaluation,
+      logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       description1,
       mainTypes,
@@ -194,17 +196,25 @@ class AddSelectionType extends React.Component {
       mainTypeExist,
       subTypeExist
     } = this.state;
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allSelectionTypeEvaluation}
           url="/app/hh-rr/selectionTypeEvaluation/create-type"
           tooltip="add new selection type"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_export}
         />
       )
     };
@@ -347,7 +357,8 @@ const mapStateToProps = state => ({
     .selectionTypeEvaluationResponse,
   isLoadingselectionTypeEvaluation: state.getIn(['selectionTypeEvaluations'])
     .isLoading,
-  errorselectionTypeEvaluation: state.getIn(['selectionTypeEvaluations']).errors
+  errorselectionTypeEvaluation: state.getIn(['selectionTypeEvaluations']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

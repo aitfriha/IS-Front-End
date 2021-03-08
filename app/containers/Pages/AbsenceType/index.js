@@ -48,134 +48,146 @@ const inputDoc = React.createRef();
 const extList = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];
 
 class AbsenceType extends React.Component {
-  state = {
-    code: '',
-    name: '',
-    description: '',
-    isDialogOpen: false,
-    isDeleteDialogOpen: false,
-    isOpenDocument: false,
-    absenceTypeSelected: {},
-    absenceResponsible: null,
-    inCopyResponsible: null,
-    doc: {},
-    docExtension: '',
-    pageNumber: 1,
-    replaceContractTypeList: []
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      code: '',
+      name: '',
+      description: '',
+      isDialogOpen: false,
+      isDeleteDialogOpen: false,
+      isOpenDocument: false,
+      absenceTypeSelected: {},
+      absenceResponsible: null,
+      inCopyResponsible: null,
+      doc: {},
+      docExtension: '',
+      pageNumber: 1,
+      replaceContractTypeList: [],
+      columns: [
+        {
+          name: 'absenceTypeId',
+          label: 'Absence Type Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'code',
+          label: 'Code',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Name',
+          name: 'name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Description',
+          name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Duration type',
+          name: 'durationType',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Documents mandatory',
+          name: 'documentsMandatory',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Absence responsible',
+          name: 'absenceResponsibleName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'InCopy responsible',
+          name: 'inCopyResponsibleName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Country',
+          name: 'countryName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'State',
+          name: 'stateName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Document',
+          name: 'document',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {value ? (
+                  <IconButton
+                    onClick={() => this.handleOpenDocumentDialog(tableMeta)}
+                  >
+                    <VisibilityIcon color="secondary" />
+                  </IconButton>
+                ) : (
+                  <div>-</div>
+                )}
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
 
-  editingPromiseResolve1 = () => {};
+    this.editingPromiseResolve1 = () => {
+    };
 
-  editingPromiseResolve2 = () => {};
+    this.editingPromiseResolve2 = () => {
+    };
+  }
 
-  columns = [
-    {
-      name: 'absenceTypeId',
-      label: 'Absence Type Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'code',
-      label: 'Code',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Name',
-      name: 'name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Description',
-      name: 'description',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Duration type',
-      name: 'durationType',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Documents mandatory',
-      name: 'documentsMandatory',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Absence responsible',
-      name: 'absenceResponsibleName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'InCopy responsible',
-      name: 'inCopyResponsibleName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Country',
-      name: 'countryName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'State',
-      name: 'stateName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Document',
-      name: 'document',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            {value ? (
-              <IconButton
-                onClick={() => this.handleOpenDocumentDialog(tableMeta)}
-              >
-                <VisibilityIcon color="secondary" />
-              </IconButton>
-            ) : (
-              <div>-</div>
-            )}
-          </React.Fragment>
-        )
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
 
   componentDidMount() {
     const { changeTheme, getAllAbsenceType, getAllStaff } = this.props;
@@ -426,8 +438,10 @@ class AbsenceType extends React.Component {
       allStaff,
       isLoadingAbsenceRequest,
       absenceRequestResponse,
-      errorAbsenceRequest
+      errorAbsenceRequest,
+      logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       code,
       name,
@@ -440,8 +454,13 @@ class AbsenceType extends React.Component {
       doc,
       pageNumber,
       isDeleteDialogOpen,
-      isRelated
+      isRelated,
+      columns
     } = this.state;
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_export) {
+      exportButton = true;
+    }
     const title = brand.name + ' - Types of staff absence';
     const { desc } = brand;
     const options = {
@@ -449,12 +468,16 @@ class AbsenceType extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allAbsenceType}
           url="/app/hh-rr/absenceType/create-absence-type"
           tooltip="add new staff absence type"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_export}
         />
       )
     };
@@ -736,7 +759,7 @@ class AbsenceType extends React.Component {
           <MUIDataTable
             title=""
             data={allAbsenceType}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -756,7 +779,8 @@ const mapStateToProps = state => ({
   isLoadingAbsenceRequest: state.getIn(['absenceRequests']).isLoading,
   errorAbsenceRequest: state.getIn(['absenceRequests']).errors,
   allAbsenceRequestByAbsenceType: state.getIn(['absenceRequests'])
-    .allAbsenceRequestByAbsenceType
+    .allAbsenceRequestByAbsenceType,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

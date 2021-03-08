@@ -506,8 +506,14 @@ class StaffProfileGeneralInformation extends Component {
       errorsState,
       isLoadingCity,
       cityResponse,
-      errorsCity
+      errorsCity,
+      logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    /*    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_export) {
+      exportButton = true;
+    } */
     const {
       isAddDocumentation,
       isOpenDocument,
@@ -757,15 +763,18 @@ class StaffProfileGeneralInformation extends Component {
           </Typography>
           {!isEdit ? (
             <div>
-              <Tooltip title="Edit">
-                <Button
-                  name="personalInformation"
-                  style={{ backgroundColor: 'transparent' }}
-                  disableRipple
-                  endIcon={<EditIcon />}
-                  onClick={this.handleOpenEditData}
-                />
-              </Tooltip>
+              {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_modify
+                ? (
+                  <Tooltip title="Edit">
+                    <Button
+                      name="personalInformation"
+                      style={{ backgroundColor: 'transparent' }}
+                      disableRipple
+                      endIcon={<EditIcon />}
+                      onClick={this.handleOpenEditData}
+                    />
+                  </Tooltip>
+                ) : null}
             </div>
           ) : (
             <div />
@@ -1431,15 +1440,18 @@ class StaffProfileGeneralInformation extends Component {
           )}
           {!isEdit ? (
             <div>
-              <Tooltip title="Edit">
-                <Button
-                  name="personalInformation"
-                  style={{ backgroundColor: 'transparent' }}
-                  disableRipple
-                  endIcon={<AddBoxIcon />}
-                  onClick={this.handleOpenEditDocumentation}
-                />
-              </Tooltip>
+              {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_create
+                ? (
+                  <Tooltip title="Edit">
+                    <Button
+                      name="personalInformation"
+                      style={{ backgroundColor: 'transparent' }}
+                      disableRipple
+                      endIcon={<AddBoxIcon />}
+                      onClick={this.handleOpenEditDocumentation}
+                    />
+                  </Tooltip>
+                ) : null}
             </div>
           ) : (
             <div />
@@ -1468,21 +1480,28 @@ class StaffProfileGeneralInformation extends Component {
                       <TableCell align="right">{row.expeditionDate}</TableCell>
                       <TableCell align="right">{row.expirationDate}</TableCell>
                       <TableCell align="right">
-                        <IconButton
-                          onClick={() => this.handleOpenDialog(
-                            row.staffDocumentId,
-                            row.docExtension
-                          )
-                          }
-                        >
-                          <VisibilityIcon color="gray" />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => this.handleDeleteDocument(row.staffDocumentId)
-                          }
-                        >
-                          <DeleteForeverIcon color="red" />
-                        </IconButton>
+                        {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_access
+                          ? (
+                            <IconButton
+                              onClick={() => this.handleOpenDialog(
+                                row.staffDocumentId,
+                                row.docExtension
+                              )
+                              }
+                            >
+                              <VisibilityIcon color="gray" />
+
+                            </IconButton>
+                          ) : null}
+                        {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_delete
+                          ? (
+                            <IconButton
+                              onClick={() => this.handleDeleteDocument(row.staffDocumentId)
+                              }
+                            >
+                              <DeleteForeverIcon color="red" />
+                            </IconButton>
+                          ) : null}
                       </TableCell>
                     </TableRow>
                   ))
@@ -1524,7 +1543,8 @@ const mapStateToProps = state => ({
   allCitys: state.getIn(['cities']).allCitys,
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
-  errorsCity: state.getIn(['cities']).errors
+  errorsCity: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
