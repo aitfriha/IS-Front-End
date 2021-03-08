@@ -180,10 +180,10 @@ class AddClient extends React.Component {
                 }
               }
               nuxeo.repository()
-                .create(url + 'Comercial', newDocument)
+                .create(url + 'Commercial', newDocument)
                 .then(function (doc) {
                   nuxeo.repository()
-                    .create(url + 'Mabel', newDocument)
+                    .create(url + 'Presale', newDocument)
                     .then(function (doc) {
                       notification('success', result);
                       getAllClient();
