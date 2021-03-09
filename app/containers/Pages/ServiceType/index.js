@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
@@ -23,7 +23,9 @@ import {
 } from '../../../redux/serviceType/actions';
 import EditServiceType from './EditServiceType';
 import { getAllClient } from '../../../redux/client/actions';
-
+import { ThemeContext } from '../../App/ThemeWrapper';
+import { makeStyles } from '@material-ui/core/styles';
+const useStyles = makeStyles();
 class serviceType extends React.Component {
   constructor(props) {
     super(props);
@@ -121,7 +123,8 @@ class serviceType extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllCommercialServiceType } = this.props;
+    const { getAllCommercialServiceType, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllCommercialServiceType();
   }
 
@@ -318,7 +321,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   updateDeleteCommercialServiceType
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const ServiceTypeMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(serviceType));
+)(serviceType);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ServiceTypeMapped changeTheme={changeTheme} classes={classes} />;
+};

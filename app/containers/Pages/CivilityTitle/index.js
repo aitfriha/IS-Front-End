@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
@@ -17,9 +17,11 @@ import {
   addCivilityTitleStatus, deleteCivilityTitleStatus,
   getAllCivilityTitleStatus, updateCivilityTitleStatus
 } from '../../../redux/civilityTitle/actions';
+import { ThemeContext } from "../../App/ThemeWrapper";
+import { makeStyles } from "@material-ui/core/styles";
 
 const styles = {};
-
+const useStyles = makeStyles();
 class StatusOfCommercialOperation extends React.Component {
   constructor(props) {
       super(props);
@@ -46,7 +48,8 @@ class StatusOfCommercialOperation extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllCivilityTitleStatus } = this.props;
+    const { getAllCivilityTitleStatus, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllCivilityTitleStatus();
   }
 
@@ -249,7 +252,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteCivilityTitleStatus
 }, dispatch);
 
-export default withStyles(styles)(connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(StatusOfCommercialOperation));
+const StatusOfCommercialOperationMapped = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(StatusOfCommercialOperation);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StatusOfCommercialOperationMapped changeTheme={changeTheme} classes={classes} />;
+};
