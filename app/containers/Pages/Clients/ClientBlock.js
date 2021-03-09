@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import AssignmentIcon from '@material-ui/icons/Assignment';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import { bindActionCreators } from 'redux';
@@ -23,8 +23,9 @@ import {
 } from '../../../redux/client/actions';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
+import { ThemeContext } from '../../App/ThemeWrapper';
 
-
+const useStyles = makeStyles(styles);
 class ClientBlock extends React.Component {
   constructor(props) {
     super(props);
@@ -498,7 +499,8 @@ class ClientBlock extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllClient } = this.props;
+    const { changeTheme,getAllClient } = this.props;
+    changeTheme('redTheme');
     getAllClient();
   }
 
@@ -637,7 +639,15 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCityByState
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const ClientBlockMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(ClientBlock));
+)(ClientBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return (
+    <ClientBlockMapped changeTheme={changeTheme} classes={classes} />
+  );
+};

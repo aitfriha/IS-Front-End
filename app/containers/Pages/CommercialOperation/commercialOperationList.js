@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
 import IconButton from '@material-ui/core/IconButton';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -29,6 +29,7 @@ import FormGroup from '@material-ui/core/FormGroup/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox/Checkbox';
 import LibraryBooks from '@material-ui/core/SvgIcon/SvgIcon';
+import { makeStyles } from '@material-ui/core/styles';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import PapperBlock from '../../../components/PapperBlock/PapperBlock';
 import StepperIndex from '../../../components/Stepper/StepperIndex';
@@ -40,6 +41,7 @@ import { getAllCityByState } from '../../../redux/city/actions';
 import styles from '../Clients/clients-jss';
 import { getAllCommercialOperation } from '../../../redux/commercialOperation/actions';
 import AddContact from '../Contact/addContact';
+import { ThemeContext } from '../../App/ThemeWrapper';
 /* createMuiTheme({
   overrides: {
     MUIDataTable: {
@@ -52,6 +54,7 @@ import AddContact from '../Contact/addContact';
 let legalAreaContacts = [];
 let procurementDepartmentContacts = [];
 let qualificationProcessContacts = [];
+const useStyles = makeStyles();
 class commercialOperationList extends React.Component {
   constructor(props) {
     super(props);
@@ -487,7 +490,8 @@ class commercialOperationList extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllClient, getAllCommercialOperation } = this.props;
+    const { getAllClient, getAllCommercialOperation, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllClient(); getAllCommercialOperation();
   }
 
@@ -781,7 +785,14 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCommercialOperation
 }, dispatch);
 
-export default withStyles(styles)(connect(
+
+const CommercialOperationListMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(commercialOperationList));
+)(commercialOperationList);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <CommercialOperationListMapped changeTheme={changeTheme} classes={classes} />;
+};
