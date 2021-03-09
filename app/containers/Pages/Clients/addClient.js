@@ -36,6 +36,15 @@ import { getAllCityByState } from '../../../redux/city/actions';
 import { addClientCommercial, getAllClient } from '../../../redux/client/actions';
 import notification from '../../../components/Notification/Notification';
 
+import axios from "axios";
+import { API } from '../../../config/apiUrl';
+
+var Nuxeo = require('nuxeo');
+var path = require('path');
+var fs = require('fs');
+
+let documentManagerConfig = {};
+
 const filter = createFilterOptions();
 class AddClient extends React.Component {
   constructor(props) {
@@ -53,7 +62,7 @@ class AddClient extends React.Component {
       countries: [],
       open: false,
       sectors: [],
-      sector:{},
+      sector: {},
       sector1: {},
       sectorConfig: [],
       sectorConfigChoose: null,
@@ -75,6 +84,12 @@ class AddClient extends React.Component {
     // eslint-disable-next-line no-shadow
     const { getAllCountry } = this.props;
     getAllCountry();
+
+    /// carga en esta variable los datos de configuración ////
+    axios.get(`${API}/documentManagerConfig/all`).then(res => {
+      documentManagerConfig = res.data.payload;
+    });
+
   }
 
   handleChange = (ev) => {
@@ -115,7 +130,7 @@ class AddClient extends React.Component {
       isActive: isActive ? 'Yes' : 'No',
       type,
       cityId,
-      addressName:address,
+      addressName: address,
       postCode,
       // countryLeader: country.leader.name,
       //sectorLeader: sectorsConfig.leader,
@@ -132,8 +147,54 @@ class AddClient extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
-        notification('success', result);
-        getAllClient();
+
+        //Create a section inside of both Commercial and Presale parent sections with the given client name
+        var nuxeo = new Nuxeo({
+          baseURL: documentManagerConfig.nuxeourl,
+          auth: {
+            method: 'basic',
+            username: documentManagerConfig.user,
+            password: documentManagerConfig.password
+          }
+        });
+        let url = "/" + documentManagerConfig.dominio + '/sections/';
+        let folderName = client.name;
+        nuxeo.operation('Document.FetchByProperty')
+          .params({ "property": "dc:title", "values": folderName })
+          .execute()
+          .then(function (docs) {
+            let exists = false;
+            docs.entries.forEach(element => {
+              if (element.type === 'Section') {
+                exists = true;
+              }
+            });
+            if (docs.entries.length == 0 || !exists) {
+              var newDocument = {
+                'entity-type': 'document',
+                name: folderName,
+                type: 'Section',
+                properties: {
+                  'dc:title': folderName,
+                  'dc:description': ''
+                }
+              }
+              nuxeo.repository()
+                .create(url + 'Commercial', newDocument)
+                .then(function (doc) {
+                  nuxeo.repository()
+                    .create(url + 'Presale', newDocument)
+                    .then(function (doc) {
+                      notification('success', result);
+                      getAllClient();
+                    }).catch(function (error) {
+                      notification('danger', error);
+                    });
+                }).catch(function (error) {
+                  notification('danger', error);
+                });
+            }
+          });
       } else {
         notification('danger', result);
       }
@@ -146,7 +207,7 @@ class AddClient extends React.Component {
   };
 
   handleCheck = (sector) => {
-    console.log('sector : ',sector);
+    console.log('sector : ', sector);
     this.setState({ sector });
   };
 
@@ -179,7 +240,7 @@ class AddClient extends React.Component {
     this.setState({ cityId: value.cityId });
   };
 
-  handleChange= (ev, value) => {
+  handleChange = (ev, value) => {
     console.log(ev.target.name);
     this.setState({ [ev.target.name]: ev.target.value });
   };

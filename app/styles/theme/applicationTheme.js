@@ -279,12 +279,12 @@ const applicationTheme = (color, mode, direction) => ({
       },
     },
     MuiTableCell: {
-      root: {
+      /* root: {
         borderBottom:
           mode === 'dark'
             ? '1px solid #636363'
             : `1px solid ${themePalette(color, mode).palette.primary.light}`,
-      },
+      }, */
       head: {
         fontWeight: 600,
       },
