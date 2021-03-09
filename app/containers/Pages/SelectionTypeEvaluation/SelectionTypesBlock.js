@@ -55,7 +55,7 @@ class SelectionTypesBlock extends React.Component {
           label: 'Selection Type Id',
           options: {
             display: false,
-            filter: falselo
+            filter: false
           }
         },
         {

@@ -232,110 +232,113 @@ class AddSelectionType extends React.Component {
           noMargin
           whiteBg
         >
-          <Grid
-            container
-            spacing={6}
-            direction="row"
-            justify="center"
-            alignItems="center"
-          >
-            <Grid
-              item
-              xs={12}
-              md={8}
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-              justify="center"
-              alignContent="center"
-              alignItems="center"
-            >
-              <Typography
-                variant="subtitle2"
-                color="primary"
-                style={{ width: '15%' }}
+          {thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_create
+            ? (
+              <Grid
+                container
+                spacing={6}
+                direction="row"
+                justify="center"
+                alignItems="center"
               >
+                <Grid
+                  item
+                  xs={12}
+                  md={8}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                  justify="center"
+                  alignContent="center"
+                  alignItems="center"
+                >
+                  <Typography
+                    variant="subtitle2"
+                    color="primary"
+                    style={{ width: '15%' }}
+                  >
                 Main Type
-              </Typography>
-              <div style={{ width: '30%' }}>
-                <AutoComplete
-                  value={this.handleValueChange}
-                  placeholder="Main Type Name"
-                  data={mainTypes}
-                  type="mainTypeName"
-                  attribute="name"
-                  choosedSuggestion={this.choosedSuggestion}
-                />
-              </div>
-              <TextField
-                id="outlined-basic"
-                label="Description"
-                variant="outlined"
-                name="description1"
-                value={description1}
-                style={{ width: '30%', marginRight: 10 }}
-                className={classes.textField}
-                onChange={this.handleChange}
-                disabled={mainTypeExist}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={8}
-              style={{ display: 'flex', justifyContent: 'space-between' }}
-              justify="center"
-              alignContent="center"
-              alignItems="center"
-            >
-              <Typography
-                variant="subtitle2"
-                color="primary"
-                style={{ width: '15%' }}
-              >
+                  </Typography>
+                  <div style={{ width: '30%' }}>
+                    <AutoComplete
+                      value={this.handleValueChange}
+                      placeholder="Main Type Name"
+                      data={mainTypes}
+                      type="mainTypeName"
+                      attribute="name"
+                      choosedSuggestion={this.choosedSuggestion}
+                    />
+                  </div>
+                  <TextField
+                    id="outlined-basic"
+                    label="Description"
+                    variant="outlined"
+                    name="description1"
+                    value={description1}
+                    style={{ width: '30%', marginRight: 10 }}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                    disabled={mainTypeExist}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={8}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                  justify="center"
+                  alignContent="center"
+                  alignItems="center"
+                >
+                  <Typography
+                    variant="subtitle2"
+                    color="primary"
+                    style={{ width: '15%' }}
+                  >
                 Sub Type
-              </Typography>
-              <div style={{ width: '30%' }}>
-                <AutoComplete
-                  value={this.handleValueChange}
-                  placeholder="Sub Type Name"
-                  data={subTypes}
-                  type="subTypeName"
-                  attribute="name"
-                  choosedSuggestion={this.choosedSuggestion}
-                />
-              </div>
-              <TextField
-                id="outlined-basic"
-                label="Description"
-                variant="outlined"
-                name="description2"
-                value={description2}
-                style={{ width: '30%', marginRight: 10 }}
-                className={classes.textField}
-                onChange={this.handleChange}
-                disabled={subTypeExist}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={8}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                marginBottom: 12
-              }}
-            >
-              <Button
-                color="primary"
-                variant="contained"
-                size="medium"
-                onClick={this.handleSubmitType}
-                disabled={this.check()}
-              >
+                  </Typography>
+                  <div style={{ width: '30%' }}>
+                    <AutoComplete
+                      value={this.handleValueChange}
+                      placeholder="Sub Type Name"
+                      data={subTypes}
+                      type="subTypeName"
+                      attribute="name"
+                      choosedSuggestion={this.choosedSuggestion}
+                    />
+                  </div>
+                  <TextField
+                    id="outlined-basic"
+                    label="Description"
+                    variant="outlined"
+                    name="description2"
+                    value={description2}
+                    style={{ width: '30%', marginRight: 10 }}
+                    className={classes.textField}
+                    onChange={this.handleChange}
+                    disabled={subTypeExist}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={8}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginBottom: 12
+                  }}
+                >
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    size="medium"
+                    onClick={this.handleSubmitType}
+                    disabled={this.check()}
+                  >
                 Save Type
-              </Button>
-            </Grid>
-          </Grid>
+                  </Button>
+                </Grid>
+              </Grid>
+            ) : null}
         </PapperBlock>
         <div style={{ marginTop: 20 }}>
           <MUIDataTable
