@@ -323,7 +323,6 @@ class User extends React.Component {
     (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
     (!isLoading && userResponse) && this.editingPromiseResolveEdit(userResponse);
     (!isLoading && !userResponse) && this.editingPromiseResolveEdit(errors);
-    console.log(JSON.parse(localStorage.getItem('logedUser')));
     return (
       <div>
         <MaterialTable

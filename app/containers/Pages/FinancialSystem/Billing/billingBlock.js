@@ -19,6 +19,7 @@ const useStyles = makeStyles();
 class BillingBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       openPopUp: false,
       datas: [],
@@ -728,12 +729,16 @@ class BillingBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_billingManagement_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_billingManagement_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -810,17 +815,29 @@ class BillingBlock extends React.Component {
     const {
       datas, columns, openPopUp, bill
     } = this.state;
+    const {
+      logedUser
+    } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_billingManagement_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={datas}
           url="/app/gestion-financial/Add-Bill"
           tooltip="Add New Bill"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_billingManagement_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_billingManagement_export}
         />
       )
     };
@@ -852,7 +869,15 @@ class BillingBlock extends React.Component {
     );
   }
 }
-const BillingBlockMapped = connect()(BillingBlock);
+
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+const BillingBlockMapped = connect(
+  mapStateToProps,
+  null
+)(BillingBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
