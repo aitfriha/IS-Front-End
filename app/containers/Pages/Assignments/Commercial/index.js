@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -24,6 +24,7 @@ import { CSVReader } from 'react-papaparse';
 import CloudUploadIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { makeStyles } from '@material-ui/core/styles';
 import { addClient } from '../../../../redux/actions/clientActions';
 import CommercialService from '../../../Services/CommercialService';
 import AssignmentService from '../../../Services/AssignmentService';
@@ -41,6 +42,7 @@ import {
 import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
 import { addAssignment, deleteAssignment } from '../../../../redux/assignment/actions';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 
 import axios from "axios";
 import { API } from '../../../../config/apiUrl';
@@ -53,6 +55,7 @@ var fs = require('fs');
 let documentManagerConfig = {};
 
 const buttonRef = React.createRef();
+const useStyles = makeStyles();
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
@@ -132,6 +135,8 @@ class Commercial extends React.Component {
 
 
   componentDidMount() {
+      const { changeTheme } = this.props;
+      changeTheme('redTheme');
     if (history.location.state) {
       this.setState({ type: history.location.state.type });
     }
@@ -896,7 +901,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteAssignment
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const CommercialMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Commercial));
+)(Commercial);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <CommercialMapped changeTheme={changeTheme} classes={classes} />;
+};

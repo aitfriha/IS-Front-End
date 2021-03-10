@@ -1,8 +1,6 @@
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
+import React, { useContext } from 'react';
 import MaterialTable, { MTableEditField } from 'material-table';
 import { PropTypes } from 'prop-types';
-import { injectIntl } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { isEmpty, isString } from 'lodash';
 import { connect } from 'react-redux';
@@ -31,6 +29,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import Checkbox from '@material-ui/core/Checkbox';
+import { makeStyles } from '@material-ui/core/styles';
 import AutoComplete from '../../../../../app/components/AutoComplete';
 import { getAllDepartments } from '../../../../redux/departments/actions';
 import { getAllRoles } from '../../../../redux/rolesAbilities/actions';
@@ -44,14 +43,12 @@ import notification from '../../../../../app/components/Notification/Notificatio
 import { getAllClient } from '../../../../../app/redux/client/actions';
 import FinancialCompanyService from '../../../../../app/containers/Services/FinancialCompanyService';
 import StaffService from '../../../../../app/containers/Services/StaffService';
+import { ThemeContext } from '../../../../../app/containers/App/ThemeWrapper';
 
-const styles = {};
-
+const useStyles = makeStyles();
 class User extends React.Component {
   constructor(props) {
     super(props);
-
-    const { intl } = props;
     this.editingPromiseResolve = () => {
     };
     this.editingPromiseResolveEdit = () => {
@@ -169,8 +166,9 @@ class User extends React.Component {
 
   componentDidMount() {
     const {
-      getAllUsers, getAllRoles, getAllDepartments, getAllClient
+      getAllUsers, getAllRoles, getAllDepartments, getAllClient, changeTheme
     } = this.props;
+    changeTheme('purpleRedTheme');
     getAllUsers();
     getAllRoles();
     getAllDepartments();
@@ -311,7 +309,7 @@ class User extends React.Component {
 
   render() {
     const {
-      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
+      allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
     } = this.props;
     const {
       columns, openPopUp, client, actif, companies, company, xclients, staff,
@@ -361,7 +359,7 @@ class User extends React.Component {
           columns={columns}
           data={allUsers && allUsers}
           options={{
-            exportFileName: intl.formatMessage({ id: 'users' }),
+            exportFileName: 'users',
             filtering: true,
             grouping: true,
             exportButton: true,
@@ -432,7 +430,7 @@ class User extends React.Component {
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
-          fullWidth="md"
+          fullWidth
           maxWidth="md"
         >
           <DialogTitle id="alert-dialog-slide-title"> Add new User </DialogTitle>
@@ -559,10 +557,6 @@ class User extends React.Component {
 
 
 User.propTypes = {
-  /** Location */
-  location: PropTypes.object.isRequired,
-  /** intl */
-  intl: PropTypes.object.isRequired,
   /** Errors */
   errors: PropTypes.object.isRequired,
   /** isLoading */
@@ -613,7 +607,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient,
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const UserMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(User)));
+)(User);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <UserMapped changeTheme={changeTheme} classes={classes} />;
+};

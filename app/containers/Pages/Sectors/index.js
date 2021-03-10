@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import brand from 'dan-api/dummy/brand';
 import axios from 'axios';
@@ -13,7 +13,8 @@ import SectorLeaderEdit from './SectorLeaderEdit';
 import AddSector from './addSector';
 import { setSectorConfig } from '../../../redux/actions/sectorConfigActions';
 import SectorConfigService from '../../Services/SectorConfigService';
-
+import { ThemeContext } from '../../App/ThemeWrapper';
+const useStyles = makeStyles();
 class Sector extends React.Component {
   constructor(props) {
     super(props);
@@ -24,7 +25,8 @@ class Sector extends React.Component {
 
   componentDidMount() {
     SectorConfigService.getConfigSectors().then(({ data }) => {
-      const { setSectorConfig } = this.props;
+      const { setSectorConfig, changeTheme } = this.props;
+      changeTheme('redTheme');
       setSectorConfig(data);
       const { sectorsConfig } = this.props;
       this.setState({ data: sectorsConfig });
@@ -78,4 +80,8 @@ const SectorMapped = connect(
   mapDispatchToProps
 )(Sector);
 
-export default withStyles(styles)(SectorMapped);
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <SectorMapped changeTheme={changeTheme} classes={classes} />;
+};

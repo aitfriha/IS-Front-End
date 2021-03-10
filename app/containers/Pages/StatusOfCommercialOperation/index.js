@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
@@ -8,15 +8,17 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { isString } from 'lodash';
+import { makeStyles } from '@material-ui/core/styles';
 import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
   addCommercialOperationStatus, deleteCommercialOperationStatus,
   getAllCommercialOperationStatus, updateCommercialOperationStatus
 } from '../../../redux/commercialOperationStatus/actions';
+import { ThemeContext } from '../../App/ThemeWrapper';
 
 const styles = {};
-
+const useStyles = makeStyles();
 class StatusOfCommercialOperation extends React.Component {
   constructor(props) {
     super(props);
@@ -58,7 +60,8 @@ class StatusOfCommercialOperation extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllCommercialOperationStatus } = this.props;
+    const { getAllCommercialOperationStatus, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllCommercialOperationStatus();
   }
 
@@ -70,7 +73,7 @@ class StatusOfCommercialOperation extends React.Component {
     } = this.state;
     const {
       // eslint-disable-next-line no-shadow
-      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus, deleteCommercialOperationStatus,logedUser
+      errors, isLoading, commercialOperationStatusResponse, addCommercialOperationStatus, getAllCommercialOperationStatus, allCommercialOperationStatuss, updateCommercialOperationStatus, deleteCommercialOperationStatus, logedUser
     } = this.props;
     const thelogedUser = JSON.parse(logedUser);
     let exporte = true;
@@ -183,7 +186,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteCommercialOperationStatus
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const StatusOfCommercialOperationMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(StatusOfCommercialOperation));
+)(StatusOfCommercialOperation);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StatusOfCommercialOperationMapped changeTheme={changeTheme} classes={classes} />;
+};

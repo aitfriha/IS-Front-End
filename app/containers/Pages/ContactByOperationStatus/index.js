@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
@@ -29,6 +29,8 @@ import {
 import { addContactByOperation, getAllContactByOperation } from '../../../redux/contactByOperation/actions';
 import notification from '../../../components/Notification/Notification';
 import { getAllClient } from '../../../redux/client/actions';
+import { ThemeContext } from "../../App/ThemeWrapper";
+import { makeStyles } from "@material-ui/core/styles";
 
 const mondatoryList = [];
 const contactOfTheDecisionMakerMandatoryAttributesTemp = [];
@@ -45,6 +47,7 @@ const pdContact3MandatoryAttributesTemp = [];
 const laContact1MandatoryAttributesTemp = [];
 const laContact2MandatoryAttributesTemp = [];
 const laContact3MandatoryAttributesTemp = [];
+const useStyles = makeStyles();
 class ContactByOperationStatus extends React.Component {
   constructor(props) {
     super(props);
@@ -125,7 +128,8 @@ class ContactByOperationStatus extends React.Component {
 
   componentDidMount() {
     // eslint-disable-next-line no-shadow
-    const { getAllCommercialOperationStatus, getAllContactByOperation } = this.props;
+    const { getAllCommercialOperationStatus, getAllContactByOperation, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllCommercialOperationStatus();
     getAllContactByOperation();
   }
@@ -1143,9 +1147,15 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   addContactByOperation,
   getAllContactByOperation
 }, dispatch);
-export default withStyles(styles)(
-  connect(
+
+const ContactByOperationStatusMapped = connect(
     mapStateToProps,
     mapDispatchToProps
-  )(ContactByOperationStatus)
-);
+)(ContactByOperationStatus);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ContactByOperationStatusMapped changeTheme={changeTheme} classes={classes} />;
+};
+

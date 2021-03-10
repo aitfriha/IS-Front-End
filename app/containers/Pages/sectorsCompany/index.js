@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import brand from 'dan-api/dummy/brand';
 import { bindActionCreators } from 'redux';
@@ -32,7 +32,8 @@ import notification from '../../../components/Notification/Notification';
 import { getAllClient } from '../../../redux/client/actions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import EditClient from '../Clients/EditClient';
-
+import { ThemeContext } from '../../App/ThemeWrapper';
+const useStyles = makeStyles();
 class sector extends React.Component {
   constructor(props) {
     super(props);
@@ -169,8 +170,9 @@ class sector extends React.Component {
   componentDidMount() {
     // eslint-disable-next-line no-shadow
     const {
-      getAllSectorCompany, allSectorComapnys, allSectorPimaryComapnys, getAllPrimarySectorCompany
+      getAllSectorCompany, allSectorComapnys, allSectorPimaryComapnys, getAllPrimarySectorCompany, changeTheme
     } = this.props;
+    changeTheme('redTheme');
     getAllSectorCompany();
     getAllPrimarySectorCompany();
   }
@@ -263,9 +265,9 @@ class sector extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_export) {
       exportButton = true;
     }
-    let {columns} = this.state;
+    const { columns } = this.state;
     if (!thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_modify && !thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_delete) {
-      columns[3]='';
+      columns[3] = '';
     }
     const options = {
       filter: true,
@@ -522,7 +524,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteConfirmationSectorCompany
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const SectorsMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(sector));
+)(sector);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <SectorsMapped changeTheme={changeTheme} classes={classes} />;
+};

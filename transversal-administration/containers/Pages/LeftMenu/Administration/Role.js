@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import MaterialTable, { MTableEditField } from 'material-table';
 import { PropTypes } from 'prop-types';
@@ -17,6 +17,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import MUIDataTable from 'mui-datatables';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   addRole, deleteRole, getAllRoles, updateRole, addRoleAbilities
 } from '../../../../redux/rolesAbilities/actions';
@@ -25,6 +26,7 @@ import { getAllSubjects } from '../../../../redux/subjects/actions';
 import { getAllActions } from '../../../../redux/actions/actions';
 import history from '../../../../../app/utils/history';
 import CustomToolbar from '../../../../../app/components/CustomToolbar/CustomToolbar';
+import { ThemeContext } from '../../../../../app/containers/App/ThemeWrapper';
 const styles = (theme) => ({
   gridItemMargin: {
     marginRight: theme.spacing(3),
@@ -36,7 +38,7 @@ const styles = (theme) => ({
   }
 
 });
-
+const useStyles = makeStyles();
 class Role extends React.Component {
   constructor(props) {
     super(props);
@@ -75,7 +77,8 @@ class Role extends React.Component {
   }
 
   componentDidMount() {
-    const { getAllRoles } = this.props;
+    const { getAllRoles, changeTheme } = this.props;
+    changeTheme('purpleRedTheme');
     getAllRoles();
   }
 
@@ -93,7 +96,7 @@ class Role extends React.Component {
         break;
       }
     }
-    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]), actions: theRole.actionsNames});
+    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]), actions: theRole.actionsNames });
   }
 
   render() {
@@ -122,7 +125,7 @@ class Role extends React.Component {
     return (
       <div>
         <MUIDataTable
-          title="Status of Commercial Operation"
+          title=""
           data={allRoles && allRoles}
           columns={columns}
           options={options}
@@ -246,7 +249,14 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllActions
 }, dispatch);
 
-export default withStyles(styles)(connect(
+
+const RoleMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Role));
+)(Role);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <RoleMapped changeTheme={changeTheme} classes={classes} />;
+};
