@@ -11,20 +11,20 @@ import { isString } from 'lodash';
 import {
   Button, Dialog, DialogActions, DialogContent, DialogTitle
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import notification from '../../../components/Notification/Notification';
 // import styles from '../StaffContract/people-jss';
 import {
   addCivilityTitleStatus, deleteCivilityTitleStatus,
   getAllCivilityTitleStatus, updateCivilityTitleStatus
 } from '../../../redux/civilityTitle/actions';
-import { ThemeContext } from "../../App/ThemeWrapper";
-import { makeStyles } from "@material-ui/core/styles";
+import { ThemeContext } from '../../App/ThemeWrapper';
 
 const styles = {};
 const useStyles = makeStyles();
 class StatusOfCommercialOperation extends React.Component {
   constructor(props) {
-      super(props);
+    super(props);
     this.editingPromiseResolve = () => {
     };
     this.state = {
@@ -95,18 +95,18 @@ render() {
   } = this.state;
   const {
     // eslint-disable-next-line no-shadow
-    errors, isLoading, civilityTitleResponse, addCivilityTitleStatus, getAllCivilityTitleStatus, allCivilityTitles, updateCivilityTitleStatus, deleteCivilityTitleStatus,logedUser
+    errors, isLoading, civilityTitleResponse, addCivilityTitleStatus, getAllCivilityTitleStatus, allCivilityTitles, updateCivilityTitleStatus, deleteCivilityTitleStatus, logedUser
   } = this.props;
   const thelogedUser = JSON.parse(logedUser);
   (!isLoading && civilityTitleResponse) && this.editingPromiseResolve(civilityTitleResponse);
   (!isLoading && !civilityTitleResponse) && this.editingPromiseResolve(errors);
   let disableDelete = true;
-  if(thelogedUser.userRoles[0].actionsNames.commercial_titleType_add){
-    disableDelete=false;
+  if (thelogedUser.userRoles[0].actionsNames.commercial_titleType_add) {
+    disableDelete = false;
   }
   let disableExport = false;
-  if(thelogedUser.userRoles[0].actionsNames.commercial_titleType_export){
-    disableExport=true;
+  if (thelogedUser.userRoles[0].actionsNames.commercial_titleType_export) {
+    disableExport = true;
   }
   return (
     <div>
@@ -151,7 +151,7 @@ render() {
               } else {
                 notification('danger', result);
               }
-            })):null,
+            })) : null,
             onRowUpdate: thelogedUser.userRoles[0].actionsNames.commercial_titleType_modify ? ((newData) => new Promise((resolve) => {
               // update CommercialOperationStatus unit action
               updateCivilityTitleStatus(newData);
@@ -164,7 +164,7 @@ render() {
               } else {
                 notification('danger', result);
               }
-            })):null,
+            })) : null,
             /*              onRowDelete: oldData => new Promise((resolve) => {
                 // delete CommercialOperationStatus action
                 deleteCivilityTitleStatus(oldData.civilityTitleId);
@@ -253,8 +253,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 const StatusOfCommercialOperationMapped = connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(StatusOfCommercialOperation);
 
 export default () => {
