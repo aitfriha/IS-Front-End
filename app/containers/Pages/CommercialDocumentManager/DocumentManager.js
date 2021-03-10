@@ -737,8 +737,8 @@ class DocumentManager extends React.Component {
       //migue
       let logedUser = localStorage.getItem('logedUser');
       logedUser = JSON.parse(logedUser);
-      estado.login.user = logedUser.userEmail;
-      estado.login.email = logedUser.userEmail;
+      estado.login.user = logedUser.userEmail;//'Administrator';
+      estado.login.email = logedUser.userEmail;//'Administrator';//logedUser.userEmail;
       // estado.login.fullname = logedUser.fullName;
       estado.login.admin = logedUser.userRoles.map(role => role.roleName === 'ADMIN')[0];
 
@@ -9782,16 +9782,15 @@ class DocumentManager extends React.Component {
                                                             <Tooltip title={'Eliminar permiso'}>
                                                               <IconButton aria-label="settings">
                                                                 <Delete color='primary'
-                                                                  style={{ fontSize: '18px' }}
                                                                   onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
                                                               </IconButton>
                                                             </Tooltip>
                                                           </div>
                                                         </div>
 
-                                                        <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                        <div style={{ padding: '0px 0px 0px 2px' }}>
                                                           <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
-                                                            color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                            color="primary" style={{ marginLeft: '5px', marginBottom: '5px' }} />
                                                           </Typography>
                                                           <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
                                                             <b>Concedió: </b> {row.creator}

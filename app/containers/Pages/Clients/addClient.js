@@ -138,7 +138,6 @@ class AddClient extends React.Component {
       sector2: sector.secondSectorName,
       sector3: sector.thirdSectorName
     };
-    console.log(client);
     /** */
     const promise = new Promise((resolve) => {
       // get client information
@@ -147,7 +146,6 @@ class AddClient extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
-
         //Create a section inside of both Commercial and Presale parent sections with the given client name
         var nuxeo = new Nuxeo({
           baseURL: documentManagerConfig.nuxeourl,
