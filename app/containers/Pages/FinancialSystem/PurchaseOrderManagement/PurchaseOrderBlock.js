@@ -789,7 +789,6 @@ class PurchaseOrderBlock extends React.Component {
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].purchaseOrderId;
     PurchaseOrderService.getPurchaseOrderById(id).then(result => {
-      console.log(result.data);
       this.setState({
         purchaseOrderId: id,
         purchaseNumber: result.data.purchaseNumber,

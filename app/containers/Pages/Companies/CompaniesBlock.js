@@ -96,7 +96,7 @@ class CompaniesBlock extends React.Component {
     return (
       <div>
         <MUIDataTable
-          title="The Companies List"
+          title="The Companies List b"
           data={data}
           columns={columns}
           options={options}
