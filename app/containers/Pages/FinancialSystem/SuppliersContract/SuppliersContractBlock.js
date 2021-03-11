@@ -29,6 +29,7 @@ const useStyles = makeStyles();
 class SuppliersContractBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       supplierContractId: '',
       name: '',
@@ -502,12 +503,16 @@ class SuppliersContractBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersContracts_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersContracts_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -687,7 +692,6 @@ class SuppliersContractBlock extends React.Component {
     };
 
     render() {
-      console.log(this.state);
       const {
         columns, openPopUp, datas,
         name, codeSupplier, companies, externalSuppliers, type, document,
@@ -695,17 +699,29 @@ class SuppliersContractBlock extends React.Component {
         haveExternal, haveInternal, externalSupplierId, financialCompanyId,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId, purchaseOrdersClient, purchaseOrderId
       } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_suppliersContracts_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add-Suppliers-Contract"
             tooltip="Add New Supplier Contract"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersContracts_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersContracts_export}
           />
         )
       };
@@ -1064,7 +1080,14 @@ class SuppliersContractBlock extends React.Component {
       );
     }
 }
-const PurchaseOrderMapped = connect()(SuppliersContractBlock);
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+const PurchaseOrderMapped = connect(
+  mapStateToProps,
+  null
+)(SuppliersContractBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

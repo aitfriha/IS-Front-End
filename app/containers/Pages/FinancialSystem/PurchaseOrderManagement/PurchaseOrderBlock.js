@@ -46,6 +46,7 @@ const useStyles = makeStyles(styles);
 class PurchaseOrderBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       purchaseOrder: {},
       purchaseOrderId: '',
@@ -711,15 +712,21 @@ class PurchaseOrderBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="primary" />
-                </IconButton>
-                <IconButton onClick={() => this.handlePrint(tableMeta)}>
-                  <PrintIcon color="primary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="secondary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="primary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_export ? (
+                  <IconButton onClick={() => this.handlePrint(tableMeta)}>
+                    <PrintIcon color="primary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="secondary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -1169,17 +1176,29 @@ class PurchaseOrderBlock extends React.Component {
         localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId
       } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add Purchase-Order"
             tooltip="Add New Purchase Order"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_export}
           />
         )
       };
@@ -2050,6 +2069,7 @@ PurchaseOrderBlock.propTypes = {
 };
 
 const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
