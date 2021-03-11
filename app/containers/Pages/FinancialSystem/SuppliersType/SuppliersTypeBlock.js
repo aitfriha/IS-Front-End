@@ -19,6 +19,7 @@ const useStyles = makeStyles();
 class SuppliersTypeBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       supplierTypeId: '',
       name: '',
@@ -170,12 +171,16 @@ class SuppliersTypeBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -260,22 +265,33 @@ class SuppliersTypeBlock extends React.Component {
     }
 
     render() {
-      console.log(this.state);
       const {
         columns, openPopUp, datas,
         name, description, operationAssociated, internalOrder
       } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add-Suppliers"
             tooltip="Add New Supplier Type"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_export}
           />
         )
       };
@@ -365,20 +381,29 @@ class SuppliersTypeBlock extends React.Component {
               <Button color="secondary" onClick={this.handleClose}>
                             Cancel
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleSave}
-              >
+              {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_modify ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={this.handleSave}
+                >
                             save
-              </Button>
+                </Button>
+              ) : null}
             </DialogActions>
           </Dialog>
         </div>
       );
     }
 }
-const SuppliersTypeMapped = connect()(SuppliersTypeBlock);
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser')
+});
+const SuppliersTypeMapped = connect(
+  mapStateToProps,
+  null
+)(SuppliersTypeBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

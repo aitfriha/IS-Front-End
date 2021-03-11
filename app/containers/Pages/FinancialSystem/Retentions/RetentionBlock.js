@@ -27,6 +27,7 @@ const useStyles = makeStyles();
 class RetentionBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       retentionId: '',
       name: '',
@@ -102,12 +103,16 @@ class RetentionBlock extends React.Component {
             empty: true,
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_typeOfRententions_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_typeOfRententions_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -203,11 +208,15 @@ class RetentionBlock extends React.Component {
   };
 
   render() {
-    console.log(this.state);
     const {
       // eslint-disable-next-line react/prop-types
-      allCountrys, allStateCountrys, allCitys
+      allCountrys, allStateCountrys, allCitys, logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_typeOfRententions_export) {
+      exportButton = true;
+    }
     const {
       datas, columns, openPopUp,
       name, description
@@ -217,12 +226,16 @@ class RetentionBlock extends React.Component {
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={datas}
           url="/app/gestion-financial/Add-Retention"
           tooltip="Add New Type of Retention"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_typeOfRententions_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_typeOfRententions_export}
         />
       )
     };
@@ -337,13 +350,15 @@ class RetentionBlock extends React.Component {
             <Button color="secondary" onClick={this.handleClose}>
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleSave}
-            >
+            {thelogedUser.userRoles[0].actionsNames.financialModule_typeOfRententions_modify ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleSave}
+              >
               save
-            </Button>
+              </Button>
+            ) : null}
           </DialogActions>
         </Dialog>
       </div>
@@ -374,6 +389,7 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
