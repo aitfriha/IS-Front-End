@@ -94,15 +94,6 @@ class PersonTypes extends React.Component {
     (!isLoading && personTypeResponse) && this.editingPromiseResolve(personTypeResponse);
     (!isLoading && !personTypeResponse) && this.editingPromiseResolve(errors);
 
-    let disableDelete = true;
-    if (thelogedUser.userRoles[0].actionsNames.financialModule_personsTypes_delete) {
-      disableDelete = false;
-    }
-    let disableExport = false;
-    if (thelogedUser.userRoles[0].actionsNames.financialModule_personsTypes_export) {
-      disableExport = true;
-    }
-
     return (
       <div>
         {/* <HelmetCustom location={location} /> */}
