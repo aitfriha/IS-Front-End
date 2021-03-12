@@ -222,9 +222,9 @@ class StaffExpenseTypes extends React.Component {
     const {
       location, intl, errors, isLoading, addStaffExpenseType, updateStaffExpenseType,
       deleteStaffExpenseType, getStaffExpensesTypes, addStaffExpenseSubtype, updateStaffExpenseSubtype,
-      deleteStaffExpenseSubtype, staffExpensesTypes, staffExpenseTypeResponse,
+      deleteStaffExpenseSubtype, staffExpensesTypes, staffExpenseTypeResponse,logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
     const { typesColumns, subtypesColumns } = this.state;
 
 
@@ -289,7 +289,7 @@ class StaffExpenseTypes extends React.Component {
                         notification('danger', result);
                       }
                     }), */
-                      onRowUpdate: newData => new Promise((resolve) => {
+                      onRowUpdate: thelogedUser.userRoles[0].actionsNames.financialModule_staffExpensesTypes_modify ? (newData => new Promise((resolve) => {
                         // update staff expense type action
                         updateStaffExpenseType(newData);
                         this.editingPromiseResolve = resolve;
@@ -301,8 +301,8 @@ class StaffExpenseTypes extends React.Component {
                         } else {
                           notification('danger', result);
                         }
-                      }),
-                      onRowDelete: oldData => new Promise((resolve) => {
+                      })) : null,
+                      onRowDelete: thelogedUser.userRoles[0].actionsNames.financialModule_staffExpensesTypes_delete ? (oldData => new Promise((resolve) => {
                         // delete staff expense type action
                         deleteStaffExpenseType(oldData.id);
                         this.editingPromiseResolve = resolve;
@@ -314,7 +314,7 @@ class StaffExpenseTypes extends React.Component {
                         } else {
                           notification('danger', result);
                         }
-                      })
+                      })) : null
                     }}
                   />
                 </Grid>
@@ -343,7 +343,7 @@ class StaffExpenseTypes extends React.Component {
                     }}
                     style={{ marginTop: '10px' }}
                     editable={{
-                      onRowAdd: newData => new Promise((resolve) => {
+                      onRowAdd: thelogedUser.userRoles[0].actionsNames.financialModule_staffExpensesTypes_create ? (newData => new Promise((resolve) => {
                         // add staff expense subtype action
                         newData.type = this.state.selectedType.id;
                         newData.masterValueType = this.state.selectedType.masterValue;
@@ -364,8 +364,8 @@ class StaffExpenseTypes extends React.Component {
                         } else {
                           notification('danger', result);
                         }
-                      }),
-                      onRowUpdate: newData => new Promise((resolve) => {
+                      })) : null,
+                      onRowUpdate: thelogedUser.userRoles[0].actionsNames.financialModule_staffExpensesTypes_modify ? (newData => new Promise((resolve) => {
                         // update staff expense subtype action
                         if (newData.masterValueType === 'LODGING') {
                           newData.requirement = this.state.requirementModified ? this.getRequirementByValue(this.state.selectedRequirement) : newData.requirement;
@@ -384,8 +384,8 @@ class StaffExpenseTypes extends React.Component {
                         } else {
                           notification('danger', result);
                         }
-                      }),
-                      onRowDelete: oldData => new Promise((resolve) => {
+                      })) : null,
+                      onRowDelete: thelogedUser.userRoles[0].actionsNames.financialModule_staffExpensesTypes_delete ? (oldData => new Promise((resolve) => {
                         // delete staff expense subtype action
                         const data = {
                           typeId: oldData.type,
@@ -401,7 +401,7 @@ class StaffExpenseTypes extends React.Component {
                         } else {
                           notification('danger', result);
                         }
-                      })
+                      })) : null
                     }}
                   />
                 </Grid>
@@ -426,6 +426,7 @@ const mapStateToProps = state => ({
   staffExpenseTypeResponse: state.getIn(['staffExpenseType']).staffExpenseTypeResponse,
   isLoading: state.getIn(['staffExpenseType']).isLoading,
   errors: state.getIn(['staffExpenseType']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

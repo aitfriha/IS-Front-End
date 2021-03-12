@@ -89,9 +89,9 @@ class RequestStatus extends React.Component {
   render() {
     const {
       location, intl, errors, isLoading, requestStatusResponse,
-      requestStatus, getAllRequestStatus, addRequestStatus, updateRequestStatus, deleteRequestStatus
+      requestStatus, getAllRequestStatus, addRequestStatus, updateRequestStatus, deleteRequestStatus, logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
     const { requestStatusColumns } = this.state;
 
     (!isLoading && requestStatusResponse) && this.editingPromiseResolve(requestStatusResponse);
@@ -139,7 +139,7 @@ class RequestStatus extends React.Component {
                       notification('danger', result);
                     }
                   }), */
-                  onRowUpdate: (newData) => new Promise((resolve) => {
+                  onRowUpdate: thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_modify ? (newData => new Promise((resolve) => {
                     // update request status action
                     updateRequestStatus(newData);
                     this.editingPromiseResolve = resolve;
@@ -151,8 +151,8 @@ class RequestStatus extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  }),
-                  onRowDelete: oldData => new Promise((resolve) => {
+                  })) : null,
+                  onRowDelete: thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_delete ? (oldData => new Promise((resolve) => {
                     // delete request status action
                     deleteRequestStatus(oldData.id);
                     this.editingPromiseResolve = resolve;
@@ -164,7 +164,7 @@ class RequestStatus extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  })
+                  })) : null
                 }}
               />
             </Grid>
@@ -188,7 +188,8 @@ const mapStateToProps = state => ({
 
   requestStatusResponse: state.getIn(['requestStatus']).requestStatusResponse,
   isLoading: state.getIn(['requestStatus']).isLoading,
-  errors: state.getIn(['requestStatus']).errors
+  errors: state.getIn(['requestStatus']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
