@@ -28,6 +28,7 @@ const useStyles = makeStyles(styles);
 class ExternalSuppliersBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       externalSupplierId: '',
       code: '',
@@ -400,12 +401,16 @@ class ExternalSuppliersBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_externalSuppliers_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_externalSuppliers_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -508,11 +513,15 @@ class ExternalSuppliersBlock extends React.Component {
   };
 
   render() {
-    console.log(this.state);
     const {
       // eslint-disable-next-line react/prop-types
-      allCountrys, allStateCountrys, allCitys, classes
+      allCountrys, allStateCountrys, allCitys, classes, logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_export) {
+      exportButton = true;
+    }
     const {
       datas, columns, openPopUp,
       code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
@@ -523,12 +532,16 @@ class ExternalSuppliersBlock extends React.Component {
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={datas}
           url="/app/gestion-financial/Add-External Suppliers"
           tooltip="Add New External Supplier"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersTypes_export}
         />
       )
     };
@@ -738,13 +751,15 @@ class ExternalSuppliersBlock extends React.Component {
             <Button color="secondary" onClick={this.handleClose}>
                 Cancel
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleSave}
-            >
+            {thelogedUser.userRoles[0].actionsNames.financialModule_externalSuppliers_modify ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleSave}
+              >
                 save
-            </Button>
+              </Button>
+            ) : null}
           </DialogActions>
         </Dialog>
       </div>
@@ -775,6 +790,7 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,
