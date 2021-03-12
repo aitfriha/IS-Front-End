@@ -101,7 +101,7 @@ render() {
   (!isLoading && civilityTitleResponse) && this.editingPromiseResolve(civilityTitleResponse);
   (!isLoading && !civilityTitleResponse) && this.editingPromiseResolve(errors);
   let disableDelete = true;
-  if (thelogedUser.userRoles[0].actionsNames.commercial_titleType_add) {
+  if (thelogedUser.userRoles[0].actionsNames.commercial_titleType_delete) {
     disableDelete = false;
   }
   let disableExport = false;
@@ -139,7 +139,7 @@ render() {
           }}
 
           editable={{
-            onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_titleType_add ? (newData => new Promise((resolve) => {
+            onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_titleType_create ? (newData => new Promise((resolve) => {
               // add measurement unit action
               addCivilityTitleStatus(newData);
               this.editingPromiseResolve = resolve;

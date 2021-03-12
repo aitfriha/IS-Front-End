@@ -140,7 +140,7 @@ class LeftSidebarLayout extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.financialModule_staffExpensesTypes_access == false) {
       this.access('financial', 'financial_basic_table', 'staffExpenseTypes');
     }
-    if (thelogedUser.userRoles[0].actionsNames.financialModule_voucherType_access == false) {
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_personsTypes_access == false) {
       this.access('financial', 'financial_basic_table', 'personTypes');
     }
     if (thelogedUser.userRoles[0].actionsNames.financialModule_voucherType_access == false) {
