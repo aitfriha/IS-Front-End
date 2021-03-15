@@ -41,7 +41,10 @@ import {
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
 import { Confirmation } from './Confirmation';
 import { TravelRequestDocumentPanel } from './TravelRequestDocumentPanel';
 
@@ -61,6 +64,8 @@ import {
   getDataAssociatedWithCurrencyTypes
 } from '../../../../redux/currency/actions';
 
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
 
 let self = null;
 
@@ -70,11 +75,6 @@ const ITEM_HEIGHT = 40;
 
 const today = new Date();
 const minimunDate = new Date('1990-01-01');
-
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const useStyles = makeStyles((theme) => {
 
@@ -463,11 +463,11 @@ class TravelManagement extends React.Component {
 
   render() {
     const {
-      intl, location, isLoading, errors, travelRequestResponse, travelRequests, getTravelRequests, changeStatusTravelRequest,
+      intl, location, isLoading, errors, travelRequestResponse, travelRequests, getTravelRequests, changeStatusTravelRequest, logedUser,
       currencyTypes, currencyData, approveTravelRequest
     } = this.props;
     const { columns, showDrawer } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && travelRequestResponse) && this.editingPromiseResolve(travelRequestResponse);
     (!isLoading && !travelRequestResponse) && this.editingPromiseResolve(errors);
 
@@ -489,7 +489,7 @@ class TravelManagement extends React.Component {
           actions={
             [
               rowData => ({
-                disabled: rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
+                disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_modify && rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
                 icon: () => <CloseIcon variant="outlined" name="cancel" />,
                 tooltip: 'Reject', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                 onClick: (e) => {
@@ -505,7 +505,7 @@ class TravelManagement extends React.Component {
                 }
               }),
               rowData => ({
-                disabled: rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
+                disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_modify && rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
                 icon: () => <DoneIcon variant="outlined" name="approve" />,
                 tooltip: 'Approve', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                 onClick: (e) => {
@@ -520,7 +520,7 @@ class TravelManagement extends React.Component {
               {
                 icon: 'save_alt',
                 tooltip: 'Export',
-                disabled: !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || travelRequests.length === 0,
+                disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export && !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || travelRequests.length === 0,
                 isFreeAction: true,
                 onClick: (event) => this.handleOpenMenu(event)
               }
@@ -701,12 +701,16 @@ class TravelManagement extends React.Component {
                   },
                 }}
               >
-                <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
+                {thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export ? (
+                  <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
                 Export as CSV
-                </MenuItem>
-                <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
+                  </MenuItem>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export ? (
+                  <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
                 Export as PDF
-                </MenuItem>
+                  </MenuItem>
+                ) : null}
               </Menu>
             </React.Fragment>
           )
@@ -774,6 +778,7 @@ const mapStateToProps = state => ({
 
   currencyData: state.getIn(['currency']).currencyData,
   currencyResponse: state.getIn(['currency']).currencyResponse,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -795,4 +800,4 @@ export default () => {
 };
 
 
-//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelManagement)));
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelManagement)));

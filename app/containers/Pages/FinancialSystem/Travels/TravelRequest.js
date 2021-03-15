@@ -42,8 +42,11 @@ import {
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
 import { Confirmation } from './Confirmation';
-//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import { TravelRequestDetail } from './TravelRequestDetail';
 
 import {
@@ -72,6 +75,8 @@ import {
   getStaffByCompanyEmail
 } from '../../../../redux/staff/actions';
 
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
 
 let self = null;
 
@@ -84,11 +89,6 @@ const minimunDate = new Date('1990-01-01');
 
 const logedUser = localStorage.getItem('logedUser');
 const logedUserData = JSON.parse(logedUser);
-
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const useStyles = makeStyles((theme) => {
 
@@ -308,7 +308,7 @@ class TravelRequest extends React.Component {
     const companyEmail = logedUserData.userEmail;
 
     const data = {
-      companyEmail: companyEmail,
+      companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
@@ -317,7 +317,7 @@ class TravelRequest extends React.Component {
     getAllCustomerContractsByCompanyEmail(companyEmail);
     getBusinessExpensesTypes();
     getAllCountry();
-    getStaffByCompanyEmail(companyEmail)
+    getStaffByCompanyEmail(companyEmail);
   }
 
   componentWillUnmount() {
@@ -355,7 +355,7 @@ class TravelRequest extends React.Component {
 
     const companyEmail = logedUserData.userEmail;
     const data = {
-      companyEmail: companyEmail,
+      companyEmail,
       period: this.state.period,
       startDate: this.state.startDate,
       endDate: this.state.endDate
@@ -454,7 +454,7 @@ class TravelRequest extends React.Component {
     new Promise((resolve) => {
       const params = {
         fileType: 'excel',
-        companyEmail: companyEmail,
+        companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -483,7 +483,7 @@ class TravelRequest extends React.Component {
     new Promise((resolve) => {
       const params = {
         fileType: 'pdf',
-        companyEmail: companyEmail,
+        companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -526,10 +526,11 @@ class TravelRequest extends React.Component {
 
   render() {
     const {
-      intl, location, isLoading, errors, travelRequestResponse, allCountrys, travelRequests, getTravelRequests, addTravelRequest, updateTravelRequest, changeStatusTravelRequest, customerContracts, businessExpensesTypes
+      intl, location, isLoading, errors, travelRequestResponse, allCountrys, travelRequests, getTravelRequests, addTravelRequest, updateTravelRequest, changeStatusTravelRequest, customerContracts, businessExpensesTypes,
+      logedUser
     } = this.props;
     const { columns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && travelRequestResponse) && this.editingPromiseResolve(travelRequestResponse);
     (!isLoading && !travelRequestResponse) && this.editingPromiseResolve(errors);
 
@@ -553,13 +554,13 @@ class TravelRequest extends React.Component {
               actions={
                 [
                   rowData => ({
-                    disabled: rowData.requestStatusMasterValue !== 'APPROVED',
+                    disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_export && rowData.requestStatusMasterValue !== 'APPROVED',
                     icon: () => <CloudDownloadIcon variant="outlined" name="download" />,
                     tooltip: 'Download document(s)',
                     onClick: (e) => this.handleDownloadDocuments(e, rowData)
                   }),
                   rowData => ({
-                    disabled: rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
+                    disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_modify && rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
                     icon: () => <CloseIcon variant="outlined" name="cancel" />,
                     tooltip: 'Cancel', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                     onClick: (e) => {
@@ -575,7 +576,7 @@ class TravelRequest extends React.Component {
                     }
                   }),
                   rowData => ({
-                    disabled: rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
+                    disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_modify && rowData.requestStatusMasterValue !== 'REQUESTED' && rowData.requestStatusMasterValue !== 'PENDING APPROVAL',
                     icon: () => <EditIcon variant="outlined" name="edit" />,
                     tooltip: 'Edit', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                     onClick: (e) => this.handleTravelRequest(e, rowData)
@@ -583,7 +584,7 @@ class TravelRequest extends React.Component {
                   {
                     icon: 'save_alt',
                     tooltip: 'Export',
-                    disabled: !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || travelRequests.length === 0,
+                    disabled: thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_export && !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || travelRequests.length === 0,
                     isFreeAction: true,
                     onClick: (event) => this.handleOpenMenu(event)
                   },
@@ -731,12 +732,16 @@ class TravelRequest extends React.Component {
                   },
                 }}
               >
-                <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
+                {thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_export ? (
+                  <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
                   Export as CSV
-                </MenuItem>
-                <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
+                  </MenuItem>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_travelRequest_export ? (
+                  <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
                   Export as PDF
-                </MenuItem>
+                  </MenuItem>
+                ) : null}
               </Menu>
             </React.Fragment>
           )
@@ -792,7 +797,8 @@ const mapStateToProps = state => ({
   travelRequests: state.getIn(['travelRequest']).travelRequests,
   travelRequestResponse: state.getIn(['travelRequest']).travelRequestResponse,
   isLoading: state.getIn(['travelRequest']).isLoading,
-  errors: state.getIn(['travelRequest']).errors
+  errors: state.getIn(['travelRequest']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -818,4 +824,4 @@ export default () => {
   return <TravelRequestMapped changeTheme={changeTheme} classes={classes} />;
 };
 
-//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequest)));
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequest)));

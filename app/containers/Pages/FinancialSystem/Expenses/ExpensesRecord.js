@@ -51,9 +51,12 @@ import {
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
 import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
 import { Confirmation } from '../Travels/Confirmation';
-//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import notification from '../../../../components/Notification/Notification';
 import { ExpenseDetail } from './ExpenseDetail';
 
@@ -93,6 +96,8 @@ import {
   getStaffByCompanyEmail
 } from '../../../../redux/staff/actions';
 
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
 
 let self = null;
 
@@ -115,11 +120,6 @@ function TabContainer(props) {
   );
 }
 
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeContext } from '../../../App/ThemeWrapper';
-
 const useStyles = makeStyles((theme) => {
 
 });
@@ -129,6 +129,7 @@ const description = brand.desc;
 class ExpensesRecord extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.editingPromiseResolve = () => { };
     self = this;
     this.state = {
@@ -228,13 +229,15 @@ class ExpensesRecord extends React.Component {
             <MTableToolbar {...props} />
             <Grid container direction="row" spacing={2}>
               <Grid item xs={12} md={6}>
-                <Tooltip title="Add">
-                  <span>
-                    <Fab size="small" color="primary" aria-label="add" style={{ marginLeft: 20 }}>
-                      <AddIcon onClick={(e) => this.handleExpense(e, null)} />
-                    </Fab>
-                  </span>
-                </Tooltip>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_create ? (
+                  <Tooltip title="Add">
+                    <span>
+                      <Fab size="small" color="primary" aria-label="add" style={{ marginLeft: 20 }}>
+                        <AddIcon onClick={(e) => this.handleExpense(e, null)} />
+                      </Fab>
+                    </span>
+                  </Tooltip>
+                ) : null}
               </Grid>
               <Grid item xs={12} md={6} style={{ marginTop: 5 }}>
                 <Box display="flex" justifyContent="flex-end" style={{ marginRight: 20 }}>
@@ -258,7 +261,8 @@ class ExpensesRecord extends React.Component {
 
     const {
       getStaffByCompanyEmail, getCurrencyTypes, getDataAssociatedWithCurrencyTypes, getAllCountry, getStaffExpensesTypes, getAllPersonTypes, getAllVoucherTypes, getExpenses,
-      staff } = this.props;
+      staff
+    } = this.props;
     getStaffExpensesTypes();
     getAllCountry();
     getAllPersonTypes();
@@ -267,7 +271,7 @@ class ExpensesRecord extends React.Component {
     const companyEmail = logedUserData.userEmail;
 
     const data = {
-      companyEmail: companyEmail,
+      companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
@@ -347,7 +351,7 @@ class ExpensesRecord extends React.Component {
     const companyEmail = logedUserData.userEmail;
 
     const data = {
-      companyEmail: companyEmail,
+      companyEmail,
       period: this.state.period,
       startDate: this.state.startDate,
       endDate: this.state.endDate
@@ -487,7 +491,7 @@ class ExpensesRecord extends React.Component {
     new Promise((resolve) => {
       const params = {
         fileType: 'excel',
-        companyEmail: companyEmail,
+        companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -516,7 +520,7 @@ class ExpensesRecord extends React.Component {
     new Promise((resolve) => {
       const params = {
         fileType: 'pdf',
-        companyEmail: companyEmail,
+        companyEmail,
         period: this.state.period,
         startDate: this.state.startDate,
         endDate: this.state.endDate
@@ -559,11 +563,11 @@ class ExpensesRecord extends React.Component {
 
   render() {
     const {
-      intl, location, isLoading, errors, countries, staffExpensesTypes, personTypes, voucherTypes, expenses, expenseResponse, getExpenses, changeStatusExpense,
+      intl, location, isLoading, errors, countries, staffExpensesTypes, personTypes, voucherTypes, expenses, expenseResponse, getExpenses, changeStatusExpense, logedUser,
       currencyTypes, currencyData, saveExpenseWithFile, saveExpense, staff
     } = this.props;
     const { columns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && expenseResponse) && this.editingPromiseResolve(expenseResponse);
     (!isLoading && !expenseResponse) && this.editingPromiseResolve(errors);
 
@@ -710,13 +714,13 @@ class ExpensesRecord extends React.Component {
                     actions={
                       [
                         rowData => ({
-                          disabled: rowData.voucherTypeMasterValue === 'DONT EXIST',
+                          disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_export && rowData.voucherTypeMasterValue === 'DONT EXIST',
                           icon: () => <CloudDownloadIcon variant="outlined" name="download" />,
                           tooltip: 'Download',
                           onClick: (e) => this.handleDownloadDocument(e, rowData)
                         }),
                         rowData => ({
-                          disabled: rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
+                          disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_modify && rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
                           icon: () => <CloseIcon variant="outlined" name="cancel" />,
                           tooltip: 'Cancel', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                           onClick: (e) => {
@@ -732,7 +736,7 @@ class ExpensesRecord extends React.Component {
                           }
                         }),
                         rowData => ({
-                          disabled: rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
+                          disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_modify && rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
                           icon: () => <EditIcon variant="outlined" name="edit" />,
                           tooltip: 'Edit', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                           onClick: (e) => this.handleExpense(e, rowData)
@@ -740,7 +744,7 @@ class ExpensesRecord extends React.Component {
                         {
                           icon: 'save_alt',
                           tooltip: 'Export',
-                          disabled: !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || data.length === 0,
+                          disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_export && !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || data.length === 0,
                           isFreeAction: true,
                           onClick: (event) => this.handleOpenMenu(event)
                         },
@@ -1035,12 +1039,16 @@ class ExpensesRecord extends React.Component {
                   },
                 }}
               >
-                <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
+                {thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_create ? (
+                  <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
                   Export as CSV
-                </MenuItem>
-                <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
+                  </MenuItem>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_expenseRecord_create ? (
+                  <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
                   Export as PDF
-                </MenuItem>
+                  </MenuItem>
+                ) : null}
               </Menu>
             </React.Fragment>
           )
@@ -1106,7 +1114,7 @@ const mapStateToProps = state => ({
 
   isLoading: state.getIn(['expense']).isLoading,
   errors: state.getIn(['expense']).errors,
-
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -1134,4 +1142,4 @@ export default () => {
   return <ExpensesRecordMapped changeTheme={changeTheme} classes={classes} />;
 };
 
-//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesRecord)));
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesRecord)));
