@@ -462,7 +462,6 @@ class StaffAssignment extends React.Component {
     const thelogedUser = JSON.parse(logedUser);
     (!isLoading && staffAssignmentResponse) && this.editingPromiseResolve(staffAssignmentResponse);
     (!isLoading && !staffAssignmentResponse) && this.editingPromiseResolve(errors);
-    console.log(thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_export && !assignedStaff.length > 0);
     return (
       <div>
         {/* <HelmetCustom location={location} /> */}

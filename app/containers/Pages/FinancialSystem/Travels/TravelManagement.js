@@ -85,6 +85,7 @@ const description = brand.desc;
 class TravelManagement extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.editingPromiseResolve = () => {};
     self = this;
     this.state = {
@@ -109,7 +110,7 @@ class TravelManagement extends React.Component {
           field: 'requestStatusName',
           minWidth: 100,
           maxWidth: 150,
-          export: true,
+          export: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export,
           render: rowData => {
             const value = rowData.requestStatusName;
             switch (rowData.requestStatusMasterValue) {
@@ -132,7 +133,7 @@ class TravelManagement extends React.Component {
           title: 'Request Code', // intl.formatMessage({ id: 'connection.id' }),
           field: 'code',
           searchable: true,
-          export: true,
+          export: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export,
           minWidth: 120
         },
         {
@@ -154,7 +155,7 @@ class TravelManagement extends React.Component {
           title: 'Requester Name', // intl.formatMessage({ id: 'connection.id' }),
           field: '',
           searchable: false,
-          export: true,
+          export: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export,
           minWidth: 150,
           render: rowData => `${rowData.requesterName} ${rowData.requesterFatherFamilyName} ${rowData.requesterMotherFamilyName}`
         },
@@ -162,14 +163,14 @@ class TravelManagement extends React.Component {
           title: 'Company Email', // intl.formatMessage({ id: 'connection.id' }),
           field: 'requesterCompanyEmail',
           searchable: false,
-          export: true,
+          export: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export,
           minWidth: 150
         },
         {
           title: 'Company Name', // intl.formatMessage({ id: 'connection.id' }),
           field: 'requesterCompany',
           searchable: false,
-          export: true,
+          export: thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export,
           minWidth: 150
         }
       ],
