@@ -100,17 +100,27 @@ class Role extends React.Component {
   }
 
   render() {
+    const { logedUser } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.admin_roles_management_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           /* csvData={staffs} */
           url="/app/data/administration/role-actions"
           tooltip="add new role"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.admin_roles_management_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.admin_roles_management_export}
         />
       )
     };
@@ -236,7 +246,8 @@ const mapStateToProps = state => ({
   allRoles: state.getIn(['roles']).allRoles,
   roleResponse: state.getIn(['roles']).roleResponse,
   isLoading: state.getIn(['roles']).isLoading,
-  errors: state.getIn(['roles']).errors
+  errors: state.getIn(['roles']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

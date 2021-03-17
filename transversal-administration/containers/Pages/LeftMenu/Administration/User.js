@@ -219,7 +219,6 @@ class User extends React.Component {
   }
 
     selectedRows = (rows) => {
-      console.log('ffffffffffffffffffffffffffffff');
       this.setState({ openPopUp: true });
       /* const listClientToUpdate = rows.map((row) => row.clientId);
         this.setState({ listClientToUpdate });
@@ -233,7 +232,6 @@ class User extends React.Component {
 
   handleChangePassword= (event) => {
     this.setState({ userPassword: event.target.value });
-    console.log('xxxxxxxxxxxxxxxxxxxxx');
   };
 
     handleChangeActif = (event) => {
@@ -311,6 +309,11 @@ class User extends React.Component {
     const {
       allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.admin_user_Management_export) {
+      exportButton = true;
+    }
     const {
       columns, openPopUp, client, actif, companies, company, xclients, staff,
       firstName,
@@ -361,7 +364,7 @@ class User extends React.Component {
             exportFileName: 'users',
             filtering: true,
             grouping: true,
-            exportButton: true,
+            exportButton,
             pageSize: 10,
             actionsCellStyle: {
               paddingLeft: 30,
@@ -375,6 +378,7 @@ class User extends React.Component {
               icon: 'person_add',
               onClick: (evt, data) => this.selectedRows(data),
               isFreeAction: true,
+              disabled: !thelogedUser.userRoles[0].actionsNames.admin_user_Management_create
             }
           ]}
 
@@ -391,7 +395,7 @@ class User extends React.Component {
                                 notification('danger', result);
                             }
                         }), */
-            onRowUpdate: (newData) => new Promise((resolve) => {
+            onRowUpdate: thelogedUser.userRoles[0].actionsNames.admin_user_Management_modify ? (newData => new Promise((resolve) => {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
@@ -406,8 +410,8 @@ class User extends React.Component {
               } else {
                 notification('danger', result);
               }
-            }),
-            onRowDelete: oldData => new Promise((resolve) => {
+            })) : null,
+            onRowDelete: thelogedUser.userRoles[0].actionsNames.admin_user_Management_modify ? (oldData => new Promise((resolve) => {
               // delete User action
               deleteUser(oldData.userId);
               this.editingPromiseResolve = resolve;
@@ -419,7 +423,7 @@ class User extends React.Component {
               } else {
                 notification('danger', result);
               }
-            }),
+            })) : null
           }}
         />
         <Dialog
