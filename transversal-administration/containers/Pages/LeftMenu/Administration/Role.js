@@ -27,7 +27,7 @@ import { getAllActions } from '../../../../redux/actions/actions';
 import history from '../../../../../app/utils/history';
 import CustomToolbar from '../../../../../app/components/CustomToolbar/CustomToolbar';
 import { ThemeContext } from '../../../../../app/containers/App/ThemeWrapper';
-const styles = (theme) => ({
+/* const styles = (theme) => ({
   gridItemMargin: {
     marginRight: theme.spacing(3),
     marginLeft: theme.spacing(3),
@@ -37,7 +37,7 @@ const styles = (theme) => ({
     backgroundColor: '#cfd8dc'
   }
 
-});
+}); */
 const useStyles = makeStyles();
 class Role extends React.Component {
   constructor(props) {
@@ -96,7 +96,7 @@ class Role extends React.Component {
         break;
       }
     }
-    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]), actions: theRole.actionsNames });
+    history.push('/app/data/administration/role-actions', { roleDescription: (aaa.rowData[1]), UserRole: (aaa.rowData[0]), actions: theRole.actionsNames });
   }
 
   render() {
@@ -106,6 +106,10 @@ class Role extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.admin_roles_management_export) {
       exportButton = true;
     }
+    const {
+      classes, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
+    } = this.props;
+
     const options = {
       filter: true,
       selectableRows: false,
@@ -116,6 +120,7 @@ class Role extends React.Component {
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
+          csvData={allRoles}
           /* csvData={staffs} */
           url="/app/data/administration/role-actions"
           tooltip="add new role"
@@ -124,9 +129,6 @@ class Role extends React.Component {
         />
       )
     };
-    const {
-      classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
-    } = this.props;
 
     const { columns } = this.state;
     // Sent resolve to editing promises
@@ -212,7 +214,7 @@ Role.propTypes = {
   /** Classes */
   classes: PropTypes.object.isRequired,
   /** Location */
-  location: PropTypes.object.isRequired,
+  /*  location: PropTypes.object.isRequired, */
   /** Errors */
   errors: PropTypes.object.isRequired,
   /** isLoading */
