@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
-import PrintIcon from '@material-ui/icons/Print';
+import LocalPrintshopIcon from '@material-ui/icons/LocalPrintshop';
 import {
   Button,
   Dialog,
@@ -37,9 +37,11 @@ import FinancialCompanyService from '../../../Services/FinancialCompanyService';
 import ExternalSuppliersService from '../../../Services/ExternalSuppliersService';
 import CurrencyService from '../../../Services/CurrencyService';
 import IvaService from '../../../Services/IvaService';
-import PrintPurchaseOrder from './printPurchaseOrder';
+import PrintPurchaseOrder2 from './printPurchaseOrder2';
 import ClientService from '../../../Services/ClientService';
 import ContractService from '../../../Services/ContractService';
+import PrintButton from './PrintButton';
+
 
 const useStyles = makeStyles(styles);
 
@@ -48,6 +50,7 @@ class PurchaseOrderBlock extends React.Component {
     super(props);
     this.state = {
       purchaseOrder: {},
+      purchaseOrder2: {},
       purchaseOrderId: '',
       purchaseNumber: '',
       companyDataEmit: '',
@@ -100,7 +103,9 @@ class PurchaseOrderBlock extends React.Component {
       localCurrency: '',
       openPopUp: false,
       openPrint: false,
+      openPrint2: false,
       print: false,
+      print2: false,
       typeClient: '',
       poClient: false,
       contractClient: false,
@@ -714,8 +719,8 @@ class PurchaseOrderBlock extends React.Component {
                 <IconButton onClick={() => this.handleDetails(tableMeta)}>
                   <DetailsIcon color="primary" />
                 </IconButton>
-                <IconButton onClick={() => this.handlePrint(tableMeta)}>
-                  <PrintIcon color="primary" />
+                <IconButton onClick={() => this.handlePrint2(tableMeta)}>
+                  <LocalPrintshopIcon color="primary" />
                 </IconButton>
                 <IconButton onClick={() => this.handleDelete(tableMeta)}>
                   <DeleteIcon color="secondary" />
@@ -761,7 +766,7 @@ class PurchaseOrderBlock extends React.Component {
     changeTheme('greyTheme');
   }
 
-  handlePrint = (tableMeta) => {
+  handlePrint2 = (tableMeta) => {
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -769,8 +774,8 @@ class PurchaseOrderBlock extends React.Component {
     PurchaseOrderService.getPurchaseOrderById(id).then(result => {
       console.log(result.data);
       this.setState({
-        purchaseOrder: result.data,
-        openPrint: true
+        purchaseOrder2: result.data,
+        openPrint2: true
       });
     });
   }
@@ -912,10 +917,6 @@ class PurchaseOrderBlock extends React.Component {
     PurchaseOrderService.updatePurchaseOrder(PurchaseOrder).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
     });
-  };
-
-  handleClose = () => {
-    this.setState({ openPopUp: false, openPrint: false });
   };
 
     handleChange = (ev) => {
@@ -1152,8 +1153,16 @@ class PurchaseOrderBlock extends React.Component {
     }
 
     handlePrintChild = () => {
-      this.setState({ print: true });
+      this.setState({ print: true, print2: false });
     }
+
+    handleClose = () => {
+      this.setState({ openPopUp: false, openPrint: false });
+    };
+
+    handleClose2 = () => {
+      this.setState({ openPrint2: false });
+    };
 
     render() {
       console.log(this.state);
@@ -1164,7 +1173,7 @@ class PurchaseOrderBlock extends React.Component {
         receptionSupplierExternal, receptionSupplierInternal, supplierNIF, supplierResponsible, supplierAddress,
         externalSuppliers, companies, currencies, ivasCountries, internLogo,
         nbrConcepts, unityValue, description, itemNames, unity, valor, unityNumber, givingDate, paymentDate, billingDate,
-        termsListe, termDescription, termTitle, purchaseOrder, openPrint, print,
+        termsListe, termDescription, termTitle, purchaseOrder2, openPrint2,
         paymentMethod, ivaStates, ivaRetentions, totalAmountRetentions, totalIvaRetention,
         localCurrency, totalLocal, totalEuro, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountLocal, totalAmountEuro,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId
@@ -2014,30 +2023,27 @@ class PurchaseOrderBlock extends React.Component {
             </DialogActions>
           </Dialog>
           <Dialog
-            open={openPrint}
+            open={openPrint2}
             keepMounted
             scroll="body"
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-slide-title"
-            aria-describedby="alert-dialog-slide-description"
+            onClose={this.handleClose2}
+            aria-labelledby="alert-slide-title"
+            aria-describedby="alert-slide-description"
             fullWidth=""
             maxWidth=""
           >
-            <DialogTitle id="alert-dialog-slide-title"> Print Purchase Order</DialogTitle>
+            <DialogTitle id="alert-dialog-title"> Print Purchase Order</DialogTitle>
             <DialogContent dividers>
-              <PrintPurchaseOrder Info={purchaseOrder} Print={print} />
+              {/* eslint-disable-next-line no-return-assign */}
+              <div ref={el => (this.componentRef = el)} id="newTest" style={{ display: 'block' }}>
+                <PrintPurchaseOrder2 Purchase={purchaseOrder2} />
+              </div>
             </DialogContent>
             <DialogActions>
-              <Button color="secondary" onClick={this.handleClose}>
+              <Button color="secondary" onClick={this.handleClose2}>
                 Cancel
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handlePrintChild}
-              >
-                Print
-              </Button>
+              <PrintButton id="newTest" label="Print Purchase Order" purchase={purchaseOrder2} />
             </DialogActions>
           </Dialog>
         </div>

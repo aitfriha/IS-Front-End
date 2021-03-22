@@ -25,7 +25,7 @@ import PropTypes from 'prop-types';
 import { CsvBuilder } from 'filefy';
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+// import 'jspdf-autotable';
 
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -305,7 +305,7 @@ class WeeklyReport extends React.Component {
     const companyEmail = logedUserData.userEmail;
 
     const data = {
-      companyEmail : companyEmail,
+      companyEmail,
       period: 'month',
       startDate: null,
       endDate: null
