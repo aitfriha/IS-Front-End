@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import MaterialTable, { MTableEditField } from 'material-table';
 import { PropTypes } from 'prop-types';
@@ -17,6 +17,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import MUIDataTable from 'mui-datatables';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   addRole, deleteRole, getAllRoles, updateRole, addRoleAbilities
 } from '../../../../redux/rolesAbilities/actions';
@@ -25,7 +26,8 @@ import { getAllSubjects } from '../../../../redux/subjects/actions';
 import { getAllActions } from '../../../../redux/actions/actions';
 import history from '../../../../../app/utils/history';
 import CustomToolbar from '../../../../../app/components/CustomToolbar/CustomToolbar';
-const styles = (theme) => ({
+import { ThemeContext } from '../../../../../app/containers/App/ThemeWrapper';
+/* const styles = (theme) => ({
   gridItemMargin: {
     marginRight: theme.spacing(3),
     marginLeft: theme.spacing(3),
@@ -35,8 +37,8 @@ const styles = (theme) => ({
     backgroundColor: '#cfd8dc'
   }
 
-});
-
+}); */
+const useStyles = makeStyles();
 class Role extends React.Component {
   constructor(props) {
     super(props);
@@ -75,7 +77,8 @@ class Role extends React.Component {
   }
 
   componentDidMount() {
-    const { getAllRoles } = this.props;
+    const { getAllRoles, changeTheme } = this.props;
+    changeTheme('purpleRedTheme');
     getAllRoles();
   }
 
@@ -93,27 +96,39 @@ class Role extends React.Component {
         break;
       }
     }
-    history.push('/app/data/administration/role-actions', { UserRole: (aaa.rowData[0]), actions: theRole.actionsNames});
+    history.push('/app/data/administration/role-actions', { roleDescription: (aaa.rowData[1]), UserRole: (aaa.rowData[0]), actions: theRole.actionsNames });
   }
 
   render() {
+    const { logedUser } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.admin_roles_management_export) {
+      exportButton = true;
+    }
+    const {
+      classes, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
+    } = this.props;
+
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
+          csvData={allRoles}
           /* csvData={staffs} */
           url="/app/data/administration/role-actions"
           tooltip="add new role"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.admin_roles_management_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.admin_roles_management_export}
         />
       )
     };
-    const {
-      classes, location, allRoles, addRole, errors, isLoading, roleResponse, getAllRoles, updateRole, deleteRole, allActions, allSubjects, addRoleAbilities
-    } = this.props;
 
     const { columns } = this.state;
     // Sent resolve to editing promises
@@ -122,7 +137,7 @@ class Role extends React.Component {
     return (
       <div>
         <MUIDataTable
-          title="Status of Commercial Operation"
+          title=""
           data={allRoles && allRoles}
           columns={columns}
           options={options}
@@ -199,7 +214,7 @@ Role.propTypes = {
   /** Classes */
   classes: PropTypes.object.isRequired,
   /** Location */
-  location: PropTypes.object.isRequired,
+  /*  location: PropTypes.object.isRequired, */
   /** Errors */
   errors: PropTypes.object.isRequired,
   /** isLoading */
@@ -233,7 +248,8 @@ const mapStateToProps = state => ({
   allRoles: state.getIn(['roles']).allRoles,
   roleResponse: state.getIn(['roles']).roleResponse,
   isLoading: state.getIn(['roles']).isLoading,
-  errors: state.getIn(['roles']).errors
+  errors: state.getIn(['roles']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -246,7 +262,14 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllActions
 }, dispatch);
 
-export default withStyles(styles)(connect(
+
+const RoleMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Role));
+)(Role);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <RoleMapped changeTheme={changeTheme} classes={classes} />;
+};

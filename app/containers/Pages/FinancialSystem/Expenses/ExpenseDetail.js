@@ -34,7 +34,7 @@ import AttachFileIcon from '@material-ui/icons/AttachFile';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { isString } from 'lodash';
+import { isString, result } from 'lodash';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -296,8 +296,9 @@ export class ExpenseDetail extends React.Component {
     let resultList = [];
     const countryIndex = countries.findIndex(obj => obj.countryId === countryId);
     if (countryIndex > -1) {
-      resultList = countries[countryIndex].countryStateList;
+      resultList = countries[countryIndex].stateCountryList;
     }
+    console.log(resultList);
     if (objName === 'state') {
       if (countryIndex > -1) {
         const stateIndex = resultList.findIndex(obj => obj.stateCountryId === stateId);

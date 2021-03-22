@@ -26,6 +26,7 @@ import { setStaff, getAllStaff } from '../../../redux/staff/actions';
 class StaffBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       staffs: [],
       columnsType: 'generalInformation',
@@ -540,9 +541,15 @@ class StaffBlock extends React.Component {
       classes,
       isLoadingStaff,
       staffResponse,
-      errorStaff
+      errorStaff,
+      logedUser
     } = this.props;
     const { columnsType, staffs } = this.state;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_export) {
+      exportButton = true;
+    }
     const options = {
       fixedHeader: true,
       fixedSelectColumn: false,
@@ -550,12 +557,16 @@ class StaffBlock extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={staffs}
           url="/app/hh-rr/staff/create-staff"
           tooltip="add new worker"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_export}
         />
       )
     };
@@ -631,7 +642,9 @@ const mapStateToProps = state => ({
   allStaff: state.getIn(['staffs']).allStaff,
   staffResponse: state.getIn(['staffs']).staffResponse,
   isLoadingStaff: state.getIn(['staffs']).isLoading,
-  errorStaff: state.getIn(['staffs']).errors
+  errorStaff: state.getIn(['staffs']).errors,
+
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

@@ -1,8 +1,6 @@
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
+import React, { useContext } from 'react';
 import MaterialTable, { MTableEditField } from 'material-table';
 import { PropTypes } from 'prop-types';
-import { injectIntl } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { isEmpty, isString } from 'lodash';
 import { connect } from 'react-redux';
@@ -31,6 +29,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import Checkbox from '@material-ui/core/Checkbox';
+import { makeStyles } from '@material-ui/core/styles';
 import AutoComplete from '../../../../../app/components/AutoComplete';
 import { getAllDepartments } from '../../../../redux/departments/actions';
 import { getAllRoles } from '../../../../redux/rolesAbilities/actions';
@@ -44,14 +43,12 @@ import notification from '../../../../../app/components/Notification/Notificatio
 import { getAllClient } from '../../../../../app/redux/client/actions';
 import FinancialCompanyService from '../../../../../app/containers/Services/FinancialCompanyService';
 import StaffService from '../../../../../app/containers/Services/StaffService';
+import { ThemeContext } from '../../../../../app/containers/App/ThemeWrapper';
 
-const styles = {};
-
+const useStyles = makeStyles();
 class User extends React.Component {
   constructor(props) {
     super(props);
-
-    const { intl } = props;
     this.editingPromiseResolve = () => {
     };
     this.editingPromiseResolveEdit = () => {
@@ -169,8 +166,9 @@ class User extends React.Component {
 
   componentDidMount() {
     const {
-      getAllUsers, getAllRoles, getAllDepartments, getAllClient
+      getAllUsers, getAllRoles, getAllDepartments, getAllClient, changeTheme
     } = this.props;
+    changeTheme('purpleRedTheme');
     getAllUsers();
     getAllRoles();
     getAllDepartments();
@@ -221,7 +219,6 @@ class User extends React.Component {
   }
 
     selectedRows = (rows) => {
-      console.log('ffffffffffffffffffffffffffffff');
       this.setState({ openPopUp: true });
       /* const listClientToUpdate = rows.map((row) => row.clientId);
         this.setState({ listClientToUpdate });
@@ -235,7 +232,6 @@ class User extends React.Component {
 
   handleChangePassword= (event) => {
     this.setState({ userPassword: event.target.value });
-    console.log('xxxxxxxxxxxxxxxxxxxxx');
   };
 
     handleChangeActif = (event) => {
@@ -311,8 +307,13 @@ class User extends React.Component {
 
   render() {
     const {
-      location, intl, allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
+      allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.admin_user_Management_export) {
+      exportButton = true;
+    }
     const {
       columns, openPopUp, client, actif, companies, company, xclients, staff,
       firstName,
@@ -325,7 +326,6 @@ class User extends React.Component {
     (!isLoading && !userResponse) && this.editingPromiseResolve(errors);
     (!isLoading && userResponse) && this.editingPromiseResolveEdit(userResponse);
     (!isLoading && !userResponse) && this.editingPromiseResolveEdit(errors);
-    console.log(JSON.parse(localStorage.getItem('logedUser')));
     return (
       <div>
         <MaterialTable
@@ -361,15 +361,15 @@ class User extends React.Component {
           columns={columns}
           data={allUsers && allUsers}
           options={{
-            exportFileName: intl.formatMessage({ id: 'users' }),
+            exportFileName: 'users',
             filtering: true,
             grouping: true,
-            exportButton: true,
+            exportButton,
             pageSize: 10,
             actionsCellStyle: {
               paddingLeft: 30,
-              width: 140,
-              maxWidth: 140,
+              width: '1%',
+              maxWidth: '1%',
             },
           }}
           actions={[
@@ -378,6 +378,7 @@ class User extends React.Component {
               icon: 'person_add',
               onClick: (evt, data) => this.selectedRows(data),
               isFreeAction: true,
+              disabled: !thelogedUser.userRoles[0].actionsNames.admin_user_Management_create
             }
           ]}
 
@@ -394,7 +395,7 @@ class User extends React.Component {
                                 notification('danger', result);
                             }
                         }), */
-            onRowUpdate: (newData) => new Promise((resolve) => {
+            onRowUpdate: thelogedUser.userRoles[0].actionsNames.admin_user_Management_modify ? (newData => new Promise((resolve) => {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
@@ -409,8 +410,8 @@ class User extends React.Component {
               } else {
                 notification('danger', result);
               }
-            }),
-            onRowDelete: oldData => new Promise((resolve) => {
+            })) : null,
+            onRowDelete: thelogedUser.userRoles[0].actionsNames.admin_user_Management_modify ? (oldData => new Promise((resolve) => {
               // delete User action
               deleteUser(oldData.userId);
               this.editingPromiseResolve = resolve;
@@ -422,7 +423,7 @@ class User extends React.Component {
               } else {
                 notification('danger', result);
               }
-            }),
+            })) : null
           }}
         />
         <Dialog
@@ -432,7 +433,7 @@ class User extends React.Component {
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
-          fullWidth="md"
+          fullWidth
           maxWidth="md"
         >
           <DialogTitle id="alert-dialog-slide-title"> Add new User </DialogTitle>
@@ -559,10 +560,6 @@ class User extends React.Component {
 
 
 User.propTypes = {
-  /** Location */
-  location: PropTypes.object.isRequired,
-  /** intl */
-  intl: PropTypes.object.isRequired,
   /** Errors */
   errors: PropTypes.object.isRequired,
   /** isLoading */
@@ -613,7 +610,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getAllClient,
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const UserMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(User)));
+)(User);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <UserMapped changeTheme={changeTheme} classes={classes} />;
+};

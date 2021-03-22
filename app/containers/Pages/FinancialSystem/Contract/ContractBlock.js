@@ -4,7 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import {
-  Dialog, DialogContent, DialogTitle
+  Dialog, DialogContent, DialogTitle, Grid
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
@@ -20,6 +20,7 @@ const useStyles = makeStyles(styles);
 class ContractBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       openPopUp: false,
       contract: {},
@@ -506,12 +507,16 @@ class ContractBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_contracts_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_contracts_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -588,17 +593,29 @@ class ContractBlock extends React.Component {
     const {
       datas, columns, openPopUp, contract
     } = this.state;
+    const {
+      logedUser
+    } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_contracts_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={datas}
           url="/app/gestion-financial/Add-Contract"
           tooltip="add new Contract"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_contracts_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_contracts_export}
         />
       )
     };
@@ -630,7 +647,14 @@ class ContractBlock extends React.Component {
     );
   }
 }
-const ContractBlockMapped = connect()(ContractBlock);
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+const ContractBlockMapped = connect(
+  mapStateToProps,
+  null
+)(ContractBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

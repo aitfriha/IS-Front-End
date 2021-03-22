@@ -302,6 +302,11 @@ class AddStaff extends React.Component {
     const total = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
+    /*    if(lowDate !== null)
+    {
+      lowDate=lowDate.toISOString().slice(0, 10);
+    }
+    console.log('AAAAAAAAAAAAAAAAA :'+lowDate); */
     const staff = {
       firstName,
       fatherFamilyName,

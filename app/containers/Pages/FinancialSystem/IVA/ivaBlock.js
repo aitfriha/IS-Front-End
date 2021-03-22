@@ -31,6 +31,7 @@ const useStyles = makeStyles();
 class IvaBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       ivaId: '',
       ivaCode: '',
@@ -136,12 +137,16 @@ class IvaBlock extends React.Component {
             empty: true,
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_iva_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_iva_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -243,22 +248,31 @@ class IvaBlock extends React.Component {
     render() {
       const {
         // eslint-disable-next-line react/prop-types
-        allCountrys, allStateCountrys
+        allCountrys, allStateCountrys, logedUser
       } = this.props;
       const {
         columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode
       } = this.state;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_iva_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add-IVA"
             tooltip="add new I.V.A"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_iva_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_iva_export}
           />
         )
       };
@@ -410,13 +424,15 @@ class IvaBlock extends React.Component {
               <Button color="secondary" onClick={this.handleClose}>
                             Cancel
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleSave}
-              >
+              {thelogedUser.userRoles[0].actionsNames.financialModule_iva_modify ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={this.handleSave}
+                >
                             save
-              </Button>
+                </Button>
+              ) : null}
             </DialogActions>
           </Dialog>
         </div>
@@ -438,6 +454,7 @@ const mapStateToProps = state => ({
   cityResponse: state.getIn(['cities']).cityResponse,
   isLoadingCity: state.getIn(['cities']).isLoading,
   errorsCity: state.getIn(['cities']).errors,
+  logedUser: localStorage.getItem('logedUser'),
 });
 const mapDispatchToProps = dispatch => bindActionCreators({
   getAllCountry,

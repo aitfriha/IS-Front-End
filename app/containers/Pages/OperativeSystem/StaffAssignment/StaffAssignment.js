@@ -28,9 +28,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
+import Avatar from '@material-ui/core/Avatar';
 import { AssignStaff } from './AssignStaff';
 import avatarApi from '../../../../api/images/avatars';
-import Avatar from '@material-ui/core/Avatar';
 // import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import {
   updateOperationAssignment,
@@ -175,6 +175,7 @@ const description = brand.desc;
 class StaffAssignment extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.editingPromiseResolve = () => { };
     self = this;
     this.state = {
@@ -196,7 +197,7 @@ class StaffAssignment extends React.Component {
           minWidth: 100,
           render: rowData => (
             <Tooltip title={`${rowData.name} ${rowData.fatherFamilyName} ${rowData.motherFamilyName}`}>
-              {/*<Avatar alt="Employee name" src={rowData.avatar} />*/}
+              {/* <Avatar alt="Employee name" src={rowData.avatar} /> */}
               <img src={rowData.avatar} style={{ width: 40, borderRadius: '50%' }} />
             </Tooltip>
           )
@@ -264,13 +265,15 @@ class StaffAssignment extends React.Component {
         Toolbar: props => (
           <div>
             <MTableToolbar {...props} />
-            <Tooltip title="Assign staff">
-              <span>
-                <Fab size="small" color="primary" aria-label="add" style={{ marginTop: '10px', marginBottom: '10px', marginLeft: '15px' }} disabled={this.state.selectedOperation === null}>
-                  <AssignmentIndIcon onClick={e => this.handleAssignStaff(e)} />
-                </Fab>
-              </span>
-            </Tooltip>
+            {thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_modify ? (
+              <Tooltip title="Assign staff">
+                <span>
+                  <Fab size="small" color="primary" aria-label="add" style={{ marginTop: '10px', marginBottom: '10px', marginLeft: '15px' }} disabled={this.state.selectedOperation === null}>
+                    <AssignmentIndIcon onClick={e => this.handleAssignStaff(e)} />
+                  </Fab>
+                </span>
+              </Tooltip>
+            ) : null}
           </div>
         )
       }
@@ -278,7 +281,6 @@ class StaffAssignment extends React.Component {
   }
 
   componentDidMount() {
-
     const { changeTheme } = this.props;
     changeTheme('greenTheme');
 
@@ -454,13 +456,12 @@ class StaffAssignment extends React.Component {
 
   render() {
     const {
-      location, classes, intl, treeData, isLoading, staffAssignmentResponse, errors, assignedStaff, eligibleStaff, updateOperationAssignment, getStaffAssignedByOperation
+      location, classes, intl, treeData, isLoading, staffAssignmentResponse, errors, assignedStaff, eligibleStaff, updateOperationAssignment, getStaffAssignedByOperation, logedUser
     } = this.props;
     const { columns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && staffAssignmentResponse) && this.editingPromiseResolve(staffAssignmentResponse);
     (!isLoading && !staffAssignmentResponse) && this.editingPromiseResolve(errors);
-
     return (
       <div>
         {/* <HelmetCustom location={location} /> */}
@@ -477,15 +478,17 @@ class StaffAssignment extends React.Component {
             <Grid container direction="row" spacing={1}>
               <Grid item xs={12} md={3}>
                 <Chip label="Customers and Operations" style={{ marginTop: '10px' }} color="secondary" />
-                <Box display="flex" justifyContent="flex-end">
-                  <Tooltip title="Export all">
-                    <span>
-                      <IconButton disabled={treeData.length === 0} style={{ marginTop: '10px', marginBottom: '10px', marginLeft: '10px' }} onClick={(event) => this.handleOpenMenu(event, 'all')}>
-                        <SaveAltIcon />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Box>
+                {thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_export ? (
+                  <Box display="flex" justifyContent="flex-end">
+                    <Tooltip title="Export all">
+                      <span>
+                        <IconButton disabled={treeData.length === 0} style={{ marginTop: '10px', marginBottom: '10px', marginLeft: '10px' }} onClick={(event) => this.handleOpenMenu(event, 'all')}>
+                          <SaveAltIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Box>
+                ) : null}
                 <TreeView
                   className={classes.root}
                   defaultExpanded={[]}
@@ -523,7 +526,7 @@ class StaffAssignment extends React.Component {
                     {
                       icon: 'save_alt',
                       tooltip: 'Export',
-                      disabled: !assignedStaff.length > 0,
+                      disabled: !thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_export && !assignedStaff.length > 0,
                       isFreeAction: true,
                       onClick: (event) => this.handleOpenMenu(event, 'operation')
                     }
@@ -608,7 +611,8 @@ const mapStateToProps = state => ({
   assignedStaff: state.getIn(['staffAssignment']).assignedStaff,
   staffAssignmentResponse: state.getIn(['staffAssignment']).staffAssignmentResponse,
   isLoading: state.getIn(['staffAssignment']).isLoading,
-  errors: state.getIn(['staffAssignment']).errors
+  errors: state.getIn(['staffAssignment']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

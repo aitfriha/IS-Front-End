@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MUIDataTable from 'mui-datatables';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -19,7 +19,8 @@ import EditContact from './editContact';
 import EditClient from '../Clients/EditClient';
 import { getAllStateByCountry } from '../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../redux/city/actions';
-
+import { ThemeContext } from '../../App/ThemeWrapper';
+const useStyles = makeStyles();
 class ContactBlock extends React.Component {
   constructor(props) {
     super(props);
@@ -401,7 +402,8 @@ class ContactBlock extends React.Component {
   }
 
   componentDidMount() {
-    const { getAllContact } = this.props;
+    const { getAllContact, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllContact();
   }
 
@@ -500,9 +502,14 @@ const mapDispatchToProps = dispatch => bindActionCreators(
   },
   dispatch
 );
-export default withStyles(styles)(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(ContactBlock)
-);
+
+const ContactBlockMapped = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContactBlock);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <ContactBlockMapped changeTheme={changeTheme} classes={classes} />;
+};

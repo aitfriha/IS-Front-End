@@ -582,7 +582,8 @@ class StaffProfileContractInformation extends Component {
       allContractModel,
       isLoadingStaffContract,
       staffContractResponse,
-      errorStaffContract
+      errorStaffContract,
+      logedUser
     } = this.props;
     const {
       isOpenDocument,
@@ -614,13 +615,19 @@ class StaffProfileContractInformation extends Component {
       company,
       companies
     } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
       rowsPerPage: 3,
+      download: exportButton,
+      print: exportButton,
       rowsPerPageOptions: [3]
     };
     !isLoadingStaffContract
@@ -685,15 +692,18 @@ class StaffProfileContractInformation extends Component {
                   disabled={!isViewHistory}
                 />
               </Tooltip>
-              <Tooltip title="Edit">
-                <Button
-                  name="personalInformation"
-                  style={{ backgroundColor: 'transparent' }}
-                  disableRipple
-                  endIcon={<EditIcon />}
-                  onClick={this.handleOpenEdit}
-                />
-              </Tooltip>
+              {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_modify
+                ? (
+                  <Tooltip title="Edit">
+                    <Button
+                      name="personalInformation"
+                      style={{ backgroundColor: 'transparent' }}
+                      disableRipple
+                      endIcon={<EditIcon />}
+                      onClick={this.handleOpenEdit}
+                    />
+                  </Tooltip>
+                ) : null}
             </div>
           ) : (
             <div />
@@ -1647,7 +1657,8 @@ const mapStateToProps = state => ({
   staff: state.getIn(['staffs']).selectedStaff,
   staffContractResponse: state.getIn(['staffContracts']).staffContractResponse,
   isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
-  errorStaffContract: state.getIn(['staffContracts']).errors
+  errorStaffContract: state.getIn(['staffContracts']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

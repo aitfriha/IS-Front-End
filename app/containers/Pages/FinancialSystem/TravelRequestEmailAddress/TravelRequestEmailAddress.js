@@ -25,24 +25,24 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
-//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
-import notification from '../../../../components/Notification/Notification';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import notification from '../../../../components/Notification/Notification';
 import {
   getAllTravelRequestEmailAddresses,
   addTravelRequestEmailAddress,
   updateTravelRequestEmailAddress,
   deleteTravelRequestEmailAddress
 } from '../../../../redux/travelRequestEmailAddress/actions';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const styles = {};
 
 const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const useStyles = makeStyles((theme) => {
 
@@ -134,10 +134,10 @@ class TravelRequestEmailAddress extends React.Component {
 
   render() {
     const {
-      location, intl, errors, isLoading, travelRequestEmailAddressResponse, emailAddresses
+      location, intl, errors, isLoading, travelRequestEmailAddressResponse, emailAddresses, logedUser
     } = this.props;
 
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && travelRequestEmailAddressResponse) && this.editingPromiseResolve(travelRequestEmailAddressResponse);
     (!isLoading && !travelRequestEmailAddressResponse) && this.editingPromiseResolve(errors);
 
@@ -171,15 +171,17 @@ class TravelRequestEmailAddress extends React.Component {
                     {this.state.email.error ? <FormHelperText error>Invalid email address format</FormHelperText> : null}
                   </FormControl>
                 </Grid>
-                <Grid item style={{ marginLeft: '5px', marginTop: '6px' }}>
-                  <Tooltip title="Save">
-                    <span>
-                      <IconButton disabled={!this.state.email.value || this.state.email.error} onClick={(e) => this.handleAddEmailAddress(e)}>
-                        <SaveIcon />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Grid>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_travelRequestEmailAddress_create ? (
+                  <Grid item style={{ marginLeft: '5px', marginTop: '6px' }}>
+                    <Tooltip title="Save">
+                      <span>
+                        <IconButton disabled={!this.state.email.value || this.state.email.error} onClick={(e) => this.handleAddEmailAddress(e)}>
+                          <SaveIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Grid>
+                ) : null}
               </Grid>
 
               <List>
@@ -187,11 +189,13 @@ class TravelRequestEmailAddress extends React.Component {
                   <ListItem key={index}>
                     <ListItemText primary={email.email} />
                     <ListItemSecondaryAction>
-                      <Tooltip title="Delete">
-                        <IconButton aria-label="Delete" onClick={(e) => this.handleDeleteEmailAddress(e, email)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
+                      {thelogedUser.userRoles[0].actionsNames.financialModule_travelRequestEmailAddress_create ? (
+                        <Tooltip title="Delete">
+                          <IconButton aria-label="Delete" onClick={(e) => this.handleDeleteEmailAddress(e, email)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      ) : null}
                     </ListItemSecondaryAction>
                   </ListItem>
                 ))}
@@ -216,6 +220,7 @@ const mapStateToProps = state => ({
   travelRequestEmailAddressResponse: state.getIn(['travelRequestEmailAddress']).travelRequestEmailAddressResponse,
   isLoading: state.getIn(['travelRequestEmailAddress']).isLoading,
   errors: state.getIn(['travelRequestEmailAddress']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -234,4 +239,4 @@ export default () => {
   return <TravelRequestEmailAddressMapped changeTheme={changeTheme} classes={classes} />;
 };
 
-//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequestEmailAddress)));
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(TravelRequestEmailAddress)));

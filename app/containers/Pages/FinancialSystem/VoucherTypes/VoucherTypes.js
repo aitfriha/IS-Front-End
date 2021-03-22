@@ -14,22 +14,22 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
-//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
-import notification from '../../../../components/Notification/Notification';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 
+
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
+import notification from '../../../../components/Notification/Notification';
 import {
   getAllVoucherTypes,
   addVoucherType,
   updateVoucherType,
   deleteVoucherType
 } from '../../../../redux/voucherType/actions';
+import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const styles = {};
-
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const useStyles = makeStyles((theme) => {
 
@@ -83,10 +83,10 @@ class VoucherTypes extends React.Component {
   //----------------------------------------------------------------------------------------------
   render() {
     const {
-      location, intl, errors, isLoading, addVoucherType, updateVoucherType, deleteVoucherType, getAllVoucherTypes, voucherTypes, voucherTypeResponse
+      location, intl, errors, isLoading, addVoucherType, updateVoucherType, deleteVoucherType, getAllVoucherTypes, voucherTypes, voucherTypeResponse, logedUser
     } = this.props;
     const { voucherTypesColumns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && voucherTypeResponse) && this.editingPromiseResolve(voucherTypeResponse);
     (!isLoading && !voucherTypeResponse) && this.editingPromiseResolve(errors);
 
@@ -121,7 +121,7 @@ class VoucherTypes extends React.Component {
                 style={{ marginTop: '10px' }}
                 editable={{
                   isDeletable: rowData => rowData.removable,
-                  onRowAdd: newData => new Promise((resolve) => {
+                  onRowAdd: thelogedUser.userRoles[0].actionsNames.financialModule_voucherType_create ? (newData => new Promise((resolve) => {
                     // add person type action
                     addVoucherType(newData);
                     this.editingPromiseResolve = resolve;
@@ -133,8 +133,8 @@ class VoucherTypes extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  }),
-                  onRowUpdate: (newData) => new Promise((resolve) => {
+                  })) : null,
+                  onRowUpdate: thelogedUser.userRoles[0].actionsNames.financialModule_voucherType_modify ? (newData => new Promise((resolve) => {
                     // update person type action
                     updateVoucherType(newData);
                     this.editingPromiseResolve = resolve;
@@ -146,8 +146,8 @@ class VoucherTypes extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  }),
-                  onRowDelete: oldData => new Promise((resolve) => {
+                  })) : null,
+                  onRowDelete: thelogedUser.userRoles[0].actionsNames.financialModule_voucherType_delete ? (oldData => new Promise((resolve) => {
                     // delete assignment type action
                     deleteVoucherType(oldData.id);
                     this.editingPromiseResolve = resolve;
@@ -159,7 +159,7 @@ class VoucherTypes extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  })
+                  })) : null
                 }}
               />
             </Grid>
@@ -182,6 +182,7 @@ const mapStateToProps = state => ({
   voucherTypeResponse: state.getIn(['voucherType']).voucherTypeResponse,
   isLoading: state.getIn(['voucherType']).isLoading,
   errors: state.getIn(['voucherType']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -201,4 +202,4 @@ export default () => {
   return <VoucherTypesMapped changeTheme={changeTheme} classes={classes} />;
 };
 
-//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(VoucherTypes)));
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(VoucherTypes)));

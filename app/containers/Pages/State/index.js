@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { PapperBlock } from 'dan-components';
 import brand from 'dan-api/dummy/brand';
@@ -20,12 +20,15 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import MaterialTable, { MTableToolbar } from 'material-table';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { makeStyles } from '@material-ui/core/styles';
 import styles from '../StaffContract/people-jss';
 import notification from '../../../components/Notification/Notification';
 import { addCity, getAllCitys, importCity } from '../../../redux/city/actions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
+import { ThemeContext } from '../../App/ThemeWrapper';
 const buttonRef = React.createRef();
 const fs = require('fs');
+const useStyles = makeStyles();
 class StateCountry extends React.Component {
   countries = csc.getAllCountries();
 
@@ -77,7 +80,8 @@ class StateCountry extends React.Component {
   }
 
   componentDidMount() {
-    const { getAllCitys } = this.props;
+    const { getAllCitys, changeTheme } = this.props;
+    changeTheme('redTheme');
     getAllCitys();
   }
 
@@ -444,7 +448,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   importCity,
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const StateCountryMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(StateCountry));
+)(StateCountry);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <StateCountryMapped changeTheme={changeTheme} classes={classes} />;
+};

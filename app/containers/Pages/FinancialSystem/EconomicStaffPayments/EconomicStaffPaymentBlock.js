@@ -16,6 +16,7 @@ const useStyles = makeStyles();
 class EconomicStaffPaymentBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       economicStaffsYear: [],
       economicStaffsMonth: [],
@@ -441,12 +442,16 @@ class EconomicStaffPaymentBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -872,12 +877,16 @@ class EconomicStaffPaymentBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetailsMonth(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDeleteMonth(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_access ? (
+                  <IconButton onClick={() => this.handleDetailsMonth(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_delete ? (
+                  <IconButton onClick={() => this.handleDeleteMonth(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -1203,12 +1212,16 @@ class EconomicStaffPaymentBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetailsExtra(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDeleteExtra(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_access ? (
+                  <IconButton onClick={() => this.handleDetailsExtra(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_delete ? (
+                  <IconButton onClick={() => this.handleDeleteExtra(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -1307,19 +1320,30 @@ class EconomicStaffPaymentBlock extends React.Component {
   };
 
   render() {
-    console.log(this.state);
     const {
       economicStaffsYear, economicStaffsMonth, economicStaffsExtra, columnsYear, columnsMonth, columnsExtra
     } = this.state;
+    const {
+      logedUser
+    } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={economicStaffsYear}
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
         />
       )
     };
@@ -1329,10 +1353,14 @@ class EconomicStaffPaymentBlock extends React.Component {
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={economicStaffsMonth}
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
         />
       )
     };
@@ -1342,10 +1370,14 @@ class EconomicStaffPaymentBlock extends React.Component {
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={economicStaffsExtra}
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
         />
       )
     };
@@ -1376,7 +1408,13 @@ class EconomicStaffPaymentBlock extends React.Component {
     );
   }
 }
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
 const SupliersPaymentBlockMapped = connect(
+  mapStateToProps,
+  null
 )(EconomicStaffPaymentBlock);
 
 export default () => {

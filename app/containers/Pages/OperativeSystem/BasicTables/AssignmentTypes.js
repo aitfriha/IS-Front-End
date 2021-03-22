@@ -89,11 +89,11 @@ class AssignmentType extends React.Component {
 
   render() {
     const {
-      location, intl, errors, isLoading, assignmentTypeResponse, getAllAssignmentTypes, assignmentTypes, addAssignmentType, updateAssignmentType, deleteAssignmentType
+      location, intl, errors, isLoading, assignmentTypeResponse, getAllAssignmentTypes, assignmentTypes, addAssignmentType, updateAssignmentType, deleteAssignmentType, logedUser
     } = this.props;
 
     const { columns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     // Sent resolve to editing promises
     (!isLoading && assignmentTypeResponse) && this.editingPromiseResolve(assignmentTypeResponse);
     (!isLoading && !assignmentTypeResponse) && this.editingPromiseResolve(errors);
@@ -123,7 +123,7 @@ class AssignmentType extends React.Component {
             }
           }}
           editable={{
-            onRowAdd: newData => new Promise((resolve) => {
+            onRowAdd: thelogedUser.userRoles[0].actionsNames.operativeModule_AssignmentType_create ? (newData => new Promise((resolve) => {
               // add assignment type action
               addAssignmentType(newData);
               this.editingPromiseResolve = resolve;
@@ -135,8 +135,8 @@ class AssignmentType extends React.Component {
               } else {
                 notification('danger', result);
               }
-            }),
-            onRowUpdate: (newData) => new Promise((resolve) => {
+            })) : null,
+            onRowUpdate: thelogedUser.userRoles[0].actionsNames.operativeModule_AssignmentType_modify ? (newData => new Promise((resolve) => {
               // update assignment type action
               updateAssignmentType(newData);
               this.editingPromiseResolve = resolve;
@@ -148,8 +148,8 @@ class AssignmentType extends React.Component {
               } else {
                 notification('danger', result);
               }
-            }),
-            onRowDelete: oldData => new Promise((resolve) => {
+            })) : null,
+            onRowDelete: thelogedUser.userRoles[0].actionsNames.operativeModule_AssignmentType_delete ? (oldData => new Promise((resolve) => {
               // delete assignment type action
               deleteAssignmentType(oldData.id);
               this.editingPromiseResolve = resolve;
@@ -161,7 +161,7 @@ class AssignmentType extends React.Component {
               } else {
                 notification('danger', result);
               }
-            })
+            })) : null
           }}
         />
       </div>
@@ -180,7 +180,8 @@ const mapStateToProps = state => ({
   assignmentTypes: state.getIn(['assignmentType']).assignmentTypes,
   assignmentTypeResponse: state.getIn(['assignmentType']).assignmentTypeResponse,
   isLoading: state.getIn(['assignmentType']).isLoading,
-  errors: state.getIn(['assignmentType']).errors
+  errors: state.getIn(['assignmentType']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

@@ -29,6 +29,7 @@ const useStyles = makeStyles();
 class CurrencyBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     const year = (new Date()).getFullYear();
     this.years = Array.from(new Array(20), (val, index) => index + year);
     this.state = {
@@ -103,12 +104,16 @@ class CurrencyBlock extends React.Component {
             empty: true,
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_currencyManagement_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_currencyManagement_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -199,7 +204,6 @@ class CurrencyBlock extends React.Component {
     };
 
     render() {
-      console.log(this.state);
       const months = [
         {
           value: 1,
@@ -253,17 +257,29 @@ class CurrencyBlock extends React.Component {
       const {
         columns, openPopUp, datas, currencyName, currencyCode, year, month, changeFactor, currencies, currencyNameFilter
       } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_currencyManagement_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add-Currency"
             tooltip="add new Currency"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_currencyManagement_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_currencyManagement_export}
           />
         )
       };
@@ -425,20 +441,29 @@ class CurrencyBlock extends React.Component {
               <Button color="secondary" onClick={this.handleClose}>
                             Cancel
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleSave}
-              >
+              {thelogedUser.userRoles[0].actionsNames.financialModule_currencyManagement_modify ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={this.handleSave}
+                >
                             save
-              </Button>
+                </Button>
+              ) : null}
             </DialogActions>
           </Dialog>
         </div>
       );
     }
 }
-const CurrencyBlockMapped = connect()(CurrencyBlock);
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser')
+});
+const CurrencyBlockMapped = connect(
+  mapStateToProps,
+  null
+)(CurrencyBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

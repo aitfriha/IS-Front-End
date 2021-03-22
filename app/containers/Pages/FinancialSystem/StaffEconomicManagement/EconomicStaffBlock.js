@@ -29,6 +29,7 @@ const useStyles = makeStyles();
 class EconomicStaffBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       economicStaff: {},
       staffId: '',
@@ -513,12 +514,16 @@ class EconomicStaffBlock extends React.Component {
                     Extra
                   </Button>
                 </IconButton>
-                <IconButton size="small" onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton size="small" onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicManagement_access ? (
+                  <IconButton size="small" onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicManagement_delete ? (
+                  <IconButton size="small" onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -652,9 +657,7 @@ class EconomicStaffBlock extends React.Component {
         contributionSalaryEuroYear,
         companyCostEuroYear
       };
-      console.log(EconomicStaffYear);
       EconomicStaffYearService.saveEconomicStaffYear(EconomicStaffYear).then(result => {
-        console.log(result);
         this.setState({ openYear: false, openCompanyCost: false });
       });
     };
@@ -818,7 +821,6 @@ class EconomicStaffBlock extends React.Component {
     };
 
     render() {
-      console.log(this.state);
       const {
         datas, columns, openPopUp, economicStaff, openStaff, openExtra, openMonth, openYear, openCompanyCost, openCompanyCostMonth,
         yearPayment, grosSalaryYear, netSalaryYear, contributionSalaryYear, companyCostYear,
@@ -828,17 +830,29 @@ class EconomicStaffBlock extends React.Component {
         extraordinaryDate, extraordinaryExpenses, extraordinaryObjectives, extraordinaryExpensesEuro, extraordinaryObjectivesEuro,
         currencies, currencyId, currencyCode
       } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicManagement_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add Economic Staff"
             tooltip="Add New Economic Staff"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicManagement_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicManagement_export}
           />
         )
       };
@@ -1474,7 +1488,14 @@ class EconomicStaffBlock extends React.Component {
       );
     }
 }
-const RetentionBlockMapped = connect()(EconomicStaffBlock);
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+const RetentionBlockMapped = connect(
+  mapStateToProps,
+  null
+)(EconomicStaffBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

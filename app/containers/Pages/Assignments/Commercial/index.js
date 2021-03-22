@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import { PapperBlock } from 'dan-components';
@@ -24,6 +24,7 @@ import { CSVReader } from 'react-papaparse';
 import CloudUploadIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { makeStyles } from '@material-ui/core/styles';
 import { addClient } from '../../../../redux/actions/clientActions';
 import CommercialService from '../../../Services/CommercialService';
 import AssignmentService from '../../../Services/AssignmentService';
@@ -41,8 +42,20 @@ import {
 import notification from '../../../../components/Notification/Notification';
 import { getAllStaff } from '../../../../redux/staff/actions';
 import { addAssignment, deleteAssignment } from '../../../../redux/assignment/actions';
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
+import axios from "axios";
+import { API } from '../../../../config/apiUrl';
+import moment from 'moment';
+
+var Nuxeo = require('nuxeo');
+var path = require('path');
+var fs = require('fs');
+
+let documentManagerConfig = {};
 
 const buttonRef = React.createRef();
+const useStyles = makeStyles();
 class Commercial extends React.Component {
   constructor(props) {
     super(props);
@@ -56,6 +69,7 @@ class Commercial extends React.Component {
       openPopUpDelete: false,
       staff: '',
       listClientToUpdate: [],
+      clientNames: [],
       typeResponsible: '',
       clientIdToDelete: '',
       openPopUp: false,
@@ -121,9 +135,17 @@ class Commercial extends React.Component {
 
 
   componentDidMount() {
+      const { changeTheme } = this.props;
+      changeTheme('redTheme');
     if (history.location.state) {
       this.setState({ type: history.location.state.type });
     }
+
+    /// carga en esta variable los datos de configuración ////
+    axios.get(`${API}/documentManagerConfig/all`).then(res => {
+      documentManagerConfig = res.data.payload;
+    });
+
     this.getCommercials();
     CountryService.getCountries().then(({ data }) => {
       const countries = [];
@@ -302,7 +324,7 @@ class Commercial extends React.Component {
     });
   };
 
-  selectedRowsInTable= (rows) => {
+  selectedRowsInTable = (rows) => {
     console.log(rows.length);
     if (rows.length > 0) {
       this.setState({ display: 'none' });
@@ -313,7 +335,9 @@ class Commercial extends React.Component {
 
   selectedRows = (rows) => {
     const listClientToUpdate = rows.map((row) => row.clientId);
+    const clientNames = rows.map((row) => row.name);
     this.setState({ listClientToUpdate });
+    this.setState({ clientNames });
     this.setState({ openPopUp: true });
     this.setState({ display: 'none' });
   };
@@ -329,8 +353,7 @@ class Commercial extends React.Component {
 
   assineStaffToClient = () => {
     const {
-      typeResponsible, staff, listClientToUpdate, country
-    } = this.state;
+      typeResponsible, staff, listClientToUpdate, country, clientNames } = this.state;
     const { addAssignment, getAllClientByCountry } = this.props;
     const assignment = {
       typeStaff: typeResponsible,
@@ -348,21 +371,59 @@ class Commercial extends React.Component {
     this.setState({ display: 'flex' });
     promise.then((result) => {
       if (isString(result)) {
-        notification('success', result);
-        this.selectedRowsInTable(0);
-        getAllClientByCountry(country);
+        //Assign permission over clientName section in DocumentManager
+        var nuxeo = new Nuxeo({
+          baseURL: documentManagerConfig.nuxeourl,
+          auth: {
+            method: 'basic',
+            username: documentManagerConfig.user,
+            password: documentManagerConfig.password
+          }
+        });
+        let errors = 0;
+        clientNames.forEach(name => {
+          nuxeo.operation('Document.FetchByProperty')
+            .params({ "property": "dc:title", "values": name })
+            .execute()
+            .then(function (docs) {
+              docs.entries.forEach(doc => {
+                if (doc.type === 'Section') {
+                  nuxeo.operation('Document.AddPermission')
+                    .enrichers({ document: ['favorites', 'breadcrumb', 'userVisiblePermissions', 'acls', 'publications', 'tags'] })
+                    .input(doc.path)
+                    .params({
+                      permission: "ReadWrite",
+                      //users:[], Esto es para cuando hay varios usuarios, este no lo he probado //
+                      username: staff.companyEmail,
+                      acl: "local",
+                      begin: moment()
+                    })
+                    .execute()
+                    .then(function (response) {
+                    }).catch(function (error) {
+                      errors++;
+                    });
+                }
+              });
+            });
+        });
+        if (errors === 0) {
+          notification('success', result);
+          this.selectedRowsInTable(0);
+          getAllClientByCountry(country);
+        }
       } else {
         notification('danger', result);
       }
     });
   };
 
-  deleteAssignement= (event, rowData) => {
+  deleteAssignement = (event, rowData) => {
     this.setState({ openPopUpDelete: true });
     this.setState({ clientIdToDelete: rowData[0].clientId });
   };
 
-  handleCloseDelete= () => {
+  handleCloseDelete = () => {
     this.setState({ openPopUpDelete: false });
   };
 
@@ -378,6 +439,9 @@ class Commercial extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
+
+        //Delete permission over clientName section
+
         notification('success', result);
         getAllClientByCountry(country);
       } else {
@@ -403,14 +467,14 @@ class Commercial extends React.Component {
       notifMessage, client, clients,
       columns, openPopUp, typeResponsible, staff, openPopUpImport
     } = this.state;
-    let {display} =this.state;
+    let { display } = this.state;
     (!isLoadingAssignment && assignmentResponse) && this.editingPromiseResolve(assignmentResponse);
     (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolve(errorsAssignment);
     (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
     (!isLoading && clientResponse === 'imported') && this.editingPromiseResolveImport(clientResponse);
     /* (!isLoadingAssignment && !assignmentResponse) && this.editingPromiseResolveImport(errorsAssignment); */
     (!isLoading && clientResponse === '') && this.editingPromiseResolveImport(errors);
-    let exporte = false; let deleteAction = false;let assign = false;
+    let exporte = false; let deleteAction = false; let assign = false;
     if (thelogedUser.userRoles[0].actionsNames.commercial_commercialAssignments_export == false) {
       exporte = true;
     }
@@ -504,7 +568,7 @@ class Commercial extends React.Component {
               </Grid>
               <Grid item sm={12} lg={12} xs={12} md={12}>
                 <Typography variant="subtitle2" component="h2" color="primary" gutterBottom align="center">
-                check clients to assign responsible or commercial
+                  check clients to assign responsible or commercial
                 </Typography>
                 <MaterialTable
                   title=""
@@ -599,7 +663,7 @@ class Commercial extends React.Component {
                                   }}
                                 >
 
-                                      Import
+                                  Import
 
                                 </Button>
                                 <div
@@ -630,7 +694,7 @@ class Commercial extends React.Component {
                                   className={classes.heightImport}
                                   onClick={this.handleRemoveFile}
                                 >
-                                      remove
+                                  remove
                                 </Button>
                                 {/*                                <Button
                                     variant="contained"
@@ -694,7 +758,7 @@ class Commercial extends React.Component {
                 >
                   <DialogTitle id="alert-dialog-slide-title"> Import  </DialogTitle>
                   <DialogContent dividers>
- hhh
+                    hhh
                   </DialogContent>
                   <DialogActions>
                     <Button color="secondary" onClick={this.handleClose}>
@@ -837,7 +901,13 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   deleteAssignment
 }, dispatch);
 
-export default withStyles(styles)(connect(
+const CommercialMapped = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Commercial));
+)(Commercial);
+
+export default () => {
+  const { changeTheme } = useContext(ThemeContext);
+  const classes = useStyles();
+  return <CommercialMapped changeTheme={changeTheme} classes={classes} />;
+};

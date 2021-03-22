@@ -28,6 +28,7 @@ const useStyles = makeStyles();
 class SuppliersPaymentBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       codeContract: '',
       codeSupplier: '',
@@ -428,12 +429,16 @@ class SuppliersPaymentBlock extends React.Component {
             }),
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersPayments_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_suppliersPayments_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -602,24 +607,35 @@ class SuppliersPaymentBlock extends React.Component {
     };
 
     render() {
-      console.log(this.state);
       const {
         columns, openPopUp, datas,
         codeSupplier, companies, externalSuppliers, type, supplierBill, reelPaymentDate, paymentDate,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId, purchaseOrdersClient, purchaseOrderId
       } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_suppliersPayments_export) {
+        exportButton = true;
+      }
       const options = {
         filter: true,
         selectableRows: false,
         filterType: 'dropdown',
         responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
         rowsPerPage: 10,
         customToolbar: () => (
           <CustomToolbar
             csvData={datas}
             url="/app/gestion-financial/Add Suppliers-Payment"
             tooltip="Add New Supplier Payment"
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersPayments_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_suppliersPayments_export}
           />
         )
       };
@@ -954,7 +970,14 @@ class SuppliersPaymentBlock extends React.Component {
       );
     }
 }
-const SuppliersPaymentMapped = connect()(SuppliersPaymentBlock);
+
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+const SuppliersPaymentMapped = connect(
+  mapStateToProps,
+  null
+)(SuppliersPaymentBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

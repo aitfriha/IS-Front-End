@@ -14,7 +14,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   IconButton,
-  Tooltip
+  Tooltip, Menu
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -78,7 +78,7 @@ class WeeklyReportConfig extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    let weeklyReportConfig = newProps.weeklyReportConfig;
+    const { weeklyReportConfig } = newProps;
     this.setState({
       numberOfDays: (weeklyReportConfig && weeklyReportConfig.numberOfDays) ? weeklyReportConfig.numberOfDays : this.state.numberOfDays,
       employees: (weeklyReportConfig && weeklyReportConfig.employees) ? weeklyReportConfig.employees : this.state.employees,
@@ -184,12 +184,10 @@ class WeeklyReportConfig extends React.Component {
 
   render() {
     const {
-      location, intl, errors, isLoading, weeklyReportConfigResponse, weeklyReportConfig
+      location, intl, errors, isLoading, weeklyReportConfigResponse, weeklyReportConfig, logedUser
     } = this.props;
-
     const { numberOfDays, employees } = this.state;
-
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && weeklyReportConfigResponse) && this.editingPromiseResolve(weeklyReportConfigResponse);
     (!isLoading && !weeklyReportConfigResponse) && this.editingPromiseResolve(errors);
 
@@ -291,12 +289,14 @@ class WeeklyReportConfig extends React.Component {
               </List>
             </Grid>
           </CardContent>
-          <CardActions style={{ marginLeft: '10px' }}>
-            <Button variant="contained" size="small" disabled={this.state.error} onClick={(e) => this.handleSaveConfiguration(e)} color="primary">
+          {thelogedUser.userRoles[0].actionsNames.operativeModule_workPartsConfig_modify ? (
+            <CardActions style={{ marginLeft: '10px' }}>
+              <Button variant="contained" size="small" disabled={this.state.error} onClick={(e) => this.handleSaveConfiguration(e)} color="primary">
               Save Configurations
-              {/* } {intl.formatMessage({ id: 'connection.row.body.yes' })} */}
-            </Button>
-          </CardActions>
+                {/* } {intl.formatMessage({ id: 'connection.row.body.yes' })} */}
+              </Button>
+            </CardActions>
+          ) : null}
         </Card>
       </div>
     );
@@ -324,6 +324,7 @@ const mapStateToProps = state => ({
 
   filterStaff: state.getIn(['staffAssignment']).filterStaff,
   staffAssignmentResponse: state.getIn(['staffAssignment']).staffAssignmentResponse,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

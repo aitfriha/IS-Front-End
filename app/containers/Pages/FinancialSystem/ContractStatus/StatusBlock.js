@@ -17,6 +17,7 @@ const useStyles = makeStyles();
 class StatusBlock extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       contractStatusId: '',
       datas: [],
@@ -56,12 +57,16 @@ class StatusBlock extends React.Component {
             empty: true,
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                  <DetailsIcon color="secondary" />
-                </IconButton>
-                <IconButton onClick={() => this.handleDelete(tableMeta)}>
-                  <DeleteIcon color="primary" />
-                </IconButton>
+                {thelogedUser.userRoles[0].actionsNames.financialModule_contractStatus_access ? (
+                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
+                    <DetailsIcon color="secondary" />
+                  </IconButton>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_contractStatus_delete ? (
+                  <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <DeleteIcon color="primary" />
+                  </IconButton>
+                ) : null}
               </React.Fragment>
             )
           }
@@ -132,21 +137,32 @@ class StatusBlock extends React.Component {
   };
 
   render() {
-    console.log(this.state);
     const {
       columns, openPopUp, datas, statusCode, statusName, description
     } = this.state;
+    const {
+      logedUser
+    } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.financialModule_contractStatus_export) {
+      exportButton = true;
+    }
     const options = {
       filter: true,
       selectableRows: false,
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={datas}
           url="/app/gestion-financial/Contract-Status/Add-Status"
           tooltip="add new Status"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_contractStatus_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_contractStatus_export}
         />
       )
     };
@@ -225,13 +241,15 @@ class StatusBlock extends React.Component {
             <Button color="secondary" onClick={this.handleClose}>
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleSave}
-            >
+            {thelogedUser.userRoles[0].actionsNames.financialModule_contractStatus_modify ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleSave}
+              >
               save
-            </Button>
+              </Button>
+            ) : null}
           </DialogActions>
         </Dialog>
       </div>
@@ -239,7 +257,13 @@ class StatusBlock extends React.Component {
   }
 }
 
-const StatusBlockMapped = connect()(StatusBlock);
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser'),
+});
+const StatusBlockMapped = connect(
+  mapStateToProps,
+  null
+)(StatusBlock);
 
 export default () => {
   const { changeTheme } = useContext(ThemeContext);

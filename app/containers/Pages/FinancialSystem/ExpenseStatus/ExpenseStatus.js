@@ -83,11 +83,11 @@ class ExpenseStatus extends React.Component {
   render() {
     const {
       location, intl, errors, isLoading, expenseStatusResponse,
-      expensesStatus, getAllExpenseStatus, addExpenseStatus, updateExpenseStatus, deleteExpenseStatus
+      expensesStatus, getAllExpenseStatus, addExpenseStatus, updateExpenseStatus, deleteExpenseStatus, logedUser
     } = this.props;
 
     const { expenseStatusColumns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && expenseStatusResponse) && this.editingPromiseResolve(expenseStatusResponse);
     (!isLoading && !expenseStatusResponse) && this.editingPromiseResolve(errors);
 
@@ -133,7 +133,7 @@ class ExpenseStatus extends React.Component {
                       notification('danger', result);
                     }
                   }), */
-                  onRowUpdate: (newData) => new Promise((resolve) => {
+                  onRowUpdate: thelogedUser.userRoles[0].actionsNames.financialModule_expensesStatus_modify ? (newData => new Promise((resolve) => {
                     // update expense status action
                     updateExpenseStatus(newData);
                     this.editingPromiseResolve = resolve;
@@ -145,8 +145,8 @@ class ExpenseStatus extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  }),
-                  onRowDelete: oldData => new Promise((resolve) => {
+                  })) : null,
+                  onRowDelete: thelogedUser.userRoles[0].actionsNames.financialModule_expensesStatus_delete ? (oldData => new Promise((resolve) => {
                     // delete expense status action
                     deleteExpenseStatus(oldData.id);
                     this.editingPromiseResolve = resolve;
@@ -158,7 +158,7 @@ class ExpenseStatus extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  })
+                  })) : null
                 }}
               />
             </Grid>
@@ -182,6 +182,7 @@ const mapStateToProps = state => ({
   expenseStatusResponse: state.getIn(['expenseStatus']).expenseStatusResponse,
   isLoading: state.getIn(['expenseStatus']).isLoading,
   errors: state.getIn(['expenseStatus']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

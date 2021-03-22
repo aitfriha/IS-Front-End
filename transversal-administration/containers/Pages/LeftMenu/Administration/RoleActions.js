@@ -63,6 +63,8 @@ class RoleActions extends React.Component {
       roleDescription: '',
       expanded: false,
       roleName: '',
+      oldRoleName: '',
+      /* theRoleName: '', */
       admin_user_Management_access: false,
       admin_user_Management_create: false,
       admin_user_Management_modify: false,
@@ -465,9 +467,10 @@ class RoleActions extends React.Component {
     getAllActions();
     // console.log(this.props.location.state.actions);
     if (!isEmpty(this.props.location.state)) {
+      this.setState({ roleName: this.props.location.state.UserRole });
+      this.setState({ oldRoleName: this.props.location.state.UserRole });
+      this.setState({ roleDescription: this.props.location.state.roleDescription });
       for (const key in this.props.location.state.actions) {
-        console.log('==> : ', key);
-        console.log('==> : ', this.props.location.state.actions[key]);
         this.setState({ [key]: this.props.location.state.actions[key] });
       }
     }
@@ -478,6 +481,10 @@ class RoleActions extends React.Component {
      };
 
   handleChangeRoleName= (event) => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
+
+  handleChangeRoleName2= (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
 
@@ -494,6 +501,7 @@ class RoleActions extends React.Component {
     const { addAction, addRole } = this.props;
     const {
       roleName,
+      oldRoleName,
       roleDescription,
       admin_user_Management_access,
       admin_user_Management_create,
@@ -799,10 +807,10 @@ class RoleActions extends React.Component {
       translationModule_translationSentences_create,
       translationModule_translationSentences_modify,
       translationModule_translationSentences_delete,
-
     } = this.state;
     const action = {
       roleName,
+      oldRoleName,
       roleDescription,
       actionsNames: {
         admin_user_Management_access,
@@ -1110,7 +1118,6 @@ class RoleActions extends React.Component {
         translationModule_translationSentences_delete
       }
     };
-    console.log(action);
     const promise = new Promise((resolve) => {
       addRole(action);
       this.editingPromiseResolve = resolve;
@@ -1148,10 +1155,22 @@ class RoleActions extends React.Component {
     this.setState({ admin_roles_management_export: event.target.checked });
   };
 
+  handleChangeTranslationModule= (panel) => (event, isExpanded) => {
+    this.setState({ translationModule_defaultSentences_access: event.target.checked });
+    this.setState({ translationModule_defaultSentences_create: event.target.checked });
+    this.setState({ translationModule_defaultSentences_modify: event.target.checked });
+    this.setState({ translationModule_defaultSentences_delete: event.target.checked });
+    this.setState({ translationModule_translationSentences_access: event.target.checked });
+    this.setState({ translationModule_translationSentences_create: event.target.checked });
+    this.setState({ translationModule_translationSentences_modify: event.target.checked });
+    this.setState({ translationModule_translationSentences_delete: event.target.checked });
+  };
+
   render() {
     const {
       expanded,
       roleName,
+      /*   theRoleName, */
       admin_user_Management_access,
       admin_user_Management_create,
       admin_user_Management_modify,
@@ -1480,24 +1499,6 @@ class RoleActions extends React.Component {
           {isEmpty(this.props.location.state)
             ? (
               <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-                {/*                 <FormControl
-                    className={classes.formControl}
-                    style={{ width: '30%' }}
-                    required
-                  >
-                    <InputLabel>select the Role</InputLabel>
-                    <Select
-                      name="role"
-                      value={role}
-                      onChange={this.handleChangeRole}
-                    >
-                      {allRoles.map(theRole => (
-                        <MenuItem key={theRole.roleId} value={theRole.roleId}>
-                          {theRole.roleName}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl> */}
                 <div>
                   <FormControl
                     className={classes.formControl}
@@ -1526,46 +1527,38 @@ class RoleActions extends React.Component {
                     />
                   </FormControl>
                 </div>
-                {/*              <FormControl
+              </div>
+            )
+            : (
+              <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
+                <div>
+                  <FormControl
                     className={classes.formControl}
                     style={{ width: '30%' }}
+                    required
+                  >
+                    <TextField id="standard-basic" label="Role Name*" value={roleName} name="roleName" onChange={this.handleChangeRoleName2} />
+                  </FormControl>
+                </div>
+                <br />
+                <div>
+                  <FormControl
+                    className={classes.formControl}
+                    style={{ width: '70%' }}
                     required
                   >
                     <TextField
                       id="outlined-basic"
                       label="Description"
                       variant="outlined"
-                      name="description"
-                      value={description}
+                      name="roleDescription"
+                      value={roleDescription}
                       style={{ width: '100%' }}
                       className={classes.textField}
-                      onChange={this.handleChange}
+                      onChange={this.handleChangeDescription}
                     />
-                  </FormControl> */}
-
-              </div>
-            )
-            : (
-              <div style={{ margin: 'auto', width: '50%', textAlign: 'center' }}>
-                <FormControl
-                  className={classes.formControl}
-                  style={{ width: '30%' }}
-                  required
-                >
-                  <InputLabel>selected Role</InputLabel>
-                  <Select
-                    name="roleName"
-                    value={this.props.location.state.UserRole}
-                    onChange={this.handleChangeRole}
-                    disabled
-                  >
-                    {allRoles.map(theRole => (
-                      <MenuItem key={theRole.roleId} value={theRole.roleName}>
-                        {this.props.location.state.UserRole}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                </div>
               </div>
             )}
           <br />
@@ -2021,7 +2014,7 @@ class RoleActions extends React.Component {
                 <ListItemIcon>
                   <SendIcon />
                 </ListItemIcon>
-                <ListItemText primary="Commercial document" />
+                <ListItemText primary="Presales Document Managent" />
               </ListItem>
               <FormControl component="fieldset" className={classes.formControl}>
                 <FormGroup>
@@ -2295,7 +2288,7 @@ class RoleActions extends React.Component {
                   />
                   <FormControlLabel
                     control={<Checkbox checked={hh_absenceConsult_modify} onChange={this.handleChange} name="hh_absenceConsult_modify" />}
-                    label="Modify"
+                    label="Modify (Accept Reject)"
                   />
                   <FormControlLabel
                     control={<Checkbox checked={hh_absenceConsult_export} onChange={this.handleChange} name="hh_absenceConsult_export" />}
@@ -3588,7 +3581,7 @@ class RoleActions extends React.Component {
             >
               <Typography className={classes.heading}>
                 6. translation
-                <Checkbox onChange={this.handleChangeAdminModule('translation')} />
+                <Checkbox onChange={this.handleChangeTranslationModule('translation')} />
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -3669,7 +3662,7 @@ class RoleActions extends React.Component {
                   size="medium"
                   onClick={this.handleSubmit}
                 >
-                    Save Actions
+                    Edit Actions
                 </Button>
               )
             }

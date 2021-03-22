@@ -39,69 +39,80 @@ import notification from '../../../components/Notification/Notification';
 const useStyles = makeStyles(styles);
 
 class LegalCategoryType extends React.Component {
-  state = {
-    name: '',
-    functions: '',
-    isDialogOpen: false,
-    isDeleteDialogOpen: false,
-    isRelated: false,
-    legalCategoryTypeSelected: {},
-    replaceLegalCategoryTypeList: [],
-    oldId: '',
-    newId: ''
-  };
+  constructor(props) {
+    super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
+    this.state = {
+      name: '',
+      functions: '',
+      isDialogOpen: false,
+      isDeleteDialogOpen: false,
+      isRelated: false,
+      legalCategoryTypeSelected: {},
+      replaceLegalCategoryTypeList: [],
+      oldId: '',
+      newId: '',
+      columns: [
+        {
+          name: 'legalCategoryTypeId',
+          label: 'Legal Category Type Id',
+          options: {
+            display: false,
+            filter: false
+          }
+        },
+        {
+          name: 'name',
+          label: 'Name',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Functions',
+          name: 'functions',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Company',
+          name: 'companyName',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: ' ',
+          name: ' ',
+          options: {
+            customBodyRender: (value, tableMeta) => (
+              <React.Fragment>
+                {thelogedUser.userRoles[0].actionsNames.hh_typesOfLegalCategory_modify
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
+                      <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_typesOfLegalCategory_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
+                      <DeleteIcon color="primary" />
+                    </IconButton>
+                  ) : null}
+              </React.Fragment>
+            )
+          }
+        }
+      ]
+    };
 
-  editingPromiseResolve1 = () => {};
+    this.editingPromiseResolve1 = () => {
+    };
 
-  editingPromiseResolve2 = () => {};
-
-  columns = [
-    {
-      name: 'legalCategoryTypeId',
-      label: 'Legal Category Type Id',
-      options: {
-        display: false,
-        filter: false
-      }
-    },
-    {
-      name: 'name',
-      label: 'Name',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Functions',
-      name: 'functions',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: 'Company',
-      name: 'companyName',
-      options: {
-        filter: true
-      }
-    },
-    {
-      label: ' ',
-      name: ' ',
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <React.Fragment>
-            <IconButton onClick={() => this.handleOpenDialog(tableMeta)}>
-              <EditIcon color="secondary" />
-            </IconButton>
-            <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
-              <DeleteIcon color="primary" />
-            </IconButton>
-          </React.Fragment>
-        )
-      }
-    }
-  ];
+    this.editingPromiseResolve2 = () => {
+    };
+  }
 
   componentDidMount() {
     const { changeTheme, getAllLegalCategoryType } = this.props;
@@ -230,8 +241,10 @@ class LegalCategoryType extends React.Component {
       errorLegalCategoryType,
       isLoadingStaffContract,
       staffContractResponse,
-      errorStaffContract
+      errorStaffContract,
+      logedUser
     } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       name,
       functions,
@@ -239,8 +252,13 @@ class LegalCategoryType extends React.Component {
       isDeleteDialogOpen,
       isRelated,
       replaceLegalCategoryTypeList,
-      newId
+      newId,
+      columns
     } = this.state;
+    let exportButton = false;
+    if (thelogedUser.userRoles[0].actionsNames.hh_typesOfLegalCategory_export) {
+      exportButton = true;
+    }
     const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
@@ -248,12 +266,16 @@ class LegalCategoryType extends React.Component {
       selectableRows: 'none',
       filterType: 'dropdown',
       responsive: 'stacked',
+      download: exportButton,
+      print: exportButton,
       rowsPerPage: 10,
       customToolbar: () => (
         <CustomToolbar
           csvData={allLegalCategoryType}
           url="/app/hh-rr/legalCategoryType/create-legal-category-type"
           tooltip="add new legal category type"
+          hasAddRole={thelogedUser.userRoles[0].actionsNames.hh_typesOfLegalCategory_create}
+          hasExportRole={thelogedUser.userRoles[0].actionsNames.hh_typesOfLegalCategory_export}
         />
       )
     };
@@ -431,7 +453,7 @@ class LegalCategoryType extends React.Component {
           <MUIDataTable
             title=""
             data={allLegalCategoryType}
-            columns={this.columns}
+            columns={columns}
             options={options}
           />
         </PapperBlock>
@@ -451,7 +473,8 @@ const mapStateToProps = state => ({
   isLoadingStaffContract: state.getIn(['staffContracts']).isLoading,
   errorStaffContract: state.getIn(['staffContracts']).errors,
   allStaffContractByLegalCategoryType: state.getIn(['staffContracts'])
-    .allStaffContractByLegalCategoryType
+    .allStaffContractByLegalCategoryType,
+  logedUser: localStorage.getItem('logedUser')
 });
 const mapDispatchToProps = dispatch => bindActionCreators(
   {

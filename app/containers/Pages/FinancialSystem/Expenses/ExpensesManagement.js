@@ -49,8 +49,11 @@ import {
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isString } from 'lodash';
+import { Helmet } from 'react-helmet';
+import brand from 'dan-api/dummy/brand';
+import { makeStyles } from '@material-ui/core/styles';
 import localizationMaterialTable from '../../../../api/localizationMaterialUI/localizationMaterialTable';
-//import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
+// import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
 import Loading from '../../../../components/Loading/index';
 import notification from '../../../../components/Notification/Notification';
 import { Confirmation } from '../Travels/Confirmation';
@@ -85,6 +88,8 @@ import {
   getDataAssociatedWithCurrencyTypes
 } from '../../../../redux/currency/actions';
 
+import { ThemeContext } from '../../../App/ThemeWrapper';
+
 
 let self = null;
 
@@ -102,11 +107,6 @@ function TabContainer(props) {
     </Typography>
   );
 }
-
-import { Helmet } from 'react-helmet';
-import brand from 'dan-api/dummy/brand';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeContext } from '../../../App/ThemeWrapper';
 
 const useStyles = makeStyles((theme) => {
 
@@ -470,10 +470,10 @@ class ExpensesManagement extends React.Component {
 
   render() {
     const {
-      intl, location, isLoading, errors, changeStatusExpense, expenses, getExpenses, expenseResponse
+      intl, location, isLoading, errors, changeStatusExpense, expenses, getExpenses, expenseResponse, logedUser
     } = this.props;
     const { columns } = this.state;
-
+    const thelogedUser = JSON.parse(logedUser);
     (!isLoading && expenseResponse) && this.editingPromiseResolve(expenseResponse);
     (!isLoading && !expenseResponse) && this.editingPromiseResolve(errors);
 
@@ -618,13 +618,13 @@ class ExpensesManagement extends React.Component {
                 actions={
                   [
                     rowData => ({
-                      disabled: rowData.voucherTypeMasterValue === 'DONT EXIST',
+                      disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_export && rowData.voucherTypeMasterValue === 'DONT EXIST',
                       icon: () => <CloudDownloadIcon variant="outlined" name="download" />,
                       tooltip: 'Download',
                       onClick: (e) => this.handleDownloadDocument(e, rowData)
                     }),
                     rowData => ({
-                      disabled: rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
+                      disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_modify && rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
                       icon: () => <CloseIcon variant="outlined" name="cancel" />,
                       tooltip: 'Reject', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                       onClick: (e) => {
@@ -640,7 +640,7 @@ class ExpensesManagement extends React.Component {
                       }
                     }),
                     rowData => ({
-                      disabled: rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
+                      disabled: thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_modify && rowData.expenseStatusMasterValue !== 'PENDING APPROVAL',
                       icon: () => <DoneIcon variant="outlined" name="approve" />,
                       tooltip: 'Approve', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                       onClick: (e) => {
@@ -658,7 +658,7 @@ class ExpensesManagement extends React.Component {
                     {
                       icon: 'save_alt',
                       tooltip: 'Export',
-                      disabled: !this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || data.length === 0,
+                      disabled: !thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_export && !this.state.searchComplete && (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || data.length === 0,
                       isFreeAction: true,
                       onClick: (event) => this.handleOpenMenu(event)
                     },
@@ -964,12 +964,16 @@ class ExpensesManagement extends React.Component {
                   },
                 }}
               >
-                <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
+                {thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_export ? (
+                  <MenuItem key="csv" onClick={(event) => this.handleExportCSV(event)} value="csv">
                 Export as CSV
-                </MenuItem>
-                <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
+                  </MenuItem>
+                ) : null}
+                {thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_export ? (
+                  <MenuItem key="pdf" onClick={(event) => this.handleExportPDF(event)} value="pdf">
                 Export as PDF
-                </MenuItem>
+                  </MenuItem>
+                ) : null}
               </Menu>
             </React.Fragment>
           )
@@ -1031,6 +1035,7 @@ const mapStateToProps = state => ({
 
   isLoading: state.getIn(['expense']).isLoading,
   errors: state.getIn(['expense']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -1055,4 +1060,4 @@ export default () => {
   return <ExpensesManagementMapped changeTheme={changeTheme} classes={classes} />;
 };
 
-//export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesManagement)));
+// export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(ExpensesManagement)));

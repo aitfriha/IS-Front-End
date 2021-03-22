@@ -86,15 +86,13 @@ class PersonTypes extends React.Component {
 
   render() {
     const {
-      location, intl, errors, isLoading, addPersonType, updatePersonType, deletePersonType, getAllPersonTypes, personTypes, personTypeResponse
+      location, intl, errors, isLoading, addPersonType, updatePersonType, deletePersonType, getAllPersonTypes, personTypes, personTypeResponse, logedUser
     } = this.props;
-
+    const thelogedUser = JSON.parse(logedUser);
     const { personTypesColumns } = this.state;
 
     (!isLoading && personTypeResponse) && this.editingPromiseResolve(personTypeResponse);
     (!isLoading && !personTypeResponse) && this.editingPromiseResolve(errors);
-
-    // console.log(personTypes);
 
     return (
       <div>
@@ -125,7 +123,7 @@ class PersonTypes extends React.Component {
                 style={{ marginTop: '10px' }}
                 editable={{
                   isDeletable: rowData => rowData.removable,
-                  onRowAdd: newData => new Promise((resolve) => {
+                  onRowAdd: thelogedUser.userRoles[0].actionsNames.financialModule_personsTypes_create ? (newData => new Promise((resolve) => {
                     // add person type action
                     addPersonType(newData);
                     this.editingPromiseResolve = resolve;
@@ -137,8 +135,8 @@ class PersonTypes extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  }),
-                  onRowUpdate: (newData) => new Promise((resolve) => {
+                  })) : null,
+                  onRowUpdate: thelogedUser.userRoles[0].actionsNames.financialModule_personsTypes_modify ? (newData => new Promise((resolve) => {
                     // update person type action
                     updatePersonType(newData);
                     this.editingPromiseResolve = resolve;
@@ -150,8 +148,8 @@ class PersonTypes extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  }),
-                  onRowDelete: oldData => new Promise((resolve) => {
+                  })) : null,
+                  onRowDelete: thelogedUser.userRoles[0].actionsNames.financialModule_personsTypes_delete ? (oldData => new Promise((resolve) => {
                     // delete assignment type action
                     deletePersonType(oldData.id);
                     this.editingPromiseResolve = resolve;
@@ -163,7 +161,7 @@ class PersonTypes extends React.Component {
                     } else {
                       notification('danger', result);
                     }
-                  })
+                  })) : null
                 }}
               />
             </Grid>
@@ -187,6 +185,7 @@ const mapStateToProps = state => ({
   personTypeResponse: state.getIn(['personType']).personTypeResponse,
   isLoading: state.getIn(['personType']).isLoading,
   errors: state.getIn(['personType']).errors,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

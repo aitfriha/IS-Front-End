@@ -81,6 +81,7 @@ const description = brand.desc;
 class WeeklyReport extends React.Component {
   constructor(props) {
     super(props);
+    const thelogedUser = JSON.parse(this.props.logedUser);
     self = this;
     this.state = {
       searchComplete: true,
@@ -192,13 +193,15 @@ class WeeklyReport extends React.Component {
         Toolbar: props => (
           <div>
             <MTableToolbar {...props} />
-            <Tooltip title="Add weekly report">
-              <span>
-                <Fab size="small" color="primary" aria-label="add" style={{ marginBottom: '15px', marginLeft: '20px' }}>
-                  <AddIcon onClick={evt => this.handleWeeklyReport(evt, null)} />
-                </Fab>
-              </span>
-            </Tooltip>
+            {thelogedUser.userRoles[0].actionsNames.operativeModule_workParts_create ? (
+              <Tooltip title="Add weekly report">
+                <span>
+                  <Fab size="small" color="primary" aria-label="add" style={{ marginBottom: '15px', marginLeft: '20px' }}>
+                    <AddIcon onClick={evt => this.handleWeeklyReport(evt, null)} />
+                  </Fab>
+                </span>
+              </Tooltip>
+            ) : null}
             <Grid style={{ marginLeft: '20px', marginBottom: '15px' }}>
               <FormControl style={{ marginTop: '19px', minWidth: '14%', width: '14%' }} size="small">
                 <InputLabel htmlFor="combo-priod">Filter by period</InputLabel>
@@ -562,11 +565,10 @@ class WeeklyReport extends React.Component {
 
   render() {
     const {
-      location, intl, isLoading, errors, summarizedWeeklyReport, customerContracts, extendedWeeklyReport, assignmentTypes, saveWeeklyReport, getSummarizedWeeklyReport, getExtendedWeeklyReport, getAllCustomerContractsByEmployee, weeklyReportResponse
+      location, intl, isLoading, errors, summarizedWeeklyReport, customerContracts, extendedWeeklyReport, assignmentTypes, saveWeeklyReport, getSummarizedWeeklyReport, getExtendedWeeklyReport, getAllCustomerContractsByEmployee, weeklyReportResponse, logedUser
     } = this.props;
     const { columns } = this.state;
-
-
+    const thelogedUser = JSON.parse(logedUser);
     return (
       <div>
         {/* <HelmetCustom location={location} /> */}
@@ -587,7 +589,7 @@ class WeeklyReport extends React.Component {
               actions={
                 [
                   rowData => ({
-                    disabled: !rowData.editable || !this.validRow(rowData),
+                    disabled: thelogedUser.userRoles[0].actionsNames.operativeModule_workParts_modify && (!rowData.editable || !this.validRow(rowData)),
                     icon: () => <Edit variant="outlined" color="action" name="edit" />,
                     tooltip: 'Edit', // intl.formatMessage({ id: 'table.column.actions.edit' }),
                     onClick: evt => this.handleWeeklyReport(evt, rowData)
@@ -595,7 +597,7 @@ class WeeklyReport extends React.Component {
                   {
                     icon: 'save_alt',
                     tooltip: 'Export',
-                    disabled: !this.state.searchComplete || !summarizedWeeklyReport.length > 0 || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate),
+                    disabled: thelogedUser.userRoles[0].actionsNames.operativeModule_workParts_modify && (thelogedUser.userRoles[0].actionsNames.operativeModule_workParts_export && (!this.state.searchComplete || !summarizedWeeklyReport.length > 0 || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate))),
                     isFreeAction: true,
                     onClick: (event) => this.handleOpenMenu(event)
                   },
@@ -681,9 +683,8 @@ const mapStateToProps = state => ({
   customerContracts: state.getIn(['staffAssignment']).customerContracts,
   operations: state.getIn(['staffAssignment']).operations,
   // staffAssignmentResponse: state.getIn(['staffAssignment']).staffAssignmentResponse,
-
-  assignmentTypes: state.getIn(['assignmentType']).assignmentTypes
-
+  assignmentTypes: state.getIn(['assignmentType']).assignmentTypes,
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
