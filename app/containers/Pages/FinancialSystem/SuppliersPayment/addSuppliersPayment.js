@@ -25,6 +25,7 @@ import ExternalSuppliersService from '../../../Services/ExternalSuppliersService
 import ClientService from '../../../Services/ClientService';
 import ContractService from '../../../Services/ContractService';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
+import CurrencyService from '../../../Services/CurrencyService';
 
 const useStyles = makeStyles();
 
@@ -37,6 +38,11 @@ class AddSuppliersPayment extends React.Component {
       clientId: '',
       contracts: [],
       contractsClient: [],
+      currencies: [],
+      currencyId: '',
+      changeFactor: 0,
+      contractTradeVolume: 0,
+      contractTradeVolumeEuro: 0,
       contractId: '',
       purchaseOrders: [],
       purchaseOrdersClient: [],
@@ -83,6 +89,9 @@ class AddSuppliersPayment extends React.Component {
       console.log(result);
       this.setState({ purchaseOrders: result.data, purchaseOrdersClient: result.data });
     });
+    CurrencyService.getFilteredCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
   }
 
 
@@ -105,9 +114,11 @@ class AddSuppliersPayment extends React.Component {
     handleSubmit = () => {
       const {
         codeSupplier, supplierBill, externalSupplierId, financialCompanyId, type, typeClient,
-        clientId, purchaseOrderId, contractId, reelPaymentDate, paymentDate
+        clientId, purchaseOrderId, contractId, reelPaymentDate, paymentDate,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, changeFactor
       } = this.state;
       const client = { _id: clientId };
+      const currency = { _id: currencyId };
       let financialCompany = { _id: '' };
       let externalSupplier = { _id: '' };
       let purchaseOrder = { _id: '' };
@@ -121,8 +132,12 @@ class AddSuppliersPayment extends React.Component {
         supplierBill,
         externalSupplier,
         financialCompany,
+        currency,
         type,
         typeClient,
+        changeFactor,
+        contractTradeVolume,
+        contractTradeVolumeEuro,
         paymentDate,
         reelPaymentDate,
         client,
@@ -141,6 +156,20 @@ class AddSuppliersPayment extends React.Component {
     }
 
     handleChange = (ev) => {
+      let changeFactor;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tradeValue = this.state.contractTradeVolume;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          // eslint-disable-next-line prefer-destructuring
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor;
+          }
+        });
+        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
+      }
       if (ev.target.name === 'type') {
         if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
         else this.setState({ haveInternal: true, haveExternal: false });
@@ -179,6 +208,7 @@ class AddSuppliersPayment extends React.Component {
       const {
         codeSupplier, companies, externalSuppliers, type, supplierBill, reelPaymentDate, paymentDate,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, currencies,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId, purchaseOrdersClient, purchaseOrderId
       } = this.state;
       return (
@@ -428,6 +458,60 @@ class AddSuppliersPayment extends React.Component {
                     </Grid>
                   </Grid>
                 ) : (<div />)}
+                <br />
+                <br />
+                <Grid
+                  container
+                  spacing={2}
+                  alignItems="flex-start"
+                  direction="row"
+                >
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      id="Contract Trade Volume"
+                      label="Contract Trade Volume"
+                      type="number"
+                      name="contractTradeVolume"
+                      value={contractTradeVolume}
+                      onChange={this.handleChange}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={5}>
+                    <FormControl fullWidth required>
+                      <InputLabel>Select Currency</InputLabel>
+                      <Select
+                        name="currencyId"
+                        value={currencyId}
+                        onChange={this.handleChange}
+                      >
+                        {
+                          currencies.map((clt) => (
+                            <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                              {clt.typeOfCurrency.currencyName}
+                            </MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      id="contractTradeVolumeEuro"
+                      label="Trade Value (Euro)"
+                      type="number"
+                      name="contractTradeVolumeEuro"
+                      value={contractTradeVolumeEuro}
+                      onChange={this.handleChange}
+                      fullWidth
+                      required
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
                 <br />
                 <br />
                 <Grid

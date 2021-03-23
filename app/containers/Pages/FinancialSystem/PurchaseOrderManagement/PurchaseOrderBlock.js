@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
-import LocalPrintshopIcon from '@material-ui/icons/LocalPrintshop';
 import {
   Button,
   Dialog,
@@ -48,6 +47,7 @@ const useStyles = makeStyles(styles);
 class PurchaseOrderBlock extends React.Component {
   constructor(props) {
     super(props);
+    // eslint-disable-next-line react/destructuring-assignment,react/prop-types
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       purchaseOrder: {},

@@ -22,12 +22,14 @@ import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import ClientService from '../../../Services/ClientService';
 import ContractService from '../../../Services/ContractService';
 import PurchaseOrderService from '../../../Services/PurchaseOrderService';
+import CurrencyService from '../../../Services/CurrencyService';
 
 const useStyles = makeStyles();
 
 class SuppliersPaymentBlock extends React.Component {
   constructor(props) {
     super(props);
+    // eslint-disable-next-line react/destructuring-assignment,react/prop-types
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       codeContract: '',
@@ -40,6 +42,11 @@ class SuppliersPaymentBlock extends React.Component {
       purchaseOrders: [],
       purchaseOrdersClient: [],
       purchaseOrderId: '',
+      currencies: [],
+      currencyId: '',
+      changeFactor: 0,
+      contractTradeVolume: 0,
+      contractTradeVolumeEuro: 0,
       supplierBill: '',
       paymentDate: '',
       ReelPaymentDate: '',
@@ -472,6 +479,9 @@ class SuppliersPaymentBlock extends React.Component {
       console.log(result);
       this.setState({ purchaseOrders: result.data, purchaseOrdersClient: result.data });
     });
+    CurrencyService.getFilteredCurrency().then(result => {
+      this.setState({ currencies: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -491,6 +501,10 @@ class SuppliersPaymentBlock extends React.Component {
           supplierPaymentId: id,
           codeSupplier: result.data.codeSupplier,
           supplierBill: result.data.supplierBill,
+          currencyId: result.data.currency._id,
+          changeFactor: result.data.changeFactor,
+          contractTradeVolume: result.data.contractTradeVolume,
+          contractTradeVolumeEuro: result.data.contractTradeVolumeEuro,
           paymentDate: result.data.paymentDate ? result.data.paymentDate.toString().slice(0, 10) : '---',
           reelPaymentDate: result.data.reelPaymentDate ? result.data.reelPaymentDate.toString().slice(0, 10) : '---',
           externalSupplierId: result.data.type === 'external' ? result.data.externalSupplier._id : '',
@@ -544,9 +558,11 @@ class SuppliersPaymentBlock extends React.Component {
     handleSave = () => {
       const {
         supplierPaymentId, codeSupplier, supplierBill, externalSupplierId, financialCompanyId, type, typeClient,
-        clientId, purchaseOrderId, contractId, reelPaymentDate, paymentDate
+        clientId, purchaseOrderId, contractId, reelPaymentDate, paymentDate,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, changeFactor
       } = this.state;
       const client = { _id: clientId };
+      const currency = { _id: currencyId };
       let financialCompany = { _id: '' };
       let externalSupplier = { _id: '' };
       let purchaseOrder = { _id: '' };
@@ -558,11 +574,15 @@ class SuppliersPaymentBlock extends React.Component {
       const SuppliersContract = {
         supplierPaymentId,
         codeSupplier,
+        currency,
         supplierBill,
         externalSupplier,
         financialCompany,
         type,
         typeClient,
+        changeFactor,
+        contractTradeVolume,
+        contractTradeVolumeEuro,
         client,
         purchaseOrder,
         financialContract,
@@ -576,6 +596,20 @@ class SuppliersPaymentBlock extends React.Component {
     };
 
     handleChange = (ev) => {
+      let changeFactor;
+      if (ev.target.name === 'currencyId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tradeValue = this.state.contractTradeVolume;
+        // eslint-disable-next-line react/destructuring-assignment,array-callback-return
+        this.state.currencies.map(currency => {
+          // eslint-disable-next-line prefer-destructuring
+          if (currency.currencyId === ev.target.value) {
+            // eslint-disable-next-line prefer-destructuring
+            changeFactor = currency.changeFactor;
+          }
+        });
+        this.setState({ contractTradeVolumeEuro: tradeValue * changeFactor, changeFactor });
+      }
       if (ev.target.name === 'type') {
         if (ev.target.value === 'external') this.setState({ haveExternal: true, haveInternal: false });
         else this.setState({ haveInternal: true, haveExternal: false });
@@ -611,9 +645,11 @@ class SuppliersPaymentBlock extends React.Component {
         columns, openPopUp, datas,
         codeSupplier, companies, externalSuppliers, type, supplierBill, reelPaymentDate, paymentDate,
         haveExternal, haveInternal, externalSupplierId, financialCompanyId,
+        currencyId, contractTradeVolume, contractTradeVolumeEuro, currencies,
         contractClient, poClient, typeClient, clients, clientId, contractsClient, contractId, purchaseOrdersClient, purchaseOrderId
       } = this.state;
       const {
+        // eslint-disable-next-line react/prop-types
         logedUser
       } = this.props;
       const thelogedUser = JSON.parse(logedUser);
@@ -881,6 +917,60 @@ class SuppliersPaymentBlock extends React.Component {
                       </Grid>
                     </Grid>
                   ) : (<div />)}
+                  <br />
+                  <br />
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="flex-start"
+                    direction="row"
+                  >
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        id="Contract Trade Volume"
+                        label="Contract Trade Volume"
+                        type="number"
+                        name="contractTradeVolume"
+                        value={contractTradeVolume}
+                        onChange={this.handleChange}
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={5}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Select Currency</InputLabel>
+                        <Select
+                          name="currencyId"
+                          value={currencyId}
+                          onChange={this.handleChange}
+                        >
+                          {
+                            currencies.map((clt) => (
+                              <MenuItem key={clt.currencyId} value={clt.currencyId}>
+                                {clt.typeOfCurrency.currencyName}
+                              </MenuItem>
+                            ))
+                          }
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                      <TextField
+                        id="contractTradeVolumeEuro"
+                        label="Trade Value (Euro)"
+                        type="number"
+                        name="contractTradeVolumeEuro"
+                        value={contractTradeVolumeEuro}
+                        onChange={this.handleChange}
+                        fullWidth
+                        required
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
                   <br />
                   <br />
                   <Grid
