@@ -358,6 +358,10 @@ export const User = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/User'),
   loading: Loading
 });
+export const Logs = Loadable({
+  loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/Logs'),
+  loading: Loading
+});
 export const EconomicStaffsPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/EconomicStaffPayments'),
   loading: Loading

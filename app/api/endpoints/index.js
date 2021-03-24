@@ -52,7 +52,8 @@ const ENDPOINTS = {
     SUBJECT_FIELD: 'http://localhost:9000/api/subjectField',
     MACHINE: 'http://localhost:9000/api/machine',
     USER: 'http://localhost:9000/api/user',
-    ROLE: 'http://localhost:9000/api/role'
+    ROLE: 'http://localhost:9000/api/role',
+    LOG: 'http://localhost:9000/api/log'
   },
   TEST: '/api/test/t',
 
