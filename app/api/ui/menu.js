@@ -543,6 +543,11 @@ module.exports = [
         name: 'Users Management',
         link: '/app/data/administration/users'
       },
+      {
+        key: 'logs',
+        name: 'Logs',
+        link: '/app/data/administration/logs'
+      },
       /* {
          key: 'roles_abilities',
          name: 'Actions Management',

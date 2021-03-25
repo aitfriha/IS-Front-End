@@ -11,7 +11,7 @@ import MenuButtons from 'dan-components/MenuButtons/MenuButtons';
 import Typography from '@material-ui/core/Typography';
 import Ionicon from 'react-ionicons';
 import { ThemeContext } from '../../App/ThemeWrapper';
-import history from "../../../utils/history";
+import history from '../../../utils/history';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -26,6 +26,7 @@ class BlankPage extends React.Component {
   gowTo= (data, aaa) => {
     history.push('/app/data/administration/role-actions');
   }
+
   render() {
     const {
       whiteBg,
@@ -51,30 +52,17 @@ class BlankPage extends React.Component {
             <Grid container spacing={1}>
               <Grid container item xs={12} spacing={3}>
                 <Grid item xs={4}>
-                  <Paper
-                    style={{ background: 'red', cursor: 'pointer' }}
-                    className={classNames(classes.root, noMargin && classes.noMargin, colorMode && classes.colorMode)}
-                    elevation={0}
+                  <MenuButtons
+                    buttonPath="/app/gestion-commercial/clients"
+                    buttonTitle="Commercial"
+                    color="red"
+                    icon="ios-folder-open-outline"
                     onClick={this.gowTo}
-                  >
-                    <div className={classes.descBlock}>
-                      <span className={classes.iconTitle}>
-                        <Ionicon icon="ios-folder-open-outline" style={{ color: '#fff', height: '60px', width: '100px' }} />
-                      </span>
-                      <div className={classes.titleText} style={{ textAlign: 'center', color: '#fff' }}>
-                        <Typography variant="h6" component="h2" className={classes.title}>
-                          Commercial
-                        </Typography>
-                      </div>
-                    </div>
-                    <br />
-                    {' '}
-                    <br />
-                  </Paper>
+                  />
                 </Grid>
                 <Grid item xs={4}>
                   <MenuButtons
-                    buttonPath="/app/commercial-losses-monitoring/client-consumption-analysis/statistical-analysis"
+                    buttonPath="/app/gestion-financial/Contracts"
                     buttonTitle="financial"
                     color="#90A4AE"
                     icon="ios-cash-outline"
@@ -82,7 +70,7 @@ class BlankPage extends React.Component {
                 </Grid>
                 <Grid item xs={4}>
                   <MenuButtons
-                    buttonPath="/app/commercial-losses-monitoring/client-consumption-analysis/statistical-analysis"
+                    buttonPath="/app/hh-rr/staff"
                     buttonTitle="hh.rr system"
                     color="#00BCD4"
                     icon="ios-people-outline"
@@ -91,35 +79,16 @@ class BlankPage extends React.Component {
               </Grid>
               <Grid container item xs={12} spacing={3}>
                 <Grid item xs={4}>
-                  <Paper
-                      style={{ background: '#689F38', cursor: 'pointer' }}
-                      className={classNames(classes.root, noMargin && classes.noMargin, colorMode && classes.colorMode)}
-                      elevation={0}
-                      onClick={this.gowTo}
-                  >
-                    <div className={classes.descBlock}>
-                      <span className={classes.iconTitle}>
-                        <Ionicon icon="ios-briefcase-outline" style={{ color: '#fff', height: '60px', width: '100px' }} />
-                      </span>
-                      <div className={classes.titleText} style={{ textAlign: 'center', color: '#fff' }}>
-                        <Typography variant="h6" component="h2" className={classes.title}>
-                          operative system
-                        </Typography>
-                      </div>
-                    </div>
-                    <br />
-                    {' '}
-                    <br />
-                  </Paper>
- {/*                 <MenuButtons
-                    buttonPath="/app/commercial-losses-monitoring/client-consumption-analysis/statistical-analysis"
-                    buttonTitle="operative system"
+                  <MenuButtons
+                    buttonPath="/app/operative-system/staff-assignment"
+                    buttonTitle=" operative system"
                     color="#689F38"
-                  />*/}
+                    icon="ios-briefcase-outline"
+                  />
                 </Grid>
                 <Grid item xs={4}>
                   <MenuButtons
-                    buttonPath="/app/commercial-losses-monitoring/client-consumption-analysis/statistical-analysis"
+                    buttonPath="/app/data/administration/users"
                     buttonTitle="administration"
                     color="#B388FF"
                     icon="ios-person"
@@ -127,7 +96,7 @@ class BlankPage extends React.Component {
                 </Grid>
                 <Grid item xs={4}>
                   <MenuButtons
-                    buttonPath="/app/commercial-losses-monitoring/client-consumption-analysis/statistical-analysis"
+                    buttonPath="/app/translation/default-sentences"
                     buttonTitle="translation"
                     icon="ios-globe-outline"
                   />

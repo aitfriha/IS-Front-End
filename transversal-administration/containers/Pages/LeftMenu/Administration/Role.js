@@ -254,7 +254,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   addRole,
-  addRoleAbilities,
   deleteRole,
   getAllRoles,
   updateRole,

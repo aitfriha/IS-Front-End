@@ -57,6 +57,7 @@ import expenseEmailAddressSaga from './expenseEmailAddress/saga';
 import assignmentTypeSaga from './assignmentType/saga';
 import weeklyReportSaga from './weeklyReport/saga';
 import weeklyReportConfigSaga from './weeklyReportConfig/saga';
+import logsSaga from "../../transversal-administration/redux/logs/saga";
 
 // import watchers from other files
 export default function* rootSaga() {
@@ -115,8 +116,8 @@ export default function* rootSaga() {
     expenseEmailAddressSaga(),
     assignmentTypeSaga(),
     weeklyReportSaga(),
-    weeklyReportConfigSaga()
-
+    weeklyReportConfigSaga(),
+    logsSaga()
     // add other watchers to the array
   ]);
 }

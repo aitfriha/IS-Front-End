@@ -72,6 +72,7 @@ import expenseStatusReducer from './expenseStatus/reducer';
 import expenseEmailAddressReducer from './expenseEmailAddress/reducer';
 import weeklyReportReducer from './weeklyReport/reducer';
 import weeklyReportConfigReducer from './weeklyReportConfig/reducer';
+import logsReducer from '../../transversal-administration/redux/logs/reducer';
 
 /**
  * Creates the main reducer with the dynamically injected ones
@@ -146,6 +147,7 @@ export default function createReducer(injectedReducers = {}) {
     assignmentType: assignmentTypeReducer,
     weeklyReport: weeklyReportReducer,
     weeklyReportConfig: weeklyReportConfigReducer,
+    log: logsReducer,
   });
   // Wrap the root reducer and return a new root reducer with router state
   const mergeWithRouterState = connectRouter(history);
