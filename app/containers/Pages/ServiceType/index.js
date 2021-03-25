@@ -143,11 +143,11 @@ class serviceType extends React.Component {
     (!isLoading && !commercialServiceTypeResponse) && this.editingPromiseResolve(errors);
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
-    if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_export) {
+    if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_export) {
       exportButton = true;
     }
     let deletebutton = true;
-    if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_delete) {
+    if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_delete) {
       deletebutton = false;
     }
 
@@ -190,7 +190,7 @@ class serviceType extends React.Component {
               }
             ]}
             editable={{
-              onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_create ? (newData => new Promise((resolve) => {
+              onRowAdd: thelogedUser.userRoles[0].actionsNames.commercial_serviceType_create ? (newData => new Promise((resolve) => {
                 // add measurement unit action
                 addCommercialServiceType(newData);
                 this.editingPromiseResolve = resolve;
@@ -203,7 +203,7 @@ class serviceType extends React.Component {
                   notification('danger', result);
                 }
               })) : null,
-              onRowUpdate: thelogedUser.userRoles[0].actionsNames.commercial_serviceType_access_modify ? ((newData) => new Promise((resolve) => {
+              onRowUpdate: thelogedUser.userRoles[0].actionsNames.commercial_serviceType_modify ? ((newData) => new Promise((resolve) => {
                 // update CommercialServiceType unit action
                 updateCommercialServiceType(newData);
                 this.editingPromiseResolve = resolve;
