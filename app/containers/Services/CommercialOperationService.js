@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API } from '../../config/apiUrl';
 
 class CommercialOperationService {
-    getCommercialOperation = () => axios.get(`${API}/commercialOperation/all2`);
+    getCommercialOperation = () => axios.get(`${API}/commercialOperation/all`);
 
     getCommercialOperationById = Id => axios.post(`${API}/commercialOperation/row/${Id}`);
 
