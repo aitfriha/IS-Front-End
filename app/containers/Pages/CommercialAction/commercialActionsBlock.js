@@ -53,6 +53,7 @@ class CommercialActionsBlock extends React.Component {
       status: [],
       operations: [],
       staffs: [],
+      staffAssign: [],
       assignments: [],
       numberClientResponsible: 0,
       numberClientAssistant: 0,
@@ -100,7 +101,25 @@ class CommercialActionsBlock extends React.Component {
     }
 
     handleChangeStaff = (ev, value) => {
-      this.setState({ staffId: value.staffId });
+      // eslint-disable-next-line react/destructuring-assignment
+      const assig = this.state.assignments;
+      let respoNumber = 0;
+      let respoAssistance = 0;
+      const staffAssign = assig.filter(row => (row.staff.staffId === value.staffId));
+      console.log(staffAssign);
+      // eslint-disable-next-line array-callback-return
+      staffAssign.map(row => {
+        console.log(row.typeStaff);
+        // eslint-disable-next-line no-plusplus
+        if (row.typeStaff === 'Responsible Commercial') respoNumber++;
+        // eslint-disable-next-line no-plusplus
+        if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
+      });
+      console.log(respoNumber);
+      console.log(respoAssistance);
+      this.setState({
+        staffAssign, staffId: value.staffId, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
+      });
     }
 
     handleExpandClick = () => {
@@ -132,47 +151,64 @@ class CommercialActionsBlock extends React.Component {
       const { classes } = this.props;
       return (
         <div>
-          <Autocomplete
-            id="combo-box-demo"
-            options={staffs}
-            getOptionLabel={option => (option ? option.firstName + ' ' + option.fatherFamilyName + ' ' + option.motherFamilyName : '')}
-            onChange={this.handleChangeStaff}
-            renderInput={params => (
-              <TextField
-                fullWidth
-                {...params}
-                label="Select the staff*"
-                variant="outlined"
+          <Grid
+            container
+            spacing={2}
+            alignItems="flex-start"
+            direction="row"
+            justify="center"
+          >
+            <Grid item xs={12} md={6} sm={6}>
+              <Autocomplete
+                id="combo-box-demo"
+                options={staffs}
+                getOptionLabel={option => (option ? option.firstName + ' ' + option.fatherFamilyName + ' ' + option.motherFamilyName : '')}
+                onChange={this.handleChangeStaff}
+                renderInput={params => (
+                  <TextField
+                    fullWidth
+                    {...params}
+                    label="Select the staff*"
+                    variant="outlined"
+                  />
+                )}
               />
-            )}
-          />
+            </Grid>
+          </Grid>
           <br />
-          <InputBase
-            className={classes.root}
-            defaultValue="№ Client Responsible "
-            inputProps={{ 'aria-label': 'naked' }}
-          />
-          {numberClientResponsible}
+          <Grid
+            container
+            spacing={2}
+            alignItems="flex-start"
+            direction="row"
+            justify="center"
+          >
+            <Grid item xs={12} md={4} sm={4}>
+              <InputBase
+                className={classes.root}
+                defaultValue="№ Client Responsible :"
+                inputProps={{ 'aria-label': 'naked' }}
+              />
+              {numberClientResponsible}
+            </Grid>
+            <Grid item xs={12} md={4} sm={4}>
+              <InputBase
+                className={classes.root}
+                defaultValue="№ Client Assistant :"
+                inputProps={{ 'aria-label': 'naked' }}
+              />
+              {numberClientAssistant}
+            </Grid>
+            <Grid item xs={12} md={4} sm={4}>
+              <InputBase
+                className={classes.root}
+                defaultValue="Potential Volume :"
+                inputProps={{ 'aria-label': 'naked' }}
+              />
+              {0}
+            </Grid>
+          </Grid>
           <br />
-          <InputBase
-            className={classes.root}
-            defaultValue="№ Client Assistant "
-            inputProps={{ 'aria-label': 'naked' }}
-          />
-          {numberClientAssistant}
-          <br />
-          <InputBase
-            className={classes.root}
-            defaultValue="Potential Volume "
-            inputProps={{ 'aria-label': 'naked' }}
-          />
-          <InputBase
-            className={classes.margin}
-            defaultValue="10"
-            inputProps={{ 'aria-label': 'naked' }}
-          />
-          <br />
-          {' '}
           <br />
           <Grid
             container
