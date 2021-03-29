@@ -82,6 +82,7 @@ import Collapse from '@material-ui/core/Collapse';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import SaveIcon from '@material-ui/icons/Save';
+import DataUsage from '@material-ui/icons/DataUsage';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ColorPicker from 'material-ui-color-picker'
 import { API } from '../../../config/apiUrl';
@@ -467,7 +468,6 @@ class DocumentManager extends React.Component {
       cantarchivos: 0,
       storageserver: 0,
       storageserverporc: 0,
-      storageuser: 0,
       storageuserporc: 0,
       openinfserver: false,
       anchorinfserver: null,
@@ -483,8 +483,12 @@ class DocumentManager extends React.Component {
         user: '',
         confuser: '',
         erroruser: false,
-        storage: storage,
-        storageuser: storageuser,
+        storage: 0,
+        confstorage: 0,
+        errorstorage: false,
+        storageuser: 0,
+        confstorageuser: 0,
+        errorstorageuser: false,
         url: '',
         confurl: '',
         errorurl: false,
@@ -750,8 +754,11 @@ class DocumentManager extends React.Component {
       estado.moduloconfig = config.configurado;
 
       // Almacenamiento en GB /// 
-      estado.config.storage = storage;
-      estado.config.storageuser = storageuser;
+      estado.config.storage = config.storage;
+      estado.config.storageuser = config.storageuser;
+      estado.config.confstorage = config.storage;
+      estado.config.confstorageuser = config.storageuser;
+
 
       /// obtengo el usuario logueado ////
       //migue
@@ -841,6 +848,8 @@ class DocumentManager extends React.Component {
               config.set('password', self.state.config.confpassword)
               config.set('dominio', self.state.config.confnombredominio)
               config.set('onlyoffice', self.state.config.confurlonlyoffice)
+              config.set('storage', self.state.config.confstorage)
+              config.set('storageuser', self.state.config.confstorageuser)
               config = Object.fromEntries(config.entries());
               axios.post(`${API}/documentManagerConfig/update`, config).then(response => {
                 if (isString(response.data.payload)) {
@@ -853,6 +862,10 @@ class DocumentManager extends React.Component {
                   estado.config.dominio = '/' + self.state.config.confnombredominio;
                   estado.config.nombredominio = self.state.config.confnombredominio;
                   estado.config.workspace = workspace;
+
+                  estado.config.storage = self.state.config.confstorage;
+                  estado.config.storageuser = self.state.config.confstorageuser;
+
 
                   //Parameters to connect to Nuxeo
                   estado.config.user = self.state.config.confuser;
@@ -940,7 +953,7 @@ class DocumentManager extends React.Component {
     var errorurl = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorurl ? e.target.value : '';
-    var disable = ((errorurl && value === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((errorurl && value === "") || (this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confurl = value;
@@ -958,7 +971,7 @@ class DocumentManager extends React.Component {
     var errordominio = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errordominio ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (errordominio && value === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (errordominio && value === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
 
     let estado = this.state;
     estado.config.disableact = disable;
@@ -977,7 +990,7 @@ class DocumentManager extends React.Component {
     var erroruser = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !erroruser ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (erroruser && value === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (erroruser && value === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confuser = value;
@@ -995,7 +1008,7 @@ class DocumentManager extends React.Component {
     var errorpassword = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorpassword ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (errorpassword && value === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (errorpassword && value === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confpassword = value;
@@ -1024,7 +1037,7 @@ class DocumentManager extends React.Component {
     var errorurl = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorurl ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (errorurl && value === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (errorurl && value === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confurlonlyoffice = value;
@@ -1034,6 +1047,62 @@ class DocumentManager extends React.Component {
       estado
     })
   }
+
+  /// Cambiar el valor del campo storage del server de nuxeo///
+
+  setValueStorage = (e) => {
+    //console.log(e.target.value);
+    var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value < 50) ? true : false;
+    var texterror = '';
+    if(e.target.value === null || e.target.value === ""){
+      texterror = 'Campo obligatorio';
+    }
+    else if(parseFloat(e.target.value) < parseFloat(50)){
+      texterror = 'Destinar al menos 50 GB';
+    }else{
+      texterror = null;
+    } 
+    var value = !errorstorage ? e.target.value : e.target.value;  
+    var disable = ((errorstorage && value === "") || (this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    let estado = this.state;
+    estado.config.disableact = disable;
+    estado.config.confstorage = value;
+    estado.config.errorstorage = errorstorage;
+    estado.config.texterror = texterror;
+    this.setState({
+      estado
+    })
+    console.log(this.state.config.confstorage)
+  } 
+
+   /// Cambiar el valor del campo storage del user del server de nuxeo///
+
+   setValueStorageUser = (e) => {
+    //console.log(e.target.value);
+    var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value > this.state.config.confstorage) ? true : false;
+    var texterror = '';
+    if(e.target.value === null || e.target.value === ""){
+      texterror = 'Campo obligatorio';
+    }
+    else if(parseFloat(e.target.value) > parseFloat(this.state.config.confstorage)){
+      texterror = 'No puede exceder la cuota del servidor';
+    }else{
+      texterror = null;
+    }        
+    var value = !errorstorage ? e.target.value : e.target.value;
+    var disable = ((errorstorage && value === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    let estado = this.state;
+    estado.config.disableact = disable;
+    estado.config.confstorageuser = value;
+    estado.config.errorstorageuser = errorstorage;
+    estado.config.texterror = texterror;
+    this.setState({
+      estado
+    })
+
+  }
+
+
 
   /// Verifica si existe el nombre de dominio expecificado //////
   conectarServer = () => {
@@ -8020,6 +8089,10 @@ class DocumentManager extends React.Component {
   render() {
     const { classes } = this.props;
     const { openpanel } = this.state;
+
+    const storage = parseFloat(this.state.config.storage);
+    const storageuser = parseFloat(this.state.config.storageuser);
+
     return (
       //<MuiThemeProvider theme={theme}>
       <div>
@@ -8078,7 +8151,7 @@ class DocumentManager extends React.Component {
                             label="Url del servidor"
                             value={this.state.config.confurl}
                             error={this.state.config.errorurl}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errorurl ? this.state.config.texterror: null}
                             onChange={this.setValueURLNuxeo}
                             fullWidth
                           />
@@ -8096,7 +8169,7 @@ class DocumentManager extends React.Component {
                             label="Nombre de dominio"
                             value={this.state.config.confnombredominio}
                             error={this.state.config.errordominio}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errordominio ? this.state.config.texterror: null}
                             onChange={this.setValueNombreDomNuxeo}
                             fullWidth
                           />
@@ -8114,7 +8187,7 @@ class DocumentManager extends React.Component {
                             label="Administrador"
                             value={this.state.config.confuser}
                             error={this.state.config.erroruser}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.erroruser ? this.state.config.texterror: null}
                             onChange={this.setValueAdminNuxeo}
                             fullWidth
                           />
@@ -8135,7 +8208,7 @@ class DocumentManager extends React.Component {
                             fullWidth
                             value={this.state.config.confpassword}
                             error={this.state.config.errorpassword}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errorpassword ? this.state.config.texterror: null}
                             onChange={this.setValueAdminPassNuxeo}
                             InputProps={{
                               endAdornment: (
@@ -8166,8 +8239,50 @@ class DocumentManager extends React.Component {
                             label="Url del fichero"
                             value={this.state.config.confurlonlyoffice}
                             error={this.state.config.errorurloffice}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errorurloffice ? this.state.config.texterror: null}
                             onChange={this.setValueURLOnlyoffice}
+                            fullWidth
+                          />
+                        </Grid>
+                      </Grid>
+                    </FormGroup>
+                    <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Cuota de Alamacenamiento </Typography>
+                    <Typography variant="subtitle2" gutterBottom color='primary'> Introducir las cuotas de almacenamiento, expresarlas en GB: </Typography>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <Storage color='primary' />
+                        </Grid>
+                        <Grid item item xs={11} md={5}>
+                          <TextField
+                            id="input-storage"
+                            label="Cuota del Servidor"
+                            type="number"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            value={this.state.config.confstorage}
+                            error={this.state.config.errorstorage}
+                            helperText={this.state.config.errorstorage ? this.state.config.texterror : null}
+                            onChange={this.setValueStorage}
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <DataUsage color='primary' />
+                        </Grid>
+                        <Grid item item xs={11} md={5}>
+                          <TextField
+                            id="input-storageuser"
+                            label="Cuota del Usuario"
+                            type="number"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            value={this.state.config.confstorageuser}
+                            error={this.state.config.errorstorageuser}
+                            helperText={this.state.config.errorstorageuser ? this.state.config.texterror : null}
+                            onChange={this.setValueStorageUser}
                             fullWidth
                           />
                         </Grid>
@@ -8175,6 +8290,8 @@ class DocumentManager extends React.Component {
                     </FormGroup>
                   </FormControl>
                 </CardContent>
+
+
                 <CardActions className={classes.actions} style={{ width: '100%', padding: '0px 20px 20px 20px' }}>
                   <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
                     <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
@@ -8305,13 +8422,13 @@ class DocumentManager extends React.Component {
                         <div style={{ padding: '10px' }}>
                           <Box alignItems="center">
                             <Box minWidth={80}>
-                              <Typography variant="overline" color="textSecondary"><b>Total: {this.state.config.storage.toFixed(2)} GB</b></Typography>
+                              <Typography variant="overline" color="textSecondary"><b>Total: {storage.toFixed(2)} GB</b></Typography>
                             </Box>
                             <Box minWidth={80}>
                               <Typography variant="overline" color="primary"><b>Usado: {this.obtenertamaño(this.state.storageserver)}</b></Typography>
                             </Box>
                             <Box minWidth={80}>
-                              <Typography variant="overline" style={{ color: '#dddddd' }}><b>Disponible: {(this.state.config.storage - (this.state.storageserver / 1000000000)).toFixed(2)} GB</b></Typography>
+                              <Typography variant="overline" style={{ color: '#dddddd' }}><b>Disponible: {(storage - (this.state.storageserver / 1000000000)).toFixed(2)} GB</b></Typography>
                             </Box>
                           </Box>
                         </div>
@@ -8353,13 +8470,13 @@ class DocumentManager extends React.Component {
                         <div style={{ padding: '10px' }}>
                           <Box alignItems="center">
                             <Box minWidth={80}>
-                              <Typography variant="overline" color="textSecondary"><b>Total: {this.state.config.storageuser.toFixed(2)} GB</b></Typography>
+                              <Typography variant="overline" color="textSecondary"><b>Total: {storageuser.toFixed(2)} GB</b></Typography>
                             </Box>
                             <Box minWidth={80}>
-                              <Typography variant="overline" color="primary"><b>Usado: {this.obtenertamaño(this.state.storageuser)}</b></Typography>
+                              <Typography variant="overline" color="primary"><b>Usado: {this.obtenertamaño(storageuser)}</b></Typography>
                             </Box>
                             <Box minWidth={80}>
-                              <Typography variant="overline" style={{ color: '#dddddd' }}><b>Disponible: {parseFloat((this.state.config.storageuser * 1000000000 - this.state.storageuser) / 1000000000).toFixed(2)} GB</b></Typography>
+                              <Typography variant="overline" style={{ color: '#dddddd' }}><b>Disponible: {parseFloat((storageuser * 1000000000 - this.state.storageuser) / 1000000000).toFixed(2)} GB</b></Typography>
                             </Box>
                           </Box>
                         </div>
@@ -10677,6 +10794,7 @@ class DocumentManager extends React.Component {
                           <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
                         </div>
                       </div>
+
                       <CardContent>
                         <FormControl style={{ width: '100%', padding: '25px' }}>
                           <Typography variant="h6" gutterBottom color='primary'> Servidor de gestión documental </Typography>
@@ -10692,7 +10810,7 @@ class DocumentManager extends React.Component {
                                   label="Dirección del servidor"
                                   value={this.state.config.confurl}
                                   error={this.state.config.errorurl}
-                                  helperText={this.state.config.texterror}
+                                  helperText={this.state.config.errorurl ? this.state.config.texterror : null}
                                   onChange={this.setValueURLNuxeo}
                                   fullWidth
                                 />
@@ -10710,7 +10828,7 @@ class DocumentManager extends React.Component {
                                   label="Nombre de dominio"
                                   value={this.state.config.confnombredominio}
                                   error={this.state.config.errordominio}
-                                  helperText={this.state.config.texterror}
+                                  helperText={this.state.config.errordominio ? this.state.config.texterror : null}
                                   onChange={this.setValueNombreDomNuxeo}
                                   fullWidth
                                 />
@@ -10728,7 +10846,7 @@ class DocumentManager extends React.Component {
                                   label="Administrador"
                                   value={this.state.config.confuser}
                                   error={this.state.config.erroruser}
-                                  helperText={this.state.config.texterror}
+                                  helperText={this.state.config.erroruser ? this.state.config.texterror : null}
                                   onChange={this.setValueAdminNuxeo}
                                   fullWidth
                                 />
@@ -10748,7 +10866,7 @@ class DocumentManager extends React.Component {
                                   label="Password"
                                   value={this.state.config.confpassword}
                                   error={this.state.config.errorpassword}
-                                  helperText={this.state.config.texterror}
+                                  helperText={this.state.config.errorpassword ? this.state.config.texterror : null}
                                   onChange={this.setValueAdminPassNuxeo}
                                   InputProps={{
                                     endAdornment: (
@@ -10777,8 +10895,50 @@ class DocumentManager extends React.Component {
                                   label="Url del fichero"
                                   value={this.state.config.confurlonlyoffice}
                                   error={this.state.config.errorurloffice}
-                                  helperText={this.state.config.texterror}
+                                  helperText={this.state.config.errorurloffice ? this.state.config.texterror : null}
                                   onChange={this.setValueURLOnlyoffice}
+                                  fullWidth
+                                />
+                              </Grid>
+                            </Grid>
+                          </FormGroup>
+                          <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Cuota de Alamacenamiento </Typography>
+                          <Typography variant="subtitle2" gutterBottom color='primary'> Introducir las cuotas de almacenamiento, expresarlas en GB: </Typography>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <Storage color='primary' />
+                              </Grid>
+                              <Grid item item xs={11} md={5}>
+                                <TextField
+                                  id="input-storage"
+                                  label="Cuota del Servidor"
+                                  type="number"
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                  value={this.state.config.confstorage}
+                                  error={this.state.config.errorstorage}
+                                  helperText={this.state.config.errorstorage ? this.state.config.texterror : null}
+                                  onChange={this.setValueStorage}
+                                  fullWidth
+                                />
+                              </Grid>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <DataUsage color='primary' />
+                              </Grid>
+                              <Grid item item xs={11} md={5}>
+                                <TextField
+                                  id="input-storageuser"
+                                  label="Cuota del Usuario"
+                                  type="number"
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                  value={this.state.config.confstorageuser}
+                                  error={this.state.config.errorstorageuser}
+                                  helperText={this.state.config.errorstorageuser ? this.state.config.texterror : null}
+                                  onChange={this.setValueStorageUser}
                                   fullWidth
                                 />
                               </Grid>
@@ -10786,6 +10946,7 @@ class DocumentManager extends React.Component {
                           </FormGroup>
                         </FormControl>
                       </CardContent>
+
                       <CardActions className={classes.actions} style={{ width: '100%', padding: '75px 20px 20px 20px' }}>
                         <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
                           <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
