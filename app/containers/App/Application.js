@@ -113,7 +113,8 @@ import {
   WeeklyReportConfig,
   DefaultSentence,
   TranslationSentence, Role,
-  Logs
+  Logs,
+  WelcomeCommercial
 
 } from '../pageListAsync';
 import addCompany from '../Pages/Companies/addCompany';
@@ -179,6 +180,11 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/title-type"
           component={CivilityTitle}
+        />
+        <Route
+            exact
+            path="/app/gestion-commercial/welcome"
+            component={WelcomeCommercial}
         />
         <Route
           exact

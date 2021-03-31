@@ -86,6 +86,7 @@ function Dashboard(props) {
       { /* Left Sidebar Layout */
         layout === 'left-sidebar' && (
           <LeftSidebarLayout
+            moduleName="rien"
             history={history}
             toggleDrawer={toggleDrawer}
             loadTransition={loadTransition}

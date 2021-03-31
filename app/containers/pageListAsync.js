@@ -93,6 +93,10 @@ export const CivilityTitle = Loadable({
   loader: () => import('./Pages/civilityTitle'),
   loading: Loading
 });
+export const WelcomeCommercial = Loadable({
+  loader: () => import('./Pages/Welcome/WelcomePage'),
+  loading: Loading
+});
 export const AddSector = Loadable({
   loader: () => import('./Pages/Sectors/addSector'),
   loading: Loading

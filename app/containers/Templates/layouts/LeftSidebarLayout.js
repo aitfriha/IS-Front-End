@@ -13,15 +13,34 @@ import dataMenu from 'dan-api/ui/menu';
 import { connect } from 'react-redux';
 import Decoration from '../Decoration';
 import styles from '../appStyles-jss';
-
+let dataMenux = [];
 class LeftSidebarLayout extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+  }
+
+
   componentDidMount() {
     const {
       logedUser
     } = this.props;
     const thelogedUser = JSON.parse(logedUser);
-    console.log('logedUser ', thelogedUser.userRoles[0].actionsNames);
-    console.log('dataMenu ', dataMenu);
+
+/*    this.setState({ aaa: [] });
+    if (this.props.moduleName === 'Welcome to commercial module') {
+      dataMenux = [dataMenu[0]];
+      this.state.aaa.push(dataMenu[0]);
+      console.log('xxxxxxxxxxxxx');
+    }
+    if (this.props.moduleName === 'Welcome to financial module') {
+      dataMenux = [dataMenu[1]];
+    }
+    if (this.props.moduleName === 'Welcome to human resources module') {
+      dataMenux = [dataMenu[2]];
+    }*/
+    // console.log('my props ', dataMenux);
     // administration
     if (thelogedUser.userRoles[0].actionsNames.admin_user_Management_access == false) {
       for (const k in dataMenu) {
@@ -297,6 +316,29 @@ class LeftSidebarLayout extends React.Component {
        titleException,
        handleOpenGuide
      } = this.props;
+      if (this.props.moduleName === 'Welcome to commercial module') {
+       dataMenux = [dataMenu[0]];
+     }
+     if (this.props.moduleName === 'Welcome to financial module') {
+       dataMenux = [dataMenu[1]];
+     }
+     if (this.props.moduleName === 'Welcome to human resources module') {
+       dataMenux = [dataMenu[2]];
+     }
+     if (this.props.moduleName === 'Welcome to operating systems module') {
+       dataMenux = [dataMenu[3]];
+     }
+     if (this.props.moduleName === 'Welcome to administration module') {
+       dataMenux = [dataMenu[4]];
+     }
+     if (this.props.moduleName === 'Welcome to administration module') {
+       dataMenux = [dataMenu[4]];
+     }
+/*     if (this.props.moduleName === undefined) {
+       dataMenux = [];
+     }*/
+     console.log(this.props.moduleName);
+
      return (
        <Fragment>
          <Header
@@ -314,7 +356,7 @@ class LeftSidebarLayout extends React.Component {
            open={sidebarOpen}
            toggleDrawerOpen={toggleDrawer}
            loadTransition={loadTransition}
-           dataMenu={dataMenu}
+           dataMenu={dataMenux}
            leftSidebar
          />
          <main

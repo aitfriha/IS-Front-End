@@ -23,8 +23,8 @@ class MenuButtons extends React.Component {
         className={classes.buttonSpacing}
         variant="contained"
         size="large"
-        component={Link}
-        to={buttonPath}
+       /* component={Link}*/
+       /* to={buttonPath}*/
         style={{ backgroundColor: color, color: '#fff' }}
         fullWidth
       >

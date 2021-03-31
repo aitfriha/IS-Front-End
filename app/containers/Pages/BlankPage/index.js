@@ -10,8 +10,14 @@ import classNames from 'classnames';
 import MenuButtons from 'dan-components/MenuButtons/MenuButtons';
 import Typography from '@material-ui/core/Typography';
 import Ionicon from 'react-ionicons';
+import { Redirect } from 'react-router-dom';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import history from '../../../utils/history';
+import welcomecommercialpic from '../Welcome/welcomeCommercial.png';
+import welcomefinancialpic from '../Welcome/welcomeFinancial.png';
+import welcomeRhpic from '../Welcome/welcomeRh.png';
+import welcomeOperative from '../Welcome/welcomeOperatingSystem.png';
+import welcomeAdministration from '../Welcome/welcomeAdministration.png';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -23,8 +29,49 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 class BlankPage extends React.Component {
-  gowTo= (data, aaa) => {
-    history.push('/app/data/administration/role-actions');
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+  }
+
+  gowTo= (data) => {
+    if (data === 'commercial') {
+      history.push({
+        pathname: '/app/gestion-commercial/welcome',
+        search: '?the=search',
+        state: { picture: welcomecommercialpic, moduleName: 'Welcome to commercial module' }
+      });
+    }
+    if (data === 'financial') {
+      history.push({
+        pathname: '/app/gestion-commercial/welcome',
+        search: '?the=search',
+        state: { picture: welcomefinancialpic, moduleName: 'Welcome to financial module' }
+      });
+    }
+    if (data === 'rh') {
+      history.push({
+        pathname: '/app/gestion-commercial/welcome',
+        search: '?the=search',
+        state: { picture: welcomeRhpic, moduleName: 'Welcome to human resources module' }
+      });
+    }
+    if (data === 'operative module') {
+      history.push({
+        pathname: '/app/gestion-commercial/welcome',
+        search: '?the=search',
+        state: { picture: welcomeOperative, moduleName: 'Welcome to operating systems module' }
+      });
+    }
+    if (data === 'administration') {
+      history.push({
+        pathname: '/app/gestion-commercial/welcome',
+        search: '?the=search',
+        state: { picture: welcomeAdministration, moduleName: 'Welcome to administration module' }
+      });
+    }
+
   }
 
   render() {
@@ -51,16 +98,16 @@ class BlankPage extends React.Component {
           <div className="MuiGrid-root jss2678 MuiGrid-container">
             <Grid container spacing={1}>
               <Grid container item xs={12} spacing={3}>
-                <Grid item xs={4}>
+                <Grid item xs={4} onClick={() => this.gowTo('commercial')}>
                   <MenuButtons
-                    buttonPath="/app/gestion-commercial/clients"
+                    /*      buttonPath="/app/gestion-commercial/welcome" */
                     buttonTitle="Commercial"
                     color="red"
                     icon="ios-folder-open-outline"
-                    onClick={this.gowTo}
+                    /* onClick={() => this.gowTo('commercial', 'commercial')} */
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} onClick={() => this.gowTo('financial')}>
                   <MenuButtons
                     buttonPath="/app/gestion-financial/Contracts"
                     buttonTitle="financial"
@@ -68,7 +115,7 @@ class BlankPage extends React.Component {
                     icon="ios-cash-outline"
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} onClick={() => this.gowTo('rh')}>
                   <MenuButtons
                     buttonPath="/app/hh-rr/staff"
                     buttonTitle="hh.rr system"
@@ -78,15 +125,15 @@ class BlankPage extends React.Component {
                 </Grid>
               </Grid>
               <Grid container item xs={12} spacing={3}>
-                <Grid item xs={4}>
+                <Grid item xs={4} onClick={() => this.gowTo('operative module')}>
                   <MenuButtons
                     buttonPath="/app/operative-system/staff-assignment"
-                    buttonTitle=" operative system"
+                    buttonTitle="operative module"
                     color="#689F38"
                     icon="ios-briefcase-outline"
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} onClick={() => this.gowTo('administration')}>
                   <MenuButtons
                     buttonPath="/app/data/administration/users"
                     buttonTitle="administration"
