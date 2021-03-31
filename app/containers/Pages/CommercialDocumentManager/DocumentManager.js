@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+﻿import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { PapperBlock } from 'dan-components';
 import PropTypes from 'prop-types';
@@ -82,17 +82,10 @@ import Collapse from '@material-ui/core/Collapse';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import SaveIcon from '@material-ui/icons/Save';
+import DataUsage from '@material-ui/icons/DataUsage';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ColorPicker from 'material-ui-color-picker'
 import { API } from '../../../config/apiUrl';
-
-//import Lightbox from 'react-lightbox-component';
-import ImgsViewer from 'react-images'
-import DocWindows from './DocWindows'
-
-//import {Lightbox} from 'react-lightbox-component';
-//import Lightbox from 'react-image-lightbox';
-//import Lightbox from 'react-image-lightbox/style.css';
 
 import {
   MuiPickersUtilsProvider,
@@ -100,20 +93,25 @@ import {
 } from "material-ui-pickers";
 import 'moment/locale/es';
 
-//import data from './data.json'
-
-//const writeJsonFile = require('write-json-file');
-
-
 import MomentUtils from "@date-io/moment";
 import MenuList from '@material-ui/core/MenuList';
-import { Apps, Reorder, ViewHeadline, Settings, ColorLens, Dns, VpnKey, Check, Notifications, Security, Public, PersonAdd, Group, FolderSpecial, MailOutline, VerifiedUser, ExpandLess, PermIdentity, Block, Done, FindInPage, ExpandMore, Edit, Theaters, AssignmentTurnedIn, HighlightOff, Visibility, NoteAdd, RestorePage, Refresh, Storage, GroupAdd, Create, Reply, MoreVert, PlaylistAdd, Comment, Close, AccountBalanceWallet, LockOpen, Undo, DeleteForever, Lock, Note, Receipt, Image, Audiotrack, Movie, InsertComment, MoveToInbox, LocalOffer, Add, Archive, Publish, PictureAsPdf, GetApp, Delete, Info, MoreHoriz, Share, HomeIcon, ViewList, Dehaze, Toc, AssignmentInd, Restore, Grade, Folder, FolderOpen, FolderShared, History, HourglassEmpty, Search, PermMedia, Favorite, LibraryBooks, Assignment, DeleteSweep, Dvr } from '@material-ui/icons';
+import { Work, Apps, Reorder, ViewHeadline, Settings, ColorLens, Dns, VpnKey, Check, Notifications, Security, Public, PersonAdd, Group, FolderSpecial, MailOutline, VerifiedUser, ExpandLess, PermIdentity, Block, Done, FindInPage, ExpandMore, Edit, Theaters, AssignmentTurnedIn, HighlightOff, Visibility, NoteAdd, RestorePage, Refresh, Storage, GroupAdd, Create, Reply, MoreVert, PlaylistAdd, Comment, Close, AccountBalanceWallet, LockOpen, Undo, DeleteForever, Lock, Note, Receipt, Image, Audiotrack, Movie, InsertComment, MoveToInbox, LocalOffer, Add, Archive, Publish, PictureAsPdf, GetApp, Delete, Info, MoreHoriz, Share, HomeIcon, ViewList, Dehaze, Toc, AssignmentInd, Restore, Grade, Folder, FolderOpen, FolderShared, History, HourglassEmpty, Search, PermMedia, Favorite, LibraryBooks, Assignment, DeleteSweep, Dvr } from '@material-ui/icons';
 
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Box from '@material-ui/core/Box';
+import Popover from '@material-ui/core/Popover';
+
+import ImageLightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
 
 /// necesario para poder trabajar con el cliente de nuxeo ///
 var Nuxeo = require('nuxeo');
 var path = require('path');
 var fs = require('fs');
+
+/// Almacenamiento en GB del server
+var storage = 3000;
+var storageuser = 10;
 
 ///////////////////////////////////////////////
 ////
@@ -135,6 +133,12 @@ const useStyles = makeStyles((theme) => (
   {
     grow: {
       flexGrow: 1,
+    },
+    popover: {
+      pointerEvents: 'none',
+    },
+    paperPopper: {
+      padding: theme.spacing.unit,
     },
     title: {
       display: 'none',
@@ -446,7 +450,8 @@ class DocumentManager extends React.Component {
     super(props);
     self = this;
     this.state = {
-      moduloconfig: false,
+      openImg: false,
+      moduloconfig: true,
       anchorEl: null,
       openmenu: false,
       anchoraddEl: null,
@@ -456,10 +461,18 @@ class DocumentManager extends React.Component {
       textbuscar: '',
       tabactivo: 0,
       conexion: 0,
-      showBackdrop: true,
+      showBackdrop: false,
       titulotoolbar: 'Archivo',
       iconvacio: 'Archivo',
       vistadetalle: true,
+      cantarchivos: 0,
+      storageserver: 0,
+      storageserverporc: 0,
+      storageuserporc: 0,
+      openinfserver: false,
+      anchorinfserver: null,
+      openinfuser: false,
+      anchorinfuser: null,
       config: {
         menuactivate: false,
         disableact: false,
@@ -470,6 +483,12 @@ class DocumentManager extends React.Component {
         user: '',
         confuser: '',
         erroruser: false,
+        storage: 0,
+        confstorage: 0,
+        errorstorage: false,
+        storageuser: 0,
+        confstorageuser: 0,
+        errorstorageuser: false,
         url: '',
         confurl: '',
         errorurl: false,
@@ -493,6 +512,7 @@ class DocumentManager extends React.Component {
       },
       visualizacion: {
         mostrarimg: false,
+        mostrarvideo: false,
         images: [],
       },
       notificacion: {
@@ -733,13 +753,33 @@ class DocumentManager extends React.Component {
       estado.config.urlonlyoffice = config.onlyoffice;
       estado.moduloconfig = config.configurado;
 
+      // Almacenamiento en GB /// 
+      estado.config.storage = config.storage;
+      estado.config.storageuser = config.storageuser;
+      estado.config.confstorage = config.storage;
+      estado.config.confstorageuser = config.storageuser;
+
+
       /// obtengo el usuario logueado ////
       //migue
       let logedUser = localStorage.getItem('logedUser');
       logedUser = JSON.parse(logedUser);
-      estado.login.user = logedUser.userEmail;//'Administrator';
-      estado.login.email = logedUser.userEmail;//'Administrator';//logedUser.userEmail;
+      estado.login.user = logedUser.userEmail;
+      estado.login.email = logedUser.userEmail;
       // estado.login.fullname = logedUser.fullName;
+      /* estado.login.user = 'Administrator';
+      estado.login.email = 'Administrator';*/
+      estado.acciones.crear = false;
+      estado.acciones.upload = false;
+
+      /*  if(logedUser.userEmail === config.user){
+         estado.acciones.crear = false;
+         estado.acciones.upload = false;
+       }else{
+         estado.acciones.crear = true;
+         estado.acciones.upload = true;
+       }    */
+
       estado.login.admin = logedUser.userRoles.map(role => role.roleName === 'ADMIN')[0];
 
       estado.onlyoffice.showwindows = false;
@@ -754,6 +794,7 @@ class DocumentManager extends React.Component {
       estado.config.confpassword = config.password;
       estado.config.confurl = config.nuxeourl;
       estado.config.confurlonlyoffice = config.onlyoffice;
+      estado.showBackdrop = true;
 
       this.setState({
         estado
@@ -777,7 +818,6 @@ class DocumentManager extends React.Component {
       }
 
     });
-
   }
 
   //// Métodos del formulario de Configuración del Módulo ///
@@ -808,6 +848,8 @@ class DocumentManager extends React.Component {
               config.set('password', self.state.config.confpassword)
               config.set('dominio', self.state.config.confnombredominio)
               config.set('onlyoffice', self.state.config.confurlonlyoffice)
+              config.set('storage', self.state.config.confstorage)
+              config.set('storageuser', self.state.config.confstorageuser)
               config = Object.fromEntries(config.entries());
               axios.post(`${API}/documentManagerConfig/update`, config).then(response => {
                 if (isString(response.data.payload)) {
@@ -820,6 +862,10 @@ class DocumentManager extends React.Component {
                   estado.config.dominio = '/' + self.state.config.confnombredominio;
                   estado.config.nombredominio = self.state.config.confnombredominio;
                   estado.config.workspace = workspace;
+
+                  estado.config.storage = self.state.config.confstorage;
+                  estado.config.storageuser = self.state.config.confstorageuser;
+
 
                   //Parameters to connect to Nuxeo
                   estado.config.user = self.state.config.confuser;
@@ -907,7 +953,7 @@ class DocumentManager extends React.Component {
     var errorurl = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorurl ? e.target.value : '';
-    var disable = ((errorurl && value === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((errorurl && value === "") || (this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confurl = value;
@@ -925,7 +971,7 @@ class DocumentManager extends React.Component {
     var errordominio = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errordominio ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (errordominio && value === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (errordominio && value === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
 
     let estado = this.state;
     estado.config.disableact = disable;
@@ -944,7 +990,7 @@ class DocumentManager extends React.Component {
     var erroruser = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !erroruser ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (erroruser && value === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (erroruser && value === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confuser = value;
@@ -962,7 +1008,7 @@ class DocumentManager extends React.Component {
     var errorpassword = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorpassword ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (errorpassword && value === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (errorpassword && value === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confpassword = value;
@@ -991,7 +1037,7 @@ class DocumentManager extends React.Component {
     var errorurl = (e.target.value === null || e.target.value === "") ? true : false;
     var texterror = (e.target.value === null || e.target.value === "") ? 'Campo obligatorio' : null;
     var value = !errorurl ? e.target.value : '';
-    var disable = ((this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (errorurl && value === "")) ? true : false;
+    var disable = ((this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (errorurl && value === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
     estado.config.confurlonlyoffice = value;
@@ -1001,6 +1047,62 @@ class DocumentManager extends React.Component {
       estado
     })
   }
+
+  /// Cambiar el valor del campo storage del server de nuxeo///
+
+  setValueStorage = (e) => {
+    //console.log(e.target.value);
+    var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value < 50) ? true : false;
+    var texterror = '';
+    if(e.target.value === null || e.target.value === ""){
+      texterror = 'Campo obligatorio';
+    }
+    else if(parseFloat(e.target.value) < parseFloat(50)){
+      texterror = 'Destinar al menos 50 GB';
+    }else{
+      texterror = null;
+    } 
+    var value = !errorstorage ? e.target.value : e.target.value;  
+    var disable = ((errorstorage && value === "") || (this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    let estado = this.state;
+    estado.config.disableact = disable;
+    estado.config.confstorage = value;
+    estado.config.errorstorage = errorstorage;
+    estado.config.texterror = texterror;
+    this.setState({
+      estado
+    })
+    console.log(this.state.config.confstorage)
+  } 
+
+   /// Cambiar el valor del campo storage del user del server de nuxeo///
+
+   setValueStorageUser = (e) => {
+    //console.log(e.target.value);
+    var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value > this.state.config.confstorage) ? true : false;
+    var texterror = '';
+    if(e.target.value === null || e.target.value === ""){
+      texterror = 'Campo obligatorio';
+    }
+    else if(parseFloat(e.target.value) > parseFloat(this.state.config.confstorage)){
+      texterror = 'No puede exceder la cuota del servidor';
+    }else{
+      texterror = null;
+    }        
+    var value = !errorstorage ? e.target.value : e.target.value;
+    var disable = ((errorstorage && value === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
+    let estado = this.state;
+    estado.config.disableact = disable;
+    estado.config.confstorageuser = value;
+    estado.config.errorstorageuser = errorstorage;
+    estado.config.texterror = texterror;
+    this.setState({
+      estado
+    })
+
+  }
+
+
 
   /// Verifica si existe el nombre de dominio expecificado //////
   conectarServer = () => {
@@ -1249,6 +1351,7 @@ class DocumentManager extends React.Component {
         url = self.state.config.dominio + '/sections/';
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1279,6 +1382,7 @@ class DocumentManager extends React.Component {
         url = self.state.config.dominio + '/sections/';
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1307,6 +1411,7 @@ class DocumentManager extends React.Component {
       case 'Archivo': {
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1319,8 +1424,13 @@ class DocumentManager extends React.Component {
         itemnew.menu.menuselect = item;
         itemnew.menu.hidebtnprincipales = btnhide;
         itemnew.acciones.papelera = false;
-        itemnew.acciones.crear = true;
-        itemnew.acciones.upload = true;
+        if (self.state.login.user === self.state.config.user) {
+          itemnew.acciones.crear = false;
+          itemnew.acciones.upload = false;
+        } else {
+          itemnew.acciones.crear = true;
+          itemnew.acciones.upload = true;
+        }
         itemnew.mover.nosubcarpeta = false;
         itemnew.antecesor.mostrarbtnatras = false;
         itemnew.antecesor.pathantecesor = '';
@@ -1336,6 +1446,7 @@ class DocumentManager extends React.Component {
         btnhide = true;
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1365,6 +1476,7 @@ class DocumentManager extends React.Component {
         btnhide = true;
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = false;
         itemnew.iconvacio = item;
@@ -1408,6 +1520,7 @@ class DocumentManager extends React.Component {
         btnhide = true;
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1437,6 +1550,7 @@ class DocumentManager extends React.Component {
         btnhide = true;
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1466,6 +1580,7 @@ class DocumentManager extends React.Component {
         btnhide = true;
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1494,6 +1609,7 @@ class DocumentManager extends React.Component {
       case 'Espacio Personal': {
         let itemnew = this.state;
         itemnew.titulotoolbar = item;
+        itemnew.textbuscar = '';
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
         itemnew.iconvacio = item;
@@ -1536,6 +1652,7 @@ class DocumentManager extends React.Component {
       default: {
         btnhide = true;
         let itemnew = this.state;
+        itemnew.textbuscar = '';
         itemnew.titulotoolbar = item;
         itemnew.config.menuactivate = false;
         itemnew.showBackdrop = true;
@@ -1568,13 +1685,17 @@ class DocumentManager extends React.Component {
 
   ////listar archivos///
   listarArchivos = (path, tipo) => {
-    let itemnew = this.state;
-    itemnew.showBackdrop = true;
-    this.setState({
-      itemnew
+    self.estadoAlmacenamiento();
+    let estado = self.state;
+    estado.showBackdrop = true;
+    self.setState({
+      estado
     })
+    listaresultado = [];
     var cont = 0;
     loadData = [];
+    rows = [];
+    let query = '';
     switch (tipo) {
       case 'Grupos': {
         nuxeo.operation('UserGroup.Suggestion')
@@ -1606,7 +1727,11 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Recientes': {
-        self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC", 5).then(function (docs) {
+        query = "SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC";
+        if (self.state.login.user === self.state.config.user) {
+          query = "SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC"
+        }
+        self.ejecutarQueryRepo(query, 5).then(function (docs) {
           if (docs.length > 0) {
             listaresultado = docs;
             self.DevolverListaFormateada(docs, cont, docs.length, 'Recientes')
@@ -1617,7 +1742,11 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Expirados': {
-        self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
+        query = "SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+        if (self.state.login.user === self.state.config.user) {
+          query = "SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+        }
+        self.ejecutarQueryRepo(query, 2000000).then(function (docs) {
           if (docs.length > 0) {
             listaresultado = docs;
             self.DevolverListaFormateada(docs, cont, docs.length, 'Expirados')
@@ -1628,7 +1757,11 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Multimedia': {
-        self.ejecutarQueryRepo("SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
+        query = "SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+        if (self.state.login.user === self.state.config.user) {
+          query = "SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+        }
+        self.ejecutarQueryRepo(query, 2000000).then(function (docs) {
           if (docs.length > 0) {
             self.DevolverListaFormateada(docs, cont, docs.length, 'Multimedia')
           } else {
@@ -1676,6 +1809,7 @@ class DocumentManager extends React.Component {
           .then(function (docs) {
             if (docs.entries.length > 0) {
               if (self.state.menu.menuselect == 'Eliminados') {
+                console.log('entró a eliminada');
                 self.DevolverListaFormateada(docs.entries, cont, docs.entries.length, 'Folder Eliminada')
               } else {
                 self.DevolverListaFormateada(docs.entries, cont, docs.entries.length, 'Folder')
@@ -1687,7 +1821,11 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Eliminados': {
-        self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite','Everything'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
+        query = "SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite','Everything'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC";
+        if (self.state.login.user === self.state.config.user) {
+          query = "SELECT * FROM File, Folder, Section, Workspace WHERE ecm:primaryType IN ('Workspace', 'File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC";
+        }
+        self.ejecutarQueryRepo(query, 2000000).then(function (docs) {
           if (docs.length > 0) {
             listaresultado = docs;
             self.DevolverListaFormateada(docs, cont, docs.length, 'Eliminados')
@@ -1698,37 +1836,172 @@ class DocumentManager extends React.Component {
         break;
       }
       default: {
-        nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
-          .input(path)
-          .execute({ schemas: ['file', 'dublincore'] })
-          .then(function (docs) {
-            let documentos = docs.entries;
-            self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
-              listaresultado = listdocs;
-              listaresultado.forEach(element => {
-                let esta = false;
-                documentos.forEach(doc => {
-                  //console.log(doc);
-                  if (doc.uid === element.uid) {
-                    esta = true
-                  }
-                });
-                if (!esta) {
-                  documentos.push(element);
-                }
+        if (self.state.login.user === self.state.config.user) {
+          nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
+            .input(self.state.config.dominio + self.state.config.workspace)
+            .execute({ schemas: ['file', 'dublincore'] })
+            .then(function (docs) {
+              listaresultado = docs.entries;
+              //console.log(docs.entries);
+              nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'tags'] })
+                .input(self.state.config.dominio + '/sections/')
+                .execute({ schemas: ['file', 'dublincore'] })
+                .then(function (docs) {
+                  //console.log(docs.entries);
+                  docs.entries.forEach(element => {
+                    let esta = false;
+                    listaresultado.forEach(doc => {
+                      if (doc.uid === element.uid) {
+                        esta = true
+                      }
+                    });
+                    if (!esta) {
+                      listaresultado.push(element);
+                    }
 
-              });
-              if (documentos.length > 0) {
-                self.DevolverListaFormateada(documentos, cont, documentos.length, 'Archivo');
-              } else {
-                self.cambiarEstadoVacio(loadData);
-              }
+                  });
+                  if (listaresultado.length > 0) {
+                    self.DevolverListaFormateada(listaresultado, cont, listaresultado.length, 'Archivo')
+                  } else {
+                    self.cambiarEstadoVacio(loadData);
+                  }
+                })
             })
-          })
+        } else {
+          nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
+            .input(path)
+            .execute({ schemas: ['file', 'dublincore'] })
+            .then(function (docs) {
+              let documentos = docs.entries;
+              query = "SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC";
+              self.ejecutarQueryRepo(query, 2000000).then(function (listdocs) {
+                listaresultado = listdocs;
+                listaresultado.forEach(element => {
+                  let esta = false;
+                  documentos.forEach(doc => {
+                    if (doc.uid === element.uid) {
+                      esta = true
+                    }
+                  });
+                  if (!esta) {
+                    documentos.push(element);
+                  }
+
+                });
+                if (documentos.length > 0) {
+                  self.DevolverListaFormateada(documentos, cont, documentos.length, 'Archivo');
+                } else {
+                  self.cambiarEstadoVacio(loadData);
+                }
+              })
+            })
+        }
         break;
       }
     }
 
+  }
+
+
+  /// Almacenamiento ///
+
+  handlePopoverOpen = (event) => {
+    let estado = self.state;
+    estado.anchorinfserver = event.currentTarget;
+    estado.openinfserver = true;
+    self.setState({
+      estado
+    })
+  };
+
+  handlePopoverClose = () => {
+    let estado = self.state;
+    estado.anchorinfserver = null;
+    estado.openinfserver = false;
+    self.setState({
+      estado
+    })
+  };
+
+  handlePopoverOpenUser = (event) => {
+    let estado = self.state;
+    estado.anchorinfuser = event.currentTarget;
+    estado.openinfuser = true;
+    self.setState({
+      estado
+    })
+  };
+
+  handlePopoverCloseUser = () => {
+    let estado = self.state;
+    estado.anchorinfuser = null;
+    estado.openinfuser = false;
+    self.setState({
+      estado
+    })
+  };
+
+  precise_round = (num, decimals) => {
+    var t = Math.pow(10, decimals);
+    return (Math.round((num * t) + (decimals > 0 ? 1 : 0) * (Math.sign(num) * (10 / Math.pow(100, decimals)))) / t).toFixed(decimals);
+  }
+
+
+  estadoAlmacenamientoServer = () => {
+    let almServer = 0;
+    self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:primaryType IN ('File', 'Note') AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 200000000)
+      .then(function (docs) {
+        docs.forEach(element => {
+          if (element.properties.hasOwnProperty('file:content')) {
+            if (element.properties['file:content']) {
+              let file = element.properties['file:content']
+              almServer = almServer + parseFloat(file.length);
+            }
+          }
+        });
+        console.log(self.state.config.storage);
+        //almServer = parseFloat(almServer/1000000000).toFixed(2);
+
+        let totalA = self.state.config.storage * 1000000000;
+        console.log(totalA);
+        let porcientoA = parseFloat(almServer * 100 / totalA).toFixed(2);
+        console.log(porcientoA);
+        let estado1 = self.state;
+        estado1.storageserver = almServer;
+        estado1.storageserverporc = porcientoA;
+        self.setState({
+          estado1
+        })
+        console.log(self.state.storageserver)
+      })
+  }
+
+  estadoAlmacenamiento = () => {
+    let almUser = 0;
+    self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:primaryType IN ('File', 'Note') AND ecm:path STARTSWITH '" + self.state.config.dominio + self.state.config.workspace + self.state.login.user + '/' + "' ORDER BY dc:created DESC", 200000000)
+      .then(function (docs) {
+        docs.forEach(element => {
+          if (element.properties.hasOwnProperty('file:content')) {
+            if (element.properties['file:content']) {
+              let file = element.properties['file:content']
+              almUser = almUser + parseFloat(file.length);
+            }
+          }
+        });
+        //console.log(almUser);
+        let total = self.state.config.storageuser * 1000000000;
+        let porciento = parseFloat(almUser * 100 / total).toFixed(2)
+        //console.log(porciento);
+        let estado = self.state;
+        estado.storageuser = almUser;
+        estado.storageuserporc = porciento;
+        self.setState({
+          estado
+        })
+        if (self.state.login.admin) {
+          self.estadoAlmacenamientoServer();
+        }
+      })
   }
 
 
@@ -1821,151 +2094,192 @@ class DocumentManager extends React.Component {
 
   // Buscar x titulo y etiquetas de cada archivo.
   handleBuscar = (event) => {
-    if (event.target.value.length >= 3) {
-      let estado = this.state;
+    let estado = self.state;
+    let query = '';
+    if (self.state.showBackdrop === false) {
+      //console.log(event.target.value);         
       estado.textbuscar = event.target.value;
-      estado.showBackdrop = true;
-      this.setState({
+      self.setState({
         estado
       });
-      var cont = 0;
-      loadData = [];
-      switch (this.state.iconvacio) {
-        case 'Grupos': {
-          nuxeo.operation('UserGroup.Suggestion')
-            //.input('/')
-            .params({
-              searchType: 'GROUP_TYPE',
-              searchTerm: this.state.textbuscar
-            })
-            .execute()
-            .then(function (res) {
-              if (res.length > 0) {
-                listaresultado = res;
-                self.DevolverListaGruposFormateada(res, cont, res.length);
+      if (event.target.value.length >= 3) {
+        estado = self.state;
+        estado.showBackdrop = true;
+        self.setState({
+          estado
+        });
+        var cont = 0;
+        rows = [];
+        loadData = [];
+        switch (this.state.iconvacio) {
+          case 'Grupos': {
+            nuxeo.operation('UserGroup.Suggestion')
+              //.input('/')
+              .params({
+                searchType: 'GROUP_TYPE',
+                searchTerm: this.state.textbuscar
+              })
+              .execute()
+              .then(function (res) {
+                if (res.length > 0) {
+                  listaresultado = res;
+                  self.DevolverListaGruposFormateada(res, cont, res.length);
+                } else {
+                  self.cambiarEstadoVacio(loadData);
+                }
+              })
+            break;
+          }
+          case 'Espacio de Grupo de Trabajo': {
+            console.log('Espacio de GT');
+            self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "/sections/'", 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                listaresultado = docs;
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Espacio de Grupo de Trabajo')
               } else {
                 self.cambiarEstadoVacio(loadData);
               }
             })
-          break;
-        }
-        case 'Espacio de Grupo de Trabajo': {
-          console.log('Espacio de GT');
-          self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "/sections/'", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              listaresultado = docs;
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Espacio de Grupo de Trabajo')
-            } else {
-              self.cambiarEstadoVacio(loadData);
+            break;
+          }
+          case 'Recientes': {
+            query = "SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC";
+            if (self.state.login.user === self.state.config.user) {
+              query = "SELECT * FROM File, Folder, Section, Workspace WHERE ecm:primaryType IN ('Workspace', 'File', 'Folder', 'Note', 'Section') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0  AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC";
             }
-          })
-          break;
-        }
-        case 'Recientes': {
-          console.log('Recientes');
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC", 5).then(function (docs) {
-            console.log(docs);
-            if (docs.length > 0) {
-              listaresultado = docs;
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Recientes')
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            }
-          })
-          break;
-        }
-        case 'Expirados': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Expirados')
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            }
-          })
-          break;
-        }
-        case 'Favoritos': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired > DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Favoritos')
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            }
-          })
-          break;
-        }
-        case 'Multimedia': {
-          self.ejecutarQueryRepo("SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Multimedia')
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            }
-          })
-          break;
-        }
-        case 'Eliminados': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 1 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('Everything'))) AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              listaresultado = docs;
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Eliminados')
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            }
-          })
-          break;
-        }
-        case 'Espacio Personal': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND dc:creator = '" + self.state.login.user + "' AND ecm:path STARTSWITH '" + self.state.path + "'", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              listaresultado = docs;
-              self.DevolverListaFormateada(docs, cont, docs.length, 'Espacio P. Busqueda')
-            } else {
-              self.cambiarEstadoVacio(loadData);
-            }
-          })
-          break;
-        }
-        case 'Folder': {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.path + "'", 2000000).then(function (docs) {
-            if (docs.length > 0) {
-              listaresultado = docs;
-              if (self.state.menu.menuselect == 'Eliminados') {
-                self.DevolverListaFormateada(docs, cont, docs.length, 'Folder Eliminada')
+            self.ejecutarQueryRepo(query, 5).then(function (docs) {
+              console.log(docs);
+              if (docs.length > 0) {
+                listaresultado = docs;
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Recientes')
               } else {
-                self.DevolverListaFormateada(docs, cont, docs.length, 'Folder Busqueda')
+                self.cambiarEstadoVacio(loadData);
               }
-            } else {
-              self.cambiarEstadoVacio(loadData);
+            })
+            break;
+          }
+          case 'Expirados': {
+            query = "SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+            if (self.state.login.user === self.state.config.user) {
+              query = "SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND dc:expired IS NOT NULL AND dc:expired <= DATE '" + moment(moment()).format('YYYY-MM-DD') + "' AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
             }
-          })
-          break;
-        }
-        default: {
-          self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:expired IS NULL OR dc:expired >= DATE '" + moment(moment()).format('YYYY-MM-DD') + "') AND (dc:title ILIKE '%" + self.state.textbuscar + "%' OR ecm:tag ILIKE '%" + self.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
-            listaresultado = listdocs;
-            if (listdocs.length > 0) {
-              self.DevolverListaFormateada(listdocs, cont, listdocs.length, 'Archivo Busqueda');
-            } else {
-              self.cambiarEstadoVacio(loadData);
+            self.ejecutarQueryRepo(query, 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Expirados')
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
+            break;
+          }
+          case 'Favoritos': {
+            self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Favoritos')
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
+            break;
+          }
+          case 'Multimedia': {
+            query = "SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read')) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+            if (self.state.login.user === self.state.config.user) {
+              query = "SELECT * FROM File WHERE ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title LIKE '%.gif' OR dc:title LIKE '%.png' OR dc:title LIKE '%.jpg' OR dc:title LIKE '%.jpeg' OR dc:title LIKE '%.sgv' OR dc:title LIKE '%.bmp' OR dc:title LIKE '%.psd' OR dc:title LIKE '%.tiff' OR dc:title LIKE '%.tif' OR dc:title LIKE '%.fax' OR dc:title LIKE '%.emf' OR dc:title LIKE '%.dpx' OR dc:title LIKE '%.srf' OR dc:title LIKE '%.mp3' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.wav' OR dc:title LIKE '%.aif' OR dc:title LIKE '%.aiff' OR dc:title LIKE '%.m4a' OR dc:title LIKE '%.m4b' OR dc:title LIKE '%.m4p' OR dc:title LIKE '%.m4r' OR dc:title LIKE '%.mka' OR dc:title LIKE '%.wax' OR dc:title LIKE '%.wma' OR dc:title LIKE '%.ogg' OR dc:title LIKE '%.mpga' OR dc:title LIKE '%.mpa' OR dc:title LIKE '%.mpe' OR dc:title LIKE '%.mpeg' OR dc:title LIKE '%.mpg' OR dc:title LIKE '%.mpv2' OR dc:title LIKE '%.mp4' OR dc:title LIKE '%.mov' OR dc:title LIKE '%.qt' OR dc:title LIKE '%.ogv' OR dc:title LIKE '%.webm' OR dc:title LIKE '%.mkv' OR dc:title LIKE '%.asf' OR dc:title LIKE '%.asr' OR dc:title LIKE '%.asx' OR dc:title LIKE '%.avi' OR dc:title LIKE '%.fli' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.viv' OR dc:title LIKE '%.vivo' OR dc:title LIKE '%.m4v' OR dc:title LIKE '%.3gp' OR dc:title LIKE '%.3gc' OR dc:title LIKE '%.wmv' OR dc:title LIKE '%.wmx' OR dc:title LIKE '%.flv' OR dc:title LIKE '%.mov') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
             }
-          })
-          break;
-        }
+            self.ejecutarQueryRepo(query, 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Multimedia')
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
+            break;
+          }
+          case 'Eliminados': {
+            query = "SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite','Everything'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC";
+            if (self.state.login.user === self.state.config.user) {
+              query = "SELECT * FROM File, Folder, Section, Workspace WHERE ecm:primaryType IN ('Workspace', 'File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 1 AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC";
+            }
+            self.ejecutarQueryRepo(query, 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                listaresultado = docs;
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Eliminados')
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
+            break;
+          }
+          case 'Espacio Personal': {
+            self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND dc:creator = '" + self.state.login.user + "' AND ecm:path STARTSWITH '" + self.state.path + "'", 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                listaresultado = docs;
+                self.DevolverListaFormateada(docs, cont, docs.length, 'Espacio P. Busqueda')
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
+            break;
+          }
+          case 'Folder': {
+            self.ejecutarQueryRepo("SELECT * FROM File, Folder WHERE ecm:primaryType IN ('File', 'Folder', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.path + "'", 2000000).then(function (docs) {
+              if (docs.length > 0) {
+                listaresultado = docs;
+                if (self.state.menu.menuselect == 'Eliminados') {
+                  self.DevolverListaFormateada(docs, cont, docs.length, 'Folder Eliminada')
+                } else {
+                  self.DevolverListaFormateada(docs, cont, docs.length, 'Folder Busqueda')
+                }
+              } else {
+                self.cambiarEstadoVacio(loadData);
+              }
+            })
+            break;
+          }
+          default: {
+            if (self.state.login.user === self.state.config.user) {
+              self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:primaryType IN ('Workspace','Section', 'Folder', 'File', 'Note') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (docs) {
+                if (docs.length > 0) {
+                  listaresultado = docs;
+                  self.DevolverListaFormateada(docs, cont, docs.length, 'Archivo Busqueda')
+                } else {
+                  self.cambiarEstadoVacio(loadData);
+                }
+              })
+            } else {
+              self.ejecutarQueryRepo("SELECT * FROM File, Folder, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:title ILIKE '%" + self.state.textbuscar + "%' OR ecm:tag ILIKE '%" + self.state.textbuscar + "%') AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:created DESC", 2000000).then(function (listdocs) {
+                listaresultado = listdocs;
+                rows = [];
+                if (listdocs.length > 0) {
+                  self.DevolverListaFormateada(listdocs, cont, listdocs.length, 'Archivo Busqueda');
+                } else {
+                  self.cambiarEstadoVacio(loadData);
+                }
+              })
+            }
+            break;
+          }
 
+        }
       }
-    }
-    if (event.target.value.length == 0) {
-      this.listarArchivos(self.state.path, self.state.iconvacio);
+      if (event.target.value.length === 0) {
+        self.listarArchivos(self.state.path, self.state.iconvacio);
+      }
     }
   }
   //// Búsqueda Avanzada de Documento ////
 
   handleBuscarAvanzado = () => {
     let sql = "SELECT * FROM Folder, File, Note, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
-
+    if (self.state.config.user === self.state.login.user) {
+      sql = "SELECT * FROM Folder, File, Note, Section WHERE ecm:primaryType IN ('File', 'Folder', 'Note', 'Section') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+    }
     if (this.state.busqueda.combotipo) {
       sql = "SELECT * FROM File WHERE ecm:primaryType IN ('File') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+      if (self.state.config.user === self.state.login.user) {
+        sql = "SELECT * FROM File WHERE ecm:primaryType IN ('File') AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "'";
+      }
       // sql = "SELECT * FROM File WHERE (dc:creator = '" + user + "' OR (ecm:acl/*/principal = '" + user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('Read', 'ReadWrite','Everything'))) AND ecm:isProxy = 0 AND ecm:isVersion = 0";
       switch (this.state.busqueda.combotipo) {
         case 1: {
@@ -4953,7 +5267,7 @@ class DocumentManager extends React.Component {
 
 
   handlerecursiveAddFav(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0].name + ' fue seleccionado como favorito'
+    let msg = 'El achrivo ' + lista[0].name + ' fue seleccionado como favorito'
     //let encontrado = rows.find(fila => lista[0] === fila.name)
     nuxeo.operation('Document.AddToFavorites')
       .input(lista[0].path)
@@ -4987,11 +5301,11 @@ class DocumentManager extends React.Component {
     let seleccionados = this.devuelveseleccionados();
     let contador = 1;
     this.handlerecursiveRemoveFav(seleccionados, contador, seleccionados.length);
-    //let msg = 'El archivo ' + seleccionados[0] + ' ya no es favorito'
+    //let msg = 'El achrivo ' + seleccionados[0] + ' ya no es favorito'
   }
 
   handlerecursiveRemoveFav(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0].name + ' ya no es favorito'
+    let msg = 'El achrivo ' + lista[0].name + ' ya no es favorito'
     nuxeo.operation('Document.RemoveFromFavorites')
       .input(lista[0].path)
       .execute()
@@ -5107,7 +5421,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveMover = (lista, cont, longt) => {
-    let msg = 'El archivo ' + lista[0].name + ' fue movido satisfactoriamente'
+    let msg = 'El achrivo ' + lista[0].name + ' fue movido satisfactoriamente'
     if (this.state.mover.pathmovorigen.length > 1) {
       msg = 'Los archivos fueron movidos satisfactoriamente'
     }
@@ -5146,7 +5460,7 @@ class DocumentManager extends React.Component {
     let marcados = this.state.tabla.selected;
     for (var j = 0; j < marcados.length; j++) {
       for (var i = 0; i < rows.length; i++) {
-        if (marcados[j] === rows[i].name) {
+        if (marcados[j] === rows[i].id) {
           let obj = {
             'id': rows[i].id,
             'path': rows[i].path,
@@ -5174,7 +5488,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveEliminar(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
+    let msg = 'El achrivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
     if (self.state.acciones.elimadmin) {
       let msg = 'La seción ' + lista[0].name + ' fue eliminada satisfactoriamente'
     }
@@ -5238,7 +5552,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveRecuperar(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0] + ' fue recuperado satisfactoriamente'
+    let msg = 'El achrivo ' + lista[0] + ' fue recuperado satisfactoriamente'
     let encontrado = rows.find(fila => lista[0] === fila.name)
     nuxeo.operation('Document.Untrash')
       .input(encontrado.path)
@@ -5272,7 +5586,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursivePurgue(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0] + ' fue eliminado satisfactoriamente'
+    let msg = 'El achrivo ' + lista[0] + ' fue eliminado satisfactoriamente'
     let encontrado = rows.find(fila => lista[0] === fila.name)
     nuxeo.repository()
       .delete(encontrado.path)
@@ -5314,7 +5628,7 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveDeletePerm(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
+    let msg = 'El achrivo ' + lista[0].name + ' fue eliminado satisfactoriamente'
     nuxeo.repository()
       .delete(lista[0].path)
       .then(function (res) {
@@ -5405,9 +5719,9 @@ class DocumentManager extends React.Component {
     })
   };
 
-  obtenerseleccionado = (name) => {
+  obtenerseleccionado = (id) => {
     rows.forEach(element => {
-      if (element.name === name) {
+      if (element.id === id) {
         //console.log(element);
         seleccionado = {
           id: element.id,
@@ -5622,6 +5936,10 @@ class DocumentManager extends React.Component {
         return <Group style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '40px', marginBottom: '10px' }} />;
         break;
       }
+      case 'Workspace': {
+        return <FolderShared style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '40px', marginBottom: '10px' }} />;
+        break;
+      }
       default: {
         return <Folder style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '40px', marginBottom: '10px' }} />;
         break;;
@@ -5674,6 +5992,10 @@ class DocumentManager extends React.Component {
         return <Group color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
       }
+      case 'Workspace': {
+        return <FolderShared style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
+        break;
+      }
       case 'Folder': {
         return <Folder color='primary' style={{ fontSize: '23px', marginBottom: '1px', marginRight: '5px' }} />;
         break;
@@ -5715,7 +6037,7 @@ class DocumentManager extends React.Component {
   handleSelectAllClick = (event) => {
     let newSelecteds = []
     if (event.target.checked) {
-      newSelecteds = rows.map((n) => n.name);
+      newSelecteds = rows.map((n) => n.id);
     }
     let varvisiblemenu = false;
     let vardel = false;
@@ -5761,8 +6083,12 @@ class DocumentManager extends React.Component {
           varvisiblemenu = false;
         }
         if (newSelecteds.length === permtodos) {
-          vardel = true;
           varmov = true;
+          if (self.state.config.user === self.state.login.user && this.state.menu.menuselect === 'Archivo') {
+            varmov = false;
+            vardownload = false;
+          }
+          vardel = true;
           if (this.state.menu.menuselect === 'Búsqueda') {
             varmov = false;
           }
@@ -5771,6 +6097,9 @@ class DocumentManager extends React.Component {
           vardel = false;
           varmov = false;
           varvisiblemenu = false;
+          if (self.state.config.user === self.state.login.user && this.state.menu.menuselect === 'Archivo') {
+            vardownload = false;
+          }
         }
       } else {
         if (newSelecteds.length === permwrite) {
@@ -5882,9 +6211,9 @@ class DocumentManager extends React.Component {
     return stabilizedThis.map(el => el[0]);
   }
 
-  isSelected = (name) => {
+  isSelected = (id) => {
     let seleccionados = this.state.tabla.selected;
-    const selectedIndex = seleccionados.indexOf(name);
+    const selectedIndex = seleccionados.indexOf(id);
     if (selectedIndex >= 0) {
       return true;
     } else {
@@ -5892,12 +6221,12 @@ class DocumentManager extends React.Component {
     }
   }
 
-  handleRowClick = (event, name) => {
+  handleRowClick = (event, id) => {
     let seleccionados = this.state.tabla.selected;
-    const selectedIndex = seleccionados.indexOf(name);
+    const selectedIndex = seleccionados.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(seleccionados, name);
+      newSelected = newSelected.concat(seleccionados, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(seleccionados.slice(1));
     } else if (selectedIndex === seleccionados.length - 1) {
@@ -5959,9 +6288,29 @@ class DocumentManager extends React.Component {
         }
 
       }
-      if (selected.tipo !== 'Section' && selected.tipo !== 'Group') {
+      if (selected.tipo === 'Workspace') {
+        varcoment = false,
+          vartag = false;
+        varunfav = false;
+        varfav = false;
+        varupload = false;
+        varcrear = false;
+        varunbloq = false;
+        varbloq = false;
+        varshare = false;
+        varpermisos = false;
+        varpublicar = false;
+        varversion = false;
+        vardownload = false;
+        vardetail = false;
+        vardel = true;
+        varelimadmin = false;
+        varedit = false;
+        varvisiblemenu = true;
+      }
+      if (selected.tipo !== 'Section' && selected.tipo !== 'Group' && selected.tipo !== 'Workspace') {
         if (selected.bloqueado) {
-          if (selected.ownerbloq === self.state.login.user) {
+          if (selected.ownerbloq === self.state.login.user || self.state.config.user === self.state.login.user) {
             varcoment = true,
               vartag = true;
             vardetail = true;
@@ -6134,11 +6483,18 @@ class DocumentManager extends React.Component {
         if (this.state.menu.menuselect === 'Búsqueda' && !publicsecion) {
           varmov = false;
         }
+        if (self.state.config.user === self.state.login.user && this.state.menu.menuselect === 'Archivo') {
+          varmov = false;
+          vardownload = false;
+        }
         varvisiblemenu = true;
       } else {
         vardel = false;
         varmov = false;
         varvisiblemenu = false;
+        if (self.state.config.user === self.state.login.user && this.state.menu.menuselect === 'Archivo') {
+          vardownload = false;
+        }
       }
       //console.log(this.state.menu.menuselect)
       if (this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' || this.state.menu.menuselect === 'Grupos') {
@@ -6364,6 +6720,7 @@ class DocumentManager extends React.Component {
   }
 
   verificarPermisos = (rowselect) => {
+    console.log(rowselect);
     var varedit = false;
     var varmov = false;
     var varshare = false;
@@ -6395,6 +6752,13 @@ class DocumentManager extends React.Component {
         }
         varshare = true;
         varpermisos = true;
+        if (rowselect.tipo === 'Workspace') {
+          varupload = false;
+          varedit = false;
+          varshare = false;
+          varmov = false;
+          varbtnprincipales = false;
+        }
       }
     });
     let estado = this.state;
@@ -6421,47 +6785,32 @@ class DocumentManager extends React.Component {
   }
 
 
-
   visualizarimagen = (img) => {
-    console.log(img);
-    let array = []
-    let objimg = {
-      src: img.preview,
-      // dir: "http://localhost:8180/nuxeo/nxpicsfile/dep-comercioelectronico/fa47f719-ea28-4c85-a95c-6e01184fd909/Original:content/41ee5f8572922481744243f9ef495db0.jpg",
+    let array = [{
+      src: img.thumbnail,
       title: img.name,
       description: img.descripcion
-    }
-    array.push(objimg);
-    let estado = this.state;
-    estado.visualizacion.images = array;
+    }]
+    let estado = self.state;
+    estado.visualizacion.files = array;
     estado.visualizacion.mostrarimg = true;
-    this.setState({
+    self.setState({
       estado
     });
-    console.log(array);
+  }
 
-
-
-
-
-    /*   <Lightbox
-            mainSrc={array[0].src}
-            nextSrc={images[(photoIndex + 1) % images.length]}
-            prevSrc={images[(photoIndex + images.length - 1) % images.length]}
-            onCloseRequest={() => this.setState({ isOpen: false })}
-          onMovePrevRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + images.length - 1) % images.length,
-              })
-            }
-            onMoveNextRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + 1) % images.length,
-              })
-            } 
-          /> */
-
-
+  visualizarvideo = (video) => {
+    let array = [{
+      src: video.thumbnail,
+      type: video,
+      title: video.name
+    }]
+    let estado = self.state;
+    estado.visualizacion.files = array;
+    estado.visualizacion.mostrarvideo = true;
+    self.setState({
+      estado
+    });
   }
 
   handleAbrirClick = (row) => {
@@ -6472,9 +6821,9 @@ class DocumentManager extends React.Component {
     let listacamino = this.state.antecesor.listpath;
     listacamino[listacamino.length - 1].vinculo = true;
     if (listacamino[listacamino.length - 1].iconvacioantecesor !== 'null') {
-      this.verificarPermisos(row);
-      if (row.tipo === 'Folder' || row.tipo === 'Section') {
-        let tipodoc = 'Folder';
+      self.verificarPermisos(row);
+      if (row.tipo === 'Folder' || row.tipo === 'Section' || row.tipo === 'Workspace') {
+        let tipodoc = row.tipo;
         if (row.tipo === 'Section') {
           tipodoc = 'Espacio de Grupo de Trabajo';
         }
@@ -6500,29 +6849,18 @@ class DocumentManager extends React.Component {
             estado
           })
         } else {
-          console.log('Listar Folder');
           this.listarArchivos(path, 'Folder');
         }
       } else {
-        let extension = row.extension;
-        /*   listacamino.push({ iconvacioantecesor: 'null', path: row.path, vinculo: false, denom: row.name });
-          let itemnew = this.state;
-          itemnew.titulotoolbar = row.name;
-          itemnew.path = path;
-          itemnew.iconvacio = 'null';
-          itemnew.mover.nosubcarpeta = true;
-          itemnew.antecesor.mostrarbtnatras = true;
-          itemnew.antecesor.pathantecesor = pathantecesor;
-          itemnew.antecesor.iconvacioantecesor = iconvacioantecesor;
-          itemnew.antecesor.listpath = listacamino;
-          this.setState({
-            itemnew
-          }) */
+        let extension = row.extension.toLowerCase();
         if (extension == '.gif' || extension == '.png' || extension == '.jpg' || extension == '.jpeg' || extension == '.pbm' || extension == '.bmp' || extension == '.ppm' || extension == '.fax' || extension == '.tiff' || extension == '.tif' || extension == '.svg' || extension == '.dpx' || extension == '.ai' || extension == '.psd' || extension == '.emf' || extension == '.vclmtf' || extension == '.srf') {
           this.visualizarimagen(row);
-        } else {
+        }
+        if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax' || extension == 'wax' || extension == 'wax' || extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf') {
+          this.visualizarvideo(row);
+        }
+        else {
           this.visualizardoc(row);
-          console.log(row);
           /*   var docEditor = new DocsAPI.DocEditor("placeholder", config);
             let config = {
               "document": {
@@ -6538,52 +6876,7 @@ class DocumentManager extends React.Component {
           }; */
 
         }
-
-
-        /* switch (row.extension) {
-          case 'File': {
-            let array = row.name.split('.');
-            let extension = array[array.length - 1];
-            console.log(row.tipo);
-            console.log(extension);
-            if (extension == 'txt' || extension == 'html' || extension == 'xhtml' || extension == 'shtml' || extension == 'stx' || extension == 'rst' || extension == 'rest' || extension == 'restx' || extension == 'rest' || extension == 'py' || extension == 'java' || extension == 'md' || extension == 'mkd' || extension == 'markdown' || extension == 'eml' || extension == 'msg' || extension == 'xml' || extension == 'graffle' || extension == 'twb' || extension == 'sxi' || extension == 'sxw' || extension == 'stw' || extension == 'sti' || extension == 'sxc' || extension == 'stc' || extension == 'sxd' || extension == 'std' || extension == 'std' || extension == 'ps' || extension == 'eps') {
-              return <Note color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'doc' || extension == 'dot' || extension == 'dot' || extension == 'doc.xml' || extension == 'docb.xml' || extension == 'docb' || extension == 'ods' || extension == 'ots' || extension == 'odt' || extension == 'ott' || extension == 'odp' || extension == 'otp' || extension == 'odg' || extension == 'otg' || extension == 'docm' || extension == 'docx' || extension == 'dotm' || extension == 'dotx' || extension == 'dotx' || extension == 'pdf') {
-              return <DescriptionIcon color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'xls' || extension == 'xlt' || extension == 'xlt' || extension == 'xlsb' || extension == 'xlsm' || extension == 'xlsm' || extension == 'xlsx' || extension == 'xps' || extension == 'csv') {
-              return <ChromeReaderModeIcon color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'ppt' || extension == 'pot' || extension == 'pps' || extension == 'mpp' || extension == 'pub' || extension == 'pub' || extension == 'ppsm' || extension == 'ppsx' || extension == 'pptm' || extension == 'pptx' || extension == 'pptx' || extension == 'vsdx' || extension == 'vsd' || extension == 'vst') {
-              return <Dvr color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'zip' || extension == 'rar' || extension == '7zip' || extension == 'jar') {
-              return <AccountBalanceWallet color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'gif' || extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
-              return <Image color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax') {
-              return <Audiotrack color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            if (extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf') {
-              return <Theaters color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            else{
-              return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
-            }
-            break;
-          }
-      
-        
-          default:
-            break;
-        } */
-
-
       }
-
     }
   }
 
@@ -6638,7 +6931,7 @@ class DocumentManager extends React.Component {
   }
 
   DevuelveIconsVista = (row) => {
-    //console.log(row);
+    console.log(row);
     switch (row.tipo) {
       case 'Folder': {
         return <Folder color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
@@ -6663,7 +6956,7 @@ class DocumentManager extends React.Component {
           return <AccountBalanceWallet color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
         }
         if (extension == 'gif' || extension === 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'pbm' || extension == 'bmp' || extension == 'ppm' || extension == 'fax' || extension == 'tiff' || extension == 'tif' || extension == 'svg' || extension == 'dpx' || extension == 'ai' || extension == 'psd' || extension == 'emf' || extension == 'vclmtf' || extension == 'srf') {
-          return <Image color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+          return <img src={row.thumbnail} alt={row.thumbnail} style={{ padding: '10px', width: '100px', height: '100px' }} onClick={(event) => this.handleAbrirClick(row)} />;
         }
         if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax' || extension == 'wax' || extension == 'wax') {
           return <Audiotrack color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
@@ -6684,14 +6977,20 @@ class DocumentManager extends React.Component {
         return <Group color='primary' style={{ fontSize: '100px' }} />;
         break;
       }
+      case 'Workspace': {
+        return <FolderShared color='primary' style={{ fontSize: '100px' }} />;
+        break;
+      }
       default: {
         return <Receipt color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        break;
       }
         break;
     }
   }
 
   DevuelveIcons = (row) => {
+    console.log(row);
     switch (row.tipo) {
       case 'Folder': {
         return <Folder color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
@@ -6739,8 +7038,13 @@ class DocumentManager extends React.Component {
         return <Group color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
         break;
       }
+      case 'Workspace': {
+        return <FolderShared color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+        break;
+      }
       default: {
         return <Receipt color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
+        break;
       }
         break;
     }
@@ -6793,8 +7097,13 @@ class DocumentManager extends React.Component {
         return <Group color='primary' style={{ marginRight: '10px', fontSize: '90px' }} />;
         break;
       }
+      case 'Workspace': {
+        return <FolderShared color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        break;
+      }
       default: {
         return <Receipt color='primary' style={{ marginLeft: '10px', marginRight: '10px', fontSize: '90px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
+        break;
       }
         break;
     }
@@ -6802,7 +7111,7 @@ class DocumentManager extends React.Component {
 
   Devuelveinfo = (row) => {
     return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Tooltip title='Abrir'><div style={{ display: 'flex', alignItems: 'center', }}>{this.DevuelveIcons(row)}{row.name} {<React.Fragment>{this.state.menu.menuselect === 'Búsqueda' && row.eliminado && <span style={{ marginLeft: '5px', color: '#000000', }}>{' (Actualmente eliminado)'}</span>}</React.Fragment>}</div></Tooltip>
+      <Tooltip title={'Abrir: ' + row.path}><div style={{ display: 'flex', alignItems: 'center', }}>{this.DevuelveIcons(row)}{row.name} {<React.Fragment>{this.state.menu.menuselect === 'Búsqueda' && row.eliminado && <span style={{ marginLeft: '5px', color: '#000000', }}>{' (Actualmente eliminado)'}</span>}</React.Fragment>}</div></Tooltip>
       {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && row.tipo != 'Section' &&
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {row.compartido && <Tooltip title='Compartido'><Share color='disabled' style={{ marginRight: '6px', fontSize: '16px' }} /></Tooltip>}
@@ -6827,21 +7136,22 @@ class DocumentManager extends React.Component {
 
   obtenertamaño = (tamanno) => {
     if (tamanno == 0) {
-      return 1 + 'bytes';
+      return 0 + ' bytes';
     } else {
-      let size = Math.round(tamanno / 1024, 2);
+      let size = parseFloat(tamanno / 1024).toFixed(2);
       if (size < 1024) {
         return size + ' KB';
       } else {
-        size = Math.round(size / 1024, 2)
+        size = parseFloat(size / 1024).toFixed(2)
         if (size < 1024) {
           return size + ' MB';
         } else {
-          size = Math.round(size / 1024, 2)
+          size = parseFloat(size / 1024).toFixed(2)
           if (size < 1024) {
             return size + ' GB';
           } else {
-            return size + ' T';
+            size = parseFloat(size / 1024).toFixed(2)
+            return size + ' TB';
           }
         }
       }
@@ -6853,6 +7163,7 @@ class DocumentManager extends React.Component {
     rows = [];
     rows = lista;
     let itemnew = self.state;
+    itemnew.cantarchivos = lista.length;
     itemnew.titulotoolbar = self.state.titulotoolbar;
     itemnew.showBackdrop = false;
     itemnew.iconvacio = self.state.iconvacio;
@@ -6907,6 +7218,7 @@ class DocumentManager extends React.Component {
       }))
   }
 
+
   /// Devuelve la extension de un documento///
   Devolverextension = (name) => {
     let denom = name.trim();
@@ -6935,7 +7247,7 @@ class DocumentManager extends React.Component {
   Verificarpadre(doc) {
     let tienepadre = false;
     listaresultado.forEach(element => {
-      if (doc.parentRef === element.uid && element.tipo === 'Folder') {
+      if (doc.parentRef === element.uid) {
         tienepadre = true;
       }
     });
@@ -6943,9 +7255,9 @@ class DocumentManager extends React.Component {
   }
 
   /// construye el objeto con las propiedades que se necesitan //
-  ConstruirObjetoDocumento(doc, statusbloq, statusownerbloq, fechabloq, comentado) {
+  ConstruirObjetoDocumento(doc, statusbloq, statusownerbloq, fechabloq, comentado, tamanno) {
+    //console.log(tamanno);
     let textmodif = self.tiempotranscurrido(doc.lastModified)
-    let tamanno = 1 + 'bytes';
     var file = [];
     let extension = '';
     let denominacion = doc.title;
@@ -6957,7 +7269,7 @@ class DocumentManager extends React.Component {
     if (doc.properties.hasOwnProperty('file:content')) {
       if (doc.properties['file:content']) {
         file = doc.properties['file:content']
-        tamanno = self.obtenertamaño(file.length);
+        //tamanno = self.obtenertamaño(file.length);
       }
       let array = self.Devolverextension(doc.title);
       mineType = file['mime-type']
@@ -7033,64 +7345,94 @@ class DocumentManager extends React.Component {
     let compartido = false;
     let esta = false;
     let tienepermiso = true;
-    if (doc.properties['dc:creator'] === self.state.login.user) {
-      permisos.push('Everything');
-      esta = true;
-    }
-    if (doc.contextParameters.acls.length > 0 && !esta) {
-      let acls = doc.contextParameters.acls;
-      for (var i = acls.length - 1; i >= 0; i--) {
-        let aces = acls[i].aces;
-        for (var j = aces.length - 1; j >= 0; j--) {
-          let pertenece = false;
-          grupos.forEach(group => {
-            if (aces[j].username === group) {
-              pertenece = true;
-            }
-          });
-          if (aces[j].granted) {
-            if (aces[j].username === "Everyone" || aces[j].username === self.state.login.user || pertenece) {
-              permisos.push(aces[j].permission);
-              tienepermiso = true;
-              compartido = true;
-            }
-          } else {
-            if (aces[j].username === "Everyone" || aces[j].username === self.state.login.user || pertenece) {
-              permisos.splice(aces[j].permission);
-              if (permisos.length === 0) {
-                tienepermiso = false;
-                compartido = false;
+    if (self.state.login.user !== self.state.config.user) {
+      if (doc.properties['dc:creator'] === self.state.login.user) {
+        permisos.push('Everything');
+        esta = true;
+      }
+      if (doc.contextParameters.acls.length > 0 && !esta) {
+        let acls = doc.contextParameters.acls;
+        for (var i = acls.length - 1; i >= 0; i--) {
+          let aces = acls[i].aces;
+          for (var j = aces.length - 1; j >= 0; j--) {
+            let pertenece = false;
+            grupos.forEach(group => {
+              if (aces[j].username === group) {
+                pertenece = true;
+              }
+            });
+            if (aces[j].granted) {
+              if (aces[j].username === "Everyone" || aces[j].username === self.state.login.user || pertenece) {
+                permisos.push(aces[j].permission);
+                tienepermiso = true;
+                compartido = true;
+              }
+            } else {
+              if (aces[j].username === "Everyone" || aces[j].username === self.state.login.user || pertenece) {
+                permisos.splice(aces[j].permission);
+                if (permisos.length === 0) {
+                  tienepermiso = false;
+                  compartido = false;
+                }
               }
             }
           }
         }
       }
+    } else {
+      permisos.push('Everything');
+      tienepermiso = true;
     }
     let cumple = false;
     switch (filtro) {
       case 'Espacio de Grupo de Trabajo': {
-        if (tienepermiso && (doc.type === 'Section') && !doc.isTrashed) {
-          cumple = true;
+        if (self.state.menu.menuselect === 'Eliminados') {
+          if (tienepermiso && (doc.type === 'Section') && doc.isTrashed) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && (doc.type === 'Section') && !doc.isTrashed) {
+            cumple = true;
+          }
         }
         break;
       }
       case 'Archivo': {
-        if (tienepermiso && !doc.isTrashed && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Section')) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if (!doc.isTrashed) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && !doc.isTrashed && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Section')) {
+            cumple = true;
+          }
         }
         break;
       }
       case 'Recientes': {
         //console.log(tienepermiso + 'tipo '+ doc.type + ' si tiene padre '+  self.Verificarpadre(doc) );
-        if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !self.Verificarpadre(doc)) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if ((doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
         }
         break;
       }
       case 'Expirados': {
-        if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note') && !self.Verificarpadre(doc)) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if ((doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note') && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note') && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
         }
+
         break;
       }
       case 'Favoritos': {
@@ -7101,8 +7443,12 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Multimedia': {
-        if (tienepermiso) {
+        if (self.state.login.user === self.state.config.user) {
           cumple = true;
+        } else {
+          if (tienepermiso) {
+            cumple = true;
+          }
         }
         break;
       }
@@ -7113,8 +7459,14 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Eliminados': {
-        if (tienepermiso && doc.isTrashed && !self.Verificarpadre(doc)) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if (doc.isTrashed && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && doc.isTrashed && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
         }
         break;
       }
@@ -7127,33 +7479,62 @@ class DocumentManager extends React.Component {
       }
 
       case 'Archivo Busqueda': {
-        if (tienepermiso && !doc.isTrashed && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !self.Verificarpadre(doc)) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if (!doc.isTrashed && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section' || doc.type === 'Workspace') && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && !doc.isTrashed && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
         }
         break;
       }
-
       case 'Folder Eliminada': {
-        if (tienepermiso && doc.isTrashed && !self.Verificarpadre(doc)) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if (doc.isTrashed && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && doc.isTrashed && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
         }
         break;
       }
       case 'Folder': {
-        if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !doc.isTrashed) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if ((doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !doc.isTrashed) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section') && !doc.isTrashed) {
+            cumple = true;
+          }
         }
         break;
       }
       case 'Folder Busqueda': {
-        if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note') && !doc.isTrashed && !self.Verificarpadre(doc)) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if ((doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note') && !doc.isTrashed && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note') && !doc.isTrashed && !self.Verificarpadre(doc)) {
+            cumple = true;
+          }
         }
         break;
       }
       case 'Busqueda': {
-        if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section')) {
-          cumple = true;
+        if (self.state.login.user === self.state.config.user) {
+          if ((doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section')) {
+            cumple = true;
+          }
+        } else {
+          if (tienepermiso && (doc.type === 'File' || doc.type === 'Folder' || doc.type === 'Note' || doc.type === 'Section')) {
+            cumple = true;
+          }
         }
         break;
       }
@@ -7187,15 +7568,55 @@ class DocumentManager extends React.Component {
                 statusownerbloq = status.lockOwner;
                 fechabloq = status.lockCreated;
               }
-              self.ConstruirObjetoDocumento(lista[cont], statusbloq, statusownerbloq, fechabloq, comentado);
-              cont = cont + 1;
-              if (long > cont) {
-                //let newList = lista.splice(0, 1);
-                // cont = cont + 1;
-                self.DevolverListaFormateada(lista, cont, long, filtro);
-              } else if (long === cont) {
-                self.cambiarEstadoVacio(loadData);
+
+              /// sacar el tamaño del fichero
+              let tamanno = 0 + 'bytes';
+              console.log(lista[cont]);
+              let file = [];
+              let totalsize = 0;
+              if (lista[cont].type === 'File' || lista[cont].type === 'Note') {
+                if (lista[cont].properties.hasOwnProperty('file:content')) {
+                  if (lista[cont].properties['file:content']) {
+                    file = lista[cont].properties['file:content']
+                    totalsize = file.length;
+                  }
+                }
+                tamanno = self.obtenertamaño(totalsize);
+                self.ConstruirObjetoDocumento(lista[cont], statusbloq, statusownerbloq, fechabloq, comentado, tamanno);
+                cont = cont + 1;
+                if (long > cont) {
+                  self.DevolverListaFormateada(lista, cont, long, filtro);
+                } else if (long === cont) {
+                  console.log('termino 1')
+                  self.cambiarEstadoVacio(loadData);
+                }
+              } else {
+                console.log(lista[cont].title)
+                self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:primaryType IN ('File', 'Note') AND ecm:path STARTSWITH '" + lista[cont].path + "' ORDER BY dc:created DESC", 20000000)
+                  .then(function (docs) {
+                    let totalsize = 0;
+                    docs.forEach(element => {
+                      if (element.properties.hasOwnProperty('file:content')) {
+                        if (element.properties['file:content']) {
+                          let file = element.properties['file:content']
+                          //console.log(file.length)
+                          totalsize = totalsize + parseFloat(file.length);
+                        }
+                      }
+                    });
+                    tamanno = self.obtenertamaño(totalsize);
+                    console.log(tamanno);
+                    self.ConstruirObjetoDocumento(lista[cont], statusbloq, statusownerbloq, fechabloq, comentado, tamanno);
+                    cont = cont + 1;
+                    if (long > cont) {
+                      self.DevolverListaFormateada(lista, cont, long, filtro);
+                    } else if (long === cont) {
+                      console.log('termino 2')
+                      self.cambiarEstadoVacio(loadData);
+                    }
+                  })
               }
+
             })
         })
     } else {
@@ -7321,6 +7742,7 @@ class DocumentManager extends React.Component {
         .params({ "property": "dc:title", "values": denomadd })
         .execute()
         .then(function (docs) {
+          console.log('sdfsdfdsf');
           let cumple = true;
           if (tipoadd === 'Section') {
             docs.entries.forEach(element => {
@@ -7443,8 +7865,8 @@ class DocumentManager extends React.Component {
   }
 
   handlerecursiveDownload(lista, cont, longt) {
-    let msg = 'El archivo ' + lista[0].name + ' fue descargado satisfactoriamente.'
-    if (lista[0].tipo === 'Folder') {
+    let msg = 'El achrivo ' + lista[0].name + ' fue descargado satisfactoriamente.'
+    if (lista[0].tipo === 'Folder' || lista[0].tipo === 'Workspace') {
       nuxeo.operation('Blob.BulkDownload')
         .input(lista[0].path)
         .execute()
@@ -7593,7 +8015,7 @@ class DocumentManager extends React.Component {
           denom = denom + '(' + rep + ').' + array[array.length - 1];
           self.handleBuscarRepetidos(denom, rep, lista, cont, longt);
         } else {
-          let msg = 'El archivo ' + denomadd + ' fue importado satisfactoriamente'
+          let msg = 'El achrivo ' + denomadd + ' fue importado satisfactoriamente'
           //console.log(lista[0]);    
           var blob = new Nuxeo.Blob({ content: lista[0], name: denomadd, mimeType: lista[0].type, size: lista[0].size })
           // console.log(blob);
@@ -7667,6 +8089,10 @@ class DocumentManager extends React.Component {
   render() {
     const { classes } = this.props;
     const { openpanel } = this.state;
+
+    const storage = parseFloat(this.state.config.storage);
+    const storageuser = parseFloat(this.state.config.storageuser);
+
     return (
       //<MuiThemeProvider theme={theme}>
       <div>
@@ -7698,12 +8124,12 @@ class DocumentManager extends React.Component {
                         </Avatar>
                       </Tooltip>
                     ) : (
-                        <Tooltip title="Introducir los Datos de Configuración">
-                          <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                            <Edit />
-                          </Avatar>
-                        </Tooltip>
-                      )
+                      <Tooltip title="Introducir los Datos de Configuración">
+                        <Avatar aria-label="Recipe" className={classes.avatarconfig}>
+                          <Edit />
+                        </Avatar>
+                      </Tooltip>
+                    )
 
                   }
                     <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
@@ -7725,7 +8151,7 @@ class DocumentManager extends React.Component {
                             label="Url del servidor"
                             value={this.state.config.confurl}
                             error={this.state.config.errorurl}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errorurl ? this.state.config.texterror: null}
                             onChange={this.setValueURLNuxeo}
                             fullWidth
                           />
@@ -7743,7 +8169,7 @@ class DocumentManager extends React.Component {
                             label="Nombre de dominio"
                             value={this.state.config.confnombredominio}
                             error={this.state.config.errordominio}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errordominio ? this.state.config.texterror: null}
                             onChange={this.setValueNombreDomNuxeo}
                             fullWidth
                           />
@@ -7761,7 +8187,7 @@ class DocumentManager extends React.Component {
                             label="Administrador"
                             value={this.state.config.confuser}
                             error={this.state.config.erroruser}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.erroruser ? this.state.config.texterror: null}
                             onChange={this.setValueAdminNuxeo}
                             fullWidth
                           />
@@ -7782,7 +8208,7 @@ class DocumentManager extends React.Component {
                             fullWidth
                             value={this.state.config.confpassword}
                             error={this.state.config.errorpassword}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errorpassword ? this.state.config.texterror: null}
                             onChange={this.setValueAdminPassNuxeo}
                             InputProps={{
                               endAdornment: (
@@ -7813,8 +8239,50 @@ class DocumentManager extends React.Component {
                             label="Url del fichero"
                             value={this.state.config.confurlonlyoffice}
                             error={this.state.config.errorurloffice}
-                            helperText={this.state.config.texterror}
+                            helperText={this.state.config.errorurloffice ? this.state.config.texterror: null}
                             onChange={this.setValueURLOnlyoffice}
+                            fullWidth
+                          />
+                        </Grid>
+                      </Grid>
+                    </FormGroup>
+                    <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Cuota de Alamacenamiento </Typography>
+                    <Typography variant="subtitle2" gutterBottom color='primary'> Introducir las cuotas de almacenamiento, expresarlas en GB: </Typography>
+                    <FormGroup>
+                      <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <Storage color='primary' />
+                        </Grid>
+                        <Grid item item xs={11} md={5}>
+                          <TextField
+                            id="input-storage"
+                            label="Cuota del Servidor"
+                            type="number"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            value={this.state.config.confstorage}
+                            error={this.state.config.errorstorage}
+                            helperText={this.state.config.errorstorage ? this.state.config.texterror : null}
+                            onChange={this.setValueStorage}
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                          <DataUsage color='primary' />
+                        </Grid>
+                        <Grid item item xs={11} md={5}>
+                          <TextField
+                            id="input-storageuser"
+                            label="Cuota del Usuario"
+                            type="number"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            value={this.state.config.confstorageuser}
+                            error={this.state.config.errorstorageuser}
+                            helperText={this.state.config.errorstorageuser ? this.state.config.texterror : null}
+                            onChange={this.setValueStorageUser}
                             fullWidth
                           />
                         </Grid>
@@ -7822,6 +8290,8 @@ class DocumentManager extends React.Component {
                     </FormGroup>
                   </FormControl>
                 </CardContent>
+
+
                 <CardActions className={classes.actions} style={{ width: '100%', padding: '0px 20px 20px 20px' }}>
                   <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
                     <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
@@ -7916,6 +8386,116 @@ class DocumentManager extends React.Component {
                     <ListItemText primary="Configuraciones" />
                   </ListItem>
                 </List>
+                <Divider variant="middle" />
+                <div display="flex" style={{ padding: '15px' }}>
+                  <Typography variant="h5" color="primary" style={{ fontSize: '18px' }}> <Storage color='primary' style={{ marginRight: '30px', marginTop: '0px' }} /> Almacenamiento</Typography>
+                </div>
+                {/*    <Typography variant="h5" color="textSecondary" style={{padding:'0px 0px 10px 20px', fontSize:'14px', marginTop:'5px'}}><b>Servidor:</b><Chip size="small" label={this.state.storageserver + ' GB usados'} color="primary" style={{marginLeft:'10px'}}/></Typography> */}
+                <div style={{ padding: '10px 20px 0px 20px' }}>
+                  <Box display="flex" alignItems="center">
+                    <Box minWidth={60} mr={1}>
+                      <Typography variant="Button" color="textSecondary"><b>Servidor</b></Typography>
+                    </Box>
+                    <Box width="100%" mr={1}>
+                      <LinearProgress variant="determinate" value={this.state.storageserverporc}
+                        aria-owns={this.state.openinfserver ? 'mouse-over-popover-server' : undefined}
+                        aria-haspopup="true"
+                        onMouseEnter={(event) => this.handlePopoverOpen(event)}
+                        onMouseLeave={this.handlePopoverClose}
+                      />
+                      <Popover
+                        id="mouse-over-popover-server"
+                        className={classes.popover}
+                        open={this.state.openinfserver}
+                        anchorEl={this.state.anchorinfserver}
+                        anchorOrigin={{
+                          vertical: 'top',
+                          horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'center',
+                        }}
+                        onClose={this.handlePopoverClose}
+                        disableRestoreFocus
+                      >
+                        <div style={{ padding: '10px' }}>
+                          <Box alignItems="center">
+                            <Box minWidth={80}>
+                              <Typography variant="overline" color="textSecondary"><b>Total: {storage.toFixed(2)} GB</b></Typography>
+                            </Box>
+                            <Box minWidth={80}>
+                              <Typography variant="overline" color="primary"><b>Usado: {this.obtenertamaño(this.state.storageserver)}</b></Typography>
+                            </Box>
+                            <Box minWidth={80}>
+                              <Typography variant="overline" style={{ color: '#dddddd' }}><b>Disponible: {(storage - (this.state.storageserver / 1000000000)).toFixed(2)} GB</b></Typography>
+                            </Box>
+                          </Box>
+                        </div>
+                      </Popover>
+                    </Box>
+                    <Box minWidth={50}>
+                      <Typography variant="Button" color="primary">{this.state.storageserverporc + '%'}</Typography>
+                    </Box>
+                  </Box>
+                </div>
+                <div style={{ padding: '10px 20px 20px 20px' }}>
+                  <Box display="flex" alignItems="center">
+                    <Box minWidth={60} mr={1}>
+                      <Typography variant="Button" color="textSecondary"><b>Usuario</b></Typography>
+                    </Box>
+                    <Box width="100%" mr={1}>
+                      <LinearProgress variant="determinate" value={this.state.storageuserporc}
+                        aria-owns={this.state.openinfuser ? 'mouse-over-popover-user' : undefined}
+                        aria-haspopup="true"
+                        onMouseEnter={(event) => this.handlePopoverOpenUser(event)}
+                        onMouseLeave={this.handlePopoverCloseUser}
+                      />
+                      <Popover
+                        id="mouse-over-popover-user"
+                        className={classes.popover}
+                        open={this.state.openinfuser}
+                        anchorEl={this.state.anchorinfuser}
+                        anchorOrigin={{
+                          vertical: 'top',
+                          horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'center',
+                        }}
+                        onClose={this.handlePopoverCloseUser}
+                        disableRestoreFocus
+                      >
+                        <div style={{ padding: '10px' }}>
+                          <Box alignItems="center">
+                            <Box minWidth={80}>
+                              <Typography variant="overline" color="textSecondary"><b>Total: {storageuser.toFixed(2)} GB</b></Typography>
+                            </Box>
+                            <Box minWidth={80}>
+                              <Typography variant="overline" color="primary"><b>Usado: {this.obtenertamaño(storageuser)}</b></Typography>
+                            </Box>
+                            <Box minWidth={80}>
+                              <Typography variant="overline" style={{ color: '#dddddd' }}><b>Disponible: {parseFloat((storageuser * 1000000000 - this.state.storageuser) / 1000000000).toFixed(2)} GB</b></Typography>
+                            </Box>
+                          </Box>
+                        </div>
+                      </Popover>
+                    </Box>
+                    <Box minWidth={50}>
+                      <Typography variant="Button" color="primary">{this.state.storageuserporc + '%'}</Typography>
+                    </Box>
+                  </Box>
+                </div>
+
+
+
+                {/*   <div display="flex" alignItems="center" style={{padding:'0px 20px 0px 20px'}}>
+                         <LinearProgress value={15} variant='determinate'/>
+                         <Typography variant="body2" color="textSecondary">{this.state.config.storage}</Typography>
+                </div> */}
+                {/*  <Typography>Estado del Almacenamiento</Typography>
+                <LinearProgress value={15} variant='determinate'/> */}
               </Grid>
               {this.state.config.menuactivate === false ? (
                 <React.Fragment>
@@ -7932,9 +8512,9 @@ class DocumentManager extends React.Component {
                                   {this.devuelveiconscamino(row.iconvacioantecesor)} {row.denom}
                                 </Link>
                               ) : (
-                                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {this.devuelveiconscamino(row.iconvacioantecesor)} <Typography color="primary" style={{ fontFamily: "Open Sans, sans-serif", fontSize: '16px' }}>{row.denom}</Typography> </div>
-                                )
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                  {this.devuelveiconscamino(row.iconvacioantecesor)} <Typography color="primary" style={{ fontFamily: "Open Sans, sans-serif", fontSize: '16px' }}>{row.denom}</Typography> </div>
+                              )
                               }
                             </React.Fragment>
                           )
@@ -7953,15 +8533,15 @@ class DocumentManager extends React.Component {
                                   {this.state.tabla.numSelected} archivos seleccionados</b>
                                 </Typography>
                               ) : (
-                                  <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
-                                    {this.state.tabla.numSelected} grupos seleccionados</b>
-                                  </Typography>
-                                )
-                            ) : (
-                                <Typography className={classes.title} variant="h6" id="tableTitle" style={{ color: "#FFFFFF" }}>
-                                  {this.state.titulotoolbar}
+                                <Typography className={classes.title} style={{ color: "#FFFFFF" }} variant="subtitle1"><b>
+                                  {this.state.tabla.numSelected} grupos seleccionados</b>
                                 </Typography>
                               )
+                            ) : (
+                              <Typography className={classes.title} variant="h6" id="tableTitle" style={{ color: "#FFFFFF" }}>
+                                {this.state.titulotoolbar}
+                              </Typography>
+                            )
                             }
                             <div style={{ display: 'flex', alignItems: 'center', marginRight: '70px' }}>
                               {this.state.tabla.numSelected > 0 ? (
@@ -8119,100 +8699,133 @@ class DocumentManager extends React.Component {
                                   </div>
                                 </React.Fragment>
                               ) : (
-                                  <React.Fragment>
-                                    {this.state.antecesor.mostrarbtnatras &&
-                                      <Tooltip title="Ir hacia atrás">
-                                        <IconButton style={{ color: "#FFFFFF" }} id='atrasdocument' aria-label="atras" aria-haspopup="true" onClick={this.handleClickAtras}>
-                                          <Reply />
-                                        </IconButton>
-                                      </Tooltip>
-                                    }
-                                    {this.state.menu.hidebtnprincipales === false ? (
-                                      <React.Fragment>
-                                        { this.state.acciones.crear ? (
-                                          this.state.menu.menuselect !== 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect !== 'Grupos' ? (
+                                <React.Fragment>
+                                  {this.state.antecesor.mostrarbtnatras &&
+                                    <Tooltip title="Ir hacia atrás">
+                                      <IconButton style={{ color: "#FFFFFF" }} id='atrasdocument' aria-label="atras" aria-haspopup="true" onClick={this.handleClickAtras}>
+                                        <Reply />
+                                      </IconButton>
+                                    </Tooltip>
+                                  }
+                                  {this.state.menu.hidebtnprincipales === false ? (
+                                    <React.Fragment>
+                                      { this.state.acciones.crear ? (
+                                        this.state.menu.menuselect !== 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect !== 'Grupos' ? (
+                                          <React.Fragment>
+                                            <Tooltip title="Crear archivo">
+                                              <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menu" aria-haspopup="true" onClick={this.handleClickAddMenuActions} >
+                                                <Add />
+                                              </IconButton>
+                                            </Tooltip>
+                                            <Menu id="long-menu" anchorEl={this.state.anchoraddEl} keepMounted open={this.state.openaddmenu} onClose={this.handleMenuAddActionsClose}>
+                                              <Tooltip title="Crear Carpeta">
+                                                <MenuItem key={'folder'} onClick={(event) => this.handleActionsMenuadd(event, 'Folder')}>
+                                                  <Folder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                                             Carpeta
+                                                                     </MenuItem>
+                                              </Tooltip>
+                                              <Tooltip title="Crear documento">
+                                                <MenuItem key={'documento'} onClick={(event) => this.handleActionsMenuadd(event, 'File')}>
+                                                  <DescriptionIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                                              Documento
+                                                                     </MenuItem>
+                                              </Tooltip>
+                                              <Tooltip title="Crear nota">
+                                                <MenuItem key={'nota'} onClick={(event) => this.handleActionsMenuadd(event, 'Nota')}>
+                                                  <InsertDriveFileIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                                            Nota
+                                                                     </MenuItem>
+                                              </Tooltip>
+                                              <Tooltip title="Crear Hoja de Cálculo">
+                                                <MenuItem key={'hoja'} onClick={(event) => this.handleActionsMenuadd(event, 'Hoja')}>
+                                                  <ChromeReaderModeIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                                              Hoja de Cálculo
+                                                                      </MenuItem>
+                                              </Tooltip>
+                                              <Tooltip title="Crear presentacion">
+                                                <MenuItem key={'presentacion'} onClick={(event) => this.handleActionsMenuadd(event, 'Presentacion')}>
+                                                  <Dvr color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
+                                                                             Presentación
+                                                                      </MenuItem>
+                                              </Tooltip>
+                                            </Menu>
+                                          </React.Fragment>
+                                        ) : (
+                                          this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' ? (
                                             <React.Fragment>
-                                              <Tooltip title="Crear archivo">
-                                                <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menu" aria-haspopup="true" onClick={this.handleClickAddMenuActions} >
+                                              <Tooltip title="Crear">
+                                                <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Secion')}>
                                                   <Add />
                                                 </IconButton>
                                               </Tooltip>
-                                              <Menu id="long-menu" anchorEl={this.state.anchoraddEl} keepMounted open={this.state.openaddmenu} onClose={this.handleMenuAddActionsClose}>
-                                                <Tooltip title="Crear Carpeta">
-                                                  <MenuItem key={'folder'} onClick={(event) => this.handleActionsMenuadd(event, 'Folder')}>
-                                                    <Folder color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
-                                                                             Carpeta
-                                                                     </MenuItem>
-                                                </Tooltip>
-                                                <Tooltip title="Crear documento">
-                                                  <MenuItem key={'documento'} onClick={(event) => this.handleActionsMenuadd(event, 'File')}>
-                                                    <DescriptionIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
-                                                                              Documento
-                                                                     </MenuItem>
-                                                </Tooltip>
-                                                <Tooltip title="Crear nota">
-                                                  <MenuItem key={'nota'} onClick={(event) => this.handleActionsMenuadd(event, 'Nota')}>
-                                                    <InsertDriveFileIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
-                                                                            Nota
-                                                                     </MenuItem>
-                                                </Tooltip>
-                                                <Tooltip title="Crear Hoja de Cálculo">
-                                                  <MenuItem key={'hoja'} onClick={(event) => this.handleActionsMenuadd(event, 'Hoja')}>
-                                                    <ChromeReaderModeIcon color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
-                                                                              Hoja de Cálculo
-                                                                      </MenuItem>
-                                                </Tooltip>
-                                                <Tooltip title="Crear presentacion">
-                                                  <MenuItem key={'presentacion'} onClick={(event) => this.handleActionsMenuadd(event, 'Presentacion')}>
-                                                    <Dvr color='primary' style={{ marginRight: '5px', fontSize: '20px' }} />
-                                                                             Presentación
-                                                                      </MenuItem>
-                                                </Tooltip>
-                                              </Menu>
                                             </React.Fragment>
                                           ) : (
-                                              this.state.menu.menuselect === 'Espacio de Grupo de Trabajo' ? (
-                                                <React.Fragment>
-                                                  <Tooltip title="Crear">
-                                                    <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Secion')}>
-                                                      <Add />
-                                                    </IconButton>
-                                                  </Tooltip>
-                                                </React.Fragment>
-                                              ) : (
-                                                  this.state.menu.menuselect === 'Grupos' ? (
-                                                    <React.Fragment>
-                                                      <Tooltip title="Crear">
-                                                        <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Grupo')}>
-                                                          <Add />
-                                                        </IconButton>
-                                                      </Tooltip>
-                                                    </React.Fragment>
-                                                  ) : (null)
-                                                ))
-                                        ) : (null)
+                                            this.state.menu.menuselect === 'Grupos' ? (
+                                              <React.Fragment>
+                                                <Tooltip title="Crear">
+                                                  <IconButton style={{ color: "#FFFFFF" }} id='adddocument' aria-label="acciones" aria-controls="long-menuadd" aria-haspopup="true" onClick={(event) => this.handleActionsMenuadd(event, 'Grupo')}>
+                                                    <Add />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              </React.Fragment>
+                                            ) : (null)
+                                          ))
+                                      ) : (null)
 
-                                        }
-                                        {this.state.vistadetalle ? (
-                                          <Tooltip title="Vista iconos grande">
-                                            <IconButton aria-label="detalle" onClick={this.handleClickMostrarDetalle}>
-                                              <Apps style={{ color: '#FFFFFF' }} />
-                                            </IconButton>
-                                          </Tooltip>
-                                        ) : (
-                                            <Tooltip title="Vista de detalle">
-                                              <IconButton aria-label="iconos" onClick={this.handleClickMostrarDetalle}>
-                                                <ViewList style={{ color: '#FFFFFF' }} />
-                                              </IconButton>
-                                            </Tooltip>
-                                          )
-                                        }
-                                        <div className={classes.search} >
+                                      }
+                                      {this.state.vistadetalle ? (
+                                        <Tooltip title="Vista iconos grande">
+                                          <IconButton aria-label="detalle" onClick={this.handleClickMostrarDetalle}>
+                                            <Apps style={{ color: '#FFFFFF' }} />
+                                          </IconButton>
+                                        </Tooltip>
+                                      ) : (
+                                        <Tooltip title="Vista de detalle">
+                                          <IconButton aria-label="iconos" onClick={this.handleClickMostrarDetalle}>
+                                            <ViewList style={{ color: '#FFFFFF' }} />
+                                          </IconButton>
+                                        </Tooltip>
+                                      )
+                                      }
+                                      <div className={classes.search} >
+                                        <div className={classes.searchIcon}>
+                                          <SearchIcon />
+                                        </div>
+                                        <InputBase
+                                          onChange={(event) => this.handleBuscar(event)}
+                                          placeholder="Buscar…"
+                                          value={this.state.textbuscar}
+                                          classes={{
+                                            root: classes.inputRoot,
+                                            input: classes.inputInput,
+                                          }}
+                                        />
+                                      </div>
+                                    </React.Fragment>
+                                  ) : (
+                                    <React.Fragment>
+                                      {this.state.vistadetalle ? (
+                                        <Tooltip title="Vista iconos grande">
+                                          <IconButton aria-label="detalle" onClick={this.handleClickMostrarDetalle}>
+                                            <Apps style={{ color: '#FFFFFF' }} />
+                                          </IconButton>
+                                        </Tooltip>
+                                      ) : (
+                                        <Tooltip title="Vista de detalle">
+                                          <IconButton aria-label="iconos" onClick={this.handleClickMostrarDetalle}>
+                                            <ViewList style={{ color: '#FFFFFF' }} />
+                                          </IconButton>
+                                        </Tooltip>
+                                      )
+                                      }
+                                      {this.state.menu.menuselect !== 'Búsqueda' &&
+                                        <div className={classes.search} style={{ color: "#FFFFFF" }}>
                                           <div className={classes.searchIcon}>
                                             <SearchIcon />
                                           </div>
                                           <InputBase
                                             onChange={(event) => this.handleBuscar(event)}
+                                            value={this.state.textbuscar}
                                             placeholder="Buscar…"
                                             classes={{
                                               root: classes.inputRoot,
@@ -8220,43 +8833,12 @@ class DocumentManager extends React.Component {
                                             }}
                                           />
                                         </div>
-                                      </React.Fragment>
-                                    ) : (
-                                        <React.Fragment>
-                                          {this.state.vistadetalle ? (
-                                            <Tooltip title="Vista iconos grande">
-                                              <IconButton aria-label="detalle" onClick={this.handleClickMostrarDetalle}>
-                                                <Apps style={{ color: '#FFFFFF' }} />
-                                              </IconButton>
-                                            </Tooltip>
-                                          ) : (
-                                              <Tooltip title="Vista de detalle">
-                                                <IconButton aria-label="iconos" onClick={this.handleClickMostrarDetalle}>
-                                                  <ViewList style={{ color: '#FFFFFF' }} />
-                                                </IconButton>
-                                              </Tooltip>
-                                            )
-                                          }
-                                          {this.state.menu.menuselect !== 'Búsqueda' &&
-                                            <div className={classes.search} style={{ color: "#FFFFFF" }}>
-                                              <div className={classes.searchIcon}>
-                                                <SearchIcon />
-                                              </div>
-                                              <InputBase
-                                                onChange={(event) => this.handleBuscar(event)}
-                                                placeholder="Buscar…"
-                                                classes={{
-                                                  root: classes.inputRoot,
-                                                  input: classes.inputInput,
-                                                }}
-                                              />
-                                            </div>
-                                          }
-                                        </React.Fragment>
-                                      )
-                                    }
-                                  </React.Fragment>
-                                )}
+                                      }
+                                    </React.Fragment>
+                                  )
+                                  }
+                                </React.Fragment>
+                              )}
                             </div>
                           </Toolbar>
                         </AppBar>
@@ -8409,135 +8991,136 @@ class DocumentManager extends React.Component {
                           }
                           < div style={{ maxWidth: "100%" }}>
                             {this.state.vistadetalle &&
-                              <Table
-                                className={classes.root}
-                                aria-labelledby="tableTitle"
-                                aria-label="enhanced table"
-                              >
-                                {this.state.tabla.rowCount > 0 ? (
-                                  this.state.menu.menuselect === 'Grupos' ? (
-                                    <React.Fragment>
-                                      <div style={{ maxHeight: '350px', overflow: 'auto', }}>
-                                        <TableHead>
-                                          <TableRow>
-                                            <TableCell padding="checkbox" style={{ width: '2%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}>
-                                              <Tooltip title='Seleccionar todos'>
-                                                <Checkbox color='primary'
-                                                  indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
-                                                  checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
-                                                  onChange={this.handleSelectAllClickGroup}
-                                                  inputProps={{ 'aria-label': 'select all desserts' }}
-                                                />
-                                              </Tooltip>
-                                            </TableCell>
-                                            <TableCell
-                                              style={{ minWidth: 150, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
-                                              key='name'
-                                              align='center'
-                                              padding='default'
-                                              sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
-                                            >
-                                              <TableSortLabel
-                                                active={this.state.tabla.orderBy === 'name'}
-                                                direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
-                                                onClick={this.createSortHandler('name')}
+                              <React.Fragment>
+                                <Table
+                                  className={classes.root}
+                                  aria-labelledby="tableTitle"
+                                  aria-label="enhanced table"
+                                >
+                                  {this.state.tabla.rowCount > 0 ? (
+                                    this.state.menu.menuselect === 'Grupos' ? (
+                                      <React.Fragment>
+                                        <div style={{ maxHeight: '420px', overflow: 'auto', }}>
+                                          <TableHead>
+                                            <TableRow>
+                                              <TableCell padding="checkbox" style={{ width: '2%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}>
+                                                <Tooltip title='Seleccionar todos'>
+                                                  <Checkbox color='primary'
+                                                    indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
+                                                    checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
+                                                    onChange={this.handleSelectAllClickGroup}
+                                                    inputProps={{ 'aria-label': 'select all desserts' }}
+                                                  />
+                                                </Tooltip>
+                                              </TableCell>
+                                              <TableCell
+                                                style={{ minWidth: 150, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                                key='name'
+                                                align='center'
+                                                padding='default'
+                                                sortDirection={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : false}
                                               >
-                                                Denominación
+                                                <TableSortLabel
+                                                  active={this.state.tabla.orderBy === 'name'}
+                                                  direction={this.state.tabla.orderBy === 'name' ? this.state.tabla.order : 'asc'}
+                                                  onClick={this.createSortHandler('name')}
+                                                >
+                                                  Denominación
                                                          </TableSortLabel>
-                                            </TableCell>
-                                            <TableCell
-                                              style={{ minWidth: 150, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
-                                              key='descripcion'
-                                              align='center'
-                                              padding='default'
-                                              sortDirection={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : false}
-                                            >
-                                              <TableSortLabel
-                                                active={this.state.tabla.orderBy === 'descripcion'}
-                                                direction={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : 'asc'}
-                                                onClick={this.createSortHandler('descripcion')}
+                                              </TableCell>
+                                              <TableCell
+                                                style={{ minWidth: 150, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                                key='descripcion'
+                                                align='center'
+                                                padding='default'
+                                                sortDirection={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : false}
                                               >
-                                                Descripción
+                                                <TableSortLabel
+                                                  active={this.state.tabla.orderBy === 'descripcion'}
+                                                  direction={this.state.tabla.orderBy === 'descripcion' ? this.state.tabla.order : 'asc'}
+                                                  onClick={this.createSortHandler('descripcion')}
+                                                >
+                                                  Descripción
                                                          </TableSortLabel>
-                                            </TableCell>
-                                            <TableCell
-                                              style={{ minWidth: 110, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
-                                              key='sistema'
-                                              align='center'
-                                              padding='default'
-                                              sortDirection={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : false}
-                                            >
-                                              <TableSortLabel
-                                                active={this.state.tabla.orderBy === 'sistema'}
-                                                direction={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : 'asc'}
-                                                onClick={this.createSortHandler('sistema')}
+                                              </TableCell>
+                                              <TableCell
+                                                style={{ minWidth: 110, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                                key='sistema'
+                                                align='center'
+                                                padding='default'
+                                                sortDirection={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : false}
                                               >
-                                                Creado
+                                                <TableSortLabel
+                                                  active={this.state.tabla.orderBy === 'sistema'}
+                                                  direction={this.state.tabla.orderBy === 'sistema' ? this.state.tabla.order : 'asc'}
+                                                  onClick={this.createSortHandler('sistema')}
+                                                >
+                                                  Creado
                                                          </TableSortLabel>
-                                            </TableCell>
-                                            <TableCell
-                                              style={{ minWidth: 135, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
-                                              key='cantmiembros'
-                                              align='center'
-                                              padding='default'
-                                              sortDirection={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : false}
-                                            >
-                                              <TableSortLabel
-                                                active={this.state.tabla.orderBy === 'cantmiembros'}
-                                                direction={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : 'asc'}
-                                                onClick={this.createSortHandler('cantmiembros')}
+                                              </TableCell>
+                                              <TableCell
+                                                style={{ minWidth: 135, position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}
+                                                key='cantmiembros'
+                                                align='center'
+                                                padding='default'
+                                                sortDirection={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : false}
                                               >
-                                                Miembros
+                                                <TableSortLabel
+                                                  active={this.state.tabla.orderBy === 'cantmiembros'}
+                                                  direction={this.state.tabla.orderBy === 'cantmiembros' ? this.state.tabla.order : 'asc'}
+                                                  onClick={this.createSortHandler('cantmiembros')}
+                                                >
+                                                  Miembros
                                                          </TableSortLabel>
-                                            </TableCell>
-                                          </TableRow>
-                                        </TableHead>
-                                        <TableBody style={{ maxHeight: '400px', overflow: 'scroll' }}>
-                                          {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy)).map((row, index) => {
-                                            const isItemSelected = this.isSelected(row.name);
-                                            const labelId = `enhanced-table-checkbox-${index}`;
-                                            return (
-                                              <TableRow
-                                                hover
-                                                aria-checked={isItemSelected}
-                                                tabIndex={-1}
-                                                key={row.id}
-                                                selected={isItemSelected}
-                                              >
-                                                <TableCell padding="checkbox">
-                                                  <Tooltip title='Seleccione'>
-                                                    <Checkbox id={'checkbox' + row.id}
-                                                      color='primary'
-                                                      checked={isItemSelected}
-                                                      onClick={(event) => this.handleRowClickGroup(event, row.name)}
-                                                      inputProps={{ 'aria-labelledby': labelId }}
-                                                    />
-                                                  </Tooltip>
-                                                </TableCell>
-                                                <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                  {this.Devuelveinfo(row)}
-                                                </TableCell>
-                                                <TableCell align="left">{row.descripcion}</TableCell>
-                                                <TableCell align="left">{row.sistema}</TableCell>
-                                                <TableCell align="center">{row.cantmiembros}</TableCell>
-                                              </TableRow>
-                                            );
-                                          })}
-                                        </TableBody>
-                                        {this.state.showBackdrop &&
+                                              </TableCell>
+                                            </TableRow>
+                                          </TableHead>
+                                          <TableBody style={{ maxHeight: '600px', overflow: 'scroll' }}>
+                                            {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy)).map((row, index) => {
+                                              const isItemSelected = this.isSelected(row.name);
+                                              const labelId = `enhanced-table-checkbox-${index}`;
+                                              return (
+                                                <TableRow
+                                                  hover
+                                                  aria-checked={isItemSelected}
+                                                  tabIndex={-1}
+                                                  key={row.id}
+                                                  selected={isItemSelected}
+                                                >
+                                                  <TableCell padding="checkbox">
+                                                    <Tooltip title='Seleccione'>
+                                                      <Checkbox id={'checkbox' + row.id}
+                                                        color='primary'
+                                                        checked={isItemSelected}
+                                                        onClick={(event) => this.handleRowClickGroup(event, row.name)}
+                                                        inputProps={{ 'aria-labelledby': labelId }}
+                                                      />
+                                                    </Tooltip>
+                                                  </TableCell>
+                                                  <TableCell component="th" id={labelId} scope="row" padding="none">
+                                                    {this.Devuelveinfo(row)}
+                                                  </TableCell>
+                                                  <TableCell align="left">{row.descripcion}</TableCell>
+                                                  <TableCell align="left">{row.sistema}</TableCell>
+                                                  <TableCell align="center">{row.cantmiembros}</TableCell>
+                                                </TableRow>
+                                              );
+                                            })}
+                                          </TableBody>
+                                          {/*   {this.state.showBackdrop &&
                                           <Modal
-                                            aria-labelledby="simple-modal-title"
-                                            aria-describedby="simple-modal-description"
+                                            aria-labelledby="simple-modal-grupo"
+                                            aria-describedby="simple-modal-grupo"
                                             open={this.state.showBackdrop}
                                           >
-                                            <Loading color="primary" />
+                                            <Loading />
                                           </Modal>
-                                        }
-                                      </div>
-                                    </React.Fragment>
-                                  ) : (
+                                        } */}
+                                        </div>
+                                      </React.Fragment>
+                                    ) : (
                                       <React.Fragment>
-                                        <div style={{ maxHeight: '400px', overflow: 'auto', }}>
+                                        <div style={{ maxHeight: '460px', overflow: 'auto', }}>
                                           <TableHead>
                                             <TableRow >
                                               <TableCell padding="checkbox" style={{ width: '2%', backgroundColor: "#FFFFFF", position: "sticky", top: 0, zIndex: 10, }}>
@@ -8601,7 +9184,7 @@ class DocumentManager extends React.Component {
                                           </TableHead>
                                           <TableBody >
                                             {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy)).map((row, index) => {
-                                              const isItemSelected = this.isSelected(row.name);
+                                              const isItemSelected = this.isSelected(row.id);
                                               const labelId = `enhanced-table-checkbox-${index}`;
                                               return (
                                                 <TableRow
@@ -8616,7 +9199,7 @@ class DocumentManager extends React.Component {
                                                       <Checkbox id={'checkbox' + row.id}
                                                         color='primary'
                                                         checked={isItemSelected}
-                                                        onClick={(event) => this.handleRowClick(event, row.name)}
+                                                        onClick={(event) => this.handleRowClick(event, row.id)}
                                                         inputProps={{ 'aria-labelledby': labelId }}
                                                       />
                                                     </Tooltip>
@@ -8630,15 +9213,15 @@ class DocumentManager extends React.Component {
                                               );
                                             })}
                                           </TableBody>
-                                          {this.state.showBackdrop &&
-                                            <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.showBackdrop}>
-                                              <Loading color="primary" />
+                                          {/*   {this.state.showBackdrop &&
+                                            <Modal aria-labelledby="simple-modal-section" aria-describedby="simple-modal-section" open={this.state.showBackdrop}>
+                                              <Loading />
                                             </Modal>
-                                          }
+                                          } */}
                                         </div>
                                       </React.Fragment>
                                     )
-                                ) : (
+                                  ) : (
                                     <div style={{ textAlign: 'center', marginTop: '12%' }} >
                                       {this.devuelveiconsitems()}
                                       {this.state.iconvacio != 'Espacio de Grupo de Trabajo' && this.state.iconvacio != 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay archivos que mostrar...</b></Typography>}
@@ -8646,7 +9229,11 @@ class DocumentManager extends React.Component {
                                       {this.state.iconvacio === 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay grupos que mostrar...</b></Typography>}
                                     </div>
                                   )}
-                              </Table>
+                                </Table>
+                                {this.state.showBackdrop === false && this.state.tabla.rowCount > 5 &&
+                                  <div style={{ display: 'flex' }}><Typography color='primary' variant='h6' display="block" gutterBottom style={{ marginLeft: '20px', marginRight: '5px', marginTop: '2px', fontSize: '14px' }}>Total: </Typography> <Chip size="small" label={this.state.cantarchivos} color="primary" /></div>
+                                }
+                              </React.Fragment>
                             }
                             {!this.state.vistadetalle &&
                               <React.Fragment>
@@ -8656,7 +9243,7 @@ class DocumentManager extends React.Component {
                                   aria-label="enhanced table"
                                 >
                                   {this.state.tabla.rowCount > 0 ? (
-                                    <div style={{ maxHeight: '350px' }}>
+                                    <div style={{ maxHeight: '460px' }}>
                                       <TableHead>
                                         <TableRow>
                                           <TableCell padding="checkbox" style={{ width: '2%', position: "sticky", top: 0, backgroundColor: "#FFFFFF", zIndex: 10 }}>
@@ -8664,7 +9251,7 @@ class DocumentManager extends React.Component {
                                               <Checkbox color='primary'
                                                 indeterminate={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected < this.state.tabla.rowCount}
                                                 checked={this.state.tabla.numSelected > 0 && this.state.tabla.numSelected === this.state.tabla.rowCount}
-                                                onChange={this.handleSelectAllClickGroup}
+                                                onChange={this.handleSelectAllClick}
                                                 inputProps={{ 'aria-label': 'select all desserts' }}
                                               />
                                             </Tooltip>
@@ -8688,7 +9275,7 @@ class DocumentManager extends React.Component {
                                       </TableHead>
                                       <Grid container style={{ overflow: 'auto', maxHeight: '340px' }}>
                                         {this.stableSort(rows, this.getSorting(this.state.tabla.order, this.state.tabla.orderBy)).map((row, index) => {
-                                          const isItemSelected = this.isSelected(row.name);
+                                          const isItemSelected = this.isSelected(row.id);
                                           const labelId = `enhanced-table-checkbox-${index}`;
                                           return (
                                             <Card elevation={0} className={classes.root} style={{ width: '140px', marginTop: '10px', marginLeft: '10px' }}>
@@ -8703,15 +9290,15 @@ class DocumentManager extends React.Component {
                                                     />
                                                   </Tooltip>
                                                 ) : (
-                                                    <Tooltip title='Seleccione'>
-                                                      <Checkbox id={'checkbox' + row.id}
-                                                        color='primary'
-                                                        checked={isItemSelected}
-                                                        onClick={(event) => this.handleRowClick(event, row.name)}
-                                                        inputProps={{ 'aria-labelledby': labelId }}
-                                                      />
-                                                    </Tooltip>
-                                                  )}
+                                                  <Tooltip title='Seleccione'>
+                                                    <Checkbox id={'checkbox' + row.id}
+                                                      color='primary'
+                                                      checked={isItemSelected}
+                                                      onClick={(event) => this.handleRowClick(event, row.id)}
+                                                      inputProps={{ 'aria-labelledby': labelId }}
+                                                    />
+                                                  </Tooltip>
+                                                )}
                                                 {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && row.tipo != 'Section' &&
                                                   <div style={{ alignItems: 'center' }}>
                                                     {row.compartido && <Tooltip title='Compartido'><Share color='disabled' style={{ marginRight: '2px', fontSize: '13px' }} /></Tooltip>}
@@ -8737,26 +9324,19 @@ class DocumentManager extends React.Component {
                                         })
                                         }
                                       </Grid>
-                                      {this.state.showBackdrop &&
-                                        <Modal
-                                          aria-labelledby="simple-modal-title"
-                                          aria-describedby="simple-modal-description"
-                                          open={this.state.showBackdrop}
-                                        >
-                                          <Loading color="primary" />
-                                        </Modal>
-                                      }
                                     </div>
                                   ) : (
-                                      <div style={{ textAlign: 'center', marginTop: '12%' }} >
-                                        {this.devuelveiconsitems()}
-                                        {this.state.iconvacio != 'Espacio de Grupo de Trabajo' && this.state.iconvacio != 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay archivos que mostrar...</b></Typography>}
-                                        {this.state.iconvacio === 'Espacio de Grupo de Trabajo' && <Typography className={classes.textmensajecentro}><b>No hay espacios de grupos de trabajo que mostrar...</b></Typography>}
-                                        {this.state.iconvacio === 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay grupos que mostrar...</b></Typography>}
-                                      </div>
-                                    )}
+                                    <div style={{ textAlign: 'center', marginTop: '12%' }} >
+                                      {this.devuelveiconsitems()}
+                                      {this.state.iconvacio != 'Espacio de Grupo de Trabajo' && this.state.iconvacio != 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay archivos que mostrar...</b></Typography>}
+                                      {this.state.iconvacio === 'Espacio de Grupo de Trabajo' && <Typography className={classes.textmensajecentro}><b>No hay espacios de grupos de trabajo que mostrar...</b></Typography>}
+                                      {this.state.iconvacio === 'Grupos' && <Typography className={classes.textmensajecentro}><b>No hay grupos que mostrar...</b></Typography>}
+                                    </div>
+                                  )}
                                 </Table>
-
+                                {this.state.showBackdrop === false && this.state.tabla.rowCount > 5 &&
+                                  <div style={{ display: 'flex', zIndex: '5000', marginTop: '70px' }}><Typography color='primary' variant='h6' display="block" gutterBottom style={{ marginLeft: '20px', marginRight: '5px', marginTop: '2px', fontSize: '14px' }}>Total: </Typography> <Chip size="small" label={this.state.cantarchivos} color="primary" /></div>
+                                }
                               </React.Fragment>
                             }
                           </div>
@@ -8792,8 +9372,7 @@ class DocumentManager extends React.Component {
                                 }
                               </Grid>
                               <Grid item sm={12} md={8} lg={7}>
-                                {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetailprimero}><b> estado: </b><Chip size="small" label={seleccionado.estado}
-                                  color="primary" style={{ marginLeft: '5px', height: '25px' }} /></div>}
+                                {this.state.menu.menuselect != 'Espacio de Grupo de Trabajo' && this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetailprimero}><b> estado: </b><Chip size="small" label={seleccionado.estado} color="primary" style={{ marginLeft: '5px', height: '25px' }} /></div>}
                                 {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> creado: </b><span className={classes.textspacenego}>{seleccionado.creado}</span></div>}
                                 {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> creado por: </b><span className={classes.textspacenego}>{seleccionado.creadopor}</span></div>}
                                 {this.state.menu.menuselect != 'Grupos' && <div className={classes.metadatadetail}><b> tamaño: </b><span className={classes.textspacenego}>{seleccionado.tamanno}</span></div>}
@@ -8904,11 +9483,11 @@ class DocumentManager extends React.Component {
                                                   </MenuItem>
                                                 ))
                                               ) : (
-                                                  <MenuItem key='nulo' value='nulo'>
-                                                    <Tooltip title='No hay seciones donde publicar ó el documento ya fue publicado'>
-                                                      <div>No hay secciones donde publicar </div>
-                                                    </Tooltip>
-                                                  </MenuItem>)
+                                                <MenuItem key='nulo' value='nulo'>
+                                                  <Tooltip title='No hay seciones donde publicar ó el documento ya fue publicado'>
+                                                    <div>No hay secciones donde publicar </div>
+                                                  </Tooltip>
+                                                </MenuItem>)
                                               }
 
                                             </Select>
@@ -9016,8 +9595,8 @@ class DocumentManager extends React.Component {
                                                         </MenuItem>
                                                       })
                                                     ) : (
-                                                        'vacio'
-                                                      )}
+                                                      'vacio'
+                                                    )}
                                                   </MenuList>
                                                 </Paper>
                                               )}
@@ -9059,12 +9638,12 @@ class DocumentManager extends React.Component {
                                                             </Avatar>
                                                           </Tooltip>
                                                         ) : (
-                                                            <Tooltip title={row.status}>
-                                                              <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                {row.avatar}
-                                                              </Avatar>
-                                                            </Tooltip>
-                                                          )}
+                                                          <Tooltip title={row.status}>
+                                                            <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                              {row.avatar}
+                                                            </Avatar>
+                                                          </Tooltip>
+                                                        )}
                                                         <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
 
                                                       </div>
@@ -9072,6 +9651,7 @@ class DocumentManager extends React.Component {
                                                         <Tooltip title='Editar Permiso'>
                                                           <IconButton aria-label="settings" disabled={row.mostrarformulario}>
                                                             <Create color='primary'
+                                                              style={{ fontSize: '18px' }}
                                                               onClick={(e) => this.prepararActPermiso(index)}
                                                             />
                                                           </IconButton>
@@ -9079,15 +9659,16 @@ class DocumentManager extends React.Component {
                                                         <Tooltip title={'Dejar de compartir con este usuario'}>
                                                           <IconButton aria-label="settings">
                                                             <Delete color='primary'
+                                                              style={{ fontSize: '18px' }}
                                                               onClick={(e) => this.handleDeleteShare(row, 'compartidos')} />
                                                           </IconButton>
                                                         </Tooltip>
                                                       </div>
                                                     </div>
 
-                                                    <div style={{ padding: '0px 0px 0px 2px' }}>
+                                                    <div style={{ padding: '0px 0px 0px 35px' }}>
                                                       <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permisos: </b> <Chip size="small" label={row.permission}
-                                                        color="primary" style={{ marginLeft: '5px', marginBottom: '5px' }} />
+                                                        color="primary" style={{ marginLeft: '5px', height: '22px' }} />
                                                       </Typography>
                                                       <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
                                                         <b>Compartió: </b> {row.creator}
@@ -9262,13 +9843,13 @@ class DocumentManager extends React.Component {
                                                             </Tooltip>
                                                           </React.Fragment>
                                                         ) : (
-                                                            seleccionado.permisos[seleccionado.permisos.length - 1] === 'Everything' && <React.Fragment>
-                                                              <Tooltip title='Eliminar Comentario'>
-                                                                <IconButton aria-label="settings">
-                                                                  <Delete color='primary' onClick={(e) => this.handleClickDeleteComment(row.id)} />
-                                                                </IconButton>
-                                                              </Tooltip></React.Fragment>
-                                                          )
+                                                          seleccionado.permisos[seleccionado.permisos.length - 1] === 'Everything' && <React.Fragment>
+                                                            <Tooltip title='Eliminar Comentario'>
+                                                              <IconButton aria-label="settings">
+                                                                <Delete color='primary' onClick={(e) => this.handleClickDeleteComment(row.id)} />
+                                                              </IconButton>
+                                                            </Tooltip></React.Fragment>
+                                                        )
                                                         }
                                                       </div>
                                                     </div>
@@ -9439,12 +10020,12 @@ class DocumentManager extends React.Component {
                                                                 </Avatar>
                                                               </Tooltip>
                                                             ) : (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              )}
+                                                              <Tooltip title={row.status}>
+                                                                <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                            )}
                                                             <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
 
                                                           </div>
@@ -9554,11 +10135,11 @@ class DocumentManager extends React.Component {
                                                 }
                                               </Grid>
                                             ) : (
-                                                <div style={{ textAlign: 'center', marginTop: '15%', height: '105px' }} >
-                                                  <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
-                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se le ha concedido permisos a ningún usuario...</b></Typography>
-                                                </div>
-                                              )}
+                                              <div style={{ textAlign: 'center', marginTop: '15%', height: '105px' }} >
+                                                <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
+                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se le ha concedido permisos a ningún usuario...</b></Typography>
+                                              </div>
+                                            )}
                                           </Collapse>
                                           {/* va color primary */}
                                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
@@ -9587,12 +10168,12 @@ class DocumentManager extends React.Component {
                                                                 </Avatar>
                                                               </Tooltip>
                                                             ) : (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              )}
+                                                              <Tooltip title={row.status}>
+                                                                <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                            )}
                                                             <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
                                                           </div>
                                                           <Tooltip title="Detalle">
@@ -9629,11 +10210,11 @@ class DocumentManager extends React.Component {
                                                 }
                                               </Grid>
                                             ) : (
-                                                <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
-                                                  <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
-                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento...</b></Typography>
-                                                </div>
-                                              )}
+                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
+                                                <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
+                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha compartido el documento...</b></Typography>
+                                              </div>
+                                            )}
                                           </Collapse>
                                           {/* va color primary */}
                                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
@@ -9662,12 +10243,12 @@ class DocumentManager extends React.Component {
                                                                 </Avatar>
                                                               </Tooltip>
                                                             ) : (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              )}
+                                                              <Tooltip title={row.status}>
+                                                                <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                  {row.avatar}
+                                                                </Avatar>
+                                                              </Tooltip>
+                                                            )}
                                                             <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.displayusername}</span>
                                                           </div>
                                                         </div>
@@ -9683,151 +10264,152 @@ class DocumentManager extends React.Component {
                                                 }
                                               </Grid>
                                             ) : (
-                                                <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
-                                                  <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
-                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han heredado permisos...</b></Typography>
-                                                </div>
-                                              )}
+                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '105px' }} >
+                                                <VerifiedUser style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '35px', marginBottom: '10px' }} />
+                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han heredado permisos...</b></Typography>
+                                              </div>
+                                            )}
                                           </Collapse>
                                         </div>
                                       </React.Fragment>
                                     </div>
                                   ) : (
-                                      <div style={{ textAlign: 'center', height: '325px' }} >
-                                        <div className={classes.margin}>
-                                          <Grid container>
-                                            <Grid item >
-                                              <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
-                                            </Grid>
-                                            <Grid item style={{ width: '280px' }}>
-                                              <FormControl>
-                                                <TextField
-                                                  variant="outlined"
-                                                  type='search'
-                                                  value={this.state.compartir.usuariosshare}
-                                                  style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
-                                                  size="small"
-                                                  label='Permitir a...'
-                                                  onChange={(event) => this.handleBuscarUsersGroups(event)}
-                                                />
-                                                <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }}>
-                                                  {({ TransitionProps }) => (
-                                                    <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
-                                                      <MenuList>
-                                                        {this.state.usersygroups.listusersygrups.length > 0 ? (
-                                                          this.state.usersygroups.listusersygrups.map((row, index) => {
-                                                            return <MenuItem key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
-                                                              <Tooltip title={row.name}>
-                                                                <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
-                                                                  {row.avatar}
-                                                                </Avatar>
-                                                              </Tooltip>
-                                                              {row.username}
-                                                            </MenuItem>
-                                                          })
-                                                        ) : (
-                                                            'vacio'
-                                                          )}
-                                                      </MenuList>
-                                                    </Paper>
-                                                  )}
-                                                </Popper>
-                                              </FormControl>
-                                            </Grid>
-                                            <Grid item >
-                                              <Tooltip title="Otorgar permiso">
-                                                <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
-                                                  <Done />
-                                                </IconButton>
-                                              </Tooltip>
-                                            </Grid>
+                                    <div style={{ textAlign: 'center', height: '325px' }} >
+                                      <div className={classes.margin}>
+                                        <Grid container>
+                                          <Grid item style={{ marginTop: '10px' }}>
+                                            <Security style={{ verticalAlign: 'center', position: 'relative', marginTop: '19px', marginRight: '15px' }} color='primary' />
                                           </Grid>
-                                        </div>
-                                        <React.Fragment>
-                                          <div>
-                                            {/* va color primary */}
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
-                                              <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con permisos</b></Typography>
-                                              <Tooltip title="Quitar permiso">
-                                                <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeletePermisosUserAll('local')}>
-                                                  <HighlightOff />
-                                                </IconButton>
-                                              </Tooltip>
-                                            </div>
-                                            {this.state.permisos.listuserexternos.length > 0 ? (
-                                              <Grid container>
-                                                {this.state.permisos.listuserexternos.map((row, index) => {
-                                                  return (
-                                                    <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
-                                                      <CardContent style={{ padding: '0px 12px 12px 12px' }}>
-                                                        <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                          <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                            {row.status === 'Activo' ? (
-                                                              <Tooltip title={row.status}>
-                                                                <Avatar aria-label="recipe" className={classes.avatar}>
-                                                                  {row.avatar}
-                                                                </Avatar>
-                                                              </Tooltip>
-                                                            ) : (
-                                                                <Tooltip title={row.status}>
-                                                                  <Avatar aria-label="recipe" className={classes.avatarinactivo}>
-                                                                    {row.avatar}
-                                                                  </Avatar>
-                                                                </Tooltip>
-                                                              )}
-                                                            <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
-
-                                                          </div>
-                                                          <div>
-                                                            <Tooltip title={'Eliminar permiso'}>
-                                                              <IconButton aria-label="settings">
-                                                                <Delete color='primary'
-                                                                  onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
-                                                              </IconButton>
+                                          <Grid item style={{ width: '280px' }}>
+                                            <FormControl>
+                                              <TextField
+                                                variant="outlined"
+                                                type='search'
+                                                value={this.state.compartir.usuariosshare}
+                                                style={{ marginTop: '10px', marginBottom: '7px', padding: '0px', width: '280px' }}
+                                                size="small"
+                                                label='Permitir a...'
+                                                onChange={(event) => this.handleBuscarUsersGroups(event)}
+                                              />
+                                              <Popper open={this.state.compartir.openlist && this.state.usersygroups.listusersygrups.length > 0 ? true : false} anchorEl={this.state.compartir.companchorEl} transition disablePortal style={{ zIndex: '1', display: this.state.compartir.visible }}>
+                                                {({ TransitionProps }) => (
+                                                  <Paper style={{ width: '280px', maxHeight: '200px', overflow: 'auto' }}>
+                                                    <MenuList>
+                                                      {this.state.usersygroups.listusersygrups.length > 0 ? (
+                                                        this.state.usersygroups.listusersygrups.map((row, index) => {
+                                                          return <MenuItem style={{ fontSize: '14px', height: '20px' }} key={row.username} onClick={(event) => this.handleSeleccionarUsuario(event, row.username)}>
+                                                            <Tooltip title={row.name}>
+                                                              <Avatar aria-label="recipe" className={classes.avatar} style={{ marginRight: '10px', height: '30px', width: '30px', fontSize: '12px' }}>
+                                                                {row.avatar}
+                                                              </Avatar>
                                                             </Tooltip>
-                                                          </div>
-                                                        </div>
-
-                                                        <div style={{ padding: '0px 0px 0px 2px' }}>
-                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
-                                                            color="primary" style={{ marginLeft: '5px', marginBottom: '5px' }} />
-                                                          </Typography>
-                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                            <b>Concedió: </b> {row.creator}
-                                                          </Typography>
-                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                            <b>Concedido: </b> {row.concedido}
-                                                          </Typography>
-                                                          <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
-                                                            <b>Duración: </b>  {row.duracion}
-                                                          </Typography>
-                                                        </div>
-                                                      </CardContent>
-                                                    </Card>
-                                                  );
-                                                })
-                                                }
-                                                {this.state.permisos.listuserexternos.length >= 2 &&
-                                                  <div style={{ marginLeft: '100px' }}>
-                                                    <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarPermisosEGT()}>
-                                                      <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
-                                                        <b>{this.state.compartir.textbtnlistartodos}</b>
-                                                      </Typography>
-                                                    </Button>
-                                                  </div>
-                                                }
-                                              </Grid>
-                                            ) :
-                                              (
-                                                <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                                  <Security style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                                  <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha otorgado permiso a usuarios en el espacio de grupo de trabajo seleccionado...</b></Typography>
-                                                </div>
-                                              )}
-                                          </div>
-                                        </React.Fragment>
+                                                            {row.username}
+                                                          </MenuItem>
+                                                        })
+                                                      ) : (
+                                                        'vacio'
+                                                      )}
+                                                    </MenuList>
+                                                  </Paper>
+                                                )}
+                                              </Popper>
+                                            </FormControl>
+                                          </Grid>
+                                          <Grid item style={{ marginTop: '10px' }}>
+                                            <Tooltip title="Otorgar permiso">
+                                              <IconButton color="primary" aria-label="upload picture" component="span" style={{ verticalAlign: 'center', position: 'relative', marginTop: '7px', marginLeft: '5px' }} disabled={this.state.compartir.btnsharedisable} onClick={(e) => this.handleActionPermitirUser(e)}>
+                                                <Done />
+                                              </IconButton>
+                                            </Tooltip>
+                                          </Grid>
+                                        </Grid>
                                       </div>
-                                    )
+                                      <React.Fragment>
+                                        <div>
+                                          {/* va color primary */}
+                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid ' + themeColor }}>
+                                            <Typography align='left' variant='h7' color="primary" style={{ marginLeft: '5px' }}><b>Usuarios ó Grupos con permisos</b></Typography>
+                                            <Tooltip title="Quitar permiso">
+                                              <IconButton color="primary" component="span" disabled={this.state.compartir.deletesharedisable} onClick={(e) => this.handleDeletePermisosUserAll('local')}>
+                                                <HighlightOff />
+                                              </IconButton>
+                                            </Tooltip>
+                                          </div>
+                                          {this.state.permisos.listuserexternos.length > 0 ? (
+                                            <Grid container>
+                                              {this.state.permisos.listuserexternos.map((row, index) => {
+                                                return (
+                                                  <Card className={classes.root} style={{ width: '400px', marginTop: '10px' }}>
+                                                    <CardContent style={{ padding: '0px 12px 12px 12px' }}>
+                                                      <div style={{ padding: '15px 0px 15px 0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                          {row.status === 'Activo' ? (
+                                                            <Tooltip title={row.status}>
+                                                              <Avatar aria-label="recipe" className={classes.avatar}>
+                                                                {row.avatar}
+                                                              </Avatar>
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <Tooltip title={row.status}>
+                                                              <Avatar aria-label="recipe" className={classes.avatarinactivo}>
+                                                                {row.avatar}
+                                                              </Avatar>
+                                                            </Tooltip>
+                                                          )}
+                                                          <span style={{ marginLeft: '15px', fontSize: '16px' }}>{row.username}</span>
+
+                                                        </div>
+                                                        <div>
+                                                          <Tooltip title={'Eliminar permiso'}>
+                                                            <IconButton aria-label="settings">
+                                                              <Delete color='primary'
+                                                                style={{ fontSize: '18px' }}
+                                                                onClick={(e) => this.handleDeletePermUserSec(row, 'local')} />
+                                                            </IconButton>
+                                                          </Tooltip>
+                                                        </div>
+                                                      </div>
+
+                                                      <div style={{ padding: '0px 0px 0px 35px' }}>
+                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p"><b>Permiso: </b> <Chip size="small" label={row.permission}
+                                                          color="primary" style={{ marginLeft: '5px', height: '22px' }} />
+                                                        </Typography>
+                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                          <b>Concedió: </b> {row.creator}
+                                                        </Typography>
+                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                          <b>Concedido: </b> {row.concedido}
+                                                        </Typography>
+                                                        <Typography textAlign='justify' variant="body2" color="textSecondary" component="p">
+                                                          <b>Duración: </b>  {row.duracion}
+                                                        </Typography>
+                                                      </div>
+                                                    </CardContent>
+                                                  </Card>
+                                                );
+                                              })
+                                              }
+                                              {this.state.permisos.listuserexternos.length >= 2 &&
+                                                <div style={{ marginLeft: '100px' }}>
+                                                  <Button color="secundary" className={classes.button} onClick={(e) => this.prepararlistarPermisosEGT()}>
+                                                    <Typography textAlign='center' color='primary' style={{ fontSize: '10px' }}>
+                                                      <b>{this.state.compartir.textbtnlistartodos}</b>
+                                                    </Typography>
+                                                  </Button>
+                                                </div>
+                                              }
+                                            </Grid>
+                                          ) :
+                                            (
+                                              <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                                <Security style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                                <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se ha otorgado permiso a usuarios en el espacio de grupo de trabajo seleccionado...</b></Typography>
+                                              </div>
+                                            )}
+                                        </div>
+                                      </React.Fragment>
+                                    </div>
+                                  )
                                   }
                                 </TabContainer>
                               }
@@ -9886,11 +10468,11 @@ class DocumentManager extends React.Component {
                                             }
                                           </Grid>
                                         ) : (
-                                            <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
-                                              <Storage style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
-                                              <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han guardado versiones del documento...</b></Typography>
-                                            </div>
-                                          )}
+                                          <div style={{ textAlign: 'center', marginTop: '25%', height: '325px' }} >
+                                            <Storage style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '30px', marginBottom: '10px' }} />
+                                            <Typography style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '14px' }}><b>No se han guardado versiones del documento...</b></Typography>
+                                          </div>
+                                        )}
                                       </div>
                                     </React.Fragment>
                                   </div>
@@ -9988,8 +10570,8 @@ class DocumentManager extends React.Component {
                                                         )
                                                       })
                                                     ) : (
-                                                        'vacio'
-                                                      )}
+                                                      'vacio'
+                                                    )}
                                                   </MenuList>
                                                 </Paper>
                                               )}
@@ -10159,158 +10741,224 @@ class DocumentManager extends React.Component {
                         </Tooltip>
                       }
                     </div>
+                    {this.state.showBackdrop &&
+                      <Modal
+                        aria-labelledby="simple-modal-section"
+                        aria-describedby="simple-modal-section"
+                        open={this.state.showBackdrop}
+                      >
+                        <Loading />
+                      </Modal>
+                    }
+                    {self.state.visualizacion.mostrarimg ?
+                      <ImageLightbox
+                        mainSrc={self.state.visualizacion.files[0].src}
+                        onCloseRequest={() => self.setState({ visualizacion: { mostrarimg: false } })}
+                        discourageDownloads={false}
+                        imageTitle={self.state.visualizacion.files[0].title}
+                        imageCaption={self.state.visualizacion.files[0].description}
+                      />
+                      : self.state.visualizacion.mostrarvideo ?
+                        <React.Fragment />
+                        : null
+                    }
                   </Grid>
+
                 </React.Fragment>
               ) : (
 
-                  <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid ' + themeColor }}>
-                    <Grid container direction="row" spacing={4}
-                      alignContent='center'
-                      alignItems='center'
-                      justify='center'
-                      sm={12} md={12} lg={12}
-                    >
-                      <Card>
-                        <div className={classes.theme} style={{ padding: '8px', color: 'FFFFFF', justifyContent: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {this.state.moduloconfig ? (
-                              <Tooltip title="Configuración Exitosa">
-                                <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                                  <Check />
-                                </Avatar>
-                              </Tooltip>
-                            ) : (
-                                <Tooltip title="Introducir los Datos de Configuración">
-                                  <Avatar aria-label="Recipe" className={classes.avatarconfig}>
-                                    <Edit />
-                                  </Avatar>
-                                </Tooltip>
-                              )
-                            }
-                            <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
-                          </div>
+                <Grid item sm={12} md={9} lg={9} style={{ borderLeft: '2px solid ' + themeColor }}>
+                  <Grid container direction="row" spacing={4}
+                    alignContent='center'
+                    alignItems='center'
+                    justify='center'
+                    sm={12} md={12} lg={12}
+                  >
+                    <Card>
+                      <div className={classes.theme} style={{ padding: '8px', color: 'FFFFFF', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          {this.state.moduloconfig ? (
+                            <Tooltip title="Configuración Exitosa">
+                              <Avatar aria-label="Recipe" className={classes.avatarconfig}>
+                                <Check />
+                              </Avatar>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="Introducir los Datos de Configuración">
+                              <Avatar aria-label="Recipe" className={classes.avatarconfig}>
+                                <Edit />
+                              </Avatar>
+                            </Tooltip>
+                          )
+                          }
+                          <Typography variant="h5" gutterBottom style={{ padding: '10px 0px 0px 20%', color: '#FFFFFF' }}> Datos de configuración </Typography>
                         </div>
-                        <CardContent>
-                          <FormControl style={{ width: '100%', padding: '25px' }}>
-                            <Typography variant="h6" gutterBottom color='primary'> Servidor de gestión documental </Typography>
-                            <Typography variant="subtitle2" gutterBottom color='primary'> Introducir los datos de conexión al servidor de nuxeo: </Typography>
-                            <FormGroup>
-                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                  <Public color='primary' />
-                                </Grid>
-                                <Grid item xs={11} md={11}>
-                                  <TextField
-                                    id="input-with-icon-grid"
-                                    label="Dirección del servidor"
-                                    value={this.state.config.confurl}
-                                    error={this.state.config.errorurl}
-                                    helperText={this.state.config.texterror}
-                                    onChange={this.setValueURLNuxeo}
-                                    fullWidth
-                                  />
-                                </Grid>
+                      </div>
+
+                      <CardContent>
+                        <FormControl style={{ width: '100%', padding: '25px' }}>
+                          <Typography variant="h6" gutterBottom color='primary'> Servidor de gestión documental </Typography>
+                          <Typography variant="subtitle2" gutterBottom color='primary'> Introducir los datos de conexión al servidor de nuxeo: </Typography>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <Public color='primary' />
                               </Grid>
-                            </FormGroup>
-                            <FormGroup>
-                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                  <Dns color='primary' />
-                                </Grid>
-                                <Grid item item xs={11} md={11}>
-                                  <TextField
-                                    id="input-nombre-dominio"
-                                    label="Nombre de dominio"
-                                    value={this.state.config.confnombredominio}
-                                    error={this.state.config.errordominio}
-                                    helperText={this.state.config.texterror}
-                                    onChange={this.setValueNombreDomNuxeo}
-                                    fullWidth
-                                  />
-                                </Grid>
+                              <Grid item xs={11} md={11}>
+                                <TextField
+                                  id="input-with-icon-grid"
+                                  label="Dirección del servidor"
+                                  value={this.state.config.confurl}
+                                  error={this.state.config.errorurl}
+                                  helperText={this.state.config.errorurl ? this.state.config.texterror : null}
+                                  onChange={this.setValueURLNuxeo}
+                                  fullWidth
+                                />
                               </Grid>
-                            </FormGroup>
-                            <FormGroup>
-                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                  <AssignmentInd color='primary' />
-                                </Grid>
-                                <Grid item item xs={11} md={11}>
-                                  <TextField
-                                    id="input-admin-nuxeo"
-                                    label="Administrador"
-                                    value={this.state.config.confuser}
-                                    error={this.state.config.erroruser}
-                                    helperText={this.state.config.texterror}
-                                    onChange={this.setValueAdminNuxeo}
-                                    fullWidth
-                                  />
-                                </Grid>
+                            </Grid>
+                          </FormGroup>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <Dns color='primary' />
                               </Grid>
-                            </FormGroup>
-                            <FormGroup>
-                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                  <VpnKey color='primary' />
-                                </Grid>
-                                <Grid item item xs={11} md={11}>
-                                  <TextField
-                                    id="input-adminpass-nuxeo"
-                                    className={classes.margin, classes.textField}
-                                    type={this.state.config.showpassword ? 'text' : 'password'}
-                                    label="Password"
-                                    value={this.state.config.confpassword}
-                                    error={this.state.config.errorpassword}
-                                    helperText={this.state.config.texterror}
-                                    onChange={this.setValueAdminPassNuxeo}
-                                    InputProps={{
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <IconButton aria-label="Mostrar/Ocultar Contraseña" onClick={this.handleClickShowPassword} >
-                                            {false ? <VisibilityOff /> : <Visibility />}
-                                          </IconButton>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                    fullWidth
-                                  />
-                                </Grid>
+                              <Grid item item xs={11} md={11}>
+                                <TextField
+                                  id="input-nombre-dominio"
+                                  label="Nombre de dominio"
+                                  value={this.state.config.confnombredominio}
+                                  error={this.state.config.errordominio}
+                                  helperText={this.state.config.errordominio ? this.state.config.texterror : null}
+                                  onChange={this.setValueNombreDomNuxeo}
+                                  fullWidth
+                                />
                               </Grid>
-                            </FormGroup>
-                            <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Servidor editor de documentos en línea </Typography>
-                            <Typography variant="subtitle2" gutterBottom color='primary'> Introducir la ubicación del fichero de conexión a onlyoffice: </Typography>
-                            <FormGroup>
-                              <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
-                                  <Public color='primary' />
-                                </Grid>
-                                <Grid item item xs={11} md={11}>
-                                  <TextField
-                                    id="input-url-onlyoffice"
-                                    label="Url del fichero"
-                                    value={this.state.config.confurlonlyoffice}
-                                    error={this.state.config.errorurloffice}
-                                    helperText={this.state.config.texterror}
-                                    onChange={this.setValueURLOnlyoffice}
-                                    fullWidth
-                                  />
-                                </Grid>
+                            </Grid>
+                          </FormGroup>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <AssignmentInd color='primary' />
                               </Grid>
-                            </FormGroup>
-                          </FormControl>
-                        </CardContent>
-                        <CardActions className={classes.actions} style={{ width: '100%', padding: '75px 20px 20px 20px' }}>
-                          <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
-                            <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
-                              <SaveIcon className={classes.leftIcon} style={{ marginRight: '5px' }} />
+                              <Grid item item xs={11} md={11}>
+                                <TextField
+                                  id="input-admin-nuxeo"
+                                  label="Administrador"
+                                  value={this.state.config.confuser}
+                                  error={this.state.config.erroruser}
+                                  helperText={this.state.config.erroruser ? this.state.config.texterror : null}
+                                  onChange={this.setValueAdminNuxeo}
+                                  fullWidth
+                                />
+                              </Grid>
+                            </Grid>
+                          </FormGroup>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <VpnKey color='primary' />
+                              </Grid>
+                              <Grid item item xs={11} md={11}>
+                                <TextField
+                                  id="input-adminpass-nuxeo"
+                                  className={classes.margin, classes.textField}
+                                  type={this.state.config.showpassword ? 'text' : 'password'}
+                                  label="Password"
+                                  value={this.state.config.confpassword}
+                                  error={this.state.config.errorpassword}
+                                  helperText={this.state.config.errorpassword ? this.state.config.texterror : null}
+                                  onChange={this.setValueAdminPassNuxeo}
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end">
+                                        <IconButton aria-label="Mostrar/Ocultar Contraseña" onClick={this.handleClickShowPassword} >
+                                          {false ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                  fullWidth
+                                />
+                              </Grid>
+                            </Grid>
+                          </FormGroup>
+                          <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Servidor editor de documentos en línea </Typography>
+                          <Typography variant="subtitle2" gutterBottom color='primary'> Introducir la ubicación del fichero de conexión a onlyoffice: </Typography>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <Public color='primary' />
+                              </Grid>
+                              <Grid item item xs={11} md={11}>
+                                <TextField
+                                  id="input-url-onlyoffice"
+                                  label="Url del fichero"
+                                  value={this.state.config.confurlonlyoffice}
+                                  error={this.state.config.errorurloffice}
+                                  helperText={this.state.config.errorurloffice ? this.state.config.texterror : null}
+                                  onChange={this.setValueURLOnlyoffice}
+                                  fullWidth
+                                />
+                              </Grid>
+                            </Grid>
+                          </FormGroup>
+                          <Typography variant="h6" gutterBottom color='primary' style={{ padding: '25px 0px 0px 0%' }}> Cuota de Alamacenamiento </Typography>
+                          <Typography variant="subtitle2" gutterBottom color='primary'> Introducir las cuotas de almacenamiento, expresarlas en GB: </Typography>
+                          <FormGroup>
+                            <Grid container spacing={2} style={{ marginTop: '10px', marginBottom: '10px' }}>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <Storage color='primary' />
+                              </Grid>
+                              <Grid item item xs={11} md={5}>
+                                <TextField
+                                  id="input-storage"
+                                  label="Cuota del Servidor"
+                                  type="number"
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                  value={this.state.config.confstorage}
+                                  error={this.state.config.errorstorage}
+                                  helperText={this.state.config.errorstorage ? this.state.config.texterror : null}
+                                  onChange={this.setValueStorage}
+                                  fullWidth
+                                />
+                              </Grid>
+                              <Grid item item xs={1} md={1} style={{ marginTop: '18px' }}>
+                                <DataUsage color='primary' />
+                              </Grid>
+                              <Grid item item xs={11} md={5}>
+                                <TextField
+                                  id="input-storageuser"
+                                  label="Cuota del Usuario"
+                                  type="number"
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                  value={this.state.config.confstorageuser}
+                                  error={this.state.config.errorstorageuser}
+                                  helperText={this.state.config.errorstorageuser ? this.state.config.texterror : null}
+                                  onChange={this.setValueStorageUser}
+                                  fullWidth
+                                />
+                              </Grid>
+                            </Grid>
+                          </FormGroup>
+                        </FormControl>
+                      </CardContent>
+
+                      <CardActions className={classes.actions} style={{ width: '100%', padding: '75px 20px 20px 20px' }}>
+                        <Tooltip title="Verifica la conexión y actualiza los datos proporcionados">
+                          <Button variant="contained" className={classes.button} color='primary' style={{ width: '100%', height: '40px' }} onClick={(e) => this.handleComprobarActualizar()} disabled={this.state.config.disableact}>
+                            <SaveIcon className={classes.leftIcon} style={{ marginRight: '5px' }} />
                                   Actualizar
                              </Button>
-                          </Tooltip>
-                        </CardActions>
-                      </Card>
-                    </Grid>
+                        </Tooltip>
+                      </CardActions>
+                    </Card>
                   </Grid>
-                )
+                </Grid>
+              )
               }
             </Grid>
           }
@@ -10321,9 +10969,6 @@ class DocumentManager extends React.Component {
     );
   }
 }
-
-//export default withStyles(styles) (connect(mapStateToProps, mapDispatchToProps)(injectIntl(DocumentManager)));
-
 export default () => {
   const { changeTheme } = useContext(ThemeContext);
   const classes = useStyles();

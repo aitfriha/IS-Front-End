@@ -15,6 +15,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import ArchiveIcon from '@material-ui/icons/Archive';
 
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -29,6 +30,7 @@ import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
 import Avatar from '@material-ui/core/Avatar';
+
 import { AssignStaff } from './AssignStaff';
 import avatarApi from '../../../../api/images/avatars';
 // import HelmetCustom from '../../../../components/HelmetCustom/HelmetCustom';
@@ -489,32 +491,44 @@ class StaffAssignment extends React.Component {
                     </Tooltip>
                   </Box>
                 ) : null}
-                <TreeView
-                  className={classes.root}
-                  defaultExpanded={[]}
-                  defaultCollapseIcon={<ArrowDropDownIcon />}
-                  defaultExpandIcon={<ArrowRightIcon />}
-                  defaultEndIcon={<div style={{ width: 24 }} />}
-                  expanded={this.state.expanded}
-                  onNodeToggle={this.handleToogleSelect}
-                  onNodeSelect={this.handleNodeSelect}
-                  style={{ minWidth: '100%', minHeight: '87.5%', overflow: 'auto' }}
-                >
-                  {treeData.map(el => (
-                    <StyledTreeItem key={el.customer.id} nodeId={el.customer.id} labelText={el.customer.name} labelIcon={CustomersIcon}>
-                      {el.operations.map(operation => (
-                        <StyledTreeItem
-                          key={operation.id}
-                          nodeId={operation.id}
-                          labelText={operation.name}
-                          labelIcon={OperationIcon}
-                          color="#3c8039"
-                          bgColor="#e6f4ea"
-                        />
-                      ))}
-                    </StyledTreeItem>
-                  ))}
-                </TreeView>
+
+                {treeData.length > 0 ?
+                  <TreeView
+                    className={classes.root}
+                    defaultExpanded={[]}
+                    defaultCollapseIcon={<ArrowDropDownIcon />}
+                    defaultExpandIcon={<ArrowRightIcon />}
+                    defaultEndIcon={<div style={{ width: 24 }} />}
+                    expanded={this.state.expanded}
+                    onNodeToggle={this.handleToogleSelect}
+                    onNodeSelect={this.handleNodeSelect}
+                    style={{ minWidth: '100%', minHeight: '87.5%', overflow: 'auto' }}
+                  >
+                    {treeData.map(el => (
+                      <StyledTreeItem key={el.customer.id} nodeId={el.customer.id} labelText={el.customer.name} labelIcon={CustomersIcon}>
+                        {el.operations.map(operation => (
+                          <StyledTreeItem
+                            key={operation.id}
+                            nodeId={operation.id}
+                            labelText={operation.name}
+                            labelIcon={OperationIcon}
+                            color="#3c8039"
+                            bgColor="#e6f4ea"
+                          />
+                        ))}
+                      </StyledTreeItem>
+                    ))}
+                  </TreeView>
+
+                  :
+                  <div style={{ textAlign: 'center', marginTop: '95%', marginBottom: '95%' }}>
+                    <ArchiveIcon color="action" fontSize="large"/>
+                    <Typography variant='body2'>
+                      No records to display
+                    </Typography>
+                  </div>
+
+                }
               </Grid>
               <Grid item xs={12} md={9}>
                 <Chip label="Assignment History" style={{ marginTop: '10px', marginBottom: '10px' }} color="secondary" />
