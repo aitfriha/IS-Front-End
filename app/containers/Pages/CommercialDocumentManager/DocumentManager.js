@@ -101,8 +101,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Box from '@material-ui/core/Box';
 import Popover from '@material-ui/core/Popover';
 
-import ImageLightbox from 'react-image-lightbox';
-import 'react-image-lightbox/style.css';
+// import ImageLightbox from 'react-image-lightbox';
+// import 'react-image-lightbox/style.css';
 
 /// necesario para poder trabajar con el cliente de nuxeo ///
 var Nuxeo = require('nuxeo');
@@ -413,7 +413,7 @@ function getStyles(name, that) {
 }
 
 //////////////////////////////////////////////////
-//  
+//
 //        UTILITARIOS
 //
 ///////////////////////////////////////////////////
@@ -735,7 +735,7 @@ class DocumentManager extends React.Component {
     axios.get(`${API}/documentManagerConfig/all`).then(res => {
       let config = res.data.payload;
 
-      /// actualizo el estado, paso los valores correspondientes en la configuración ///                        
+      /// actualizo el estado, paso los valores correspondientes en la configuración ///
       let workspace = '/UserWorkspaces/';
       if (config.dominio != 'default-domain') {
         workspace = '/workspaces/';
@@ -753,12 +753,11 @@ class DocumentManager extends React.Component {
       estado.config.urlonlyoffice = config.onlyoffice;
       estado.moduloconfig = config.configurado;
 
-      // Almacenamiento en GB /// 
+
       estado.config.storage = config.storage;
       estado.config.storageuser = config.storageuser;
       estado.config.confstorage = config.storage;
       estado.config.confstorageuser = config.storageuser;
-
 
       /// obtengo el usuario logueado ////
       //migue
@@ -1061,8 +1060,8 @@ class DocumentManager extends React.Component {
       texterror = 'Destinar al menos 50 GB';
     }else{
       texterror = null;
-    } 
-    var value = !errorstorage ? e.target.value : e.target.value;  
+    }
+    var value = !errorstorage ? e.target.value : e.target.value;
     var disable = ((errorstorage && value === "") || (this.state.config.errorstorageuser && this.state.config.confstorageuser === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
     estado.config.disableact = disable;
@@ -1073,7 +1072,7 @@ class DocumentManager extends React.Component {
       estado
     })
     console.log(this.state.config.confstorage)
-  } 
+  }
 
    /// Cambiar el valor del campo storage del user del server de nuxeo///
 
@@ -1088,7 +1087,7 @@ class DocumentManager extends React.Component {
       texterror = 'No puede exceder la cuota del servidor';
     }else{
       texterror = null;
-    }        
+    }
     var value = !errorstorage ? e.target.value : e.target.value;
     var disable = ((errorstorage && value === "") || (this.state.config.errorstorage && this.state.config.confstorage === "") || (this.state.config.errorurl && this.state.config.confurl === "") || (this.state.config.errordominio && this.state.config.confnombredominio === "") || (this.state.config.erroruser && this.state.config.confuser === "") || (this.state.config.errorpassword && this.state.config.confpassword === "") || (this.state.config.errorurlonlyoffice && this.state.config.confurlonlyoffice === "")) ? true : false;
     let estado = this.state;
@@ -1246,7 +1245,7 @@ class DocumentManager extends React.Component {
       })
   }
 
-  //// Crear Espacio de Trabajo de 
+  //// Crear Espacio de Trabajo de
 
   crearworkspaceuser = () => {
     nuxeo = new Nuxeo({
@@ -1283,7 +1282,7 @@ class DocumentManager extends React.Component {
       })
   }
 
-  //// Autenticar usuario en nuxeo ///  
+  //// Autenticar usuario en nuxeo ///
 
   conectaranuxeo = () => {
     nuxeo = new Nuxeo({
@@ -2097,7 +2096,7 @@ class DocumentManager extends React.Component {
     let estado = self.state;
     let query = '';
     if (self.state.showBackdrop === false) {
-      //console.log(event.target.value);         
+      //console.log(event.target.value);
       estado.textbuscar = event.target.value;
       self.setState({
         estado
@@ -2302,7 +2301,7 @@ class DocumentManager extends React.Component {
         }
         case 4: {
           //Notas//
-          //extension == 'txt' 
+          //extension == 'txt'
           sql = sql + " AND (dc:title LIKE '%.txt')";
           break;
         }
@@ -2784,7 +2783,7 @@ class DocumentManager extends React.Component {
   }
 
 
-  /// Menu seleccionado Detalle /// 
+  /// Menu seleccionado Detalle ///
   toggleDrawer = (open) => {
     if (open) {
       let tab = 0;
@@ -2822,19 +2821,19 @@ class DocumentManager extends React.Component {
       itemnew.etiquetar.addetiquetabtn = true;
       itemnew.etiquetar.deletedisable = true;
 
-      /// Limpiar las variables de tab versiones /// 
+      /// Limpiar las variables de tab versiones ///
       itemnew.versiones.totalversiones = 0;
       itemnew.versiones.listversiones = [];
       itemnew.versiones.btnlisttodasvers = false;
       itemnew.versiones.textverbtntodos = 'Mostrar todas las versiones';
 
-      /// Limpiar las variables de tab historial /// 
+      /// Limpiar las variables de tab historial ///
       itemnew.historial.totalactividad = 0;
       itemnew.historial.listactividad = [];
       itemnew.historial.btnlisttodasact = false;
       itemnew.historial.textactbtntodos = 'Mostrar todas las acciones';
 
-      /// Limpiar las variables de tab compartir/// 
+      /// Limpiar las variables de tab compartir///
       itemnew.compartir.todosusuariosshare = [];
       itemnew.compartir.listusuarios = [];
       itemnew.compartir.usuariosshare = '';
@@ -2856,7 +2855,7 @@ class DocumentManager extends React.Component {
       itemnew.compartir.fechadisable = 'none';
       itemnew.compartir.visible = 'none';
 
-      /// Limpiar las variables de tab permisos/// 
+      /// Limpiar las variables de tab permisos///
       itemnew.permisos.panel1expand = true;
       itemnew.permisos.panel2expand = false;
       itemnew.permisos.panel3expand = false;
@@ -2879,23 +2878,23 @@ class DocumentManager extends React.Component {
       itemnew.permisos.errordirecmail = null;
       itemnew.permisos.fechadisable = 'none';
 
-      /// Limpiar las variables de tab publicar/// 
+      /// Limpiar las variables de tab publicar///
       itemnew.publicar.listseciones = [];
       itemnew.publicar.listpublicados = [];
       itemnew.publicar.name = [];
       itemnew.publicar.btnpublicardisable = true;
       itemnew.publicar.deletepublicardisable = true;
 
-      /// Limpiar las variables de tab subscripción/// 
+      /// Limpiar las variables de tab subscripción///
       itemnew.subscripcion.expandir = false;
       itemnew.subscripcion.notifcomment = false;
       itemnew.subscripcion.notifmodificar = false;
       itemnew.subscripcion.notifsubscripcion = false;
 
-      /// Limpiar las variables de usersygroups/// 
+      /// Limpiar las variables de usersygroups///
       itemnew.usersygroups.listusersygrups = [];
 
-      /// Limpiar las variables de expiracion/// 
+      /// Limpiar las variables de expiracion///
       itemnew.expiracion.fechaexpiracion = null;
       itemnew.expiracion.expriracionvisible = true;
       itemnew.expiracion.fechamin = moment().add(1, 'day');
@@ -3286,7 +3285,7 @@ class DocumentManager extends React.Component {
       });
   }
 
-  /// cambiar valor campo comentario///  
+  /// cambiar valor campo comentario///
   setValueInsertarComentario = (event) => {
     var error = (event.target.value === null || event.target.value === "") ? true : false;
     var value = !error ? event.target.value : '';
@@ -3475,7 +3474,7 @@ class DocumentManager extends React.Component {
         //let encontrado = rows.find(fila => seleccionado.id === fila.id)
         /*  rows.forEach(documento => {
              if(documento.id === seleccionado.id){
- 
+
              }
          }); */
         let encontrado = rows.find(fila => seleccionado.id === fila.id)
@@ -3536,7 +3535,7 @@ class DocumentManager extends React.Component {
       });
   }
 
-  /// cambiar valor campo etiquetar///  
+  /// cambiar valor campo etiquetar///
   setValueInsertarEtiqueta = (event) => {
     var error = (event.target.value === null || event.target.value === "") ? true : false;
     var value = !error ? event.target.value : '';
@@ -3741,7 +3740,7 @@ class DocumentManager extends React.Component {
     self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000).then(function (docs1) {
       console.log(docs1);
       docs1.forEach(element => {
-        //console.log(element); 
+        //console.log(element);
         if (self.ChequearPermisosyFiltro(element, 'Espacio de Grupo de Trabajo')) {
           let esta = false;
           listpub.forEach(sec => {
@@ -3790,7 +3789,7 @@ class DocumentManager extends React.Component {
             'path': element.path
           }
           listpub.push(obj);
-          //console.log(listpub);      
+          //console.log(listpub);
         });
         let disable = false
         let filtro = [];
@@ -4305,7 +4304,7 @@ class DocumentManager extends React.Component {
           let usuariocomp = false;
           users.forEach(element => {
             let encontrado = null;
-            //console.log(element);       
+            //console.log(element);
             {
               if (self.state.menu.menuselect === 'Grupos') {
                 encontrado = self.state.grupos.listusuarios.find(fila => element.id === fila.id);
@@ -7158,7 +7157,7 @@ class DocumentManager extends React.Component {
     }
   }
 
-  /// Devolver estado a vacio // 
+  /// Devolver estado a vacio //
   cambiarEstadoVacio = (lista) => {
     rows = [];
     rows = lista;
@@ -7547,7 +7546,7 @@ class DocumentManager extends React.Component {
   }
 
 
-  /// devuelve dada una lista, la lista con los documentos con las propiedades que se necesitan y que cumplan con los permisos y los filtros solicitados ///  
+  /// devuelve dada una lista, la lista con los documentos con las propiedades que se necesitan y que cumplan con los permisos y los filtros solicitados ///
   DevolverListaFormateada(lista, cont, long, filtro) {
     let resultcheck = self.ChequearPermisosyFiltro(lista[cont], filtro);
     if (resultcheck) {
@@ -7622,7 +7621,7 @@ class DocumentManager extends React.Component {
     } else {
       cont = cont + 1;
       if (long > cont) {
-        // let newList = lista.splice(0, 1);        
+        // let newList = lista.splice(0, 1);
         self.DevolverListaFormateada(lista, cont, long, filtro);
       } else if (long === cont) {
         // console.log(loadData);
@@ -8016,7 +8015,7 @@ class DocumentManager extends React.Component {
           self.handleBuscarRepetidos(denom, rep, lista, cont, longt);
         } else {
           let msg = 'El achrivo ' + denomadd + ' fue importado satisfactoriamente'
-          //console.log(lista[0]);    
+          //console.log(lista[0]);
           var blob = new Nuxeo.Blob({ content: lista[0], name: denomadd, mimeType: lista[0].type, size: lista[0].size })
           // console.log(blob);
           var newDocument = {

@@ -55,9 +55,12 @@ class CommercialActionsBlock extends React.Component {
       staffs: [],
       staffAssign: [],
       assignments: [],
+      operationsAssign: [],
       numberClientResponsible: 0,
       numberClientAssistant: 0,
       staffId: '',
+      clientId: '',
+      clientName: '',
       expanded: false,
       display: 'flex',
       openPopUpImport: false,
@@ -122,6 +125,13 @@ class CommercialActionsBlock extends React.Component {
       });
     }
 
+    handleChangeClient = (ev, value) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      const operatAssign = this.state.operations;
+      const operationsAssign = operatAssign.filter(row => (row.clientName === value.client.name));
+      this.setState({ clientId: value.client._id, clientName: value.client.name, operationsAssign });
+    }
+
     handleExpandClick = () => {
       const { expanded } = this.state;
       this.setState({ expanded: !expanded });
@@ -146,7 +156,7 @@ class CommercialActionsBlock extends React.Component {
       console.log(this.state);
       const {
         expanded, numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status
+        staffs, status, staffId, staffAssign, operationsAssign
       } = this.state;
       const { classes } = this.props;
       return (
@@ -209,6 +219,34 @@ class CommercialActionsBlock extends React.Component {
             </Grid>
           </Grid>
           <br />
+          {
+            staffId !== '' ? (
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+                justify="center"
+              >
+                <Grid item xs={12} md={6} sm={6}>
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={staffAssign}
+                    getOptionLabel={option => (option ? option.client.name : '')}
+                    onChange={this.handleChangeClient}
+                    renderInput={params => (
+                      <TextField
+                        fullWidth
+                        {...params}
+                        label="Select the Client *"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                </Grid>
+              </Grid>
+            ) : (<div />)
+          }
           <br />
           <Grid
             container
@@ -216,97 +254,107 @@ class CommercialActionsBlock extends React.Component {
             direction="row"
           >
             {status.map((row) => (
-              <Grid item xs={12} md={4}>
-                <Chip
-                  label={row.name + ' ' + row.percentage + ' %'}
-                  avatar={<Avatar>{row.code}</Avatar>}
-                  color="default"
-                  style={{ backgroundColor: this.generateRandomColor() }}
-                />
-                <Divider
-                  variant="fullWidth"
-                  style={{ marginBottom: '10px', marginTop: '10px' }}
-                />
-                <Card className={classes.root} onClick={this.activateLasers} style={{ cursor: 'pointer' }}>
-                  <CardHeader
-                    avatar={(
-                      <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: 'rgb(255.40.0)' }}>
-                                      C
-                      </Avatar>
-                    )}
-                    action={(
-                      <IconButton aria-label="settings">
-                                      2500 €
-                      </IconButton>
-                    )}
-                    title="Nikolai Albarran"
-                    subheader="September 14, 2016"
+              operationsAssign.map((line) => (
+                <Grid item xs={12} md={4}>
+                  <Chip
+                    label={row.name + ' ' + row.percentage + ' %'}
+                    avatar={<Avatar>{row.code}</Avatar>}
+                    color="default"
+                    style={{ backgroundColor: this.generateRandomColor() }}
                   />
-                  <CardContent>
-                    <Typography variant="subtitle1" color="textSecondary" align="center">
-                                  Operation Name
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary" align="center">
-                                  Client : Maroc Telecom
-                    </Typography>
-                              Objectif
-                    <Typography variant="body2" color="textSecondary" component="p">
-                                  This impressive paella is a perfect party dish and a fun meal to cook together with your
-                                  guests. Add 1 cup of frozen peas along with the mussels, if you like.
-                    </Typography>
-                  </CardContent>
-                  <CardContent>
-                              Description
-                    <Typography variant="body2" color="textSecondary" component="p">
-                                  This impressive paella is a perfect party dish and a fun meal to cook together with your
-                                  guests. Add 1 cup of frozen peas along with the mussels, if you like.
-                    </Typography>
-                  </CardContent>
-                  <CardActions disableSpacing>
-                              September 14, 2016
-                    <IconButton aria-label="share">
-                      <ShareIcon />
-                    </IconButton>
-                    <IconButton
-                      className={clsx(classes.expand, {
-                        [classes.expandOpen]: expanded,
-                      })}
-                      onClick={this.handleExpandClick}
-                      aria-expanded={expanded}
-                      aria-label="show more"
-                    >
-                      <ExpandMoreIcon />
-                    </IconButton>
-                  </CardActions>
-                  <Collapse in={expanded} timeout="auto" unmountOnExit>
-                    <CardContent>
-                      <Typography paragraph>Method:</Typography>
-                      <Typography paragraph>
-                                      Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
-                                      minutes.
-                      </Typography>
-                      <Typography paragraph>
-                                      Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high
-                                      heat. Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly
-                                      browned, 6 to 8 minutes. Transfer shrimp to a large plate and set aside, leaving chicken
-                                      and chorizo in the pan. Add pimentón, bay leaves, garlic, tomatoes, onion, salt and
-                                      pepper, and cook, stirring often until thickened and fragrant, about 10 minutes. Add
-                                      saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
-                      </Typography>
-                      <Typography paragraph>
-                                      Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
-                                      without stirring, until most of the liquid is absorbed, 15 to 18 minutes. Reduce heat to
-                                      medium-low, add reserved shrimp and mussels, tucking them down into the rice, and cook
-                                      again without stirring, until mussels have opened and rice is just tender, 5 to 7
-                                      minutes more. (Discard any mussels that don’t open.)
-                      </Typography>
-                      <Typography>
-                                      Set aside off of the heat to let rest for 10 minutes, and then serve.
-                      </Typography>
-                    </CardContent>
-                  </Collapse>
-                </Card>
-              </Grid>
+                  <Divider
+                    variant="fullWidth"
+                    style={{ marginBottom: '10px', marginTop: '10px' }}
+                  />
+                  {line.stateName === row.name ? (
+                    <div>
+                      <Card className={classes.root} onClick={this.activateLasers} style={{ cursor: 'pointer' }}>
+                        <CardHeader
+                          avatar={(
+                            <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: 'rgb(255.40.0)' }}>
+                                          C
+                            </Avatar>
+                          )}
+                          action={(
+                            <IconButton aria-label="settings">
+                              {line.estimatedTradeVolumeInEuro}
+                              {' '}
+                              €
+                            </IconButton>
+                          )}
+                          title="Nikolai Albarran"
+                          subheader="September 14, 2016"
+                        />
+                        <CardContent>
+                          <Typography variant="subtitle1" color="textSecondary" align="center">
+                                      Operation Name
+                          </Typography>
+                          <Typography variant="subtitle1" color="textSecondary" align="center">
+                                      Client :
+                            {' '}
+                            {line.clientName ? line.clientName : ''}
+                          </Typography>
+                                  Objectif
+                          <Typography variant="body2" color="textSecondary" component="p">
+                                      This impressive paella is a perfect party dish and a fun meal to cook together with your
+                                      guests. Add 1 cup of frozen peas along with the mussels, if you like.
+                          </Typography>
+                        </CardContent>
+                        <CardContent>
+                                  Description
+                          <Typography variant="body2" color="textSecondary" component="p">
+                                      This impressive paella is a perfect party dish and a fun meal to cook together with your
+                                      guests. Add 1 cup of frozen peas along with the mussels, if you like.
+                          </Typography>
+                        </CardContent>
+                        <CardActions disableSpacing>
+                                  September 14, 2016
+                          <IconButton aria-label="share">
+                            <ShareIcon />
+                          </IconButton>
+                          <IconButton
+                            className={clsx(classes.expand, {
+                              [classes.expandOpen]: expanded,
+                            })}
+                            onClick={this.handleExpandClick}
+                            aria-expanded={expanded}
+                            aria-label="show more"
+                          >
+                            <ExpandMoreIcon />
+                          </IconButton>
+                        </CardActions>
+                        <Collapse in={expanded} timeout="auto" unmountOnExit>
+                          <CardContent>
+                            <Typography paragraph>Method:</Typography>
+                            <Typography paragraph>
+                                          Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
+                                          minutes.
+                            </Typography>
+                            <Typography paragraph>
+                                          Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high
+                                          heat. Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly
+                                          browned, 6 to 8 minutes. Transfer shrimp to a large plate and set aside, leaving chicken
+                                          and chorizo in the pan. Add pimentón, bay leaves, garlic, tomatoes, onion, salt and
+                                          pepper, and cook, stirring often until thickened and fragrant, about 10 minutes. Add
+                                          saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
+                            </Typography>
+                            <Typography paragraph>
+                                          Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
+                                          without stirring, until most of the liquid is absorbed, 15 to 18 minutes. Reduce heat to
+                                          medium-low, add reserved shrimp and mussels, tucking them down into the rice, and cook
+                                          again without stirring, until mussels have opened and rice is just tender, 5 to 7
+                                          minutes more. (Discard any mussels that don’t open.)
+                            </Typography>
+                            <Typography>
+                                          Set aside off of the heat to let rest for 10 minutes, and then serve.
+                            </Typography>
+                          </CardContent>
+                        </Collapse>
+                      </Card>
+                    </div>
+                  ) : <div />}
+                </Grid>
+              ))
             ))}
           </Grid>
           <Dialog
