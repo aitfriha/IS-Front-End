@@ -150,6 +150,7 @@ class serviceType extends React.Component {
     if (thelogedUser.userRoles[0].actionsNames.commercial_serviceType_delete) {
       deletebutton = false;
     }
+    console.log(operationCommercial[0]);
 
     return (
       <div>
@@ -244,18 +245,21 @@ class serviceType extends React.Component {
             <DialogTitle id="alert-dialog-slide-title"> Change Service type in Operation</DialogTitle>
             <DialogContent dividers>
               <Grid item xs={12} md={12}>
-                <TextField
-                  id="outlined-basic"
-                  label="Commercial Operation related"
-                  variant="outlined"
-                  name="name"
-                  fullWidth
-                  value={operationCommercial}
-                  onChange={this.handleChange}
-                  required
-                  className={classes.textField}
-                />
-                <Autocomplete
+                { operationCommercial[0] !== ' -- ' ? (
+                  <TextField
+                    id="outlined-basic"
+                    label="Commercial Operation related"
+                    variant="outlined"
+                    name="name"
+                    fullWidth
+                    value={operationCommercial}
+                    onChange={this.handleChange}
+                    required
+                    className={classes.textField}
+                  />
+
+                ) : null}
+                <Autocomplete style={{marginTop:'15px'}}
                   multiple
                   className={classes.textField}
                   id="combo-box-demo"

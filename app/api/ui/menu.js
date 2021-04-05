@@ -114,11 +114,11 @@ module.exports = [
             link: '/app/gestion-commercial/title-Type',
             icon: 'ios-people-outline'
           },
-          {
+/*          {
             key: 'logs',
             name: 'Logs',
             link: '/app/gestion-commercial/welcome'
-          },
+          },*/
 
           /* {
             name: 'Countries',

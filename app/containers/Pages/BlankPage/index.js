@@ -34,42 +34,65 @@ class BlankPage extends React.Component {
     this.state = {
     };
   }
+  componentDidMount() {
+    window.addEventListener("beforeunload", this._confirm);
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = this._backConfirm;
+  }
+
+  _backConfirm = async () => {
+    history.push({
+      pathname: '/app',
+      search: '?the=search',
+      state: { picture: welcomecommercialpic, moduleName: 'Welcome to commercial module', theme: 'redTheme' }
+    });
+  }
 
   gowTo= (data) => {
     if (data === 'commercial') {
       history.push({
         pathname: '/app/gestion-commercial/welcome',
         search: '?the=search',
-        state: { picture: welcomecommercialpic, moduleName: 'Welcome to commercial module' }
+        state: { picture: welcomecommercialpic, moduleName: 'Welcome to commercial module', theme: 'redTheme' }
       });
+      localStorage.setItem('picture', welcomecommercialpic);
+      localStorage.setItem('moduleName', 'Welcome to commercial module');
     }
     if (data === 'financial') {
       history.push({
         pathname: '/app/gestion-commercial/welcome',
         search: '?the=search',
-        state: { picture: welcomefinancialpic, moduleName: 'Welcome to financial module' }
+        state: { picture: welcomefinancialpic, moduleName: 'Welcome to financial module', theme: 'greyTheme' }
       });
+      localStorage.setItem('picture', welcomefinancialpic);
+      localStorage.setItem('moduleName', 'Welcome to financial module');
     }
     if (data === 'rh') {
       history.push({
         pathname: '/app/gestion-commercial/welcome',
         search: '?the=search',
-        state: { picture: welcomeRhpic, moduleName: 'Welcome to human resources module' }
+        state: { picture: welcomeRhpic, moduleName: 'Welcome to human resources module', theme: 'blueCyanTheme' }
       });
+      localStorage.setItem('picture', welcomeRhpic);
+      localStorage.setItem('moduleName', 'Welcome to human resources module');
     }
     if (data === 'operative module') {
       history.push({
         pathname: '/app/gestion-commercial/welcome',
         search: '?the=search',
-        state: { picture: welcomeOperative, moduleName: 'Welcome to operating systems module' }
+        state: { picture: welcomeOperative, moduleName: 'Welcome to operating systems module', theme: 'greenTheme' }
       });
+      localStorage.setItem('picture', welcomeOperative);
+      localStorage.setItem('moduleName', 'Welcome to operating systems module');
     }
     if (data === 'administration') {
       history.push({
         pathname: '/app/gestion-commercial/welcome',
         search: '?the=search',
-        state: { picture: welcomeAdministration, moduleName: 'Welcome to administration module' }
+        state: { picture: welcomeAdministration, moduleName: 'Welcome to administration module', theme: 'purpleRedTheme' }
       });
+      localStorage.setItem('picture', welcomeAdministration);
+      localStorage.setItem('moduleName', 'Welcome to administration module');
     }
 
   }

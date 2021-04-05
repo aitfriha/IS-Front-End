@@ -28,7 +28,7 @@ class LeftSidebarLayout extends React.Component {
     } = this.props;
     const thelogedUser = JSON.parse(logedUser);
 
-/*    this.setState({ aaa: [] });
+    /*    this.setState({ aaa: [] });
     if (this.props.moduleName === 'Welcome to commercial module') {
       dataMenux = [dataMenu[0]];
       this.state.aaa.push(dataMenu[0]);
@@ -39,7 +39,7 @@ class LeftSidebarLayout extends React.Component {
     }
     if (this.props.moduleName === 'Welcome to human resources module') {
       dataMenux = [dataMenu[2]];
-    }*/
+    } */
     // console.log('my props ', dataMenux);
     // administration
     if (thelogedUser.userRoles[0].actionsNames.admin_user_Management_access == false) {
@@ -316,7 +316,7 @@ class LeftSidebarLayout extends React.Component {
        titleException,
        handleOpenGuide
      } = this.props;
-      if (this.props.moduleName === 'Welcome to commercial module') {
+     if (this.props.moduleName === 'Welcome to commercial module') {
        dataMenux = [dataMenu[0]];
      }
      if (this.props.moduleName === 'Welcome to financial module') {
@@ -334,9 +334,9 @@ class LeftSidebarLayout extends React.Component {
      if (this.props.moduleName === 'Welcome to administration module') {
        dataMenux = [dataMenu[4]];
      }
-/*     if (this.props.moduleName === undefined) {
-       dataMenux = [];
-     }*/
+     if (window.location.pathname === '/app') {
+       dataMenux=[];
+     }
      console.log(this.props.moduleName);
 
      return (
