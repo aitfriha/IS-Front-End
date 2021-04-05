@@ -573,7 +573,7 @@ class AddCommercialOperation extends React.Component {
               }
             }
           }
-          if (allContactByOperations[key].contactsType === 'pd contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
+          if (allContactByOperations[key].contactsType === 'procurement department contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ procurement_department_other_contact: true });
             for (const cle in allContactByOperations[key].mandatoryAttributes) {
               if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
@@ -617,7 +617,7 @@ class AddCommercialOperation extends React.Component {
               }
             }
           }
-          if (allContactByOperations[key].contactsType === 'la contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
+          if (allContactByOperations[key].contactsType === 'legal area contact 1' && allContactByOperations[key].mandatoryAttributes.length > 0 && (ev.target.value).name === allContactByOperations[key].statusName) {
             this.setState({ legal_area_other_contact: true });
             for (const cle in allContactByOperations[key].mandatoryAttributes) {
               if (allContactByOperations[key].mandatoryAttributes[cle] === 'first name') {
