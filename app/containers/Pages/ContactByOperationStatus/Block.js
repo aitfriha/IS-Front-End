@@ -258,10 +258,11 @@ class ContactByOperationStatusBlock extends React.Component {
   };
 
   deleteMondatoryAttributes= (data, aaa) => {
+    console.log(aaa);
     this.setState({
       openPopUpDelete: true,
-      statusIdToDelete: aaa.rowData[3],
-      contactTypeNameToDelete: aaa.rowData[2]
+      statusIdToDelete: aaa.rowData[2],
+      contactTypeNameToDelete: aaa.rowData[1]
     });
   };
 
