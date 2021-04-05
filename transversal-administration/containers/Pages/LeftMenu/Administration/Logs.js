@@ -35,6 +35,10 @@ class Role extends React.Component {
           name: 'logType',
           label: 'action Name',
         },
+        {
+          name: 'description',
+          label: 'description',
+        },
       ]
     };
   }
