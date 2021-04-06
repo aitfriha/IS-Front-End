@@ -12,7 +12,7 @@ import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
-import ShareIcon from '@material-ui/icons/Share';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { connect } from 'react-redux';
@@ -138,6 +138,10 @@ class CommercialActionsBlock extends React.Component {
 
     activateLasers = () => {
       this.setState({ openPopUp: true });
+    };
+
+    handleOpenDialog = (currentOperation) => {
+      this.setState({ currentOperation });
     };
 
     handleClose = () => {
@@ -309,18 +313,13 @@ class CommercialActionsBlock extends React.Component {
                               </Typography>
                             </CardContent>
                             <CardActions disableSpacing>
-                              <IconButton aria-label="share">
-                                <ShareIcon />
-                              </IconButton>
                               <IconButton
+                                aria-label="show more"
                                 className={clsx(classes.expand, {
                                   [classes.expandOpen]: expanded,
                                 })}
-                                onClick={this.handleExpandClick}
-                                aria-expanded={expanded}
-                                aria-label="show more"
                               >
-                                <ExpandMoreIcon />
+                                <OpenInNewIcon />
                               </IconButton>
                             </CardActions>
                           </Card>
