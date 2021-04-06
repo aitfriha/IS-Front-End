@@ -646,6 +646,10 @@ class EditContact extends React.Component {
             </Grid>
           </div>
           <div className={classes.btnCenter} style={{ marginTop: 20 }}>
+            <Button color="secondary" onClick={this.props.handleClose} style={{ marginTop: 20 }}>
+              Cancel
+            </Button>
+            &nbsp;&nbsp;&nbsp;
             <Button
               className={classes.textField}
               color="primary"
