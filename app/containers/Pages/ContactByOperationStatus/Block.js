@@ -71,6 +71,7 @@ class ContactByOperationStatusBlock extends React.Component {
       postCode: false,
       operationName: '',
       contactTypeName: '',
+      theContactTypeName: '',
       openPopUpAttributes: false,
       buttonUpdateAttributes: false,
       openPopUpDelete: false,
@@ -85,13 +86,6 @@ class ContactByOperationStatusBlock extends React.Component {
             filter: true
           }
         },
-        /*        {
-          name: 'description',
-          label: 'Status Description',
-          options: {
-            filter: true
-          }
-        }, */
         {
           name: 'contactsType',
           label: 'contacts Type',
@@ -107,7 +101,7 @@ class ContactByOperationStatusBlock extends React.Component {
           }
         },
         {
-          name: 'description',
+          name: '',
           label: 'mandatory Attributes',
           options: {
             customBodyRender: (value, data) => (
@@ -166,31 +160,31 @@ class ContactByOperationStatusBlock extends React.Component {
         this.setState({ c05: true });
       }
       /!** ******************** *!/
-      if (contacts[data].contactsTypes[key] === 'pd contact 1') {
+      if (contacts[data].contactsTypes[key] === 'procurement department contact 1') {
         this.setState({ c10: true });
       }
-      if (contacts[data].contactsTypes[key] === 'pd contact 2') {
+      if (contacts[data].contactsTypes[key] === 'procurement department contact 2') {
         this.setState({ c11: true });
       }
-      if (contacts[data].contactsTypes[key] === 'pd contact 3') {
+      if (contacts[data].contactsTypes[key] === 'rocurement department contact 3') {
         this.setState({ c12: true });
       }
       /!** ******************** *!/
-      if (contacts[data].contactsTypes[key] === 'la contact 1') {
+      if (contacts[data].contactsTypes[key] === 'legal area contact 1') {
         this.setState({ c20: true });
       }
-      if (contacts[data].contactsTypes[key] === 'la contact 2') {
+      if (contacts[data].contactsTypes[key] === 'legal area contact 2') {
         this.setState({ c21: true });
       }
-      if (contacts[data].contactsTypes[key] === 'la contact 3') {
+      if (contacts[data].contactsTypes[key] === 'legal area contact 3') {
         this.setState({ c22: true });
       }
     }
     this.setState({ openPopUp: true });
   }; */
   showMondatoryAttributes= (data, aaa) => {
-    console.log(aaa.rowData[0]);
-    console.log(aaa.rowData[2]);
+    //console.log(aaa.rowData[0]);
+    console.log(aaa);
     const { contacts } = this.props;
     this.setState(
       {
@@ -211,7 +205,8 @@ class ContactByOperationStatusBlock extends React.Component {
         buttonUpdateAttributes: false,
         operationName: aaa.rowData[0],
         contactTypeName: aaa.rowData[2],
-        statusId: aaa.rowData[3],
+        theContactTypeName: aaa.rowData[1],
+        statusId: aaa.rowData[2],
       });
 
 
@@ -263,10 +258,11 @@ class ContactByOperationStatusBlock extends React.Component {
   };
 
   deleteMondatoryAttributes= (data, aaa) => {
+    console.log(aaa);
     this.setState({
       openPopUpDelete: true,
-      statusIdToDelete: aaa.rowData[3],
-      contactTypeNameToDelete: aaa.rowData[2]
+      statusIdToDelete: aaa.rowData[2],
+      contactTypeNameToDelete: aaa.rowData[1]
     });
   };
 
@@ -296,8 +292,8 @@ class ContactByOperationStatusBlock extends React.Component {
 
   updateStatus = (data, aaa) => {
     // fill all attributes in a list
-    console.log(aaa.rowData[0]);
-    console.log(aaa.rowData[2]);
+    console.log(aaa);
+    //console.log(aaa.rowData[2]);
     const { contacts } = this.props;
     this.setState(
       {
@@ -318,7 +314,8 @@ class ContactByOperationStatusBlock extends React.Component {
         buttonUpdateAttributes: true,
         operationName: aaa.rowData[0],
         contactTypeName: aaa.rowData[2],
-        statusId: aaa.rowData[3],
+        theContactTypeName: aaa.rowData[1],
+        statusId: aaa.rowData[2],
       });
     mondatoryList = contacts[data].mandatoryAttributes;
 
@@ -435,7 +432,7 @@ class ContactByOperationStatusBlock extends React.Component {
 
   render() {
     const {
-      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes, openPopUpDelete,
+      openPopUpAttributes, operationName, contactTypeName, buttonUpdateAttributes, openPopUpDelete,theContactTypeName,
       firstName, fatherFamilyName, motherFamilyName, company, department, position, companyFixPhone, companyMobilePhone, companyEmail, personalMobilePhone, personalEmail, skype, fullAddress, postCode
     } = this.state;
     const {
@@ -494,7 +491,7 @@ class ContactByOperationStatusBlock extends React.Component {
             contact type :
             <span style={{ color: 'blue' }}>
               {' '}
-              {contactTypeName}
+              {theContactTypeName}
               {' '}
             </span>
           </DialogTitle>

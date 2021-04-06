@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 import LibraryBooks from '@material-ui/icons/LibraryBooks';
 import { isString } from 'lodash';
 import IconButton from '@material-ui/core/IconButton';
+import { makeStyles } from '@material-ui/core/styles';
 import styles from '../Staff/staff-jss';
 import EditContact from '../Contact/editContact';
 import ContactByOperationStatusBlock from './Block';
@@ -29,8 +30,7 @@ import {
 import { addContactByOperation, getAllContactByOperation } from '../../../redux/contactByOperation/actions';
 import notification from '../../../components/Notification/Notification';
 import { getAllClient } from '../../../redux/client/actions';
-import { ThemeContext } from "../../App/ThemeWrapper";
-import { makeStyles } from "@material-ui/core/styles";
+import { ThemeContext } from '../../App/ThemeWrapper';
 
 const mondatoryList = [];
 const contactOfTheDecisionMakerMandatoryAttributesTemp = [];
@@ -205,37 +205,37 @@ class ContactByOperationStatus extends React.Component {
       {
         statusId,
         description,
-        contactsType: 'pd contact 1',
+        contactsType: 'procurement department contact 1',
         mandatoryAttributes: pdContact1MandatoryAttributes
       },
       {
         statusId,
         description,
-        contactsType: 'pd contact 2',
+        contactsType: 'procurement department contact 2',
         mandatoryAttributes: pdContact2MandatoryAttributes
       },
       {
         statusId,
         description,
-        contactsType: 'pd contact 3',
+        contactsType: 'rocurement department contact 3',
         mandatoryAttributes: pdContact3MandatoryAttributes
       },
       {
         statusId,
         description,
-        contactsType: 'la contact 1',
+        contactsType: 'legal area contact 1',
         mandatoryAttributes: laContact1MandatoryAttributes
       },
       {
         statusId,
         description,
-        contactsType: 'la contact 2',
+        contactsType: 'legal area contact 2',
         mandatoryAttributes: laContact2MandatoryAttributes
       },
       {
         statusId,
         description,
-        contactsType: 'la contact 3',
+        contactsType: 'legal area contact 3',
         mandatoryAttributes: laContact3MandatoryAttributes
       },
     ];
@@ -340,37 +340,37 @@ class ContactByOperationStatus extends React.Component {
              mandatoryC05: false,
            });
        }
-       if (event.target.value === 'pd contact 1') {
+       if (event.target.value === 'procurement department contact 1') {
          this.setState(
            {
              mandatoryC10: false,
            });
        }
-       if (event.target.value === 'pd contact 2') {
+       if (event.target.value === 'procurement department contact 2') {
          this.setState(
            {
              mandatoryC11: false,
            });
        }
-       if (event.target.value === 'pd contact 3') {
+       if (event.target.value === 'rocurement department contact 3') {
          this.setState(
            {
              mandatoryC12: false,
            });
        }
-       if (event.target.value === 'la contact 1') {
+       if (event.target.value === 'legal area contact 1') {
          this.setState(
            {
              mandatoryC20: false,
            });
        }
-       if (event.target.value === 'la contact 2') {
+       if (event.target.value === 'legal area contact 2') {
          this.setState(
            {
              mandatoryC21: false,
            });
        }
-       if (event.target.value === 'la contact 3') {
+       if (event.target.value === 'legal area contact 3') {
          this.setState(
            {
              mandatoryC22: false,
@@ -417,37 +417,37 @@ class ContactByOperationStatus extends React.Component {
              mandatoryC05: true,
            });
        }
-       if (event.target.value === 'pd contact 1') {
+       if (event.target.value === 'procurement department contact 1') {
          this.setState(
            {
              mandatoryC10: true,
            });
        }
-       if (event.target.value === 'pd contact 2') {
+       if (event.target.value === 'procurement department contact 2') {
          this.setState(
            {
              mandatoryC11: true,
            });
        }
-       if (event.target.value === 'pd contact 3') {
+       if (event.target.value === 'rocurement department contact 3') {
          this.setState(
            {
              mandatoryC12: true,
            });
        }
-       if (event.target.value === 'la contact 1') {
+       if (event.target.value === 'legal area contact 1') {
          this.setState(
            {
              mandatoryC20: true,
            });
        }
-       if (event.target.value === 'la contact 2') {
+       if (event.target.value === 'legal area contact 2') {
          this.setState(
            {
              mandatoryC21: true,
            });
        }
-       if (event.target.value === 'la contact 3') {
+       if (event.target.value === 'legal area contact 3') {
          this.setState(
            {
              mandatoryC22: true,
@@ -542,79 +542,79 @@ class ContactByOperationStatus extends React.Component {
           otherContact3MandatoryAttributes: otherContact3MandatoryAttributesTemp,
         });
     }
-    if (contactTypeName === 'pd contact 1') {
+    if (contactTypeName === 'procurement department contact 1') {
       const index = pdContact1MandatoryAttributesTemp.findIndex(x => x === event.target.value);
       if (index === -1) {
         pdContact1MandatoryAttributesTemp.push(event.target.value);
       } else {
         pdContact1MandatoryAttributesTemp.splice(pdContact1MandatoryAttributesTemp.indexOf(event.target.value), 1);
       }
-      console.log('pd contact 1 : ', pdContact1MandatoryAttributesTemp);
+      console.log('procurement department contact 1 : ', pdContact1MandatoryAttributesTemp);
       this.setState(
         {
           pdContact1MandatoryAttributes: pdContact1MandatoryAttributesTemp,
         });
     }
-    if (contactTypeName === 'pd contact 2') {
+    if (contactTypeName === 'procurement department contact 2') {
       const index = pdContact2MandatoryAttributesTemp.findIndex(x => x === event.target.value);
       if (index === -1) {
         pdContact2MandatoryAttributesTemp.push(event.target.value);
       } else {
         pdContact2MandatoryAttributesTemp.splice(pdContact2MandatoryAttributesTemp.indexOf(event.target.value), 1);
       }
-      console.log('pd contact 2 : ', pdContact2MandatoryAttributesTemp);
+      console.log('procurement department contact 2 : ', pdContact2MandatoryAttributesTemp);
       this.setState(
         {
           pdContact2MandatoryAttributes: pdContact2MandatoryAttributesTemp,
         });
     }
-    if (contactTypeName === 'pd contact 3') {
+    if (contactTypeName === 'rocurement department contact 3') {
       const index = pdContact3MandatoryAttributesTemp.findIndex(x => x === event.target.value);
       if (index === -1) {
         pdContact3MandatoryAttributesTemp.push(event.target.value);
       } else {
         pdContact3MandatoryAttributesTemp.splice(pdContact3MandatoryAttributesTemp.indexOf(event.target.value), 1);
       }
-      console.log('pd contact 3 : ', pdContact3MandatoryAttributesTemp);
+      console.log('rocurement department contact 3 : ', pdContact3MandatoryAttributesTemp);
       this.setState(
         {
           pdContact3MandatoryAttributes: pdContact3MandatoryAttributesTemp,
         });
     }
-    if (contactTypeName === 'la contact 1') {
+    if (contactTypeName === 'legal area contact 1') {
       const index = laContact1MandatoryAttributesTemp.findIndex(x => x === event.target.value);
       if (index === -1) {
         laContact1MandatoryAttributesTemp.push(event.target.value);
       } else {
         laContact1MandatoryAttributesTemp.splice(laContact1MandatoryAttributesTemp.indexOf(event.target.value), 1);
       }
-      console.log('la contact 1 : ', laContact1MandatoryAttributesTemp);
+      console.log('legal area contact 1 : ', laContact1MandatoryAttributesTemp);
       this.setState(
         {
           laContact1MandatoryAttributes: laContact1MandatoryAttributesTemp,
         });
     }
-    if (contactTypeName === 'la contact 2') {
+    if (contactTypeName === 'legal area contact 2') {
       const index = laContact2MandatoryAttributesTemp.findIndex(x => x === event.target.value);
       if (index === -1) {
         laContact2MandatoryAttributesTemp.push(event.target.value);
       } else {
         laContact2MandatoryAttributesTemp.splice(laContact2MandatoryAttributesTemp.indexOf(event.target.value), 1);
       }
-      console.log('la contact 2 : ', laContact2MandatoryAttributesTemp);
+      console.log('legal area contact 2 : ', laContact2MandatoryAttributesTemp);
       this.setState(
         {
           laContact2MandatoryAttributes: laContact2MandatoryAttributesTemp,
         });
     }
-    if (contactTypeName === 'la contact 3') {
+    if (contactTypeName === 'legal area contact 3') {
       const index = laContact3MandatoryAttributesTemp.findIndex(x => x === event.target.value);
       if (index === -1) {
         laContact3MandatoryAttributesTemp.push(event.target.value);
       } else {
         laContact3MandatoryAttributesTemp.splice(laContact3MandatoryAttributesTemp.indexOf(event.target.value), 1);
       }
-      console.log('la contact 3 : ', laContact3MandatoryAttributesTemp);
+      console.log('legal area contact 3 : ', laContact3MandatoryAttributesTemp);
       this.setState(
         {
           laContact3MandatoryAttributes: laContact3MandatoryAttributesTemp,
@@ -857,15 +857,15 @@ class ContactByOperationStatus extends React.Component {
                     {/*     <FormLabel component="legend">Assign responsibility</FormLabel> */}
                     <FormGroup>
                       <FormControlLabel
-                        control={<Checkbox checked={c10} onChange={this.handleChangeCheck} name="c10" value="pd contact 1" />}
+                        control={<Checkbox checked={c10} onChange={this.handleChangeCheck} name="c10" value="procurement department contact 1" />}
                         label="Contact 1"
                       />
                       <FormControlLabel
-                        control={<Checkbox checked={c11} onChange={this.handleChangeCheck} name="c11" value="pd contact 2" />}
+                        control={<Checkbox checked={c11} onChange={this.handleChangeCheck} name="c11" value="procurement department contact 2" />}
                         label="Contact 2"
                       />
                       <FormControlLabel
-                        control={<Checkbox checked={c12} onChange={this.handleChangeCheck} name="c12" value="pd contact 3" />}
+                        control={<Checkbox checked={c12} onChange={this.handleChangeCheck} name="c12" value="rocurement department contact 3" />}
                         label="Contact 3"
                       />
                     </FormGroup>
@@ -883,17 +883,17 @@ class ContactByOperationStatus extends React.Component {
                     style={{ marginBottom: '10px', marginTop: '10px' }}
                   />
                   <div style={{ marginTop: '-5px' }}>
-                    <IconButton onClick={() => this.displayAttributes('pd contact 1')} disabled={mandatoryC10}>
+                    <IconButton onClick={() => this.displayAttributes('procurement department contact 1')} disabled={mandatoryC10}>
                       <LibraryBooks color="secondary" />
                     </IconButton>
                   </div>
                   <div style={{ marginTop: '-5px' }}>
-                    <IconButton onClick={() => this.displayAttributes('pd contact 2')} disabled={mandatoryC11}>
+                    <IconButton onClick={() => this.displayAttributes('procurement department contact 2')} disabled={mandatoryC11}>
                       <LibraryBooks color="secondary" />
                     </IconButton>
                   </div>
                   <div style={{ marginTop: '-5px' }}>
-                    <IconButton onClick={() => this.displayAttributes('pd contact 3')} disabled={mandatoryC12}>
+                    <IconButton onClick={() => this.displayAttributes('rocurement department contact 3')} disabled={mandatoryC12}>
                       <LibraryBooks color="secondary" />
                     </IconButton>
                   </div>
@@ -911,15 +911,15 @@ class ContactByOperationStatus extends React.Component {
                   <FormControl component="fieldset" className={classes.formControl}>
                     <FormGroup>
                       <FormControlLabel
-                        control={<Checkbox checked={c20} onChange={this.handleChangeCheck} name="c20" value="la contact 1" />}
+                        control={<Checkbox checked={c20} onChange={this.handleChangeCheck} name="c20" value="legal area contact 1" />}
                         label="Contact 1"
                       />
                       <FormControlLabel
-                        control={<Checkbox checked={c21} onChange={this.handleChangeCheck} name="c21" value="la contact 2" />}
+                        control={<Checkbox checked={c21} onChange={this.handleChangeCheck} name="c21" value="legal area contact 2" />}
                         label="Contact 2"
                       />
                       <FormControlLabel
-                        control={<Checkbox checked={c22} onChange={this.handleChangeCheck} name="c22" value="la contact 3" />}
+                        control={<Checkbox checked={c22} onChange={this.handleChangeCheck} name="c22" value="legal area contact 3" />}
                         label="Contact 3"
                       />
                     </FormGroup>
@@ -936,17 +936,17 @@ class ContactByOperationStatus extends React.Component {
                     style={{ marginBottom: '10px', marginTop: '10px' }}
                   />
                   <div style={{ marginTop: '-5px' }}>
-                    <IconButton onClick={() => this.displayAttributes('la contact 1')} disabled={mandatoryC20}>
+                    <IconButton onClick={() => this.displayAttributes('legal area contact 1')} disabled={mandatoryC20}>
                       <LibraryBooks color="secondary" />
                     </IconButton>
                   </div>
                   <div style={{ marginTop: '-5px' }}>
-                    <IconButton onClick={() => this.displayAttributes('la contact 2')} disabled={mandatoryC21}>
+                    <IconButton onClick={() => this.displayAttributes('legal area contact 2')} disabled={mandatoryC21}>
                       <LibraryBooks color="secondary" />
                     </IconButton>
                   </div>
                   <div style={{ marginTop: '-5px' }}>
-                    <IconButton onClick={() => this.displayAttributes('la contact 3')} disabled={mandatoryC22}>
+                    <IconButton onClick={() => this.displayAttributes('legal area contact 3')} disabled={mandatoryC22}>
                       <LibraryBooks color="secondary" />
                     </IconButton>
                   </div>
@@ -1149,8 +1149,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 const ContactByOperationStatusMapped = connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(ContactByOperationStatus);
 
 export default () => {
@@ -1158,4 +1158,3 @@ export default () => {
   const classes = useStyles();
   return <ContactByOperationStatusMapped changeTheme={changeTheme} classes={classes} />;
 };
-
