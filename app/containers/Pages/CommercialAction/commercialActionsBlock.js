@@ -140,6 +140,7 @@ class CommercialActionsBlock extends React.Component {
       newOperation.objectif = objectifs;
       CommercialOperationService.updateCommercialOperation(newOperation).then(result => {
         console.log(result);
+        this.setState({ openPopUp: false });
       });
     }
 
