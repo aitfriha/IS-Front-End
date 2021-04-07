@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import {
   Avatar, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField
 } from '@material-ui/core';
-import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
@@ -13,7 +12,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { connect } from 'react-redux';
 import InputBase from '@material-ui/core/InputBase';
@@ -58,6 +56,7 @@ class CommercialActionsBlock extends React.Component {
       numberClientResponsible: 0,
       numberClientAssistant: 0,
       staffId: '',
+      currentOperation: [],
       clientId: '',
       clientName: '',
       expanded: false,
@@ -85,18 +84,6 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ assignments: result.data });
     });
   }
-
-  /*  componentDidUpdate(prevProps) {
-          const { staffId } = this.state;
-          const {
-              getAssignmentByStaff, errorsAssignment, isLoadingAssignment, assignmentResponse, allAssignments
-          } = this.props;
-          if (prevProps.allAssignments === allAssignments && staffId != '') {
-              getAssignmentByStaff(staffId);
-              this.setState({ numberClientAssistant: 5 });
-              this.setState({ numberClientResponsible: 3 });
-          }
-      } */
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
@@ -131,13 +118,11 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ clientId: value.client._id, clientName: value.client.name, operationsAssign });
     }
 
-    handleExpandClick = () => {
-      const { expanded } = this.state;
-      this.setState({ expanded: !expanded });
-    };
-
-    activateLasers = () => {
-      this.setState({ openPopUp: true });
+    activateLasers = (commercialOperation) => {
+      console.log(commercialOperation);
+      this.setState({
+        openPopUp: true, currentOperation: commercialOperation, objectifs: commercialOperation.objectifs, descriptions: commercialOperation.description
+      });
     };
 
     handleOpenDialog = (currentOperation) => {
@@ -146,6 +131,9 @@ class CommercialActionsBlock extends React.Component {
 
     handleClose = () => {
       this.setState({ openPopUp: false });
+    };
+
+    handleSave = () => {
     };
 
     generateRandomColor = () => {
@@ -158,8 +146,8 @@ class CommercialActionsBlock extends React.Component {
     render() {
       console.log(this.state);
       const {
-        expanded, numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId
+        numberClientResponsible, numberClientAssistant, openPopUp,
+        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation, descriptions, objectifs
       } = this.state;
       const { classes } = this.props;
       return (
@@ -273,7 +261,8 @@ class CommercialActionsBlock extends React.Component {
                     <div>
                       {line.stateName === row.name ? (
                         <div>
-                          <Card className={classes.root} onClick={this.activateLasers} style={{ cursor: 'pointer' }}>
+                          {/* eslint-disable-next-line react/jsx-no-bind */}
+                          <Card id={line.commercialOperationId} onClick={this.activateLasers.bind(this, line)} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
                             <CardHeader
                               avatar={(
                                 <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: 'rgb(255.40.0)' }}>
@@ -288,7 +277,6 @@ class CommercialActionsBlock extends React.Component {
                                 </IconButton>
                               )}
                               title={staffName}
-                              // subheader="September 14, 2016"
                             />
                             <CardContent>
                               <Typography variant="subtitle1" color="textSecondary" align="center">
@@ -315,9 +303,6 @@ class CommercialActionsBlock extends React.Component {
                             <CardActions disableSpacing>
                               <IconButton
                                 aria-label="show more"
-                                className={clsx(classes.expand, {
-                                  [classes.expandOpen]: expanded,
-                                })}
                               >
                                 <OpenInNewIcon />
                               </IconButton>
@@ -342,61 +327,118 @@ class CommercialActionsBlock extends React.Component {
             fullWidth="md"
             maxWidth="md"
           >
-            <DialogTitle id="alert-dialog-slide-title"> Operation Name, Morocco,Tanger-Tétouan-Al Hoceïma,Tanger</DialogTitle>
+            <DialogTitle id="alert-dialog-slide-title">
+              {' '}
+              {currentOperation.name ? currentOperation.name : ''}
+              {' '}
+            </DialogTitle>
             <DialogContent dividers>
-              <Card className={classes.root} onClick={this.activateLasers} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
-                <CardHeader
-                  avatar={(
-                    <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: '#ffb74d' }}>
-                                        R
-                    </Avatar>
-                  )}
-                  action={(
-                    <IconButton aria-label="settings">
-                                        2500 €
-                    </IconButton>
-                  )}
-                  title="Nikolai Albarran"
-                  subheader="September 14, 2016"
-                />
-                <CardContent>
-                  <Typography variant="subtitle1" color="textSecondary" align="center">
-                                    Operation Name
-                  </Typography>
-                  <Typography variant="subtitle1" color="textSecondary" align="center">
-                                    Client : Maroc Telecom
-                  </Typography>
-                                Objectif
-                  <Typography variant="body2" color="textSecondary" component="p">
-                                    This impressive paella is a perfect party dish and a fun meal to cook together with your
-                                    guests. Add 1 cup of frozen peas along with the mussels, if you like.
-                  </Typography>
-                </CardContent>
-                <CardContent>
-                                Description
-                  <Typography variant="body2" color="textSecondary" component="p">
-                                    This impressive paella is a perfect party dish and a fun meal to cook together with your
-                                    guests. Add 1 cup of frozen peas along with the mussels, if you like.
-                  </Typography>
-                </CardContent>
-                <CardActions disableSpacing>
-                                September 14, 2016
-                  <IconButton
-                    className={clsx(classes.expand, {
-                      [classes.expandOpen]: expanded,
-                    })}
-                    onClick={this.handleExpandClick}
-                    aria-expanded={expanded}
-                    aria-label="show more"
-                  >
-                    <ExpandMoreIcon />
-                  </IconButton>
-                </CardActions>
-              </Card>
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+              >
+                <Grid item xs={12}>
+                  <Card>
+                    <Grid
+                      container
+                      spacing={2}
+                      alignItems="flex-start"
+                      direction="row"
+                      justify="center"
+                    >
+                      <Grid item xs={7}>
+                        <Grid
+                          container
+                          spacing={4}
+                          alignItems="flex-start"
+                          direction="row"
+                        >
+                          <Grid item xs={1}>
+                            <CardHeader
+                              avatar={(
+                                <Avatar style={{ backgroundColor: '#FF0000' }}>
+                                  {staffName ? staffName.substr(0, 1) : ''}
+                                </Avatar>
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={11}>
+                            <CardHeader
+                              variant="subtitle1"
+                              color="primary"
+                              title={staffName}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={5}>
+                        <CardHeader
+                          variant="body1"
+                          color="textSecondary"
+                          title={'Trade Volume : ' + currentOperation.estimatedTradeVolumeInEuro + ' €'}
+                          subheader={'Operations Status : ' + currentOperation.stateName}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="subtitle1" color="textSecondary" align="center">
+                          Operation Name:
+                          {' '}
+                          {currentOperation.name ? currentOperation.name : ''}
+                        </Typography>
+                        <Typography variant="subtitle1" color="textSecondary" align="center">
+                          Client Name:
+                          {' '}
+                          {currentOperation.clientName ? currentOperation.clientName : ''}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={10}>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <br />
+                          <TextField
+                            id="objectifs"
+                            label="Objectifs"
+                            name="objectifs"
+                            value={objectifs}
+                            onChange={this.handleChange}
+                            fullWidth
+                            multiline
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={10}>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <br />
+                          <TextField
+                            id="descriptions"
+                            label="Description"
+                            name="descriptions"
+                            value={descriptions}
+                            onChange={this.handleChange}
+                            fullWidth
+                            multiline
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <br />
+                  </Card>
+                </Grid>
+              </Grid>
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleClose}>
                             Close
+              </Button>
+              <Button variant="contained" color="primary" type="button" onClick={this.handleSave}>
+                Save
               </Button>
             </DialogActions>
           </Dialog>
