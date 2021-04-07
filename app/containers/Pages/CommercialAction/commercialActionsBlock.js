@@ -121,7 +121,7 @@ class CommercialActionsBlock extends React.Component {
     activateLasers = (commercialOperation) => {
       console.log(commercialOperation);
       this.setState({
-        openPopUp: true, currentOperation: commercialOperation, objectifs: commercialOperation.objectifs, descriptions: commercialOperation.description
+        openPopUp: true, currentOperation: commercialOperation, objectifs: commercialOperation.objectif, descriptions: commercialOperation.description
       });
     };
 
@@ -134,7 +134,14 @@ class CommercialActionsBlock extends React.Component {
     };
 
     handleSave = () => {
-    };
+      const { descriptions, objectifs, currentOperation } = this.state;
+      const newOperation = currentOperation;
+      newOperation.description = descriptions;
+      newOperation.objectif = objectifs;
+      CommercialOperationService.updateCommercialOperation(newOperation).then(result => {
+        console.log(result);
+      });
+    }
 
     generateRandomColor = () => {
       const r = Math.round((Math.random() * 255)); // red 0 to 255
@@ -291,7 +298,7 @@ class CommercialActionsBlock extends React.Component {
                               </Typography>
                                       Objectif
                               <Typography variant="body2" color="textSecondary" component="p">
-                                        none.
+                                {line.objectif ? line.objectif : ''}
                               </Typography>
                             </CardContent>
                             <CardContent>
