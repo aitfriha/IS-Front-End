@@ -455,7 +455,7 @@ class ContactBlock extends React.Component {
           <DialogContent dividers>
             <EditContact selectedContact={selectedContact} allStateCountrys={allStateCountrys} allCitys={allCitys} handleClose={this.handleClose} />
           </DialogContent>
-          <DialogActions>
+{/*          <DialogActions>
             <Button color="secondary" onClick={this.handleClose}>
               Cancel
             </Button>
@@ -466,7 +466,7 @@ class ContactBlock extends React.Component {
             >
               Update
             </Button>
-          </DialogActions>
+          </DialogActions>*/}
         </Dialog>
       </div>
     );
