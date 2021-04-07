@@ -376,25 +376,25 @@ class CommercialActionsBlock extends React.Component {
                       <Grid item xs={5}>
                         <CardHeader
                           variant="body1"
-                          color="textSecondary"
+                          color="textPrimary"
                           title={'Trade Volume : ' + currentOperation.estimatedTradeVolumeInEuro + ' €'}
                           subheader={'Operations Status : ' + currentOperation.stateName}
                         />
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="subtitle1" color="textSecondary" align="center">
+                        <Typography variant="subtitle1" color="textPrimary" align="center">
                           Operation Name:
                           {' '}
                           {currentOperation.name ? currentOperation.name : ''}
                         </Typography>
-                        <Typography variant="subtitle1" color="textSecondary" align="center">
+                        <Typography variant="subtitle1" color="textPrimary" align="center">
                           Client Name:
                           {' '}
                           {currentOperation.clientName ? currentOperation.clientName : ''}
                         </Typography>
                       </Grid>
                       <Grid item xs={10}>
-                        <Typography variant="body2" color="textSecondary" component="p">
+                        <Typography variant="body1" color="textPrimary" component="p">
                           <br />
                           <TextField
                             id="objectifs"
@@ -411,7 +411,7 @@ class CommercialActionsBlock extends React.Component {
                         </Typography>
                       </Grid>
                       <Grid item xs={10}>
-                        <Typography variant="body2" color="textSecondary" component="p">
+                        <Typography variant="body1" color="textPrimary" component="p">
                           <br />
                           <TextField
                             id="descriptions"
