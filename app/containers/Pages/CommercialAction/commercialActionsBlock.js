@@ -15,6 +15,7 @@ import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { connect } from 'react-redux';
 import InputBase from '@material-ui/core/InputBase';
+import interact from 'interactjs';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
@@ -83,6 +84,46 @@ class CommercialActionsBlock extends React.Component {
       console.log(result);
       this.setState({ assignments: result.data });
     });
+
+    interact('.resize-drag')
+      .draggable({
+        // enable autoScroll
+        autoScroll: true,
+
+        listeners: {
+          // call this function on every dragmove event
+          move: this.dragMoveListener,
+          // call this function on every dragend event
+          /* end(event) {
+                console.log('Your her => ', event);
+              } */
+        }
+      })
+      .resizable({
+        edges: {
+          left: true,
+          right: true,
+          bottom: true,
+          top: true
+        },
+
+        listeners: {
+          move(event) {
+            const { target } = event;
+            let x = (parseFloat(target.getAttribute('data-x')) || 0);
+            let y = (parseFloat(target.getAttribute('data-y')) || 0);
+            target.style.width = event.rect.width + 'px';
+            target.style.height = event.rect.height + 'px';
+            x += event.deltaRect.left;
+            y += event.deltaRect.top;
+
+            target.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)';
+            target.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
+          }
+        },
+      });
   }
 
     handleChange = (ev) => {
@@ -268,7 +309,7 @@ class CommercialActionsBlock extends React.Component {
                   {operationsAssign.map((line) => (
                     <div>
                       {line.stateName === row.name ? (
-                        <div>
+                        <div id={line.commercialOperationId} className="resize-drag">
                           {/* eslint-disable-next-line react/jsx-no-bind */}
                           <Card id={line.commercialOperationId} onClick={this.activateLasers.bind(this, line)} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
                             <CardHeader
