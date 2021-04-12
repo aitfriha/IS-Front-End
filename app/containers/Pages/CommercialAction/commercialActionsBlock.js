@@ -21,6 +21,7 @@ import CommercialOperationStatusService from '../../Services/CommercialOperation
 import StaffService from '../../Services/StaffService';
 import CommercialOperationService from '../../Services/CommercialOperationService';
 import AssignmentService from '../../Services/AssignmentService';
+import ActionTypeService from '../../Services/ActionTypeService';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -49,6 +50,7 @@ class CommercialActionsBlock extends React.Component {
     super(props);
     this.state = {
       status: [],
+      actionTypes: [],
       operations: [],
       staffs: [],
       staffAssign: [],
@@ -84,6 +86,9 @@ class CommercialActionsBlock extends React.Component {
       console.log(result);
       this.setState({ assignments: result.data });
     });
+    ActionTypeService.getActionType().then(result => {
+      this.setState({ actionTypes: result.data });
+    });
     interact('.resize-drag')
       .draggable({
         // enable autoScroll
@@ -105,7 +110,6 @@ class CommercialActionsBlock extends React.Component {
           bottom: true,
           top: true
         },
-
         listeners: {
           move(event) {
             const { target } = event;
@@ -157,8 +161,6 @@ class CommercialActionsBlock extends React.Component {
         // eslint-disable-next-line no-plusplus
         if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
       });
-      console.log(respoNumber);
-      console.log(respoAssistance);
       this.setState({
         staffAssign, staffName: value.firstName + ' ' + value.fatherFamilyName + ' ' + value.motherFamilyName, staffId: value.staffId, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
       });
