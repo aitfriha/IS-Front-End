@@ -94,8 +94,8 @@ class CommercialActionsBlock extends React.Component {
           move: this.dragMoveListener,
           // call this function on every dragend event
           /* end(event) {
-                console.log('Your her => ', event);
-              } */
+              console.log('Your her => ', event);
+            } */
         }
       })
       .resizable({
@@ -308,16 +308,18 @@ class CommercialActionsBlock extends React.Component {
             >
               {status.map((row) => (
                 <Grid item xs={12} md={4}>
-                  <Chip
-                    label={row.name + ' ' + row.percentage + ' %'}
-                    avatar={<Avatar>{row.code}</Avatar>}
-                    color="default"
-                    style={{ backgroundColor: this.generateRandomColor() }}
-                  />
-                  <Divider
-                    variant="fullWidth"
-                    style={{ marginBottom: '10px', marginTop: '10px' }}
-                  />
+                  <div id={row.commercialOperationStatusId} className="drop-zone">
+                    <Chip
+                      label={row.name + ' ' + row.percentage + ' %'}
+                      avatar={<Avatar>{row.code}</Avatar>}
+                      color="default"
+                      style={{ backgroundColor: this.generateRandomColor() }}
+                    />
+                    <Divider
+                      variant="fullWidth"
+                      style={{ marginBottom: '10px', marginTop: '10px' }}
+                    />
+                  </div>
                   {operationsAssign.map((line) => (
                     <div>
                       {line.stateName === row.name ? (
