@@ -34,11 +34,11 @@ module.exports = [
             link: '/app/gestion-commercial/Commercial-Operations',
             icon: 'ios-people-outline'
           },
-/*          {
+          /*          {
             key: 'country_assignment',
             name: 'Country assignment',
             link: '/app/configurations/countries'
-          },*/
+          }, */
           {
             key: 'commercial_action',
             name: 'Commercial Action',
@@ -86,6 +86,11 @@ module.exports = [
             link: '/app/gestion-commercial/status'
           },
           {
+            key: 'type_of_action',
+            name: 'Type of Commercial Actions',
+            link: '/app/gestion-commercial/Action-Type'
+          },
+          {
             key: 'contact_by_operation_status',
             name: 'Contact by Operation Status',
             link: '/app/gestion-commercial/contact-by-Operation'
@@ -114,11 +119,11 @@ module.exports = [
             link: '/app/gestion-commercial/title-Type',
             icon: 'ios-people-outline'
           },
-/*          {
+          /*          {
             key: 'logs',
             name: 'Logs',
             link: '/app/gestion-commercial/welcome'
-          },*/
+          }, */
 
           /* {
             name: 'Countries',

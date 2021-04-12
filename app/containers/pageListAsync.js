@@ -249,23 +249,37 @@ export const AddCommercialOperation = Loadable({
   loader: () => import('./Pages/CommercialOperation/addCommercialOperation'),
   loading: Loading
 });
+// Add by Aymane
+export const ActionType = Loadable({
+  loader: () => import('./Pages/ActionType/index'),
+  loading: Loading
+});
+// Add by Aymane
+export const AddActionType = Loadable({
+  loader: () => import('./Pages/ActionType/addTypeOfAction'),
+  loading: Loading
+});
 // Add by Miguel
 export const DocumentManager = Loadable({
   loader: () => import('./Pages/CommercialDocumentManager/DocumentManager'),
   loading: Loading
 });
+// Add by Aymane
 export const FinancialCompany = Loadable({
   loader: () => import('./Pages/FinancialSystem/Company'),
   loading: Loading
 });
+// Add by Aymane
 export const FinancialContract = Loadable({
   loader: () => import('./Pages/FinancialSystem/Contract'),
   loading: Loading
 });
+// Add by Aymane
 export const AddContract = Loadable({
   loader: () => import('./Pages/FinancialSystem/Contract/AddContract'),
   loading: Loading
 });
+// Add by Aymane
 export const AddFinancialCompany = Loadable({
   loader: () => import('./Pages/FinancialSystem/Company/AddFinancialCompany'),
   loading: Loading
@@ -286,10 +300,12 @@ export const State = Loadable({
   loader: () => import('./Pages/State/index'),
   loading: Loading
 });
+// Add by Aymane
 export const ContractStatus = Loadable({
   loader: () => import('./Pages/FinancialSystem/ContractStatus'),
   loading: Loading
 });
+// Add by Aymane
 export const AddContractStatus = Loadable({
   loader: () => import('./Pages/FinancialSystem/ContractStatus/addStatus'),
   loading: Loading
@@ -298,50 +314,62 @@ export const StatusOfCommercialOperation = Loadable({
   loader: () => import('./Pages/StatusOfCommercialOperation'),
   loading: Loading
 });
+// Add by Aymane
 export const Billing = Loadable({
   loader: () => import('./Pages/FinancialSystem/Billing'),
   loading: Loading
 });
+// Add by Aymane
 export const AddBilling = Loadable({
   loader: () => import('./Pages/FinancialSystem/Billing/addBilling'),
   loading: Loading
 });
+// Add by Aymane
 export const IVA = Loadable({
   loader: () => import('./Pages/FinancialSystem/IVA'),
   loading: Loading
 });
+// Add by Aymane
 export const AddIVA = Loadable({
   loader: () => import('./Pages/FinancialSystem/IVA/addIVA'),
   loading: Loading
 });
+// Add by Aymane
 export const ContactByOperationStatus = Loadable({
   loader: () => import('./Pages/ContactByOperationStatus'),
   loading: Loading
 });
+// Add by Aymane
 export const Currency = Loadable({
   loader: () => import('./Pages/FinancialSystem/CurrencyManagement'),
   loading: Loading
 });
+// Add by Aymane
 export const AddCurrency = Loadable({
   loader: () => import('./Pages/FinancialSystem/CurrencyManagement/addCurrency'),
   loading: Loading
 });
+// Add by Aymane
 export const TypeOfCurrency = Loadable({
   loader: () => import('./Pages/FinancialSystem/TypeOfCurrency'),
   loading: Loading
 });
+// Add by Aymane
 export const AddTypeOfCurrency = Loadable({
   loader: () => import('./Pages/FinancialSystem/TypeOfCurrency/addTypeOfCurrency'),
   loading: Loading
 });
+// Add by Aymane
 export const Retention = Loadable({
   loader: () => import('./Pages/FinancialSystem/Retentions'),
   loading: Loading
 });
+// Add by Aymane
 export const AddRetention = Loadable({
   loader: () => import('./Pages/FinancialSystem/Retentions/addRetention'),
   loading: Loading
 });
+// Add by Aymane
 export const EconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement'),
   loading: Loading
@@ -354,6 +382,7 @@ export const Role = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/resetPassword'),
   loading: Loading
 }); */
+// Add by Aymane
 export const AddEconomicStaff = Loadable({
   loader: () => import('./Pages/FinancialSystem/StaffEconomicManagement/addEconomicStaff'),
   loading: Loading
@@ -366,6 +395,7 @@ export const Logs = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/Logs'),
   loading: Loading
 });
+// Add by Aymane
 export const EconomicStaffsPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/EconomicStaffPayments'),
   loading: Loading
@@ -374,51 +404,62 @@ export const RoleActions = Loadable({
   loader: () => import('../../transversal-administration/containers/Pages/LeftMenu/Administration/RoleActions'),
   loading: Loading
 });
-
+// Add by Aymane
 export const SupplierType = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersType'),
   loading: Loading
 });
+// Add by Aymane
 export const AddSupplierType = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersType/addSuppliersType'),
   loading: Loading
 });
+// Add by Aymane
 export const ExternalSupplier = Loadable({
   loader: () => import('./Pages/FinancialSystem/ExternalSuppliers'),
   loading: Loading
 });
+// Add by Aymane
 export const AddExternalSupplier = Loadable({
   loader: () => import('./Pages/FinancialSystem/ExternalSuppliers/addExternalSupplier'),
   loading: Loading
 });
+// Add by Aymane
 export const SuppliersContract = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersContract'),
   loading: Loading
 });
+// Add by Aymane
 export const AddSuppliersContract = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersContract/addSuppliersContract'),
   loading: Loading
 });
+// Add by Aymane
 export const SuppliersPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersPayment'),
   loading: Loading
 });
+// Add by Aymane
 export const AddSuppliersPayment = Loadable({
   loader: () => import('./Pages/FinancialSystem/SuppliersPayment/addSuppliersPayment'),
   loading: Loading
 });
+// Add by Aymane
 export const PurchaseOrderAcceptance = Loadable({
   loader: () => import('./Pages/FinancialSystem/PurchaseOrderAcceptance'),
   loading: Loading
 });
+// Add by Aymane
 export const AddPurchaseOrderAcceptance = Loadable({
   loader: () => import('./Pages/FinancialSystem/PurchaseOrderAcceptance/addPurchaseOrder'),
   loading: Loading
 });
+// Add by Aymane
 export const PurchaseOrder = Loadable({
   loader: () => import('./Pages/FinancialSystem/PurchaseOrderManagement'),
   loading: Loading
 });
+// Add by Aymane
 export const AddPurchaseOrder = Loadable({
   loader: () => import('./Pages/FinancialSystem/PurchaseOrderManagement/addPurchaseOrder'),
   loading: Loading
