@@ -2,7 +2,18 @@ import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import {
-  Avatar, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField
+  Avatar,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel, MenuItem, Select,
+  TextField
 } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -16,6 +27,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { connect } from 'react-redux';
 import InputBase from '@material-ui/core/InputBase';
 import interact from 'interactjs';
+import Box from '@material-ui/core/Box';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
@@ -210,7 +222,8 @@ class CommercialActionsBlock extends React.Component {
       console.log(this.state);
       const {
         numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation, descriptions, objectifs
+        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
+        descriptions, objectifs, actionTypes, actionTypeId
       } = this.state;
       const { classes } = this.props;
       return (
@@ -344,25 +357,32 @@ class CommercialActionsBlock extends React.Component {
                               title={staffName}
                             />
                             <CardContent>
-                              <Typography variant="subtitle1" color="textSecondary" align="center">
-                                        Operation :
+                              <Box fontWeight={500}>
+                                Action Type :
                                 {' '}
                                 {line.name ? line.name : ''}
-                              </Typography>
-                              <Typography variant="subtitle1" color="textSecondary" align="center">
-                                        Client :
+                              </Box>
+                              <br />
+                              <Box fontWeight={300} align="center" fontStyle="italic">
+                                Client Name:
                                 {' '}
                                 {line.clientName ? line.clientName : ''}
-                              </Typography>
-                                      Objectif
+                              </Box>
+                              <Box fontWeight={300} align="center" fontStyle="italic">
+                                Operation Name:
+                                {' '}
+                                {line.name ? line.name : ''}
+                              </Box>
+                              <Box fontWeight={300} align="center" fontStyle="italic">
+                                General Sector:
+                                {' '}
+                                {line.sector1 ? line.sector1 : ''}
+                              </Box>
+                              <br />
+                                Objectives :
+                              <br />
                               <Typography variant="body2" color="textSecondary" component="p">
                                 {line.objectif ? line.objectif : ''}
-                              </Typography>
-                            </CardContent>
-                            <CardContent>
-                                      Description
-                              <Typography variant="body2" color="textSecondary" component="p">
-                                {line.description ? line.description : ''}
                               </Typography>
                             </CardContent>
                             <CardActions disableSpacing>
@@ -446,24 +466,49 @@ class CommercialActionsBlock extends React.Component {
                           subheader={'Operations Status : ' + currentOperation.stateName}
                         />
                       </Grid>
+                      <Grid item xs={0} />
+                      <Grid item xs={4}>
+                        <FormControl fullWidth required>
+                          <InputLabel>Commercial Action Type</InputLabel>
+                          <Select
+                            name="actionTypeId"
+                            value={actionTypeId}
+                            onChange={this.handleChange}
+                          >
+                            {
+                              actionTypes.map((clt) => (
+                                <MenuItem key={clt.actionTypeId} value={clt.actionTypeId}>
+                                  {clt.typeName}
+                                </MenuItem>
+                              ))
+                            }
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={7} />
                       <Grid item xs={6}>
-                        <Typography variant="subtitle1" color="textPrimary" align="center">
-                          Operation Name:
-                          {' '}
-                          {currentOperation.name ? currentOperation.name : ''}
-                        </Typography>
-                        <Typography variant="subtitle1" color="textPrimary" align="center">
+                        <Box fontWeight={600} align="center" fontStyle="italic">
                           Client Name:
                           {' '}
                           {currentOperation.clientName ? currentOperation.clientName : ''}
-                        </Typography>
+                        </Box>
+                        <Box fontWeight={600} align="center" fontStyle="italic">
+                            Operation Name:
+                          {' '}
+                          {currentOperation.name ? currentOperation.name : ''}
+                        </Box>
+                        <Box fontWeight={600} align="center" fontStyle="italic">
+                          General Sector:
+                          {' '}
+                          {currentOperation.sector1 ? currentOperation.sector1 : ''}
+                        </Box>
                       </Grid>
-                      <Grid item xs={10}>
+                      <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
                           <br />
                           <TextField
                             id="objectifs"
-                            label="Objectifs"
+                            label="Objectives"
                             name="objectifs"
                             value={objectifs}
                             onChange={this.handleChange}
@@ -475,7 +520,7 @@ class CommercialActionsBlock extends React.Component {
                           />
                         </Typography>
                       </Grid>
-                      <Grid item xs={10}>
+                      <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
                           <br />
                           <TextField
