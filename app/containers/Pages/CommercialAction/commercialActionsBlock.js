@@ -28,6 +28,8 @@ import { connect } from 'react-redux';
 import InputBase from '@material-ui/core/InputBase';
 import interact from 'interactjs';
 import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
@@ -156,6 +158,10 @@ class CommercialActionsBlock extends React.Component {
 
     handleChange = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
+    }
+
+    handleCheckBox = (id) => {
+      console.log(id);
     }
 
     handleChangeStaff = (ev, value) => {
@@ -486,6 +492,7 @@ class CommercialActionsBlock extends React.Component {
                         </FormControl>
                       </Grid>
                       <Grid item xs={7} />
+                      <Grid item xs={3} />
                       <Grid item xs={6}>
                         <Box fontWeight={600} align="center" fontStyle="italic">
                           Client Name:
@@ -503,6 +510,30 @@ class CommercialActionsBlock extends React.Component {
                           {currentOperation.sector1 ? currentOperation.sector1 : ''}
                         </Box>
                       </Grid>
+                      <Grid item xs={3} />
+                      <Grid item xs={0} />
+                      <Grid item xs={4}>
+                        <FormControl fullWidth required>
+                          <InputLabel>Select Client Contacts</InputLabel>
+                          <Select
+                            name="actionTypeId"
+                            value={actionTypeId}
+                            onChange={this.handleChange}
+                          >
+                            {
+                              currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
+                                <FormControlLabel
+                                  value="bottom"
+                                  control={<Checkbox color="primary" onChange={this.handleCheckBox(clt.contactId)} />}
+                                  label={clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
+                                  labelPlacement="start"
+                                />
+                              )) : (<div />)
+                            }
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={7} />
                       <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
                           <br />
