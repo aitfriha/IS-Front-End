@@ -30,6 +30,8 @@ import interact from 'interactjs';
 import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
@@ -74,6 +76,9 @@ class CommercialActionsBlock extends React.Component {
       numberClientAssistant: 0,
       staffId: '',
       currentOperation: [],
+      nbrActions: ['1'],
+      actionDescriptions: [],
+      actionDates: [],
       clientId: '',
       clientName: '',
       expanded: false,
@@ -224,12 +229,50 @@ class CommercialActionsBlock extends React.Component {
       return 'rgb(' + r + ', ' + g + ', ' + b + ')';
     };
 
+    handleAction = (event, row) => {
+      if (event.target.name === 'actionDescriptions') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.actionDescriptions;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ actionDescriptions: tab });
+      }
+      if (event.target.name === 'actionDates') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.actionDates;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ actionDates: tab });
+      }
+    }
+
+    handleAddAction = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newElement = this.state.nbrActions.length + 1;
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.nbrActions.push(newElement);
+      this.setState({ openDoc: true });
+    }
+
+    handleDeleteAction = (row) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      if (this.state.nbrActions.length > 1) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs = this.state.nbrActions.filter(rows => rows !== row);
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs2 = this.state.actionDescriptions.filter((e, i) => i !== (row));
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs3 = this.state.actionDates.filter((e, i) => i !== (row));
+        this.setState({ nbrActions: newDocs, actionDescriptions: newDocs2, actionDates: newDocs3 });
+      }
+    }
+
     render() {
       console.log(this.state);
       const {
         numberClientResponsible, numberClientAssistant, openPopUp,
         staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
-        descriptions, objectifs, actionTypes, actionTypeId
+        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
       return (
@@ -533,7 +576,33 @@ class CommercialActionsBlock extends React.Component {
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={7} />
+                      <Grid item xs={3} />
+                      <Grid item xs={2}>
+                        <TextField
+                          id="operaDate"
+                          label="Operation Date"
+                          value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2}>
+                        <TextField
+                          id="operaDate"
+                          label="Action Date"
+                          value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
                       <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
                           <br />
@@ -553,7 +622,6 @@ class CommercialActionsBlock extends React.Component {
                       </Grid>
                       <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
-                          <br />
                           <TextField
                             id="descriptions"
                             label="Description"
@@ -569,6 +637,66 @@ class CommercialActionsBlock extends React.Component {
                         </Typography>
                       </Grid>
                     </Grid>
+                    <br />
+                    <br />
+                    {nbrActions.map((row) => (
+                      <Grid
+                        container
+                        spacing={2}
+                        alignItems="flex-start"
+                        direction="row"
+                        align="center"
+                      >
+                        <Grid item xs={0} />
+                        <Grid item xs={2} align="center">
+                          <Typography variant="subtitle2" component="h3" color="grey">
+                            <br />
+                             Next Action
+                            {' '}
+                            { row }
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <TextField
+                            id="actionDescriptions"
+                            label="Description"
+                            name="actionDescriptions"
+                            value={actionDescriptions[row]}
+                            multiline
+                            onChange={event => this.handleAction(event, row)}
+                            fullWidth
+                            required
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            id="actionDates"
+                            label="Action Date"
+                            name="actionDates"
+                            value={actionDates[row]}
+                            type="date"
+                            onChange={event => this.handleAction(event, row)}
+                            fullWidth
+                            required
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid xs={2}>
+                          <br />
+                          <IconButton size="medium" color="primary" onClick={() => this.handleAddAction()}>
+                            <AddIcon />
+                          </IconButton>
+                          <IconButton size="small" color="primary" onClick={() => this.handleDeleteAction(row)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
                     <br />
                   </Card>
                 </Grid>
