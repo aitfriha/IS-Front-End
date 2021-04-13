@@ -212,7 +212,12 @@ class CommercialActionsBlock extends React.Component {
     };
 
     handleSave = () => {
-      const { descriptions, objectifs, currentOperation } = this.state;
+      const {
+        descriptions, objectifs, currentOperation,
+        numberClientResponsible, numberClientAssistant,
+        staffId, actionTypeId, clientId, staffAssign, operationsAssign, staffName,
+        nbrActions, actionDescriptions, actionDates
+      } = this.state;
       const newOperation = currentOperation;
       newOperation.description = descriptions;
       newOperation.objectif = objectifs;
@@ -269,6 +274,10 @@ class CommercialActionsBlock extends React.Component {
 
     render() {
       console.log(this.state);
+      // eslint-disable-next-line react/prop-types
+      const { logedUser } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      console.log(thelogedUser);
       const {
         numberClientResponsible, numberClientAssistant, openPopUp,
         staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
@@ -592,7 +601,7 @@ class CommercialActionsBlock extends React.Component {
                       </Grid>
                       <Grid item xs={2}>
                         <TextField
-                          id="operaDate"
+                          id="actionDate"
                           label="Action Date"
                           value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
                           InputLabelProps={{
@@ -719,7 +728,12 @@ CommercialActionsBlock.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser')
+});
+
 const CommercialActionsBlockMapped = connect(
+  mapStateToProps
 )(CommercialActionsBlock);
 
 export default () => {
