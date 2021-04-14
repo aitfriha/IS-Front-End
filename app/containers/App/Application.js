@@ -92,6 +92,8 @@ import {
   CivilityTitle,
   EconomicStaff,
   EconomicStaffsPayment,
+  ActionType,
+  AddActionType,
   User,
   RoleActions,
   AddEconomicStaff,
@@ -182,9 +184,9 @@ function Application(props) {
           component={CivilityTitle}
         />
         <Route
-            exact
-            path="/app/gestion-commercial/welcome"
-            component={WelcomeCommercial}
+          exact
+          path="/app/gestion-commercial/welcome"
+          component={WelcomeCommercial}
         />
         <Route
           exact
@@ -372,6 +374,16 @@ function Application(props) {
           exact
           path="/app/gestion-commercial/status"
           component={StatusOfCommercialOperation}
+        />
+        <Route
+          exact
+          path="/app/gestion-commercial/Action-Type"
+          component={ActionType}
+        />
+        <Route
+          exact
+          path="/app/gestion-commercial/Add Action-Type"
+          component={AddActionType}
         />
         <Route
           exact

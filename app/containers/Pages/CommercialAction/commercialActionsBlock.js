@@ -2,7 +2,18 @@ import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import {
-  Avatar, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField
+  Avatar,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel, MenuItem, Select,
+  TextField
 } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -16,11 +27,17 @@ import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { connect } from 'react-redux';
 import InputBase from '@material-ui/core/InputBase';
 import interact from 'interactjs';
+import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
 import CommercialOperationService from '../../Services/CommercialOperationService';
 import AssignmentService from '../../Services/AssignmentService';
+import ActionTypeService from '../../Services/ActionTypeService';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -49,6 +66,7 @@ class CommercialActionsBlock extends React.Component {
     super(props);
     this.state = {
       status: [],
+      actionTypes: [],
       operations: [],
       staffs: [],
       staffAssign: [],
@@ -58,6 +76,9 @@ class CommercialActionsBlock extends React.Component {
       numberClientAssistant: 0,
       staffId: '',
       currentOperation: [],
+      nbrActions: ['1'],
+      actionDescriptions: [],
+      actionDates: [],
       clientId: '',
       clientName: '',
       expanded: false,
@@ -84,6 +105,9 @@ class CommercialActionsBlock extends React.Component {
       console.log(result);
       this.setState({ assignments: result.data });
     });
+    ActionTypeService.getActionType().then(result => {
+      this.setState({ actionTypes: result.data });
+    });
     interact('.resize-drag')
       .draggable({
         // enable autoScroll
@@ -105,7 +129,6 @@ class CommercialActionsBlock extends React.Component {
           bottom: true,
           top: true
         },
-
         listeners: {
           move(event) {
             const { target } = event;
@@ -142,6 +165,10 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ [ev.target.name]: ev.target.value });
     }
 
+    handleCheckBox = (id) => {
+      console.log(id);
+    }
+
     handleChangeStaff = (ev, value) => {
       // eslint-disable-next-line react/destructuring-assignment
       const assig = this.state.assignments;
@@ -157,8 +184,6 @@ class CommercialActionsBlock extends React.Component {
         // eslint-disable-next-line no-plusplus
         if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
       });
-      console.log(respoNumber);
-      console.log(respoAssistance);
       this.setState({
         staffAssign, staffName: value.firstName + ' ' + value.fatherFamilyName + ' ' + value.motherFamilyName, staffId: value.staffId, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
       });
@@ -187,7 +212,12 @@ class CommercialActionsBlock extends React.Component {
     };
 
     handleSave = () => {
-      const { descriptions, objectifs, currentOperation } = this.state;
+      const {
+        descriptions, objectifs, currentOperation,
+        numberClientResponsible, numberClientAssistant,
+        staffId, actionTypeId, clientId, staffAssign, operationsAssign, staffName,
+        nbrActions, actionDescriptions, actionDates
+      } = this.state;
       const newOperation = currentOperation;
       newOperation.description = descriptions;
       newOperation.objectif = objectifs;
@@ -204,11 +234,54 @@ class CommercialActionsBlock extends React.Component {
       return 'rgb(' + r + ', ' + g + ', ' + b + ')';
     };
 
+    handleAction = (event, row) => {
+      if (event.target.name === 'actionDescriptions') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.actionDescriptions;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ actionDescriptions: tab });
+      }
+      if (event.target.name === 'actionDates') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.actionDates;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ actionDates: tab });
+      }
+    }
+
+    handleAddAction = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newElement = this.state.nbrActions.length + 1;
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.nbrActions.push(newElement);
+      this.setState({ openDoc: true });
+    }
+
+    handleDeleteAction = (row) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      if (this.state.nbrActions.length > 1) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs = this.state.nbrActions.filter(rows => rows !== row);
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs2 = this.state.actionDescriptions.filter((e, i) => i !== (row));
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs3 = this.state.actionDates.filter((e, i) => i !== (row));
+        this.setState({ nbrActions: newDocs, actionDescriptions: newDocs2, actionDates: newDocs3 });
+      }
+    }
+
     render() {
       console.log(this.state);
+      // eslint-disable-next-line react/prop-types
+      const { logedUser } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      console.log(thelogedUser);
       const {
         numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation, descriptions, objectifs
+        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
+        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
       return (
@@ -342,25 +415,32 @@ class CommercialActionsBlock extends React.Component {
                               title={staffName}
                             />
                             <CardContent>
-                              <Typography variant="subtitle1" color="textSecondary" align="center">
-                                        Operation :
+                              <Box fontWeight={500}>
+                                Action Type :
                                 {' '}
                                 {line.name ? line.name : ''}
-                              </Typography>
-                              <Typography variant="subtitle1" color="textSecondary" align="center">
-                                        Client :
+                              </Box>
+                              <br />
+                              <Box fontWeight={300} align="center" fontStyle="italic">
+                                Client Name:
                                 {' '}
                                 {line.clientName ? line.clientName : ''}
-                              </Typography>
-                                      Objectif
+                              </Box>
+                              <Box fontWeight={300} align="center" fontStyle="italic">
+                                Operation Name:
+                                {' '}
+                                {line.name ? line.name : ''}
+                              </Box>
+                              <Box fontWeight={300} align="center" fontStyle="italic">
+                                General Sector:
+                                {' '}
+                                {line.sector1 ? line.sector1 : ''}
+                              </Box>
+                              <br />
+                                Objectives :
+                              <br />
                               <Typography variant="body2" color="textSecondary" component="p">
                                 {line.objectif ? line.objectif : ''}
-                              </Typography>
-                            </CardContent>
-                            <CardContent>
-                                      Description
-                              <Typography variant="body2" color="textSecondary" component="p">
-                                {line.description ? line.description : ''}
                               </Typography>
                             </CardContent>
                             <CardActions disableSpacing>
@@ -444,24 +524,100 @@ class CommercialActionsBlock extends React.Component {
                           subheader={'Operations Status : ' + currentOperation.stateName}
                         />
                       </Grid>
+                      <Grid item xs={0} />
+                      <Grid item xs={4}>
+                        <FormControl fullWidth required>
+                          <InputLabel>Commercial Action Type</InputLabel>
+                          <Select
+                            name="actionTypeId"
+                            value={actionTypeId}
+                            onChange={this.handleChange}
+                          >
+                            {
+                              actionTypes.map((clt) => (
+                                <MenuItem key={clt.actionTypeId} value={clt.actionTypeId}>
+                                  {clt.typeName}
+                                </MenuItem>
+                              ))
+                            }
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={7} />
+                      <Grid item xs={3} />
                       <Grid item xs={6}>
-                        <Typography variant="subtitle1" color="textPrimary" align="center">
-                          Operation Name:
-                          {' '}
-                          {currentOperation.name ? currentOperation.name : ''}
-                        </Typography>
-                        <Typography variant="subtitle1" color="textPrimary" align="center">
+                        <Box fontWeight={600} align="center" fontStyle="italic">
                           Client Name:
                           {' '}
                           {currentOperation.clientName ? currentOperation.clientName : ''}
-                        </Typography>
+                        </Box>
+                        <Box fontWeight={600} align="center" fontStyle="italic">
+                            Operation Name:
+                          {' '}
+                          {currentOperation.name ? currentOperation.name : ''}
+                        </Box>
+                        <Box fontWeight={600} align="center" fontStyle="italic">
+                          General Sector:
+                          {' '}
+                          {currentOperation.sector1 ? currentOperation.sector1 : ''}
+                        </Box>
                       </Grid>
-                      <Grid item xs={10}>
+                      <Grid item xs={3} />
+                      <Grid item xs={0} />
+                      <Grid item xs={4}>
+                        <FormControl fullWidth required>
+                          <InputLabel>Select Client Contacts</InputLabel>
+                          <Select
+                            name="actionTypeId"
+                            value={actionTypeId}
+                            onChange={this.handleChange}
+                          >
+                            {
+                              currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
+                                <FormControlLabel
+                                  value="bottom"
+                                  control={<Checkbox color="primary" onChange={this.handleCheckBox(clt.contactId)} />}
+                                  label={clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
+                                  labelPlacement="start"
+                                />
+                              )) : (<div />)
+                            }
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={3} />
+                      <Grid item xs={2}>
+                        <TextField
+                          id="operaDate"
+                          label="Operation Date"
+                          value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2}>
+                        <TextField
+                          id="actionDate"
+                          label="Action Date"
+                          value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
                           <br />
                           <TextField
                             id="objectifs"
-                            label="Objectifs"
+                            label="Objectives"
                             name="objectifs"
                             value={objectifs}
                             onChange={this.handleChange}
@@ -473,9 +629,8 @@ class CommercialActionsBlock extends React.Component {
                           />
                         </Typography>
                       </Grid>
-                      <Grid item xs={10}>
+                      <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
-                          <br />
                           <TextField
                             id="descriptions"
                             label="Description"
@@ -491,6 +646,66 @@ class CommercialActionsBlock extends React.Component {
                         </Typography>
                       </Grid>
                     </Grid>
+                    <br />
+                    <br />
+                    {nbrActions.map((row) => (
+                      <Grid
+                        container
+                        spacing={2}
+                        alignItems="flex-start"
+                        direction="row"
+                        align="center"
+                      >
+                        <Grid item xs={0} />
+                        <Grid item xs={2} align="center">
+                          <Typography variant="subtitle2" component="h3" color="grey">
+                            <br />
+                             Next Action
+                            {' '}
+                            { row }
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <TextField
+                            id="actionDescriptions"
+                            label="Description"
+                            name="actionDescriptions"
+                            value={actionDescriptions[row]}
+                            multiline
+                            onChange={event => this.handleAction(event, row)}
+                            fullWidth
+                            required
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            id="actionDates"
+                            label="Action Date"
+                            name="actionDates"
+                            value={actionDates[row]}
+                            type="date"
+                            onChange={event => this.handleAction(event, row)}
+                            fullWidth
+                            required
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid xs={2}>
+                          <br />
+                          <IconButton size="medium" color="primary" onClick={() => this.handleAddAction()}>
+                            <AddIcon />
+                          </IconButton>
+                          <IconButton size="small" color="primary" onClick={() => this.handleDeleteAction(row)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
                     <br />
                   </Card>
                 </Grid>
@@ -513,7 +728,12 @@ CommercialActionsBlock.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser')
+});
+
 const CommercialActionsBlockMapped = connect(
+  mapStateToProps
 )(CommercialActionsBlock);
 
 export default () => {
