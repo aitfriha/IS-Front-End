@@ -31,7 +31,7 @@ class WelcomePage extends React.Component {
   }
 
   componentDidMount() {
-    console.log(this.props.moduleName);
+    //console.log(this.props.moduleName);
    // history.push('/app/gestion-commercial/welcome?the=search');
     const { changeTheme } = this.props;
     changeTheme(history.location.state.theme);
