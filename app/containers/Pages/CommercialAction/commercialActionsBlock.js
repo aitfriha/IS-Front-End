@@ -241,10 +241,6 @@ class CommercialActionsBlock extends React.Component {
         console.log(result);
         this.setState({ openPopUp: false });
       });
-      /* CommercialOperationService.updateCommercialOperation(commercialOperation).then(result => {
-        console.log(result);
-        this.setState({ openPopUp: false });
-      }); */
     }
 
     generateRandomColor = () => {
