@@ -430,11 +430,29 @@ class commercialOperationList extends React.Component {
                   <VisibilityIcon color="secondary" />
                 </IconButton>
               </React.Fragment>
-            )
+            ),
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
           }
         },
 
-        {
+     /*   {
           name: '',
           options: {
             filter: false,
@@ -475,7 +493,7 @@ class commercialOperationList extends React.Component {
               </div>
             )
           }
-        },
+        },*/
       ],
       viewDetails: false,
       viewProgress: false,
