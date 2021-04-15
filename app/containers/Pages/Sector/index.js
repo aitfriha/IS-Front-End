@@ -80,7 +80,7 @@ class SectorBlock extends React.Component {
   render() {
     const { classes, allSectorComapnys, allSubSectorChildComapnys } = this.props;
     const { sectors, sector1, sectorConfig } = this.state;
-    console.log('allSubSectorChildComapnys ', allSubSectorChildComapnys);
+    //console.log('allSubSectorChildComapnys ', allSubSectorChildComapnys);
     return (
       <div>
         <Typography variant="subtitle2" component="h2">

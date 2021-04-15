@@ -32,7 +32,7 @@ class CustomToolbar extends React.Component {
     const {
       classes, tooltip, hasAddRole, hasExportRole
     } = this.props;
-    console.log('hasAccessRole', hasAddRole);
+    //console.log('hasAccessRole', hasAddRole);
     if (hasAddRole == undefined && hasExportRole == undefined) {
       return (
         <React.Fragment>
