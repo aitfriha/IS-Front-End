@@ -146,6 +146,7 @@ class AddClient extends React.Component {
     });
     promise.then((result) => {
       if (isString(result)) {
+        notification('success', result);
         //Create a section inside of both Commercial and Presale parent sections with the given client name
         var nuxeo = new Nuxeo({
           baseURL: documentManagerConfig.nuxeourl,
@@ -267,7 +268,7 @@ class AddClient extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={description} />
         </Helmet>
-        <PapperBlock title="New Client" desc="Please, Fill in the all field" icon="ios-person">
+        <PapperBlock title="New Client" desc="" icon="ios-person">
           <Grid
             container
             spacing={10}

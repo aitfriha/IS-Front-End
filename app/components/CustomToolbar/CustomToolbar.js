@@ -32,7 +32,7 @@ class CustomToolbar extends React.Component {
     const {
       classes, tooltip, hasAddRole, hasExportRole
     } = this.props;
-    console.log('hasAccessRole', hasAddRole);
+    //console.log('hasAccessRole', hasAddRole);
     if (hasAddRole == undefined && hasExportRole == undefined) {
       return (
         <React.Fragment>
@@ -51,7 +51,7 @@ class CustomToolbar extends React.Component {
     }
     return (
       <React.Fragment>
-        {hasAddRole ? (
+        {hasExportRole  ? (
           <Tooltip title="export in Excel" className={classes.toolbarBtn}>
             <IconButton onClick={this.handleClick}>
               <GetAppIcon />
@@ -59,7 +59,7 @@ class CustomToolbar extends React.Component {
           </Tooltip>
         ) : (null)
         }
-        {hasExportRole ? (
+        {hasAddRole ? (
           <Tooltip title={tooltip} className={classes.toolbarBtn}>
             <IconButton onClick={this.handleGoToAddClient}>
               <AddIcon />

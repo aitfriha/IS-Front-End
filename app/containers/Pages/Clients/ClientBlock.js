@@ -168,7 +168,7 @@ class ClientBlock extends React.Component {
             filter: true,
           }
         }, */
-        {
+/*        {
           label: 'Country Leader',
           name: 'countryLeader',
           options: {
@@ -192,7 +192,7 @@ class ClientBlock extends React.Component {
               }
             })
           }
-        },
+        },*/
         {
           label: 'Responsible Commercial',
           name: 'responsibleCommercial',
@@ -486,11 +486,12 @@ class ClientBlock extends React.Component {
   }
 
   handleDetails = (data) => {
+   // console.log(data);
     const { getAllStateByCountry, getAllCityByState } = this.props;
     this.setState({ selectedClient: data });
-    getAllStateByCountry(data[21]);
+    getAllStateByCountry(data[19]);
     this.setState({ openPopUp: true });
-    getAllCityByState(data[22]);
+    getAllCityByState(data[20]);
   }
 
   handleClose = () => {
@@ -581,9 +582,9 @@ class ClientBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
           <DialogContent dividers>
-            <EditClient selectedClient={selectedClient} allStateCountrys={allStateCountrys} allCitys={allCitys} />
+            <EditClient selectedClient={selectedClient} allStateCountrys={allStateCountrys} allCitys={allCitys} handleClose={this.handleClose}/>
           </DialogContent>
-          <DialogActions>
+          {/*<DialogActions>
             <Button color="secondary" onClick={this.handleClose}>
               Cancel
             </Button>
@@ -594,7 +595,7 @@ class ClientBlock extends React.Component {
             >
               Update
             </Button>
-          </DialogActions>
+          </DialogActions>*/}
         </Dialog>
       </div>
     );

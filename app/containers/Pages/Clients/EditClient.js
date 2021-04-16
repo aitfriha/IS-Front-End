@@ -83,9 +83,9 @@ class EditClient extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-
+console.log(newProps.selectedClient);
     this.setState({name: newProps.selectedClient[1]});
-    this.setState({ clientId: newProps.selectedClient[23] });
+    this.setState({ clientId: newProps.selectedClient[0] });
     this.setState({ email: newProps.selectedClient[2] });
     this.setState({ phone: newProps.selectedClient[3] });
     this.setState({ webSite: newProps.selectedClient[4] });
@@ -94,31 +94,32 @@ class EditClient extends React.Component {
     } else {
       this.setState({ isActive: false });
     }
-    if (newProps.selectedClient[17] === 'Yes') {
+    if (newProps.selectedClient[18] === 'Yes') {
       this.setState({ multinational: true });
     } else {
       this.setState({ multinational: false });
     }
     this.setState({ addressName: newProps.selectedClient[7] });
     this.setState({ postCode: newProps.selectedClient[8] });
-    this.setState({ type: newProps.selectedClient[20] });
+    this.setState({ type: newProps.selectedClient[19] });
     if (newProps.selectedClient !== this.props.selectedClient) {
       // console.log(newProps.selectedClient);
       for (const key in newProps.allCountrys) {
-        if (newProps.allCountrys[key].countryName === newProps.selectedClient[18]) {
+        if (newProps.allCountrys[key].countryName === newProps.selectedClient[16]) {
           this.setState({ keyCountry: newProps.allCountrys[key] });
           break;
         }
       }
     }
     for (const key in newProps.allStateCountrys) {
-      if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedClient[22]) {
+      console.log(newProps.allStateCountrys[key].stateCountryId);
+      if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedClient[20]) {
         this.setState({ keyState: newProps.allStateCountrys[key] });
         break;
       }
     }
     for (const key in newProps.allCitys) {
-      if (newProps.allCitys[key].cityName === newProps.selectedClient[17]) {
+      if (newProps.allCitys[key].cityName === newProps.selectedClient[15]) {
         this.setState({ keyCity: newProps.allCitys[key] });
         this.setState({ cityId: newProps.allCitys[key].cityId });
         break;
@@ -482,6 +483,9 @@ class EditClient extends React.Component {
               <Divider variant="fullWidth" style={{ marginBottom: '10px', marginTop: '10px' }} />
               <SectorBlock sectorsConfig={this.handleCheck} />
             </Grid>
+            <Button color="secondary" onClick={this.props.handleClose}>
+              Cancel
+            </Button>&nbsp;&nbsp;&nbsp;
             <div className={classes.btnCenter}>
               <Button color="primary" variant="contained" size="small" onClick={this.handleSubmitClient}>Update Client</Button>
             </div>

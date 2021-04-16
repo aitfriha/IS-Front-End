@@ -337,7 +337,7 @@ class LeftSidebarLayout extends React.Component {
      if (window.location.pathname === '/app') {
        dataMenux=[];
      }
-     console.log(this.props.moduleName);
+     //console.log(this.props.moduleName);
 
      return (
        <Fragment>
