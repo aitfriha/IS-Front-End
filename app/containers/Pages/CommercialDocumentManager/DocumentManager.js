@@ -101,8 +101,10 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Box from '@material-ui/core/Box';
 import Popover from '@material-ui/core/Popover';
 
-// import ImageLightbox from 'react-image-lightbox';
-// import 'react-image-lightbox/style.css';
+import ImageLightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
+
+import ReactPlayer from 'react-player';
 
 /// necesario para poder trabajar con el cliente de nuxeo ///
 var Nuxeo = require('nuxeo');
@@ -734,7 +736,7 @@ class DocumentManager extends React.Component {
     /// carga en esta variable los datos de configuración ////
     axios.get(`${API}/documentManagerConfig/all`).then(res => {
       let config = res.data.payload;
-
+      
       /// actualizo el estado, paso los valores correspondientes en la configuración ///
       let workspace = '/UserWorkspaces/';
       if (config.dominio != 'default-domain') {
@@ -1053,12 +1055,12 @@ class DocumentManager extends React.Component {
     //console.log(e.target.value);
     var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value < 50) ? true : false;
     var texterror = '';
-    if(e.target.value === null || e.target.value === ""){
+    if (e.target.value === null || e.target.value === "") {
       texterror = 'Campo obligatorio';
     }
-    else if(parseFloat(e.target.value) < parseFloat(50)){
+    else if (parseFloat(e.target.value) < parseFloat(50)) {
       texterror = 'Destinar al menos 50 GB';
-    }else{
+    } else {
       texterror = null;
     }
     var value = !errorstorage ? e.target.value : e.target.value;
@@ -1074,18 +1076,18 @@ class DocumentManager extends React.Component {
     console.log(this.state.config.confstorage)
   }
 
-   /// Cambiar el valor del campo storage del user del server de nuxeo///
+  /// Cambiar el valor del campo storage del user del server de nuxeo///
 
-   setValueStorageUser = (e) => {
+  setValueStorageUser = (e) => {
     //console.log(e.target.value);
     var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value > this.state.config.confstorage) ? true : false;
     var texterror = '';
-    if(e.target.value === null || e.target.value === ""){
+    if (e.target.value === null || e.target.value === "") {
       texterror = 'Campo obligatorio';
     }
-    else if(parseFloat(e.target.value) > parseFloat(this.state.config.confstorage)){
+    else if (parseFloat(e.target.value) > parseFloat(this.state.config.confstorage)) {
       texterror = 'No puede exceder la cuota del servidor';
-    }else{
+    } else {
       texterror = null;
     }
     var value = !errorstorage ? e.target.value : e.target.value;
@@ -1183,6 +1185,7 @@ class DocumentManager extends React.Component {
         password: self.state.config.password
       }
     });
+
     nuxeo.operation('UserGroup.Suggestion')
       .params({
         searchType: 'USER_TYPE',
@@ -1840,8 +1843,8 @@ class DocumentManager extends React.Component {
             .input(self.state.config.dominio + self.state.config.workspace)
             .execute({ schemas: ['file', 'dublincore'] })
             .then(function (docs) {
+              //console.log(docs.entries); 
               listaresultado = docs.entries;
-              //console.log(docs.entries);
               nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'tags'] })
                 .input(self.state.config.dominio + '/sections/')
                 .execute({ schemas: ['file', 'dublincore'] })
@@ -8150,7 +8153,7 @@ class DocumentManager extends React.Component {
                             label="Url del servidor"
                             value={this.state.config.confurl}
                             error={this.state.config.errorurl}
-                            helperText={this.state.config.errorurl ? this.state.config.texterror: null}
+                            helperText={this.state.config.errorurl ? this.state.config.texterror : null}
                             onChange={this.setValueURLNuxeo}
                             fullWidth
                           />
@@ -8168,7 +8171,7 @@ class DocumentManager extends React.Component {
                             label="Nombre de dominio"
                             value={this.state.config.confnombredominio}
                             error={this.state.config.errordominio}
-                            helperText={this.state.config.errordominio ? this.state.config.texterror: null}
+                            helperText={this.state.config.errordominio ? this.state.config.texterror : null}
                             onChange={this.setValueNombreDomNuxeo}
                             fullWidth
                           />
@@ -8186,7 +8189,7 @@ class DocumentManager extends React.Component {
                             label="Administrador"
                             value={this.state.config.confuser}
                             error={this.state.config.erroruser}
-                            helperText={this.state.config.erroruser ? this.state.config.texterror: null}
+                            helperText={this.state.config.erroruser ? this.state.config.texterror : null}
                             onChange={this.setValueAdminNuxeo}
                             fullWidth
                           />
@@ -8207,7 +8210,7 @@ class DocumentManager extends React.Component {
                             fullWidth
                             value={this.state.config.confpassword}
                             error={this.state.config.errorpassword}
-                            helperText={this.state.config.errorpassword ? this.state.config.texterror: null}
+                            helperText={this.state.config.errorpassword ? this.state.config.texterror : null}
                             onChange={this.setValueAdminPassNuxeo}
                             InputProps={{
                               endAdornment: (
@@ -8238,7 +8241,7 @@ class DocumentManager extends React.Component {
                             label="Url del fichero"
                             value={this.state.config.confurlonlyoffice}
                             error={this.state.config.errorurloffice}
-                            helperText={this.state.config.errorurloffice ? this.state.config.texterror: null}
+                            helperText={this.state.config.errorurloffice ? this.state.config.texterror : null}
                             onChange={this.setValueURLOnlyoffice}
                             fullWidth
                           />
