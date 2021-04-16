@@ -28,14 +28,17 @@ import { connect } from 'react-redux';
 import InputBase from '@material-ui/core/InputBase';
 import interact from 'interactjs';
 import Box from '@material-ui/core/Box';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
 import CommercialOperationService from '../../Services/CommercialOperationService';
+import CommercialActionService from '../../Services/CommercialActionService';
 import AssignmentService from '../../Services/AssignmentService';
 import ActionTypeService from '../../Services/ActionTypeService';
 const styles = theme => ({
@@ -79,6 +82,7 @@ class CommercialActionsBlock extends React.Component {
       nbrActions: ['1'],
       actionDescriptions: [],
       actionDates: [],
+      contacts: new Map(),
       clientId: '',
       clientName: '',
       expanded: false,
@@ -165,8 +169,12 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ [ev.target.name]: ev.target.value });
     }
 
-    handleCheckBox = (id) => {
-      console.log(id);
+    handleCheckBox = (event) => {
+      const isChecked = event.target.checked;
+      const item = event.target.value;
+      this.setState(prevState => ({ contacts: prevState.contacts.set(item, isChecked) }));
+      console.log(isChecked);
+      console.log(item);
     }
 
     handleChangeStaff = (ev, value) => {
@@ -178,7 +186,6 @@ class CommercialActionsBlock extends React.Component {
       console.log(staffAssign);
       // eslint-disable-next-line array-callback-return
       staffAssign.map(row => {
-        console.log(row.typeStaff);
         // eslint-disable-next-line no-plusplus
         if (row.typeStaff === 'Responsible Commercial') respoNumber++;
         // eslint-disable-next-line no-plusplus
@@ -214,14 +221,23 @@ class CommercialActionsBlock extends React.Component {
     handleSave = () => {
       const {
         descriptions, objectifs, currentOperation,
-        numberClientResponsible, numberClientAssistant,
-        staffId, actionTypeId, clientId, staffAssign, operationsAssign, staffName,
+        staffId, actionTypeId, contacts,
         nbrActions, actionDescriptions, actionDates
       } = this.state;
-      const newOperation = currentOperation;
-      newOperation.description = descriptions;
-      newOperation.objectif = objectifs;
-      CommercialOperationService.updateCommercialOperation(newOperation).then(result => {
+      const commercialOperation = currentOperation;
+      const actionType = { _id: actionTypeId };
+      const commercialAction = {
+        commercialOperation,
+        actionType,
+        objectifs,
+        descriptions,
+        contacts,
+        nbrActions,
+        actionDescriptions,
+        actionDates
+      };
+      console.log(commercialAction);
+      CommercialActionService.saveCommercialAction(commercialAction).then(result => {
         console.log(result);
         this.setState({ openPopUp: false });
       });
@@ -565,25 +581,29 @@ class CommercialActionsBlock extends React.Component {
                       <Grid item xs={3} />
                       <Grid item xs={0} />
                       <Grid item xs={4}>
-                        <FormControl fullWidth required>
-                          <InputLabel>Select Client Contacts</InputLabel>
-                          <Select
-                            name="actionTypeId"
-                            value={actionTypeId}
-                            onChange={this.handleChange}
+                        <ExpansionPanel>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
                           >
+                            <Typography className={classes.heading}>Select Client Contacts</Typography>
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
                             {
                               currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
-                                <FormControlLabel
-                                  value="bottom"
-                                  control={<Checkbox color="primary" onChange={this.handleCheckBox(clt.contactId)} />}
-                                  label={clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
-                                  labelPlacement="start"
-                                />
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    value={clt.contactId}
+                                    onChange={this.handleCheckBox}
+                                  />
+                                  {clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
+                                </label>
                               )) : (<div />)
                             }
-                          </Select>
-                        </FormControl>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
                       </Grid>
                       <Grid item xs={3} />
                       <Grid item xs={2}>
