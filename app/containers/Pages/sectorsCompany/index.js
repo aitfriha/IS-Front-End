@@ -282,7 +282,8 @@ class sector extends React.Component {
           csvData={allSectorComapnys}
           url="/app/gestion-commercial/sectors/create-sector"
           tooltip="add new Sector"
-          hasAddRole={thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_create}
+          /* hasAddRole={thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_create} */
+          hasAddRole={false}
           hasExportRole={thelogedUser.userRoles[0].actionsNames.commercial_sectorsCompany_export}
         />
       )
