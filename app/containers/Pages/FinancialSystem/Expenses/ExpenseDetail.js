@@ -307,7 +307,7 @@ export class ExpenseDetail extends React.Component {
         }
       }
     }
-    return resultList ? resultList : [];
+    return resultList || [];
   }
 
   changePersonValue(evt) {
@@ -579,6 +579,8 @@ export class ExpenseDetail extends React.Component {
     (!isLoading && expenseResponse) && this.editingPromiseResolve(expenseResponse);
     (!isLoading && !expenseResponse) && this.editingPromiseResolve(errors);
 
+    const expenseType = this.getExpenseType();
+
     return (
       <div>
         <Card>
@@ -668,7 +670,7 @@ export class ExpenseDetail extends React.Component {
                     {this.state.expenseDate === null ? <FormHelperText error>This field is required</FormHelperText> : null}
                   </FormControl>
                 </Grid>
-                {this.getExpenseType().allowSubtypes
+                {expenseType && expenseType.allowSubtypes
                   ? (
                     <Grid item xs={12} md={3}>
                       <FormControl variant="outlined" fullWidth size="small">
@@ -869,7 +871,7 @@ export class ExpenseDetail extends React.Component {
                             <MenuItem value="none">
                               <em>Empty</em>
                             </MenuItem>
-                            {this.state.expenseCountry !== 'none' ? this.loadList('country', 'expense').map(state => <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>) : null}
+                            {this.state.expenseCountry !== 'none' ? this.loadList('country', 'expense').map(state => <MenuItem key={state.stateCountryId} value={state.stateCountryId}>{state.stateName}</MenuItem>) : null}
                           </Select>
                           {this.state.expenseState === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                         </FormControl>
@@ -895,7 +897,7 @@ export class ExpenseDetail extends React.Component {
                             <MenuItem value="none">
                               <em>Empty</em>
                             </MenuItem>
-                            {this.state.expenseState !== 'none' ? this.loadList('state', 'expense').map(city => <MenuItem key={city.id} value={city.id}>{city.name}</MenuItem>) : null}
+                            {this.state.expenseState !== 'none' ? this.loadList('state', 'expense').map(city => <MenuItem key={city.cityId} value={city.cityId}>{city.cityName}</MenuItem>) : null}
                           </Select>
                           {this.state.expenseCity === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                         </FormControl>
@@ -1029,7 +1031,7 @@ export class ExpenseDetail extends React.Component {
                               <MenuItem value="none">
                                 <em>Empty</em>
                               </MenuItem>
-                              {this.state.fromCountry !== 'none' ? this.loadList('country', 'from').map(state => <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>) : null}
+                              {this.state.fromCountry !== 'none' ? this.loadList('country', 'from').map(state => <MenuItem key={state.stateCountryId} value={state.stateCountryId}>{state.stateName}</MenuItem>) : null}
                             </Select>
                             {this.state.fromState === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                           </FormControl>
@@ -1055,7 +1057,7 @@ export class ExpenseDetail extends React.Component {
                               <MenuItem value="none">
                                 <em>Empty</em>
                               </MenuItem>
-                              {this.state.fromState !== 'none' ? this.loadList('state', 'from').map(city => <MenuItem key={city.id} value={city.id}>{city.name}</MenuItem>) : null}
+                              {this.state.fromState !== 'none' ? this.loadList('state', 'from').map(city => <MenuItem key={city.cityId} value={city.cityId}>{city.cityName}</MenuItem>) : null}
                             </Select>
                             {this.state.fromCity === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                           </FormControl>
@@ -1108,7 +1110,7 @@ export class ExpenseDetail extends React.Component {
                               <MenuItem value="none">
                                 <em>Empty</em>
                               </MenuItem>
-                              {this.state.toCountry !== 'none' ? this.loadList('country', 'to').map(state => <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>) : null}
+                              {this.state.toCountry !== 'none' ? this.loadList('country', 'to').map(state => <MenuItem key={state.stateCountryId} value={state.stateCountryId}>{state.stateName}</MenuItem>) : null}
                             </Select>
                             {this.state.toState === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                           </FormControl>
@@ -1134,7 +1136,7 @@ export class ExpenseDetail extends React.Component {
                               <MenuItem value="none">
                                 <em>Empty</em>
                               </MenuItem>
-                              {this.state.toState !== 'none' ? this.loadList('state', 'to').map(city => <MenuItem key={city.id} value={city.id}>{city.name}</MenuItem>) : null}
+                              {this.state.toState !== 'none' ? this.loadList('state', 'to').map(city => <MenuItem key={city.cityId} value={city.cityId}>{city.cityName}</MenuItem>) : null}
                             </Select>
                             {this.state.toCity === 'none' ? <FormHelperText error>This field is required</FormHelperText> : null}
                           </FormControl>

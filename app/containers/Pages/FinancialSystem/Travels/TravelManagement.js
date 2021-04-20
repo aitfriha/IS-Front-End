@@ -521,7 +521,7 @@ class TravelManagement extends React.Component {
               {
                 icon: 'save_alt',
                 tooltip: 'Export',
-                disabled: !thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export && (!this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || travelRequests.length) === 0,
+                disabled: !thelogedUser.userRoles[0].actionsNames.financialModule_travelManagement_export || (!this.state.searchComplete || (this.state.period === 'another' && !this.state.startDate && !this.state.endDate) || travelRequests.length === 0),
                 isFreeAction: true,
                 onClick: (event) => this.handleOpenMenu(event)
               }

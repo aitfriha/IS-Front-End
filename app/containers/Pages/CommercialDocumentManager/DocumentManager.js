@@ -6790,7 +6790,7 @@ class DocumentManager extends React.Component {
 
   visualizarvideo = (video) => {
     let array = [{
-      src: video.thumbnail,
+      src: video.src,
       type: video.mineType,
       title: video.name
     }]
@@ -6800,8 +6800,6 @@ class DocumentManager extends React.Component {
     self.setState({
       estado
     });
-
-    console.log(video);
   }
 
   handleAbrirClick = (row) => {
@@ -10741,10 +10739,7 @@ class DocumentManager extends React.Component {
                         imageCaption={self.state.visualizacion.files[0].description}
                       />
                       : self.state.visualizacion.mostrarvideo ?
-                        <Player
-                          poster="/assets/poster.png"
-                          src="https://media.w3.org/2010/05/sintel/trailer_hd.mp4"
-                        />
+                        <Player src={self.state.visualizacion.files[0].src} />
                         : null
                     }
                   </Grid>
