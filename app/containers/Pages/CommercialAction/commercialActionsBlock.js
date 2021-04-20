@@ -82,7 +82,7 @@ class CommercialActionsBlock extends React.Component {
       nbrActions: ['1'],
       actionDescriptions: [],
       actionDates: [],
-      contacts: new Map(),
+      contactsIds: [],
       clientId: '',
       clientName: '',
       expanded: false,
@@ -172,7 +172,10 @@ class CommercialActionsBlock extends React.Component {
     handleCheckBox = (event) => {
       const isChecked = event.target.checked;
       const item = event.target.value;
-      this.setState(prevState => ({ contacts: prevState.contacts.set(item, isChecked) }));
+      const newContact = { _id: item, checked: isChecked };
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.contactsIds.push(newContact);
+      // this.setState(prevState => ({ contactsIds: prevState.contactsIds.set(item, isChecked) }));
       console.log(isChecked);
       console.log(item);
     }
@@ -220,24 +223,24 @@ class CommercialActionsBlock extends React.Component {
 
     handleSave = () => {
       const {
-        descriptions, objectifs, currentOperation,
-        staffId, actionTypeId, contacts,
+        descriptions, objectifs, currentOperation, actionTypeId, contactsIds,
         nbrActions, actionDescriptions, actionDates
       } = this.state;
       const commercialOperation = currentOperation;
-      const actionType = { _id: actionTypeId };
-      const commercialAction = {
+      commercialOperation._id = currentOperation.commercialOperationId;
+      const commercialActionType = { _id: actionTypeId };
+      const CommercialAction = {
         commercialOperation,
-        actionType,
+        commercialActionType,
         objectifs,
         descriptions,
-        contacts,
+        contactsIds,
         nbrActions,
         actionDescriptions,
         actionDates
       };
-      console.log(commercialAction);
-      CommercialActionService.saveCommercialAction(commercialAction).then(result => {
+      console.log(CommercialAction);
+      CommercialActionService.saveCommercialAction(CommercialAction).then(result => {
         console.log(result);
         this.setState({ openPopUp: false });
       });
@@ -592,6 +595,7 @@ class CommercialActionsBlock extends React.Component {
                           <ExpansionPanelDetails>
                             {
                               currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
+                                // eslint-disable-next-line jsx-a11y/label-has-for
                                 <label>
                                   <input
                                     type="checkbox"
