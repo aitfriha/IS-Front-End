@@ -14,6 +14,7 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Radio from '@material-ui/core/Radio';
 import styles from './sector-jss';
 import SectorConfigService from '../../Services/SectorConfigService';
 import SectorService from '../../Services/SectorService';
@@ -25,6 +26,7 @@ class SectorBlock extends React.Component {
     this.state = {
       sectors: [],
       countryName: '',
+      selectedValue: 0,
       sector1: {},
       sectorConfig: [],
       idSector: ''
@@ -35,6 +37,7 @@ class SectorBlock extends React.Component {
     const { getAllPrimarySectorCompany } = this.props;
     SectorService.getSectorsType('primary').then(({ data }) => {
       this.setState({ sectors: data, open: true });
+      //   this.setState({ selectedValue: this.props.allSubSectorChildComapnys });
     });
     getAllPrimarySectorCompany();
   }
@@ -64,7 +67,8 @@ class SectorBlock extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
-  handleCheck = (ev, selctedrow) => {
+  handleCheck = (ev, selctedrow, index) => {
+    this.setState({ selectedValue: index });
     const { sectorsConfig } = this.props;
     console.log('check');
     console.log(selctedrow);
@@ -79,8 +83,8 @@ class SectorBlock extends React.Component {
 
   render() {
     const { classes, allSectorComapnys, allSubSectorChildComapnys } = this.props;
-    const { sectors, sector1, sectorConfig } = this.state;
-    //console.log('allSubSectorChildComapnys ', allSubSectorChildComapnys);
+    const { sectors, sector1, sectorConfig, selectedValue } = this.state;
+    // console.log('allSubSectorChildComapnys ', allSubSectorChildComapnys);
     return (
       <div>
         <Typography variant="subtitle2" component="h2">
@@ -114,21 +118,23 @@ class SectorBlock extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {allSubSectorChildComapnys && allSubSectorChildComapnys.map((row) => (
-                <TableRow key={row.thirdSectorId}>
+              {allSubSectorChildComapnys && allSubSectorChildComapnys.map((currElement, index) => (
+                <TableRow key={index}>
                   <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={row.choosez}
+                    <Radio
+                      checked={selectedValue === index}
                       color="primary"
-                      onChange={event => this.handleCheck(event, row)
+                      onChange={event => this.handleCheck(event, currElement, index)
                       }
+                      name="radio-button-demo"
+                      value={index}
                     />
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {row.firstSectorName}
+                    {currElement.firstSectorName}
                   </TableCell>
-                  <TableCell align="right">{row.secondSectorName}</TableCell>
-                  <TableCell align="right">{row.thirdSectorName}</TableCell>
+                  <TableCell align="right">{currElement.secondSectorName}</TableCell>
+                  <TableCell align="right">{currElement.thirdSectorName}</TableCell>
                   {/* <TableCell align="right">***</TableCell> */}
                 </TableRow>
               ))}
