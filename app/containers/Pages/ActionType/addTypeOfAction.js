@@ -34,10 +34,10 @@ class AddTypeOfAction extends React.Component {
 
     handleSubmit = () => {
       const {
-        typeName, description
+        typeName, description, percentage
       } = this.state;
       const ActionType = {
-        typeName, description
+        typeName, description, percentage
       };
       ActionTypeService.saveActionType(ActionType).then(result => {
         console.log(result);
@@ -59,7 +59,7 @@ class AddTypeOfAction extends React.Component {
       const { desc } = brand;
       // eslint-disable-next-line react/prop-types
       const {
-        typeName, description
+        typeName, description, percentage
       } = this.state;
       return (
         <div>
@@ -110,6 +110,20 @@ class AddTypeOfAction extends React.Component {
                   variant="outlined"
                   name="description"
                   value={description}
+                  required
+                  fullWidth
+                  multiline
+                  onChange={this.handleChange}
+                />
+                <br />
+                <br />
+                <TextField
+                  id="percentage"
+                  label="Percentage"
+                  variant="outlined"
+                  name="percentage"
+                  value={percentage}
+                  type="number"
                   required
                   fullWidth
                   multiline

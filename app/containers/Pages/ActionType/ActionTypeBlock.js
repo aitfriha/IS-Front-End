@@ -41,6 +41,7 @@ class ActionTypeBlock extends React.Component {
       openWarning: false,
       typeName: '',
       description: '',
+      percentage: '',
       columns: [
         {
           label: 'Action Type Name',
@@ -52,6 +53,13 @@ class ActionTypeBlock extends React.Component {
         {
           label: 'Description',
           name: 'description',
+          options: {
+            filter: true
+          }
+        },
+        {
+          label: 'Percentage',
+          name: 'percentage',
           options: {
             filter: true
           }
@@ -141,10 +149,10 @@ class ActionTypeBlock extends React.Component {
 
     handleSave = () => {
       const {
-        typeName, description, actionTypeId
+        typeName, description, actionTypeId, percentage
       } = this.state;
       const ActionType = {
-        actionTypeId, typeName, description
+        actionTypeId, typeName, description, percentage
       };
       ActionTypeService.updateActionType(ActionType).then(result => {
         this.setState({ datas: result.data, openPopUp: false });
@@ -175,7 +183,7 @@ class ActionTypeBlock extends React.Component {
 
     render() {
       const {
-        columns, openPopUp, datas, typeName, description, openWarning, newActionTypeId, newTab
+        columns, openPopUp, datas, typeName, description, openWarning, newActionTypeId, newTab, percentage
       } = this.state;
       // eslint-disable-next-line react/prop-types
       const { logedUser } = this.props;
@@ -250,6 +258,20 @@ class ActionTypeBlock extends React.Component {
                       variant="outlined"
                       name="description"
                       value={description}
+                      required
+                      fullWidth
+                      multiline
+                      onChange={this.handleChange}
+                    />
+                    <br />
+                    <br />
+                    <TextField
+                      id="percentage"
+                      label="Percentage"
+                      variant="outlined"
+                      name="percentage"
+                      value={percentage}
+                      type="number"
                       required
                       fullWidth
                       multiline
