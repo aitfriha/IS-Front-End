@@ -27,7 +27,6 @@ class TypeOfCurrencyBlock extends React.Component {
       openWarning: false,
       currencyCode: '',
       currencyName: '',
-      row: [],
       columns: [
         {
           label: 'Currency Name',
@@ -106,7 +105,6 @@ class TypeOfCurrencyBlock extends React.Component {
       let test = false;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].typeOfCurrencyId;
-      console.log(id);
       // eslint-disable-next-line array-callback-return,react/destructuring-assignment
       this.state.currencies.map(row => {
         if ((row.typeOfCurrency._id) === (id)) test = true;
@@ -151,9 +149,7 @@ class TypeOfCurrencyBlock extends React.Component {
       const {
         columns, openPopUp, datas, currencyName, currencyCode, openWarning
       } = this.state;
-      const {
-        logedUser
-      } = this.props;
+      const { logedUser } = this.props;
       const thelogedUser = JSON.parse(logedUser);
       let exportButton = false;
       if (thelogedUser.userRoles[0].actionsNames.financialModule_typeOfCurrency_export) {
