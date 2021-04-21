@@ -492,43 +492,44 @@ class StaffAssignment extends React.Component {
                   </Box>
                 ) : null}
 
-                {treeData.length > 0 ?
-                  <TreeView
-                    className={classes.root}
-                    defaultExpanded={[]}
-                    defaultCollapseIcon={<ArrowDropDownIcon />}
-                    defaultExpandIcon={<ArrowRightIcon />}
-                    defaultEndIcon={<div style={{ width: 24 }} />}
-                    expanded={this.state.expanded}
-                    onNodeToggle={this.handleToogleSelect}
-                    onNodeSelect={this.handleNodeSelect}
-                    style={{ minWidth: '100%', minHeight: '87.5%', overflow: 'auto' }}
-                  >
-                    {treeData.map(el => (
-                      <StyledTreeItem key={el.customer.id} nodeId={el.customer.id} labelText={el.customer.name} labelIcon={CustomersIcon}>
-                        {el.operations.map(operation => (
-                          <StyledTreeItem
-                            key={operation.id}
-                            nodeId={operation.id}
-                            labelText={operation.name}
-                            labelIcon={OperationIcon}
-                            color="#3c8039"
-                            bgColor="#e6f4ea"
-                          />
-                        ))}
-                      </StyledTreeItem>
-                    ))}
-                  </TreeView>
+                {treeData.length > 0
+                  ? (
+                    <TreeView
+                      className={classes.root}
+                      defaultExpanded={[]}
+                      defaultCollapseIcon={<ArrowDropDownIcon />}
+                      defaultExpandIcon={<ArrowRightIcon />}
+                      defaultEndIcon={<div style={{ width: 24 }} />}
+                      expanded={this.state.expanded}
+                      onNodeToggle={this.handleToogleSelect}
+                      onNodeSelect={this.handleNodeSelect}
+                      style={{ minWidth: '100%', minHeight: '87.5%', overflow: 'auto' }}
+                    >
+                      {treeData.map(el => (
+                        <StyledTreeItem key={el.customer.id} nodeId={el.customer.id} labelText={el.customer.name} labelIcon={CustomersIcon}>
+                          {el.operations.map(operation => (
+                            <StyledTreeItem
+                              key={operation.id}
+                              nodeId={operation.id}
+                              labelText={operation.name}
+                              labelIcon={OperationIcon}
+                              color="#3c8039"
+                              bgColor="#e6f4ea"
+                            />
+                          ))}
+                        </StyledTreeItem>
+                      ))}
+                    </TreeView>
+                  )
 
-                  :
-                  <div style={{ textAlign: 'center', marginTop: '95%', marginBottom: '95%' }}>
-                    <ArchiveIcon color="action" fontSize="large"/>
-                    <Typography variant='body2'>
+                  : (
+                    <div style={{ textAlign: 'center', marginTop: '95%', marginBottom: '95%' }}>
+                      <ArchiveIcon color="action" fontSize="large" />
+                      <Typography variant="body2">
                       No records to display
-                    </Typography>
-                  </div>
-
-                }
+                      </Typography>
+                    </div>
+                  )}
               </Grid>
               <Grid item xs={12} md={9}>
                 <Chip label="Assignment History" style={{ marginTop: '10px', marginBottom: '10px' }} color="secondary" />
@@ -540,7 +541,7 @@ class StaffAssignment extends React.Component {
                     {
                       icon: 'save_alt',
                       tooltip: 'Export',
-                      disabled: !thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_export && !assignedStaff.length > 0,
+                      disabled: !thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_export || !assignedStaff.length > 0,
                       isFreeAction: true,
                       onClick: (event) => this.handleOpenMenu(event, 'operation')
                     }

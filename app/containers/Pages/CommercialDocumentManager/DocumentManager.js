@@ -101,8 +101,11 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Box from '@material-ui/core/Box';
 import Popover from '@material-ui/core/Popover';
 
-// import ImageLightbox from 'react-image-lightbox';
-// import 'react-image-lightbox/style.css';
+import ImageLightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
+
+import { Player } from 'video-react';
+import 'video-react/dist/video-react.css';
 
 /// necesario para poder trabajar con el cliente de nuxeo ///
 var Nuxeo = require('nuxeo');
@@ -1053,12 +1056,12 @@ class DocumentManager extends React.Component {
     //console.log(e.target.value);
     var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value < 50) ? true : false;
     var texterror = '';
-    if(e.target.value === null || e.target.value === ""){
+    if (e.target.value === null || e.target.value === "") {
       texterror = 'Campo obligatorio';
     }
-    else if(parseFloat(e.target.value) < parseFloat(50)){
+    else if (parseFloat(e.target.value) < parseFloat(50)) {
       texterror = 'Destinar al menos 50 GB';
-    }else{
+    } else {
       texterror = null;
     }
     var value = !errorstorage ? e.target.value : e.target.value;
@@ -1074,18 +1077,18 @@ class DocumentManager extends React.Component {
     console.log(this.state.config.confstorage)
   }
 
-   /// Cambiar el valor del campo storage del user del server de nuxeo///
+  /// Cambiar el valor del campo storage del user del server de nuxeo///
 
-   setValueStorageUser = (e) => {
+  setValueStorageUser = (e) => {
     //console.log(e.target.value);
     var errorstorage = (e.target.value === null || e.target.value === "" || e.target.value > this.state.config.confstorage) ? true : false;
     var texterror = '';
-    if(e.target.value === null || e.target.value === ""){
+    if (e.target.value === null || e.target.value === "") {
       texterror = 'Campo obligatorio';
     }
-    else if(parseFloat(e.target.value) > parseFloat(this.state.config.confstorage)){
+    else if (parseFloat(e.target.value) > parseFloat(this.state.config.confstorage)) {
       texterror = 'No puede exceder la cuota del servidor';
-    }else{
+    } else {
       texterror = null;
     }
     var value = !errorstorage ? e.target.value : e.target.value;
@@ -1183,6 +1186,7 @@ class DocumentManager extends React.Component {
         password: self.state.config.password
       }
     });
+
     nuxeo.operation('UserGroup.Suggestion')
       .params({
         searchType: 'USER_TYPE',
@@ -1770,7 +1774,6 @@ class DocumentManager extends React.Component {
         break;
       }
       case 'Favoritos': {
-        console.log(path);
         nuxeo.operation('Favorite.GetDocuments').enrichers({ document: ['favorites', 'acls', 'publications', 'thumbnail', 'preview', 'tags'] })
           .input(path)
           .context({
@@ -1808,7 +1811,6 @@ class DocumentManager extends React.Component {
           .then(function (docs) {
             if (docs.entries.length > 0) {
               if (self.state.menu.menuselect == 'Eliminados') {
-                console.log('entró a eliminada');
                 self.DevolverListaFormateada(docs.entries, cont, docs.entries.length, 'Folder Eliminada')
               } else {
                 self.DevolverListaFormateada(docs.entries, cont, docs.entries.length, 'Folder')
@@ -1840,8 +1842,8 @@ class DocumentManager extends React.Component {
             .input(self.state.config.dominio + self.state.config.workspace)
             .execute({ schemas: ['file', 'dublincore'] })
             .then(function (docs) {
+              //console.log(docs.entries); 
               listaresultado = docs.entries;
-              //console.log(docs.entries);
               nuxeo.operation('Document.GetChildren').enrichers({ document: ['favorites', 'acls', 'publications', 'tags'] })
                 .input(self.state.config.dominio + '/sections/')
                 .execute({ schemas: ['file', 'dublincore'] })
@@ -1958,20 +1960,16 @@ class DocumentManager extends React.Component {
             }
           }
         });
-        console.log(self.state.config.storage);
         //almServer = parseFloat(almServer/1000000000).toFixed(2);
 
         let totalA = self.state.config.storage * 1000000000;
-        console.log(totalA);
         let porcientoA = parseFloat(almServer * 100 / totalA).toFixed(2);
-        console.log(porcientoA);
         let estado1 = self.state;
         estado1.storageserver = almServer;
         estado1.storageserverporc = porcientoA;
         self.setState({
           estado1
         })
-        console.log(self.state.storageserver)
       })
   }
 
@@ -2130,7 +2128,6 @@ class DocumentManager extends React.Component {
             break;
           }
           case 'Espacio de Grupo de Trabajo': {
-            console.log('Espacio de GT');
             self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0 AND ecm:path STARTSWITH '" + self.state.config.dominio + "/sections/'", 2000000).then(function (docs) {
               if (docs.length > 0) {
                 listaresultado = docs;
@@ -2147,7 +2144,6 @@ class DocumentManager extends React.Component {
               query = "SELECT * FROM File, Folder, Section, Workspace WHERE ecm:primaryType IN ('Workspace', 'File', 'Folder', 'Note', 'Section') AND (dc:title ILIKE '%" + this.state.textbuscar + "%' OR ecm:tag ILIKE '%" + this.state.textbuscar + "%') AND ecm:isTrashed = 0 AND ecm:isProxy = 0 AND ecm:isVersion = 0  AND ecm:path STARTSWITH '" + self.state.config.dominio + "' ORDER BY dc:modified DESC";
             }
             self.ejecutarQueryRepo(query, 5).then(function (docs) {
-              console.log(docs);
               if (docs.length > 0) {
                 listaresultado = docs;
                 self.DevolverListaFormateada(docs, cont, docs.length, 'Recientes')
@@ -2750,7 +2746,6 @@ class DocumentManager extends React.Component {
     }
     this.handleMenuActionsClose();
     let selected = this.obtenerseleccionado(this.state.tabla.selected[0]);
-    console.log(selected.etiquetas);
     if (comment) {
       this.listarComment(selected.path, false);
     } else {
@@ -3470,7 +3465,6 @@ class DocumentManager extends React.Component {
       .execute({ schemas: ['file', 'dublincore', 'common', 'uid', 'tags'] })
       .then(function (doc) {
         let disable = false;
-        console.log(doc);
         //let encontrado = rows.find(fila => seleccionado.id === fila.id)
         /*  rows.forEach(documento => {
              if(documento.id === seleccionado.id){
@@ -3738,7 +3732,6 @@ class DocumentManager extends React.Component {
     let listpub = [];
     let list = [];
     self.ejecutarQueryRepo("SELECT * FROM Section WHERE (dc:creator = '" + self.state.login.user + "' OR (ecm:acl/*/principal = '" + self.state.login.user + "' AND ecm:acl/*/grant = 1 AND ecm:acl/*/permission IN ('ReadWrite', 'Everything', 'Read'))) AND ecm:path STARTSWITH '" + self.state.config.dominio + "'", 2000).then(function (docs1) {
-      console.log(docs1);
       docs1.forEach(element => {
         //console.log(element);
         if (self.ChequearPermisosyFiltro(element, 'Espacio de Grupo de Trabajo')) {
@@ -3767,7 +3760,6 @@ class DocumentManager extends React.Component {
       })
       // console.log(list)
       self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:isTrashed = 0 AND ecm:isProxy = 1 AND ecm:proxyVersionableId = '" + id + "'", 2000000).then(function (docs) {
-        console.log(docs);
         docs.forEach(element => {
           let cadena = element.path.split('/');
           let secion = cadena[3]
@@ -4291,7 +4283,6 @@ class DocumentManager extends React.Component {
   /// Buscar Usuario para Compartir Documento ////
   handleBuscarUsersGroups = (event) => {
     let denom = event.target.value;
-    console.log(denom);
     if (denom.length > 2) {
       const { currentTarget } = event;
       nuxeo.operation('UserGroup.Suggestion')
@@ -6680,7 +6671,6 @@ class DocumentManager extends React.Component {
           self.setState({
             itemnew
           })
-          console.log(row);
           /* console.log(padre); */
           if (row.iconvacioantecesor = 'Espacio de Grupo de Trabajo' && self.state.menu.menuselect === 'Espacio de Grupo de Trabajo') {
             let estado = self.state;
@@ -6689,7 +6679,6 @@ class DocumentManager extends React.Component {
             self.setState({
               estado
             })
-            console.log(path)
             self.listarArchivos(path, 'Espacio de Grupo de Trabajo');
           } else {
             self.listarArchivos(path, tipo);
@@ -6719,7 +6708,6 @@ class DocumentManager extends React.Component {
   }
 
   verificarPermisos = (rowselect) => {
-    console.log(rowselect);
     var varedit = false;
     var varmov = false;
     var varshare = false;
@@ -6796,12 +6784,14 @@ class DocumentManager extends React.Component {
     self.setState({
       estado
     });
+
+    console.log(img);
   }
 
   visualizarvideo = (video) => {
     let array = [{
-      src: video.thumbnail,
-      type: video,
+      src: video.src,
+      type: video.mineType,
       title: video.name
     }]
     let estado = self.state;
@@ -6855,7 +6845,7 @@ class DocumentManager extends React.Component {
         if (extension == '.gif' || extension == '.png' || extension == '.jpg' || extension == '.jpeg' || extension == '.pbm' || extension == '.bmp' || extension == '.ppm' || extension == '.fax' || extension == '.tiff' || extension == '.tif' || extension == '.svg' || extension == '.dpx' || extension == '.ai' || extension == '.psd' || extension == '.emf' || extension == '.vclmtf' || extension == '.srf') {
           this.visualizarimagen(row);
         }
-        if (extension == 'mp3' || extension == 'mpga' || extension == 'mp2' || extension == 'wav' || extension == 'm3u' || extension == 'aif' || extension == 'aifc' || extension == 'aiff' || extension == 'ogg' || extension == 'oga' || extension == 'spx' || extension == 'flac' || extension == 'ogm' || extension == 'ogx' || extension == 'aac' || extension == 'm4a' || extension == 'm4b' || extension == 'm4p' || extension == 'm4r' || extension == 'mka' || extension == 'wax' || extension == 'wma' || extension == 'wax' || extension == 'wax' || extension == 'wax' || extension == 'mpa' || extension == 'mpe' || extension == 'mpeg' || extension == 'mpg' || extension == 'mpv2' || extension == 'mp4' || extension == 'mov' || extension == 'qt' || extension == 'ogv' || extension == 'webm' || extension == 'mkv' || extension == 'asf' || extension == 'asr' || extension == 'asx' || extension == 'avi' || extension == 'fli' || extension == 'flv' || extension == 'viv' || extension == 'vivo' || extension == 'm4v' || extension == '3gp' || extension == '3g2' || extension == 'wmv' || extension == 'wmx' || extension == 'gxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf' || extension == 'mxf') {
+        if (extension == '.mp3' || extension == '.mpga' || extension == '.mp2' || extension == '.wav' || extension == '.m3u' || extension == '.aif' || extension == '.aifc' || extension == '.aiff' || extension == '.ogg' || extension == '.oga' || extension == '.spx' || extension == '.flac' || extension == '.ogm' || extension == '.ogx' || extension == '.aac' || extension == '.m4a' || extension == '.m4b' || extension == '.m4p' || extension == '.m4r' || extension == '.mka' || extension == '.wax' || extension == '.wma' || extension == '.wax' || extension == '.wax' || extension == '.mpa' || extension == '.mpe' || extension == '.mpeg' || extension == '.mpg' || extension == '.mpv2' || extension == '.mp4' || extension == '.mov' || extension == '.qt' || extension == '.ogv' || extension == '.webm' || extension == '.mkv' || extension == '.asf' || extension == '.asr' || extension == '.asx' || extension == '.avi' || extension == '.fli' || extension == '.flv' || extension == '.viv' || extension == '.vivo' || extension == '.m4v' || extension == '.3gp' || extension == '.3g2' || extension == '.wmv' || extension == '.wmx' || extension == '.gxf' || extension == '.mxf') {
           this.visualizarvideo(row);
         }
         else {
@@ -6930,7 +6920,6 @@ class DocumentManager extends React.Component {
   }
 
   DevuelveIconsVista = (row) => {
-    console.log(row);
     switch (row.tipo) {
       case 'Folder': {
         return <Folder color='primary' style={{ fontSize: '100px' }} onClick={(event) => this.handleAbrirClick(event, row)} />;
@@ -6989,7 +6978,6 @@ class DocumentManager extends React.Component {
   }
 
   DevuelveIcons = (row) => {
-    console.log(row);
     switch (row.tipo) {
       case 'Folder': {
         return <Folder color='primary' style={{ marginRight: '10px', fontSize: '40px' }} />;
@@ -7570,7 +7558,6 @@ class DocumentManager extends React.Component {
 
               /// sacar el tamaño del fichero
               let tamanno = 0 + 'bytes';
-              console.log(lista[cont]);
               let file = [];
               let totalsize = 0;
               if (lista[cont].type === 'File' || lista[cont].type === 'Note') {
@@ -7586,11 +7573,9 @@ class DocumentManager extends React.Component {
                 if (long > cont) {
                   self.DevolverListaFormateada(lista, cont, long, filtro);
                 } else if (long === cont) {
-                  console.log('termino 1')
                   self.cambiarEstadoVacio(loadData);
                 }
               } else {
-                console.log(lista[cont].title)
                 self.ejecutarQueryRepo("SELECT * FROM Document WHERE ecm:primaryType IN ('File', 'Note') AND ecm:path STARTSWITH '" + lista[cont].path + "' ORDER BY dc:created DESC", 20000000)
                   .then(function (docs) {
                     let totalsize = 0;
@@ -7604,13 +7589,11 @@ class DocumentManager extends React.Component {
                       }
                     });
                     tamanno = self.obtenertamaño(totalsize);
-                    console.log(tamanno);
                     self.ConstruirObjetoDocumento(lista[cont], statusbloq, statusownerbloq, fechabloq, comentado, tamanno);
                     cont = cont + 1;
                     if (long > cont) {
                       self.DevolverListaFormateada(lista, cont, long, filtro);
                     } else if (long === cont) {
-                      console.log('termino 2')
                       self.cambiarEstadoVacio(loadData);
                     }
                   })
@@ -7632,7 +7615,6 @@ class DocumentManager extends React.Component {
 
   /// Listar grupos ////
   DevolverListaGruposFormateada(lista, cont, long) {
-    console.log(lista);
     nuxeo.operation('UserGroup.Suggestion')
       .params({
         groupRestriction: lista[cont].groupname,
@@ -7741,7 +7723,6 @@ class DocumentManager extends React.Component {
         .params({ "property": "dc:title", "values": denomadd })
         .execute()
         .then(function (docs) {
-          console.log('sdfsdfdsf');
           let cumple = true;
           if (tipoadd === 'Section') {
             docs.entries.forEach(element => {
@@ -8150,7 +8131,7 @@ class DocumentManager extends React.Component {
                             label="Url del servidor"
                             value={this.state.config.confurl}
                             error={this.state.config.errorurl}
-                            helperText={this.state.config.errorurl ? this.state.config.texterror: null}
+                            helperText={this.state.config.errorurl ? this.state.config.texterror : null}
                             onChange={this.setValueURLNuxeo}
                             fullWidth
                           />
@@ -8168,7 +8149,7 @@ class DocumentManager extends React.Component {
                             label="Nombre de dominio"
                             value={this.state.config.confnombredominio}
                             error={this.state.config.errordominio}
-                            helperText={this.state.config.errordominio ? this.state.config.texterror: null}
+                            helperText={this.state.config.errordominio ? this.state.config.texterror : null}
                             onChange={this.setValueNombreDomNuxeo}
                             fullWidth
                           />
@@ -8186,7 +8167,7 @@ class DocumentManager extends React.Component {
                             label="Administrador"
                             value={this.state.config.confuser}
                             error={this.state.config.erroruser}
-                            helperText={this.state.config.erroruser ? this.state.config.texterror: null}
+                            helperText={this.state.config.erroruser ? this.state.config.texterror : null}
                             onChange={this.setValueAdminNuxeo}
                             fullWidth
                           />
@@ -8207,7 +8188,7 @@ class DocumentManager extends React.Component {
                             fullWidth
                             value={this.state.config.confpassword}
                             error={this.state.config.errorpassword}
-                            helperText={this.state.config.errorpassword ? this.state.config.texterror: null}
+                            helperText={this.state.config.errorpassword ? this.state.config.texterror : null}
                             onChange={this.setValueAdminPassNuxeo}
                             InputProps={{
                               endAdornment: (
@@ -8238,7 +8219,7 @@ class DocumentManager extends React.Component {
                             label="Url del fichero"
                             value={this.state.config.confurlonlyoffice}
                             error={this.state.config.errorurloffice}
-                            helperText={this.state.config.errorurloffice ? this.state.config.texterror: null}
+                            helperText={this.state.config.errorurloffice ? this.state.config.texterror : null}
                             onChange={this.setValueURLOnlyoffice}
                             fullWidth
                           />
@@ -10758,7 +10739,7 @@ class DocumentManager extends React.Component {
                         imageCaption={self.state.visualizacion.files[0].description}
                       />
                       : self.state.visualizacion.mostrarvideo ?
-                        <React.Fragment />
+                        <Player src={self.state.visualizacion.files[0].src} />
                         : null
                     }
                   </Grid>
