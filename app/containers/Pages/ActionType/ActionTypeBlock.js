@@ -41,7 +41,7 @@ class ActionTypeBlock extends React.Component {
       openWarning: false,
       typeName: '',
       description: '',
-      percentage: '',
+      percentage: 0,
       columns: [
         {
           label: 'Action Type Name',
@@ -116,6 +116,7 @@ class ActionTypeBlock extends React.Component {
           actionTypeId: id,
           typeName: result.data.typeName,
           description: result.data.description,
+          percentage: result.data.percentage,
           openPopUp: true
         });
       });
