@@ -43,6 +43,7 @@ import {
   CommercialOperation,
   DocumentManager,
   CommercialAction,
+  AddCommercialAction,
   AddCommercialOperation,
   FinancialCompany,
   AddFinancialCompany,
@@ -352,6 +353,11 @@ function Application(props) {
           exact
           path="/app/commercial-action"
           component={CommercialAction}
+        />
+        <Route
+          exact
+          path="/app/commercial-action/Add-Action"
+          component={AddCommercialAction}
         />
         <Route
           exact

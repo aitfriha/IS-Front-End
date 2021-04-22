@@ -23,9 +23,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import { connect } from 'react-redux';
-import InputBase from '@material-ui/core/InputBase';
 import interact from 'interactjs';
 import Box from '@material-ui/core/Box';
 import AddIcon from '@material-ui/icons/Add';
@@ -35,12 +33,9 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { ThemeContext } from '../../App/ThemeWrapper';
-import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
-import StaffService from '../../Services/StaffService';
-import CommercialOperationService from '../../Services/CommercialOperationService';
 import CommercialActionService from '../../Services/CommercialActionService';
-import AssignmentService from '../../Services/AssignmentService';
 import ActionTypeService from '../../Services/ActionTypeService';
+import history from '../../../utils/history';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -68,23 +63,16 @@ class CommercialActionsBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: [],
+      currentAction: [],
       actionTypes: [],
-      operations: [],
-      staffs: [],
-      staffAssign: [],
-      assignments: [],
-      operationsAssign: [],
-      numberClientResponsible: 0,
-      numberClientAssistant: 0,
-      staffId: '',
-      currentOperation: [],
+      commercialActions: [],
       nbrActions: ['1'],
       actionDescriptions: [],
       actionDates: [],
       contactsIds: [],
-      clientId: '',
-      clientName: '',
+      descriptions: '',
+      actionTypeId: '',
+      objectifs: '',
       expanded: false,
       display: 'flex',
       openPopUpImport: false,
@@ -96,34 +84,18 @@ class CommercialActionsBlock extends React.Component {
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
-    CommercialOperationStatusService.getCommercialOperationStatus().then(result => {
-      this.setState({ status: result.data.payload });
-    });
-    StaffService.getStaffs2().then(result => {
-      this.setState({ staffs: result.data.payload });
-    });
-    CommercialOperationService.getCommercialOperation().then(result => {
-      this.setState({ operations: result.data.payload });
-    });
-    AssignmentService.getAssignments().then(result => {
-      console.log(result);
-      this.setState({ assignments: result.data });
-    });
     ActionTypeService.getActionType().then(result => {
       this.setState({ actionTypes: result.data });
+    });
+    CommercialActionService.getCommercialAction().then(result => {
+      this.setState({ commercialActions: result.data.payload });
     });
     interact('.resize-drag')
       .draggable({
         // enable autoScroll
         autoScroll: true,
-
         listeners: {
-          // call this function on every dragmove event
           move: this.dragMoveListener,
-          // call this function on every dragend event
-          /* end(event) {
-              console.log('Your her => ', event);
-            } */
         }
       })
       .resizable({
@@ -175,41 +147,12 @@ class CommercialActionsBlock extends React.Component {
       const newContact = { _id: item, checked: isChecked };
       // eslint-disable-next-line react/destructuring-assignment
       this.state.contactsIds.push(newContact);
-      // this.setState(prevState => ({ contactsIds: prevState.contactsIds.set(item, isChecked) }));
-      console.log(isChecked);
-      console.log(item);
     }
 
-    handleChangeStaff = (ev, value) => {
-      // eslint-disable-next-line react/destructuring-assignment
-      const assig = this.state.assignments;
-      let respoNumber = 0;
-      let respoAssistance = 0;
-      const staffAssign = assig.filter(row => (row.staff.staffId === value.staffId));
-      console.log(staffAssign);
-      // eslint-disable-next-line array-callback-return
-      staffAssign.map(row => {
-        // eslint-disable-next-line no-plusplus
-        if (row.typeStaff === 'Responsible Commercial') respoNumber++;
-        // eslint-disable-next-line no-plusplus
-        if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
-      });
+    activateLasers = (line) => {
+      console.log(line);
       this.setState({
-        staffAssign, staffName: value.firstName + ' ' + value.fatherFamilyName + ' ' + value.motherFamilyName, staffId: value.staffId, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
-      });
-    }
-
-    handleChangeClient = (ev, value) => {
-      // eslint-disable-next-line react/destructuring-assignment
-      const operatAssign = this.state.operations;
-      const operationsAssign = operatAssign.filter(row => (row.clientName === value.client.name));
-      this.setState({ clientId: value.client._id, clientName: value.client.name, operationsAssign });
-    }
-
-    activateLasers = (commercialOperation) => {
-      console.log(commercialOperation);
-      this.setState({
-        openPopUp: true, currentOperation: commercialOperation, objectifs: commercialOperation.objectif, descriptions: commercialOperation.description
+        openPopUp: true, currentAction: line, objectifs: line.objectifs, descriptions: line.descriptions, actionDescriptions: line.actionDescriptions, actionDates: line.actionDates, nbrActions: line.nbrActions, actionTypeId: line.commercialActionType._id
       });
     };
 
@@ -223,14 +166,11 @@ class CommercialActionsBlock extends React.Component {
 
     handleSave = () => {
       const {
-        descriptions, objectifs, currentOperation, actionTypeId, contactsIds,
+        descriptions, objectifs, actionTypeId, contactsIds,
         nbrActions, actionDescriptions, actionDates
       } = this.state;
-      const commercialOperation = currentOperation;
-      commercialOperation._id = currentOperation.commercialOperationId;
       const commercialActionType = { _id: actionTypeId };
       const CommercialAction = {
-        commercialOperation,
         commercialActionType,
         objectifs,
         descriptions,
@@ -291,6 +231,10 @@ class CommercialActionsBlock extends React.Component {
       }
     }
 
+    handleAdd = () => {
+      history.push('/app/commercial-action/Add-Action');
+    }
+
     render() {
       console.log(this.state);
       // eslint-disable-next-line react/prop-types
@@ -298,187 +242,105 @@ class CommercialActionsBlock extends React.Component {
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const {
-        numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
+        openPopUp, staffName, commercialActions, currentAction,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
       return (
         <div>
-          <Grid
-            container
-            spacing={2}
-            alignItems="flex-start"
-            direction="row"
-            justify="center"
-          >
-            <Grid item xs={12} md={6} sm={6}>
-              <Autocomplete
-                id="combo-box-demo"
-                options={staffs}
-                getOptionLabel={option => (option ? option.firstName + ' ' + option.fatherFamilyName + ' ' + option.motherFamilyName : '')}
-                onChange={this.handleChangeStaff}
-                renderInput={params => (
-                  <TextField
-                    fullWidth
-                    {...params}
-                    label="Select the staff*"
-                    variant="outlined"
-                  />
-                )}
-              />
+          <Grid container spacing={1}>
+            <Grid item xs={11} />
+            <Grid item xs={1}>
+              <IconButton onClick={() => this.handleAdd()}>
+                <AddIcon color="secondary" />
+              </IconButton>
             </Grid>
           </Grid>
           <br />
           <Grid
             container
-            spacing={2}
-            alignItems="flex-start"
+            spacing={4}
             direction="row"
-            justify="center"
           >
-            <Grid item xs={12} md={4} sm={4}>
-              <InputBase
-                className={classes.root}
-                defaultValue="№ Client Responsible :"
-                inputProps={{ 'aria-label': 'naked' }}
-              />
-              {numberClientResponsible}
-            </Grid>
-            <Grid item xs={12} md={4} sm={4}>
-              <InputBase
-                className={classes.root}
-                defaultValue="№ Client Assistant :"
-                inputProps={{ 'aria-label': 'naked' }}
-              />
-              {numberClientAssistant}
-            </Grid>
-            <Grid item xs={12} md={4} sm={4}>
-              <InputBase
-                className={classes.root}
-                defaultValue="Potential Volume :"
-                inputProps={{ 'aria-label': 'naked' }}
-              />
-              {0}
-            </Grid>
-          </Grid>
-          <br />
-          {
-            staffId !== '' ? (
-              <Grid
-                container
-                spacing={2}
-                alignItems="flex-start"
-                direction="row"
-                justify="center"
-              >
-                <Grid item xs={12} md={6} sm={6}>
-                  <Autocomplete
-                    id="combo-box-demo"
-                    options={staffAssign}
-                    getOptionLabel={option => (option ? option.client.name : '')}
-                    onChange={this.handleChangeClient}
-                    renderInput={params => (
-                      <TextField
-                        fullWidth
-                        {...params}
-                        label="Select the Client *"
-                        variant="outlined"
-                      />
-                    )}
+            {actionTypes.map((row) => (
+              <Grid item xs={12} md={4}>
+                <div id={row.actionTypeId} className="drop-zone">
+                  <Chip
+                    label={row.typeName + ' ' + row.percentage + ' %'}
+                    color="default"
+                    style={{ backgroundColor: this.generateRandomColor() }}
                   />
-                </Grid>
-              </Grid>
-            ) : (<div />)
-          }
-          <br />
-          {clientId !== '' ? (
-            <Grid
-              container
-              spacing={4}
-              direction="row"
-            >
-              {status.map((row) => (
-                <Grid item xs={12} md={4}>
-                  <div id={row.commercialOperationStatusId} className="drop-zone">
-                    <Chip
-                      label={row.name + ' ' + row.percentage + ' %'}
-                      avatar={<Avatar>{row.code}</Avatar>}
-                      color="default"
-                      style={{ backgroundColor: this.generateRandomColor() }}
-                    />
-                    <Divider
-                      variant="fullWidth"
-                      style={{ marginBottom: '10px', marginTop: '10px' }}
-                    />
-                  </div>
-                  {operationsAssign.map((line) => (
-                    <div>
-                      {line.stateName === row.name ? (
-                        <div id={line.commercialOperationId} className="resize-drag">
-                          {/* eslint-disable-next-line react/jsx-no-bind */}
-                          <Card id={line.commercialOperationId} onClick={this.activateLasers.bind(this, line)} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
-                            <CardHeader
-                              avatar={(
-                                <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: 'rgb(255.40.0)' }}>
-                                  {staffName.substr(0, 1)}
-                                </Avatar>
-                              )}
-                              action={(
-                                <IconButton aria-label="settings">
-                                  {line.estimatedTradeVolumeInEuro}
-                                  {' '}
+                  <Divider
+                    variant="fullWidth"
+                    style={{ marginBottom: '10px', marginTop: '10px' }}
+                  />
+                </div>
+                {commercialActions.map((line) => (
+                  <div>
+                    {line.commercialActionType._id === row.actionTypeId ? (
+                      <div id={line.commercialActionId} className="resize-drag">
+                        {/* eslint-disable-next-line react/jsx-no-bind */}
+                        <Card id={line.commercialActionId} onClick={this.activateLasers.bind(this, line)} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
+                          <CardHeader
+                            avatar={(
+                              <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: 'rgb(255.40.0)' }}>
+                                {row.description.substr(0, 1)}
+                              </Avatar>
+                            )}
+                            action={(
+                              <IconButton aria-label="settings">
+                                {line.commercialOperation.estimatedTradeVolumeInEuro}
+                                {' '}
                                               €
-                                </IconButton>
-                              )}
-                              title={staffName}
-                            />
-                            <CardContent>
-                              <Box fontWeight={500}>
-                                Action Type :
-                                {' '}
-                                {line.name ? line.name : ''}
-                              </Box>
-                              <br />
-                              <Box fontWeight={300} align="center" fontStyle="italic">
-                                Client Name:
-                                {' '}
-                                {line.clientName ? line.clientName : ''}
-                              </Box>
-                              <Box fontWeight={300} align="center" fontStyle="italic">
-                                Operation Name:
-                                {' '}
-                                {line.name ? line.name : ''}
-                              </Box>
-                              <Box fontWeight={300} align="center" fontStyle="italic">
-                                General Sector:
-                                {' '}
-                                {line.sector1 ? line.sector1 : ''}
-                              </Box>
-                              <br />
-                                Objectives :
-                              <br />
-                              <Typography variant="body2" color="textSecondary" component="p">
-                                {line.objectif ? line.objectif : ''}
-                              </Typography>
-                            </CardContent>
-                            <CardActions disableSpacing>
-                              <IconButton
-                                aria-label="show more"
-                              >
-                                <OpenInNewIcon />
                               </IconButton>
-                            </CardActions>
-                          </Card>
-                          <br />
-                        </div>
-                      ) : <div />}
-                    </div>
-                  ))}
-                </Grid>
-              ))}
-            </Grid>
-          ) : <div /> }
+                            )}
+                            title={staffName}
+                          />
+                          <CardContent>
+                            <Box fontWeight={500}>
+                                Action Type :
+                              {' '}
+                              {line.commercialActionType ? line.commercialActionType.typeName : ''}
+                            </Box>
+                            <br />
+                            <Box fontWeight={300} align="center" fontStyle="italic">
+                                Client Name:
+                              {' '}
+                              {line.commercialOperation.client ? line.commercialOperation.client.name : ''}
+                            </Box>
+                            <Box fontWeight={300} align="center" fontStyle="italic">
+                                Operation Name:
+                              {' '}
+                              {line.commercialOperation ? line.commercialOperation.name : ''}
+                            </Box>
+                            <Box fontWeight={300} align="center" fontStyle="italic">
+                                General Sector:
+                              {' '}
+                              {line.commercialOperation.client ? line.commercialOperation.client.sector1 : ''}
+                            </Box>
+                            <br />
+                                Objectives :
+                            <br />
+                            <Typography variant="body2" color="textSecondary" component="p">
+                              {line.objectifs ? line.objectifs : ''}
+                            </Typography>
+                          </CardContent>
+                          <CardActions disableSpacing>
+                            <IconButton
+                              aria-label="show more"
+                            >
+                              <OpenInNewIcon />
+                            </IconButton>
+                          </CardActions>
+                        </Card>
+                        <br />
+                      </div>
+                    ) : <div />}
+                  </div>
+                ))}
+              </Grid>
+            ))}
+          </Grid>
           <Dialog
             open={openPopUp}
             keepMounted
@@ -491,7 +353,7 @@ class CommercialActionsBlock extends React.Component {
           >
             <DialogTitle id="alert-dialog-slide-title">
               {' '}
-              {currentOperation.name ? currentOperation.name : ''}
+              {currentAction.commercialOperation ? currentAction.commercialOperation.name : ''}
               {' '}
             </DialogTitle>
             <DialogContent dividers>
@@ -520,8 +382,8 @@ class CommercialActionsBlock extends React.Component {
                           <Grid item xs={1}>
                             <CardHeader
                               avatar={(
-                                <Avatar style={{ backgroundColor: '#FF0000' }}>
-                                  {staffName ? staffName.substr(0, 1) : ''}
+                                <Avatar style={{ backgroundColor: '#ff0000' }}>
+                                  {currentAction.commercialActionType ? currentAction.commercialActionType.description.substr(0, 1) : '' }
                                 </Avatar>
                               )}
                             />
@@ -530,7 +392,7 @@ class CommercialActionsBlock extends React.Component {
                             <CardHeader
                               variant="subtitle1"
                               color="primary"
-                              title={staffName}
+                              title="y"
                             />
                           </Grid>
                         </Grid>
@@ -539,8 +401,8 @@ class CommercialActionsBlock extends React.Component {
                         <CardHeader
                           variant="body1"
                           color="textPrimary"
-                          title={'Trade Volume : ' + currentOperation.estimatedTradeVolumeInEuro + ' €'}
-                          subheader={'Operations Status : ' + currentOperation.stateName}
+                          title={'Trade Volume : ' + (currentAction.commercialOperation ? (currentAction.commercialOperation.estimatedTradeVolumeInEuro + ' €') : '')}
+                          subheader={'Operations Status : ' + (currentAction.commercialOperation ? (currentAction.commercialOperation.state.name) : '')}
                         />
                       </Grid>
                       <Grid item xs={0} />
@@ -568,17 +430,17 @@ class CommercialActionsBlock extends React.Component {
                         <Box fontWeight={600} align="center" fontStyle="italic">
                           Client Name:
                           {' '}
-                          {currentOperation.clientName ? currentOperation.clientName : ''}
+                          {currentAction.commercialOperation ? currentAction.commercialOperation.client.name : ''}
                         </Box>
                         <Box fontWeight={600} align="center" fontStyle="italic">
-                            Operation Name:
+                          Operation Name:
                           {' '}
-                          {currentOperation.name ? currentOperation.name : ''}
+                          {currentAction.commercialOperation ? currentAction.commercialOperation.name : ''}
                         </Box>
                         <Box fontWeight={600} align="center" fontStyle="italic">
                           General Sector:
                           {' '}
-                          {currentOperation.sector1 ? currentOperation.sector1 : ''}
+                          {currentAction.commercialOperation ? currentAction.commercialOperation.client.sector1 : ''}
                         </Box>
                       </Grid>
                       <Grid item xs={3} />
@@ -594,8 +456,7 @@ class CommercialActionsBlock extends React.Component {
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails>
                             {
-                              currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
-                                // eslint-disable-next-line jsx-a11y/label-has-for
+                              currentAction.contactDtos ? currentAction.contactDtos.map((clt) => (
                                 <label>
                                   <input
                                     type="checkbox"
@@ -614,7 +475,7 @@ class CommercialActionsBlock extends React.Component {
                         <TextField
                           id="operaDate"
                           label="Operation Date"
-                          value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
+                          value={currentAction.commercialOperation ? currentAction.commercialOperation.paymentDate.substr(0, 10) : ''}
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -627,7 +488,7 @@ class CommercialActionsBlock extends React.Component {
                         <TextField
                           id="actionDate"
                           label="Action Date"
-                          value={currentOperation.paymentDate ? currentOperation.paymentDate.substr(0, 10) : ''}
+                          value={currentAction.creationDate ? currentAction.creationDate.substr(0, 10) : ''}
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -684,7 +545,7 @@ class CommercialActionsBlock extends React.Component {
                         <Grid item xs={2} align="center">
                           <Typography variant="subtitle2" component="h3" color="grey">
                             <br />
-                             Next Action
+                              Next Action
                             {' '}
                             { row }
                           </Typography>
@@ -737,7 +598,7 @@ class CommercialActionsBlock extends React.Component {
             </DialogContent>
             <DialogActions>
               <Button color="secondary" onClick={this.handleClose}>
-                            Close
+                Close
               </Button>
               <Button variant="contained" color="primary" type="button" onClick={this.handleSave}>
                 Save
