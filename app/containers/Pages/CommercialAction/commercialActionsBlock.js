@@ -87,7 +87,7 @@ class CommercialActionsBlock extends React.Component {
     ActionTypeService.getActionType().then(result => {
       this.setState({ actionTypes: result.data });
     });
-    CommercialActionService.getCommercialAction().then(result => {
+    CommercialActionService.getCommercialAction2().then(result => {
       this.setState({ commercialActions: result.data.payload });
     });
     interact('.resize-drag')
@@ -456,12 +456,13 @@ class CommercialActionsBlock extends React.Component {
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails>
                             {
-                              currentAction.contactDtos ? currentAction.contactDtos.map((clt) => (
+                              currentAction.contacts ? currentAction.contacts.map((clt) => (
                                 <label>
                                   <input
                                     type="checkbox"
-                                    value={clt.contactId}
+                                    value={clt._id}
                                     onChange={this.handleCheckBox}
+                                    checked
                                   />
                                   {clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
                                 </label>
