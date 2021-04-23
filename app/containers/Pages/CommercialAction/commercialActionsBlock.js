@@ -36,6 +36,7 @@ import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialActionService from '../../Services/CommercialActionService';
 import ActionTypeService from '../../Services/ActionTypeService';
 import history from '../../../utils/history';
+import BillService from '../../Services/BillService';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -85,6 +86,30 @@ class CommercialActionsBlock extends React.Component {
     const { changeTheme } = this.props;
     changeTheme('redTheme');
     ActionTypeService.getActionType().then(result => {
+      result.data.sort((a, b) => a.percentage - b.percentage);
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        if (row.percentage === 0) row.color = 'rgb(217,217,217)';
+        if (row.percentage > 0 && row.percentage <= 5) row.color = 'rgb(255,185,185)';
+        if (row.percentage > 5 && row.percentage <= 10) row.color = 'rgb(255,185,185)';
+        if (row.percentage > 10 && row.percentage <= 15) row.color = 'rgb(255,105,105)';
+        if (row.percentage > 15 && row.percentage <= 20) row.color = 'rgb(241,183,255)';
+        if (row.percentage > 20 && row.percentage <= 25) row.color = 'rgb(234,147,255)';
+        if (row.percentage > 25 && row.percentage <= 30) row.color = 'rgb(232,133,255)';
+        if (row.percentage > 30 && row.percentage <= 35) row.color = 'rgb(218,59,255)';
+        if (row.percentage > 35 && row.percentage <= 40) row.color = 'rgb(255,255,139)';
+        if (row.percentage > 45 && row.percentage <= 50) row.color = 'rgb(255,227,139)';
+        if (row.percentage > 50 && row.percentage <= 55) row.color = 'rgb(255,214,83)';
+        if (row.percentage > 55 && row.percentage <= 60) row.color = 'rgb(255,255,0)';
+        if (row.percentage > 60 && row.percentage <= 65) row.color = 'rgb(199,199,241)';
+        if (row.percentage > 65 && row.percentage <= 70) row.color = 'rgb(169,169,233)';
+        if (row.percentage > 70 && row.percentage <= 75) row.color = 'rgb(139,139,225)';
+        if (row.percentage > 75 && row.percentage <= 80) row.color = 'rgb(109,109,217)';
+        if (row.percentage > 80 && row.percentage <= 85) row.color = 'rgb(203,227,187)';
+        if (row.percentage > 85 && row.percentage <= 90) row.color = 'rgb(178,214,154)';
+        if (row.percentage > 90 && row.percentage <= 95) row.color = 'rgb(154,200,122)';
+        if (row.percentage > 95 && row.percentage <= 100) row.color = 'rgb(120,182,89)';
+      });
       this.setState({ actionTypes: result.data });
     });
     CommercialActionService.getCommercialAction2().then(result => {
@@ -186,13 +211,6 @@ class CommercialActionsBlock extends React.Component {
       });
     }
 
-    generateRandomColor = () => {
-      const r = Math.round((Math.random() * 255)); // red 0 to 255
-      const g = Math.round((Math.random() * 255)); // green 0 to 255
-      const b = Math.round((Math.random() * 255)); // blue 0 to 255
-      return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-    };
-
     handleAction = (event, row) => {
       if (event.target.name === 'actionDescriptions') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -235,6 +253,13 @@ class CommercialActionsBlock extends React.Component {
       history.push('/app/commercial-action/Add-Action');
     }
 
+    handleDelete = (id) => {
+      console.log(id);
+      CommercialActionService.deleteCommercialAction(id).then(result => {
+        this.setState({ commercialActions: result.data });
+      });
+    }
+
     render() {
       console.log(this.state);
       // eslint-disable-next-line react/prop-types
@@ -268,7 +293,7 @@ class CommercialActionsBlock extends React.Component {
                   <Chip
                     label={row.typeName + ' ' + row.percentage + ' %'}
                     color="default"
-                    style={{ backgroundColor: this.generateRandomColor() }}
+                    style={{ backgroundColor: row.color }}
                   />
                   <Divider
                     variant="fullWidth"
@@ -278,9 +303,9 @@ class CommercialActionsBlock extends React.Component {
                 {commercialActions.map((line) => (
                   <div>
                     {line.commercialActionType._id === row.actionTypeId ? (
-                      <div id={line.commercialActionId} className="resize-drag">
+                      <div id={line._id} className="resize-drag">
                         {/* eslint-disable-next-line react/jsx-no-bind */}
-                        <Card id={line.commercialActionId} onClick={this.activateLasers.bind(this, line)} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
+                        <Card id={line._id} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
                           <CardHeader
                             avatar={(
                               <Avatar aria-label="recipe" className={classes.avatar} style={{ backgroundColor: 'rgb(255.40.0)' }}>
@@ -291,7 +316,7 @@ class CommercialActionsBlock extends React.Component {
                               <IconButton aria-label="settings">
                                 {line.commercialOperation.estimatedTradeVolumeInEuro}
                                 {' '}
-                                              €
+                                €
                               </IconButton>
                             )}
                             title={staffName}
@@ -319,17 +344,27 @@ class CommercialActionsBlock extends React.Component {
                               {line.commercialOperation.client ? line.commercialOperation.client.sector1 : ''}
                             </Box>
                             <br />
-                                Objectives :
+                                Objectives:
                             <br />
-                            <Typography variant="body2" color="textSecondary" component="p">
+                            <Typography variant="body1" color="textSecondary" component="p">
                               {line.objectifs ? line.objectifs : ''}
+                            </Typography>
+                            <br />
+                            Next Action:
+                            {' '}
+                            {line.actionDates ? line.actionDates[1] : ''}
+                            <br />
+                            <Typography variant="body1" color="textSecondary" component="p">
+                              {line.actionDescriptions ? line.actionDescriptions[1] : ''}
                             </Typography>
                           </CardContent>
                           <CardActions disableSpacing>
-                            <IconButton
-                              aria-label="show more"
-                            >
+                            {/* eslint-disable-next-line react/jsx-no-bind */}
+                            <IconButton onClick={this.activateLasers.bind(this, line)}>
                               <OpenInNewIcon />
+                            </IconButton>
+                            <IconButton onClick={() => this.handleDelete(line._id)}>
+                              <DeleteIcon color="primary" />
                             </IconButton>
                           </CardActions>
                         </Card>
