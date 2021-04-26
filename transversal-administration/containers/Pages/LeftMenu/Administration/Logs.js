@@ -70,21 +70,18 @@ class Role extends React.Component {
       print: exportButton,
       rowsPerPage: 10,
     };
-
     const { columns } = this.state;
     // Sent resolve to editing promises
     (!isLoading && logResponse) && this.editingPromiseResolve(logResponse);
     (!isLoading && !logResponse) && this.editingPromiseResolve(errors);
     return (
       <PapperBlock title="System Log" desc="">
-        <div>
-          <MUIDataTable
-            title=""
-            data={allLogs && allLogs}
-            columns={columns}
-            options={options}
-          />
-        </div>
+        <MUIDataTable
+          title=""
+          data={allLogs && allLogs}
+          columns={columns}
+          options={options}
+        />
       </PapperBlock>
     );
   }

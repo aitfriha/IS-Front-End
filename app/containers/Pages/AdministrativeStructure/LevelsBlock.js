@@ -31,7 +31,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow, Grid
 } from '@material-ui/core';
 import interact from 'interactjs';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -54,9 +54,10 @@ import {
 } from '../../../redux/administrativeStructure/actions';
 import { getAllAdministrativeStructureAssignationHistoryByLevel } from '../../../redux/administrativeStructureAssignationHistory/actions';
 import notification from '../../../components/Notification/Notification';
+import FinancialCompanyService from '../../Services/FinancialCompanyService';
 
 const useStyles = makeStyles(styles);
-
+let staffList=[];
 class LevelsBlock extends React.Component {
   constructor(props) {
     super(props);
@@ -80,6 +81,8 @@ class LevelsBlock extends React.Component {
       description: '',
       levelName: '',
       isViewHistory: false,
+      companies: [],
+      company: null,
       columns: [
         {
           name: 'levelId',
@@ -232,7 +235,43 @@ class LevelsBlock extends React.Component {
         end: this.dragMoveEnd
       }
     });
+    FinancialCompanyService.getCompany().then(({ data }) => {
+      this.setState({ companies: data });
+    });
+    let notAssignedStaffs = [];
+    StaffService.getAdministrativeNotAssignedStaffs().then(({ data }) => {
+      notAssignedStaffs = data;
+      StaffService.getStaffsByIsAdministrativeLeader('yes').then(({ data }) => {
+        notAssignedStaffs = notAssignedStaffs.concat(data);
+        notAssignedStaffs.sort((a, b) => {
+          const textA = a.firstName.toUpperCase();
+          const textB = b.firstName.toUpperCase();
+          return textA < textB ? -1 : textA > textB ? 1 : 0;
+        });
+        console.log(notAssignedStaffs);
+        this.setState({
+          staffs: notAssignedStaffs,
+        });
+      });
+    });
+    console.log(notAssignedStaffs);
   }
+
+  handleChangeCompany = (ev, value) => {
+    console.log(value);
+    /*    this.setState({
+      company: value.name
+    }); */
+    this.setState({
+      oldCompany: value.financialCompanyId
+    });
+  };
+
+  handleChangeLevelType = (ev, value) => {
+    this.setState({
+      oldType: value.type
+    });
+  };
 
   dragMoveListener = event => {
     const { target } = event;
@@ -259,6 +298,7 @@ class LevelsBlock extends React.Component {
   };
 
   addStaffToLevel = event => {
+    console.log('addStaffToLevel');
     const {
       staffs,
       staffAssigned,
@@ -290,6 +330,7 @@ class LevelsBlock extends React.Component {
   };
 
   removeStaffFromLevel = event => {
+    console.log('removeStaffFromLevel');
     const {
       staffs, staffAssigned, levelStaffs, staffNotAssigned
     } = this.state;
@@ -319,6 +360,7 @@ class LevelsBlock extends React.Component {
   };
 
   handleOpenAssignation = level => {
+    console.log('handleOpenAssignation');
     const {
       getAllAdministrativeStructureAssignationHistoryByLevel
     } = this.props;
@@ -360,8 +402,13 @@ class LevelsBlock extends React.Component {
   };
 
   handleOpenEdit = tableMeta => {
+    staffList = [];
+    const { companies, staffs } = this.state;
+    console.log(staffs);
+    this.setState({
+      oldType: tableMeta.rowData[3]
+    });
     const { allAdministrativeStructureLevel } = this.props;
-    const { staffs } = this.state;
     const levelSelected = allAdministrativeStructureLevel.filter(
       level => level.levelId === tableMeta.rowData[0]
     )[0];
@@ -369,9 +416,10 @@ class LevelsBlock extends React.Component {
       levelSelected.levelId,
       'yes'
     ).then(({ data }) => {
-      const staffList = staffs;
+      //staffList = staffs;
+     // console.log(staffs);
       if (data[0]) {
-        staffList.push(data[0]);
+      //  staffList.push(data[0]);
       }
       this.setState({
         oldLeader: data[0],
@@ -380,8 +428,15 @@ class LevelsBlock extends React.Component {
         levelName: levelSelected.name,
         description: levelSelected.description,
         isLevelEdit: true,
-        staffs: staffList
+        //staffs: staffList,
       });
+      for (const key in companies) {
+        if (companies[key].name === tableMeta.rowData[4]) {
+          this.setState({
+            oldCompany: companies[key].financialCompanyId
+          });
+        }
+      }
     });
   };
 
@@ -485,6 +540,7 @@ class LevelsBlock extends React.Component {
       name: levelName,
       description,
       type: level.type,
+      companyId: level.companyId,
       oldLeaderId: oldLeader.staffId,
       newLeaderId: newLeader.staffId
     };
@@ -534,6 +590,7 @@ class LevelsBlock extends React.Component {
     });
   };
 
+
   render() {
     const {
       classes,
@@ -545,6 +602,8 @@ class LevelsBlock extends React.Component {
       logedUser
     } = this.props;
     const {
+      oldCompany,
+      oldType,
       isStaffAssignation,
       isLevelEdit,
       isLevelDelete,
@@ -561,7 +620,8 @@ class LevelsBlock extends React.Component {
       levelName,
       description,
       isViewHistory,
-      columns
+      columns,
+      companies,
     } = this.state;
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
@@ -597,7 +657,6 @@ class LevelsBlock extends React.Component {
       const textB = b.name.toUpperCase();
       return textA < textB ? -1 : textA > textB ? 1 : 0;
     });
-    console.log(staffs);
     return (
       <div>
         <Dialog
@@ -643,15 +702,64 @@ class LevelsBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-title">Edit Level</DialogTitle>
           <DialogContent>
-            <div style={{ width: '100%' }}>
-              <AutoComplete
-                value={this.handleValueChange}
-                placeholder="Level Name"
-                data={this.getLevels()}
-                type="levelName"
-                attribute="name"
-              />
-            </div>
+            {/*            <Autocomplete
+              id="company-combo-level"
+              options={levels}
+              getOptionLabel={option => option.type}
+              value={levels.find(v => v.type === oldType) || ''}
+              onChange={this.handleChangeLevelType}
+              style={{ width: '100%', marginTop: 7, marginBottom: 10 }}
+              clearOnEscape
+              renderInput={params => (
+                <TextField
+                  fullWidth
+                  {...params}
+                  label="Level type"
+                  variant="outlined"
+                />
+              )}
+            /> */}
+            <TextField
+              id="outlined-basic"
+              label="Level Type"
+              variant="outlined"
+              name="Leveltype"
+              value={oldType}
+              fullWidth
+              required
+              className={classes.textField}
+              /*  onChange={this.handleChange} */
+              style={{ marginBottom: 10 }}
+            />
+            <Autocomplete
+              id="company-combo-company"
+              options={companies}
+              getOptionLabel={option => option.name}
+              value={companies.find(v => v.financialCompanyId === oldCompany) || ''}
+              onChange={this.handleChangeCompany}
+              style={{ width: '100%', marginTop: 7, marginBottom: 10 }}
+              clearOnEscape
+              renderInput={params => (
+                <TextField
+                  fullWidth
+                  {...params}
+                  label="Company"
+                  variant="outlined"
+                />
+              )}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Level Name"
+              variant="outlined"
+              name="levelName"
+              value={levelName}
+              fullWidth
+              required
+              className={classes.textField}
+              onChange={this.handleChange}
+              style={{ marginBottom: 10 }}
+            />
             <TextField
               id="outlined-basic"
               label="Description"
@@ -790,7 +898,7 @@ class LevelsBlock extends React.Component {
                     }}
                     color="primary"
                   >
-                    Leader :
+                    Leader:
                   </Typography>
                   {leader ? (
                     <Tooltip
