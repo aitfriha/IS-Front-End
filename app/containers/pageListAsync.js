@@ -245,6 +245,10 @@ export const CommercialAction = Loadable({
   loader: () => import('./Pages/CommercialAction/index'),
   loading: Loading
 });
+export const AddCommercialAction = Loadable({
+  loader: () => import('./Pages/CommercialAction/addCommercialActions'),
+  loading: Loading
+});
 export const AddCommercialOperation = Loadable({
   loader: () => import('./Pages/CommercialOperation/addCommercialOperation'),
   loading: Loading

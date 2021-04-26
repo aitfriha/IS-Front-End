@@ -6,7 +6,7 @@ import CommercialActionsBlock from './commercialActionsBlock';
 
 class CommercialAction extends React.Component {
   render() {
-    const title = brand.name + ' - Clients';
+    const title = brand.name + ' - Commercial Actions';
     const description = brand.desc;
     return (
       <div>
@@ -19,7 +19,7 @@ class CommercialAction extends React.Component {
           <meta property="twitter:description" content={description} />
         </Helmet>
         <PapperBlock
-          title="Actions"
+          title="Commercial Actions"
           desc="commercial summary"
           icon="ios-people-outline"
           noMargin
