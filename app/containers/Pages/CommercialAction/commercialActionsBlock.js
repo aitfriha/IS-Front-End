@@ -196,6 +196,7 @@ class CommercialActionsBlock extends React.Component {
 
     activateLasers = (line) => {
       console.log(line);
+      const { commercialOperation } = line;
       this.setState({
         openPopUp: true,
         currentAction: line,
@@ -207,7 +208,8 @@ class CommercialActionsBlock extends React.Component {
         actionDates: line.actionDates,
         nbrConclusions: line.nbrConclusions,
         conclusions: line.conclusions,
-        actionTypeId: line.commercialActionType._id
+        actionTypeId: line.commercialActionType._id,
+        commercialOperation
       });
     };
 
@@ -221,12 +223,14 @@ class CommercialActionsBlock extends React.Component {
 
     handleSave = () => {
       const {
-        descriptions, objectifs, actionTypeId, contactsIds,
+        descriptions, objectifs, actionTypeId, contactsIds, commercialActionId, commercialOperation,
         nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
       } = this.state;
       const commercialActionType = { _id: actionTypeId };
       const CommercialAction = {
+        commercialActionId,
         commercialActionType,
+        commercialOperation,
         objectifs,
         descriptions,
         contactsIds,
@@ -328,7 +332,7 @@ class CommercialActionsBlock extends React.Component {
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const {
-        openPopUp, staffName, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff,
+        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
