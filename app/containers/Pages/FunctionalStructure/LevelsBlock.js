@@ -240,6 +240,21 @@ class LevelsBlock extends React.Component {
         end: this.dragMoveEnd
       }
     });
+    let notAssignedStaffs = [];
+    StaffService.getAdministrativeNotAssignedStaffs().then(({ data }) => {
+      notAssignedStaffs = data;
+      StaffService.getStaffsByIsAdministrativeLeader('yes').then(({ data }) => {
+        notAssignedStaffs = notAssignedStaffs.concat(data);
+        notAssignedStaffs.sort((a, b) => {
+          const textA = a.firstName.toUpperCase();
+          const textB = b.firstName.toUpperCase();
+          return textA < textB ? -1 : textA > textB ? 1 : 0;
+        });
+        this.setState({
+          staffs: notAssignedStaffs,
+        });
+      });
+    });
   }
 
   dragMoveListener = event => {
@@ -351,7 +366,6 @@ class LevelsBlock extends React.Component {
       });
     });
     StaffService.getStaffsByFunctionalLevel(levelId, 'yes').then(({ data }) => {
-      console.log(data);
       this.setState({
         isStaffAssignation: true,
         leader: data[0]
@@ -360,16 +374,19 @@ class LevelsBlock extends React.Component {
   };
 
   handleOpenEdit = tableMeta => {
+    console.log(tableMeta.rowData);
     const { allFunctionalStructureLevel } = this.props;
-    const { staffs } = this.state;
+    this.setState({
+      oldType: tableMeta.rowData[3]
+    });
     const levelSelected = allFunctionalStructureLevel.filter(
       level => level.levelId === tableMeta.rowData[0]
     )[0];
     StaffService.getStaffsByFunctionalLevel(levelSelected.levelId, 'yes').then(
       ({ data }) => {
-        const staffList = staffs;
+        // const staffList = staffs;
         if (data[0]) {
-          staffList.push(data[0]);
+          // staffList.push(data[0]);
         }
         this.setState({
           oldLeader: data[0],
@@ -380,7 +397,7 @@ class LevelsBlock extends React.Component {
           isProductionLevel: levelSelected.isProductionLevel,
           isCommercialLevel: levelSelected.isCommercialLevel,
           isLevelEdit: true,
-          staffs: staffList
+          // staffs: staffList
         });
       }
     );
@@ -569,6 +586,7 @@ class LevelsBlock extends React.Component {
       levelStaffs,
       originalLevelStaffs,
       staffAssigned,
+      oldType,
       level,
       levels,
       index1,
@@ -661,13 +679,40 @@ class LevelsBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-title">Edit Level</DialogTitle>
           <DialogContent>
-            <div style={{ width: '100%' }}>
+            {/*            <div style={{ width: '100%' }}>
               <AutoComplete
                 value={this.handleValueChange}
-                placeholder="Level Name"
+                placeholder="Level type"
                 data={this.getLevels()}
                 type="levelName"
                 attribute="name"
+              />
+            </div> */}
+            <TextField
+              id="outlined-basic"
+              label="Level Type"
+              variant="outlined"
+              name="Leveltype"
+              value={oldType}
+              fullWidth
+              required
+              className={classes.textField}
+              /*  onChange={this.handleChange} */
+              style={{ marginBottom: 10 }}
+            />
+
+            <div style={{ width: '100%' }}>
+              <TextField
+                id="outlined-basic"
+                label="Level Name"
+                variant="outlined"
+                name="levelName"
+                value={levelName}
+                fullWidth
+                required
+                className={classes.textField}
+                onChange={this.handleChange}
+                style={{ marginBottom: 10 }}
               />
             </div>
             <TextField
@@ -682,6 +727,28 @@ class LevelsBlock extends React.Component {
               onChange={this.handleChange}
               style={{ marginBottom: 10 }}
             />
+            {/*            <Autocomplete
+              id="combo-box-demo"
+              value={newLeader}
+              options={staffs}
+              getOptionLabel={option => `${option.firstName} ${option.fatherFamilyName} ${
+                option.motherFamilyName
+              }`
+              }
+              getOptionSelected={(option, value) => option.staffId === value.staffId
+              }
+              onChange={this.handleChangeLeader}
+              style={{ width: '100%', marginTop: 7, marginBottom: 10 }}
+              clearOnEscape
+              renderInput={params => (
+                <TextField
+                  fullWidth
+                  {...params}
+                  label="Leader"
+                  variant="outlined"
+                />
+              )}
+            /> */}
             <Autocomplete
               id="combo-box-demo"
               value={newLeader}

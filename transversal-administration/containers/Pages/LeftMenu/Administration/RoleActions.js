@@ -460,27 +460,22 @@ class RoleActions extends React.Component {
 
   componentDidMount() {
     const {
-      getAllRoles, getAllSubjects, getAllActions, actions,
+      getAllRoles, getAllSubjects, getAllActions, location
     } = this.props;
     getAllRoles();
     getAllSubjects();
     getAllActions();
-    // console.log(this.props.location.state.actions);
-    if (!isEmpty(this.props.location.state)) {
-      this.setState({ roleName: this.props.location.state.UserRole });
-      this.setState({ oldRoleName: this.props.location.state.UserRole });
-      this.setState({ roleDescription: this.props.location.state.roleDescription });
-      for (const key in this.props.location.state.actions) {
-        this.setState({ [key]: this.props.location.state.actions[key] });
+    if (!isEmpty(location.state)) {
+      this.setState({ roleName: location.state.UserRole });
+      this.setState({ oldRoleName: location.state.UserRole });
+      this.setState({ roleDescription: location.state.roleDescription });
+      for (const key in location.state.actions) {
+        this.setState({ [key]: location.state.actions[key] });
       }
     }
   }
 
-     handleChange = (event) => {
-       this.setState({ [event.target.name]: event.target.checked });
-     };
-
-  handleChangeRoleName= (event) => {
+  handleChangeRoleName= event => {
     this.setState({ [event.target.name]: event.target.value });
   };
 
@@ -490,6 +485,10 @@ class RoleActions extends React.Component {
 
   handleChangeDescription = (event) => {
     this.setState({ [event.target.name]: event.target.value });
+  };
+
+  handleChange = (event) => {
+    this.setState({ [event.target.name]: event.target.checked });
   };
 
   handleChangeRole = (event) => {
