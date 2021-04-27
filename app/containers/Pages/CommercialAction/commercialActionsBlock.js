@@ -36,7 +36,7 @@ import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialActionService from '../../Services/CommercialActionService';
 import ActionTypeService from '../../Services/ActionTypeService';
 import history from '../../../utils/history';
-import BillService from '../../Services/BillService';
+import AssignmentService from '../../Services/AssignmentService';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -64,6 +64,7 @@ class CommercialActionsBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      staffAssign: [],
       currentAction: [],
       actionTypes: [],
       commercialActions: [],
@@ -82,6 +83,9 @@ class CommercialActionsBlock extends React.Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line react/prop-types
+    const { logedUser } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
@@ -112,8 +116,22 @@ class CommercialActionsBlock extends React.Component {
       });
       this.setState({ actionTypes: result.data });
     });
-    CommercialActionService.getCommercialAction2().then(result => {
-      this.setState({ commercialActions: result.data.payload });
+    AssignmentService.getAssignments().then(result => {
+      const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
+      this.setState({ staffAssign });
+      CommercialActionService.getCommercialAction2().then(result2 => {
+        const tab = [];
+        // eslint-disable-next-line array-callback-return
+        result2.data.payload.map(row => {
+          // eslint-disable-next-line array-callback-return
+          staffAssign.map(line => {
+            if (row.commercialOperation.client._id === line.client._id) {
+              tab.push(row);
+            }
+          });
+        });
+        this.setState({ commercialActions: tab });
+      });
     });
     interact('.resize-drag')
       .draggable({
@@ -492,6 +510,7 @@ class CommercialActionsBlock extends React.Component {
                           <ExpansionPanelDetails>
                             {
                               currentAction.contacts ? currentAction.contacts.map((clt) => (
+                                // eslint-disable-next-line jsx-a11y/label-has-associated-control,jsx-a11y/label-has-for
                                 <label>
                                   <input
                                     type="checkbox"

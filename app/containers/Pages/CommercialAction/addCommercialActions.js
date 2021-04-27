@@ -97,6 +97,12 @@ class AddCommercialAction extends React.Component {
   }
 
   componentDidMount() {
+    let respoNumber = 0;
+    let respoAssistance = 0;
+    // eslint-disable-next-line react/prop-types
+    const { logedUser } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    console.log(thelogedUser);
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
@@ -110,8 +116,18 @@ class AddCommercialAction extends React.Component {
       this.setState({ operations: result.data.payload });
     });
     AssignmentService.getAssignments().then(result => {
-      console.log(result);
-      this.setState({ assignments: result.data });
+      const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
+      console.log(staffAssign);
+      // eslint-disable-next-line array-callback-return
+      staffAssign.map(row => {
+        // eslint-disable-next-line no-plusplus
+        if (row.typeStaff === 'Responsible Commercial') respoNumber++;
+        // eslint-disable-next-line no-plusplus
+        if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
+      });
+      this.setState({
+        assignments: result.data, staffName: staffAssign[0].staff.fullName, staffId: staffAssign[0].staff.staffId, staffAssign, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
+      });
     });
     ActionTypeService.getActionType().then(result => {
       this.setState({ actionTypes: result.data });
@@ -131,25 +147,6 @@ class AddCommercialAction extends React.Component {
       // this.setState(prevState => ({ contactsIds: prevState.contactsIds.set(item, isChecked) }));
       console.log(isChecked);
       console.log(item);
-    }
-
-    handleChangeStaff = (ev, value) => {
-      // eslint-disable-next-line react/destructuring-assignment
-      const assig = this.state.assignments;
-      let respoNumber = 0;
-      let respoAssistance = 0;
-      const staffAssign = assig.filter(row => (row.staff.staffId === value.staffId));
-      console.log(staffAssign);
-      // eslint-disable-next-line array-callback-return
-      staffAssign.map(row => {
-        // eslint-disable-next-line no-plusplus
-        if (row.typeStaff === 'Responsible Commercial') respoNumber++;
-        // eslint-disable-next-line no-plusplus
-        if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
-      });
-      this.setState({
-        staffAssign, staffName: value.firstName + ' ' + value.fatherFamilyName + ' ' + value.motherFamilyName, staffId: value.staffId, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
-      });
     }
 
     handleChangeClient = (ev, value) => {
@@ -287,30 +284,6 @@ class AddCommercialAction extends React.Component {
                 </IconButton>
               </Grid>
             </Grid>
-            <Grid
-              container
-              spacing={2}
-              alignItems="flex-start"
-              direction="row"
-              justify="center"
-            >
-              <Grid item xs={12} md={6} sm={6}>
-                <Autocomplete
-                  id="combo-box-demo"
-                  options={staffs}
-                  getOptionLabel={option => (option ? option.firstName + ' ' + option.fatherFamilyName + ' ' + option.motherFamilyName : '')}
-                  onChange={this.handleChangeStaff}
-                  renderInput={params => (
-                    <TextField
-                      fullWidth
-                      {...params}
-                      label="Select the staff*"
-                      variant="outlined"
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid>
             <br />
             <Grid
               container
@@ -345,34 +318,30 @@ class AddCommercialAction extends React.Component {
               </Grid>
             </Grid>
             <br />
-            {
-              staffId !== '' ? (
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="flex-start"
-                  direction="row"
-                  justify="center"
-                >
-                  <Grid item xs={12} md={6} sm={6}>
-                    <Autocomplete
-                      id="combo-box-demo"
-                      options={staffAssign}
-                      getOptionLabel={option => (option ? option.client.name : '')}
-                      onChange={this.handleChangeClient}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          label="Select the Client *"
-                          variant="outlined"
-                        />
-                      )}
+            <Grid
+              container
+              spacing={2}
+              alignItems="flex-start"
+              direction="row"
+              justify="center"
+            >
+              <Grid item xs={12} md={6} sm={6}>
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={staffAssign}
+                  getOptionLabel={option => (option ? option.client.name : '')}
+                  onChange={this.handleChangeClient}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Select the Client *"
+                      variant="outlined"
                     />
-                  </Grid>
-                </Grid>
-              ) : (<div />)
-            }
+                  )}
+                />
+              </Grid>
+            </Grid>
             <br />
             {clientId !== '' ? (
               <Grid
