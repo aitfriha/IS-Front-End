@@ -87,6 +87,8 @@ class AddCommercialAction extends React.Component {
       actionDescriptions: [],
       actionDates: [],
       contactsIds: [],
+      nbrConclusions: ['1'],
+      conclusions: [],
       clientId: '',
       clientName: '',
       expanded: false,
@@ -144,9 +146,6 @@ class AddCommercialAction extends React.Component {
       const newContact = { _id: item, checked: isChecked };
       // eslint-disable-next-line react/destructuring-assignment
       this.state.contactsIds.push(newContact);
-      // this.setState(prevState => ({ contactsIds: prevState.contactsIds.set(item, isChecked) }));
-      console.log(isChecked);
-      console.log(item);
     }
 
     handleChangeClient = (ev, value) => {
@@ -174,7 +173,7 @@ class AddCommercialAction extends React.Component {
     handleSave = () => {
       const {
         descriptions, objectifs, currentOperation, actionTypeId, contactsIds,
-        nbrActions, actionDescriptions, actionDates
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
       } = this.state;
       const commercialOperation = currentOperation;
       commercialOperation._id = currentOperation.commercialOperationId;
@@ -185,6 +184,8 @@ class AddCommercialAction extends React.Component {
         objectifs,
         descriptions,
         contactsIds,
+        nbrConclusions,
+        conclusions,
         nbrActions,
         actionDescriptions,
         actionDates
@@ -245,6 +246,35 @@ class AddCommercialAction extends React.Component {
       history.push('/app/commercial-action');
     }
 
+    handleConclusion = (event, row) => {
+      if (event.target.name === 'conclusions') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.conclusions;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ conclusions: tab });
+      }
+    }
+
+    handleAddConclusion = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newElement = this.state.nbrConclusions.length + 1;
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.nbrConclusions.push(newElement);
+      this.setState({ openDoc: true });
+    }
+
+    handleDeleteConclusion = (row) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      if (this.state.nbrConclusions.length > 1) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs = this.state.nbrConclusions.filter(rows => rows !== row);
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs2 = this.state.conclusions.filter((e, i) => i !== (row));
+        this.setState({ nbrConclusions: newDocs, conclusions: newDocs2 });
+      }
+    }
+
     render() {
       console.log(this.state);
       // eslint-disable-next-line react/prop-types
@@ -252,8 +282,8 @@ class AddCommercialAction extends React.Component {
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const {
-        numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
+        numberClientResponsible, numberClientAssistant, openPopUp, nbrConclusions, conclusions,
+        status, staffAssign, operationsAssign, staffName, clientId, currentOperation,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
@@ -546,7 +576,7 @@ class AddCommercialAction extends React.Component {
                             <ExpansionPanelDetails>
                               {
                                 currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
-                                // eslint-disable-next-line jsx-a11y/label-has-for
+                                  // eslint-disable-next-line jsx-a11y/label-has-for,jsx-a11y/label-has-associated-control
                                   <label>
                                     <input
                                       type="checkbox"
@@ -622,6 +652,49 @@ class AddCommercialAction extends React.Component {
                         </Grid>
                       </Grid>
                       <br />
+                      {nbrConclusions.map((row) => (
+                        <Grid
+                          container
+                          spacing={2}
+                          alignItems="flex-start"
+                          direction="row"
+                          align="center"
+                        >
+                          <Grid item xs={0} />
+                          <Grid item xs={2} align="center">
+                            <Typography variant="subtitle2" component="h3" color="grey">
+                              <br />
+                                Conclusion
+                              {' '}
+                              { row }
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={7}>
+                            <TextField
+                              id="conclusions"
+                              label="Description"
+                              name="conclusions"
+                              value={conclusions[row]}
+                              multiline
+                              onChange={event => this.handleConclusion(event, row)}
+                              fullWidth
+                              required
+                              InputLabelProps={{
+                                shrink: true,
+                              }}
+                            />
+                          </Grid>
+                          <Grid xs={2}>
+                            <br />
+                            <IconButton size="medium" color="primary" onClick={() => this.handleAddConclusion()}>
+                              <AddIcon />
+                            </IconButton>
+                            <IconButton size="small" color="primary" onClick={() => this.handleDeleteConclusion(row)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Grid>
+                        </Grid>
+                      ))}
                       <br />
                       {nbrActions.map((row) => (
                         <Grid
@@ -681,7 +754,6 @@ class AddCommercialAction extends React.Component {
                           </Grid>
                         </Grid>
                       ))}
-                      <br />
                     </Card>
                   </Grid>
                 </Grid>
