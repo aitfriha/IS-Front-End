@@ -248,13 +248,11 @@ class LevelsBlock extends React.Component {
           const textB = b.firstName.toUpperCase();
           return textA < textB ? -1 : textA > textB ? 1 : 0;
         });
-        console.log(notAssignedStaffs);
         this.setState({
           staffs: notAssignedStaffs,
         });
       });
     });
-    console.log(notAssignedStaffs);
   }
 
   handleChangeCompany = (ev, value) => {
@@ -403,8 +401,7 @@ class LevelsBlock extends React.Component {
 
   handleOpenEdit = tableMeta => {
     staffList = [];
-    const { companies, staffs } = this.state;
-    console.log(staffs);
+    const { companies } = this.state;
     this.setState({
       oldType: tableMeta.rowData[3]
     });
