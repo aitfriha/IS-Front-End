@@ -87,6 +87,8 @@ class AddCommercialAction extends React.Component {
       actionDescriptions: [],
       actionDates: [],
       contactsIds: [],
+      nbrConclusions: ['1'],
+      conclusions: [],
       clientId: '',
       clientName: '',
       expanded: false,
@@ -97,6 +99,12 @@ class AddCommercialAction extends React.Component {
   }
 
   componentDidMount() {
+    let respoNumber = 0;
+    let respoAssistance = 0;
+    // eslint-disable-next-line react/prop-types
+    const { logedUser } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
+    console.log(thelogedUser);
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
@@ -110,8 +118,18 @@ class AddCommercialAction extends React.Component {
       this.setState({ operations: result.data.payload });
     });
     AssignmentService.getAssignments().then(result => {
-      console.log(result);
-      this.setState({ assignments: result.data });
+      const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
+      console.log(staffAssign);
+      // eslint-disable-next-line array-callback-return
+      staffAssign.map(row => {
+        // eslint-disable-next-line no-plusplus
+        if (row.typeStaff === 'Responsible Commercial') respoNumber++;
+        // eslint-disable-next-line no-plusplus
+        if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
+      });
+      this.setState({
+        assignments: result.data, staffName: staffAssign[0].staff.fullName, staffId: staffAssign[0].staff.staffId, staffAssign, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
+      });
     });
     ActionTypeService.getActionType().then(result => {
       this.setState({ actionTypes: result.data });
@@ -128,28 +146,6 @@ class AddCommercialAction extends React.Component {
       const newContact = { _id: item, checked: isChecked };
       // eslint-disable-next-line react/destructuring-assignment
       this.state.contactsIds.push(newContact);
-      // this.setState(prevState => ({ contactsIds: prevState.contactsIds.set(item, isChecked) }));
-      console.log(isChecked);
-      console.log(item);
-    }
-
-    handleChangeStaff = (ev, value) => {
-      // eslint-disable-next-line react/destructuring-assignment
-      const assig = this.state.assignments;
-      let respoNumber = 0;
-      let respoAssistance = 0;
-      const staffAssign = assig.filter(row => (row.staff.staffId === value.staffId));
-      console.log(staffAssign);
-      // eslint-disable-next-line array-callback-return
-      staffAssign.map(row => {
-        // eslint-disable-next-line no-plusplus
-        if (row.typeStaff === 'Responsible Commercial') respoNumber++;
-        // eslint-disable-next-line no-plusplus
-        if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
-      });
-      this.setState({
-        staffAssign, staffName: value.firstName + ' ' + value.fatherFamilyName + ' ' + value.motherFamilyName, staffId: value.staffId, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
-      });
     }
 
     handleChangeClient = (ev, value) => {
@@ -177,7 +173,7 @@ class AddCommercialAction extends React.Component {
     handleSave = () => {
       const {
         descriptions, objectifs, currentOperation, actionTypeId, contactsIds,
-        nbrActions, actionDescriptions, actionDates
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
       } = this.state;
       const commercialOperation = currentOperation;
       commercialOperation._id = currentOperation.commercialOperationId;
@@ -188,6 +184,8 @@ class AddCommercialAction extends React.Component {
         objectifs,
         descriptions,
         contactsIds,
+        nbrConclusions,
+        conclusions,
         nbrActions,
         actionDescriptions,
         actionDates
@@ -248,6 +246,35 @@ class AddCommercialAction extends React.Component {
       history.push('/app/commercial-action');
     }
 
+    handleConclusion = (event, row) => {
+      if (event.target.name === 'conclusions') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.conclusions;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ conclusions: tab });
+      }
+    }
+
+    handleAddConclusion = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newElement = this.state.nbrConclusions.length + 1;
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.nbrConclusions.push(newElement);
+      this.setState({ openDoc: true });
+    }
+
+    handleDeleteConclusion = (row) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      if (this.state.nbrConclusions.length > 1) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs = this.state.nbrConclusions.filter(rows => rows !== row);
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs2 = this.state.conclusions.filter((e, i) => i !== (row));
+        this.setState({ nbrConclusions: newDocs, conclusions: newDocs2 });
+      }
+    }
+
     render() {
       console.log(this.state);
       // eslint-disable-next-line react/prop-types
@@ -255,8 +282,8 @@ class AddCommercialAction extends React.Component {
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const {
-        numberClientResponsible, numberClientAssistant, openPopUp,
-        staffs, status, staffId, staffAssign, operationsAssign, staffName, clientId, currentOperation,
+        numberClientResponsible, numberClientAssistant, openPopUp, nbrConclusions, conclusions,
+        status, staffAssign, operationsAssign, staffName, clientId, currentOperation,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
@@ -285,30 +312,6 @@ class AddCommercialAction extends React.Component {
                 <IconButton onClick={() => this.handleGoBack()}>
                   <KeyboardBackspaceIcon color="secondary" />
                 </IconButton>
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              spacing={2}
-              alignItems="flex-start"
-              direction="row"
-              justify="center"
-            >
-              <Grid item xs={12} md={6} sm={6}>
-                <Autocomplete
-                  id="combo-box-demo"
-                  options={staffs}
-                  getOptionLabel={option => (option ? option.firstName + ' ' + option.fatherFamilyName + ' ' + option.motherFamilyName : '')}
-                  onChange={this.handleChangeStaff}
-                  renderInput={params => (
-                    <TextField
-                      fullWidth
-                      {...params}
-                      label="Select the staff*"
-                      variant="outlined"
-                    />
-                  )}
-                />
               </Grid>
             </Grid>
             <br />
@@ -345,34 +348,30 @@ class AddCommercialAction extends React.Component {
               </Grid>
             </Grid>
             <br />
-            {
-              staffId !== '' ? (
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="flex-start"
-                  direction="row"
-                  justify="center"
-                >
-                  <Grid item xs={12} md={6} sm={6}>
-                    <Autocomplete
-                      id="combo-box-demo"
-                      options={staffAssign}
-                      getOptionLabel={option => (option ? option.client.name : '')}
-                      onChange={this.handleChangeClient}
-                      renderInput={params => (
-                        <TextField
-                          fullWidth
-                          {...params}
-                          label="Select the Client *"
-                          variant="outlined"
-                        />
-                      )}
+            <Grid
+              container
+              spacing={2}
+              alignItems="flex-start"
+              direction="row"
+              justify="center"
+            >
+              <Grid item xs={12} md={6} sm={6}>
+                <Autocomplete
+                  id="combo-box-demo"
+                  options={staffAssign}
+                  getOptionLabel={option => (option ? option.client.name : '')}
+                  onChange={this.handleChangeClient}
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Select the Client *"
+                      variant="outlined"
                     />
-                  </Grid>
-                </Grid>
-              ) : (<div />)
-            }
+                  )}
+                />
+              </Grid>
+            </Grid>
             <br />
             {clientId !== '' ? (
               <Grid
@@ -577,7 +576,7 @@ class AddCommercialAction extends React.Component {
                             <ExpansionPanelDetails>
                               {
                                 currentOperation.contactDtos ? currentOperation.contactDtos.map((clt) => (
-                                // eslint-disable-next-line jsx-a11y/label-has-for
+                                  // eslint-disable-next-line jsx-a11y/label-has-for,jsx-a11y/label-has-associated-control
                                   <label>
                                     <input
                                       type="checkbox"
@@ -653,6 +652,49 @@ class AddCommercialAction extends React.Component {
                         </Grid>
                       </Grid>
                       <br />
+                      {nbrConclusions.map((row) => (
+                        <Grid
+                          container
+                          spacing={2}
+                          alignItems="flex-start"
+                          direction="row"
+                          align="center"
+                        >
+                          <Grid item xs={0} />
+                          <Grid item xs={2} align="center">
+                            <Typography variant="subtitle2" component="h3" color="grey">
+                              <br />
+                                Conclusion
+                              {' '}
+                              { row }
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={7}>
+                            <TextField
+                              id="conclusions"
+                              label="Description"
+                              name="conclusions"
+                              value={conclusions[row]}
+                              multiline
+                              onChange={event => this.handleConclusion(event, row)}
+                              fullWidth
+                              required
+                              InputLabelProps={{
+                                shrink: true,
+                              }}
+                            />
+                          </Grid>
+                          <Grid xs={2}>
+                            <br />
+                            <IconButton size="medium" color="primary" onClick={() => this.handleAddConclusion()}>
+                              <AddIcon />
+                            </IconButton>
+                            <IconButton size="small" color="primary" onClick={() => this.handleDeleteConclusion(row)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Grid>
+                        </Grid>
+                      ))}
                       <br />
                       {nbrActions.map((row) => (
                         <Grid
@@ -712,7 +754,6 @@ class AddCommercialAction extends React.Component {
                           </Grid>
                         </Grid>
                       ))}
-                      <br />
                     </Card>
                   </Grid>
                 </Grid>

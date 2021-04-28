@@ -36,7 +36,7 @@ import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialActionService from '../../Services/CommercialActionService';
 import ActionTypeService from '../../Services/ActionTypeService';
 import history from '../../../utils/history';
-import BillService from '../../Services/BillService';
+import AssignmentService from '../../Services/AssignmentService';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -64,6 +64,7 @@ class CommercialActionsBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      staffAssign: [],
       currentAction: [],
       actionTypes: [],
       commercialActions: [],
@@ -71,6 +72,8 @@ class CommercialActionsBlock extends React.Component {
       actionDescriptions: [],
       actionDates: [],
       contactsIds: [],
+      nbrConclusions: ['1'],
+      conclusions: [],
       descriptions: '',
       actionTypeId: '',
       objectifs: '',
@@ -82,6 +85,9 @@ class CommercialActionsBlock extends React.Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line react/prop-types
+    const { logedUser } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
@@ -112,8 +118,22 @@ class CommercialActionsBlock extends React.Component {
       });
       this.setState({ actionTypes: result.data });
     });
-    CommercialActionService.getCommercialAction2().then(result => {
-      this.setState({ commercialActions: result.data.payload });
+    AssignmentService.getAssignments().then(result => {
+      const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
+      this.setState({ staffAssign, connectedStaff: thelogedUser.userFullName });
+      CommercialActionService.getCommercialAction2().then(result2 => {
+        const tab = [];
+        // eslint-disable-next-line array-callback-return
+        result2.data.payload.map(row => {
+          // eslint-disable-next-line array-callback-return
+          staffAssign.map(line => {
+            if (row.commercialOperation.client._id === line.client._id) {
+              tab.push(row);
+            }
+          });
+        });
+        this.setState({ commercialActions: tab });
+      });
     });
     interact('.resize-drag')
       .draggable({
@@ -176,8 +196,20 @@ class CommercialActionsBlock extends React.Component {
 
     activateLasers = (line) => {
       console.log(line);
+      const { commercialOperation } = line;
       this.setState({
-        openPopUp: true, currentAction: line, objectifs: line.objectifs, descriptions: line.descriptions, actionDescriptions: line.actionDescriptions, actionDates: line.actionDates, nbrActions: line.nbrActions, actionTypeId: line.commercialActionType._id
+        openPopUp: true,
+        currentAction: line,
+        commercialActionId: line._id,
+        objectifs: line.objectifs,
+        descriptions: line.descriptions,
+        nbrActions: line.nbrActions,
+        actionDescriptions: line.actionDescriptions,
+        actionDates: line.actionDates,
+        nbrConclusions: line.nbrConclusions,
+        conclusions: line.conclusions,
+        actionTypeId: line.commercialActionType._id,
+        commercialOperation
       });
     };
 
@@ -191,18 +223,22 @@ class CommercialActionsBlock extends React.Component {
 
     handleSave = () => {
       const {
-        descriptions, objectifs, actionTypeId, contactsIds,
-        nbrActions, actionDescriptions, actionDates
+        descriptions, objectifs, actionTypeId, contactsIds, commercialActionId, commercialOperation,
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
       } = this.state;
       const commercialActionType = { _id: actionTypeId };
       const CommercialAction = {
+        commercialActionId,
         commercialActionType,
+        commercialOperation,
         objectifs,
         descriptions,
         contactsIds,
         nbrActions,
         actionDescriptions,
-        actionDates
+        actionDates,
+        nbrConclusions,
+        conclusions
       };
       console.log(CommercialAction);
       CommercialActionService.saveCommercialAction(CommercialAction).then(result => {
@@ -253,6 +289,35 @@ class CommercialActionsBlock extends React.Component {
       history.push('/app/commercial-action/Add-Action');
     }
 
+    handleConclusion = (event, row) => {
+      if (event.target.name === 'conclusions') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const tab = this.state.conclusions;
+        tab[0] = 0;
+        tab[row] = event.target.value;
+        this.setState({ conclusions: tab });
+      }
+    }
+
+    handleAddConclusion = () => {
+      // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+      const newElement = this.state.nbrConclusions.length + 1;
+      // eslint-disable-next-line react/destructuring-assignment
+      this.state.nbrConclusions.push(newElement);
+      this.setState({ openDoc: true });
+    }
+
+    handleDeleteConclusion = (row) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      if (this.state.nbrConclusions.length > 1) {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs = this.state.nbrConclusions.filter(rows => rows !== row);
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const newDocs2 = this.state.conclusions.filter((e, i) => i !== (row));
+        this.setState({ nbrConclusions: newDocs, conclusions: newDocs2 });
+      }
+    }
+
     handleDelete = (id) => {
       console.log(id);
       CommercialActionService.deleteCommercialAction(id).then(result => {
@@ -267,7 +332,7 @@ class CommercialActionsBlock extends React.Component {
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const {
-        openPopUp, staffName, commercialActions, currentAction,
+        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
@@ -319,7 +384,9 @@ class CommercialActionsBlock extends React.Component {
                                 €
                               </IconButton>
                             )}
-                            title={staffName}
+                            variant="subtitle1"
+                            color="primary"
+                            title={connectedStaff}
                           />
                           <CardContent>
                             <Box fontWeight={500}>
@@ -348,6 +415,12 @@ class CommercialActionsBlock extends React.Component {
                             <br />
                             <Typography variant="body1" color="textSecondary" component="p">
                               {line.objectifs ? line.objectifs : ''}
+                            </Typography>
+                            <br />
+                            Conclusion:
+                            <br />
+                            <Typography variant="body1" color="textSecondary" component="p">
+                              {line.conclusions ? line.conclusions[1] : ''}
                             </Typography>
                             <br />
                             Next Action:
@@ -427,7 +500,7 @@ class CommercialActionsBlock extends React.Component {
                             <CardHeader
                               variant="subtitle1"
                               color="primary"
-                              title="y"
+                              title={connectedStaff}
                             />
                           </Grid>
                         </Grid>
@@ -492,6 +565,7 @@ class CommercialActionsBlock extends React.Component {
                           <ExpansionPanelDetails>
                             {
                               currentAction.contacts ? currentAction.contacts.map((clt) => (
+                                // eslint-disable-next-line jsx-a11y/label-has-associated-control,jsx-a11y/label-has-for
                                 <label>
                                   <input
                                     type="checkbox"
@@ -568,6 +642,49 @@ class CommercialActionsBlock extends React.Component {
                       </Grid>
                     </Grid>
                     <br />
+                    {nbrConclusions.map((row) => (
+                      <Grid
+                        container
+                        spacing={2}
+                        alignItems="flex-start"
+                        direction="row"
+                        align="center"
+                      >
+                        <Grid item xs={0} />
+                        <Grid item xs={2} align="center">
+                          <Typography variant="subtitle2" component="h3" color="grey">
+                            <br />
+                              Conclusion
+                            {' '}
+                            { row }
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={7}>
+                          <TextField
+                            id="conclusions"
+                            label="Description"
+                            name="conclusions"
+                            value={conclusions[row]}
+                            multiline
+                            onChange={event => this.handleConclusion(event, row)}
+                            fullWidth
+                            required
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Grid>
+                        <Grid xs={2}>
+                          <br />
+                          <IconButton size="medium" color="primary" onClick={() => this.handleAddConclusion()}>
+                            <AddIcon />
+                          </IconButton>
+                          <IconButton size="small" color="primary" onClick={() => this.handleDeleteConclusion(row)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
                     <br />
                     {nbrActions.map((row) => (
                       <Grid
