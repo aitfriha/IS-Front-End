@@ -7,9 +7,6 @@ import { connect } from 'react-redux';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver';
 import {
   Avatar,
   Chip,
@@ -19,18 +16,11 @@ import {
   DialogTitle, Divider,
   FormControl, InputLabel,
   TextField,
-  Typography
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Radio from '@material-ui/core/Radio';
 import Checkbox from '@material-ui/core/Checkbox';
 import { makeStyles } from '@material-ui/core/styles';
-import AutoComplete from '../../../../../app/components/AutoComplete';
 import { getAllDepartments } from '../../../../redux/departments/actions';
 import { getAllRoles } from '../../../../redux/rolesAbilities/actions';
 import {
@@ -59,7 +49,6 @@ class User extends React.Component {
       motherFamilyName: '',
       userEmail: '',
       openPopUp: false,
-      client: '',
       staff: '',
       role: [],
       companies: [],
@@ -166,6 +155,7 @@ class User extends React.Component {
 
   componentDidMount() {
     const {
+      // eslint-disable-next-line no-shadow
       getAllUsers, getAllRoles, getAllDepartments, getAllClient, changeTheme
     } = this.props;
     changeTheme('purpleRedTheme');
@@ -187,62 +177,34 @@ class User extends React.Component {
 
       return lookupRole;
     };
-    const subjectColumnLookupAdapterDepartment = (allDepartments) => {
-      const lookupDepartment = {};
-      allDepartments.forEach(m => {
-        lookupDepartment[m.departmentCode] = m.departmentCode;
-      });
-      return lookupDepartment;
-    };
-    /* const subjectColumnLookupAdapterLanguage = (languages) => {
-            const lookupLanguage = {};
-            ['en-US', ...props.systemTranslateLanguages].map(e => (e));
-            languages.forEach(e => {
-                lookupLanguage[e] = e;
-            });
-            return lookupLanguage;
-        }; */
-
-
     if (!isEmpty(props.allRoles) || !isEmpty(props.allDepartments)) {
       state.columns.find(e => e.field === 'userRolesIds').lookup = subjectColumnLookupAdapterRole(props.allRoles);
-      //  state.columns.find(e => e.field === 'userCountryLanguage').lookup = subjectColumnLookupAdapterLanguage(['en-US', ...props.systemTranslateLanguages]);
       return state.columns;
     }
-    /* if (!isEmpty(props.allDepartments)) {
-            state.columns.find(e => e.field === 'userDepartment').lookup = subjectColumnLookupAdapter2(props.allDepartments);
-            return state.columns;
-        } */
-
-    // Return null if the state hasn't changed
     return null;
   }
 
-    selectedRows = (rows) => {
-      this.setState({ openPopUp: true });
-      /* const listClientToUpdate = rows.map((row) => row.clientId);
-        this.setState({ listClientToUpdate });
-        this.setState({ openPopUp: true });
-        this.setState({ display: 'none' }); */
-    };
 
     handleCloseDelete= () => {
       this.setState({ openPopUp: false });
-    };
+    }
 
-  handleChangePassword= (event) => {
+  selectedRows = () => {
+    this.setState({ openPopUp: true });
+  }
+
+  /*  handleChangePassword= (event) => {
     this.setState({ userPassword: event.target.value });
-  };
+  } */
 
-    handleChangeActif = (event) => {
+    handleChangeActif = () => {
       const { actif } = this.state;
       console.log(!actif);
       console.log(React.version);
       this.setState({ actif: !actif });
-    };
+    }
 
     handleChangeCompany = (ev) => {
-      const { allClients } = this.props;
       this.setState({ [ev.target.name]: ev.target.value });
       StaffService.getAllStaffsByCompany(ev.target.value).then(result => {
         console.log(result.data);
@@ -253,9 +215,9 @@ class User extends React.Component {
     handleChangeStaff= (ev) => {
       const { xclients } = this.state;
       this.setState({ [ev.target.name]: ev.target.value });
+      // eslint-disable-next-line no-restricted-syntax
       for (const key in xclients) {
         if (xclients[key].staffId === ev.target.value) {
-          console.log(xclients[key]);
           this.setState({ firstName: xclients[key].firstName });
           this.setState({ fatherFamilyName: xclients[key].fatherFamilyName });
           this.setState({ motherFamilyName: xclients[key].motherFamilyName });
@@ -266,8 +228,6 @@ class User extends React.Component {
     }
 
   handleChangeRoles= (ev) => {
-    const { xclients } = this.state;
-    console.log(ev.target.value);
     this.setState({ [ev.target.name]: ev.target.value });
   }
 
@@ -307,7 +267,7 @@ class User extends React.Component {
 
   render() {
     const {
-      allUsers, addUser, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, allClients, logedUser, allRoles
+      allUsers, errors, isLoading, userResponse, getAllUsers, updateUser, deleteUser, logedUser, allRoles
     } = this.props;
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
@@ -315,7 +275,7 @@ class User extends React.Component {
       exportButton = true;
     }
     const {
-      columns, openPopUp, client, actif, companies, company, xclients, staff,
+      columns, openPopUp, actif, companies, company, xclients, staff,
       firstName,
       fatherFamilyName,
       motherFamilyName,
@@ -399,7 +359,7 @@ class User extends React.Component {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
-              newData.userRolesIds = [newData.userRolesIds];
+            //  newData.userRolesIds = [newData.userRolesIds];
               updateUser(newData);
               this.editingPromiseResolveEdit = resolve;
             }).then((result) => {
