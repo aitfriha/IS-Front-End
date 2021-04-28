@@ -72,6 +72,7 @@ class CommercialActionsBlock extends React.Component {
       actionDescriptions: [],
       actionDates: [],
       contactsIds: [],
+      newcontactsIds: [],
       nbrConclusions: ['1'],
       conclusions: [],
       descriptions: '',
@@ -190,12 +191,19 @@ class CommercialActionsBlock extends React.Component {
       const isChecked = event.target.checked;
       const item = event.target.value;
       const newContact = { _id: item, checked: isChecked };
+      // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+      this.state.currentAction.contacts.map(row => {
+        if (row._id === item) row.checked = isChecked;
+      });
       // eslint-disable-next-line react/destructuring-assignment
-      this.state.contactsIds.push(newContact);
+      this.state.newcontactsIds.push(newContact);
+      this.setState({ openPopUp: true });
     }
 
     activateLasers = (line) => {
       console.log(line);
+      // eslint-disable-next-line array-callback-return
+      line.contacts.map(row => { row.checked = true; });
       const { commercialOperation } = line;
       this.setState({
         openPopUp: true,
@@ -209,6 +217,7 @@ class CommercialActionsBlock extends React.Component {
         nbrConclusions: line.nbrConclusions,
         conclusions: line.conclusions,
         actionTypeId: line.commercialActionType._id,
+        contactsIds: line.contacts,
         commercialOperation
       });
     };
@@ -222,10 +231,12 @@ class CommercialActionsBlock extends React.Component {
     };
 
     handleSave = () => {
+      let { contactsIds } = this.state;
       const {
-        descriptions, objectifs, actionTypeId, contactsIds, commercialActionId, commercialOperation,
-        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
+        descriptions, objectifs, actionTypeId, commercialActionId, commercialOperation,
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions, newcontactsIds
       } = this.state;
+      contactsIds = newcontactsIds;
       const commercialActionType = { _id: actionTypeId };
       const CommercialAction = {
         commercialActionId,
@@ -240,10 +251,8 @@ class CommercialActionsBlock extends React.Component {
         nbrConclusions,
         conclusions
       };
-      console.log(CommercialAction);
-      CommercialActionService.saveCommercialAction(CommercialAction).then(result => {
-        console.log(result);
-        this.setState({ openPopUp: false });
+      CommercialActionService.updateCommercialAction(CommercialAction).then(result => {
+        this.setState({ openPopUp: false, commercialActions: result.data.payload });
       });
     }
 
@@ -571,7 +580,7 @@ class CommercialActionsBlock extends React.Component {
                                     type="checkbox"
                                     value={clt._id}
                                     onChange={this.handleCheckBox}
-                                    checked
+                                    checked={clt.checked}
                                   />
                                   {clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
                                 </label>
