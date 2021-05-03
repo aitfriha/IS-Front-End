@@ -64,6 +64,7 @@ class CommercialActionsBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      actionCanceledId: '',
       staffAssign: [],
       currentAction: [],
       actionTypes: [],
@@ -72,6 +73,7 @@ class CommercialActionsBlock extends React.Component {
       actionDescriptions: [],
       actionDates: [],
       contactsIds: [],
+      newcontactsIds: [],
       nbrConclusions: ['1'],
       conclusions: [],
       descriptions: '',
@@ -80,7 +82,8 @@ class CommercialActionsBlock extends React.Component {
       expanded: false,
       display: 'flex',
       openPopUpImport: false,
-      openPopUp: false
+      openPopUp: false,
+      openWarning: false
     };
   }
 
@@ -190,12 +193,19 @@ class CommercialActionsBlock extends React.Component {
       const isChecked = event.target.checked;
       const item = event.target.value;
       const newContact = { _id: item, checked: isChecked };
+      // eslint-disable-next-line array-callback-return,react/destructuring-assignment
+      this.state.currentAction.contacts.map(row => {
+        if (row._id === item) row.checked = isChecked;
+      });
       // eslint-disable-next-line react/destructuring-assignment
-      this.state.contactsIds.push(newContact);
+      this.state.newcontactsIds.push(newContact);
+      this.setState({ openPopUp: true });
     }
 
     activateLasers = (line) => {
       console.log(line);
+      // eslint-disable-next-line array-callback-return
+      line.contacts.map(row => { row.checked = true; });
       const { commercialOperation } = line;
       this.setState({
         openPopUp: true,
@@ -209,6 +219,7 @@ class CommercialActionsBlock extends React.Component {
         nbrConclusions: line.nbrConclusions,
         conclusions: line.conclusions,
         actionTypeId: line.commercialActionType._id,
+        contactsIds: line.contacts,
         commercialOperation
       });
     };
@@ -218,14 +229,20 @@ class CommercialActionsBlock extends React.Component {
     };
 
     handleClose = () => {
-      this.setState({ openPopUp: false });
+      this.setState({ openPopUp: false, openWarning: false });
     };
 
     handleSave = () => {
+      let { contactsIds } = this.state;
       const {
-        descriptions, objectifs, actionTypeId, contactsIds, commercialActionId, commercialOperation,
-        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
+        descriptions, objectifs, actionTypeId, commercialActionId, commercialOperation, currentAction,
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions, newcontactsIds
       } = this.state;
+      if (newcontactsIds.length === 0) {
+        contactsIds = currentAction.contacts;
+      } else {
+        contactsIds = newcontactsIds;
+      }
       const commercialActionType = { _id: actionTypeId };
       const CommercialAction = {
         commercialActionId,
@@ -240,10 +257,8 @@ class CommercialActionsBlock extends React.Component {
         nbrConclusions,
         conclusions
       };
-      console.log(CommercialAction);
-      CommercialActionService.saveCommercialAction(CommercialAction).then(result => {
-        console.log(result);
-        this.setState({ openPopUp: false });
+      CommercialActionService.updateCommercialAction(CommercialAction).then(result => {
+        this.setState({ openPopUp: false, commercialActions: result.data.payload });
       });
     }
 
@@ -320,8 +335,32 @@ class CommercialActionsBlock extends React.Component {
 
     handleDelete = (id) => {
       console.log(id);
-      CommercialActionService.deleteCommercialAction(id).then(result => {
-        this.setState({ commercialActions: result.data });
+      this.setState({ openWarning: true, actionCanceledId: id });
+    }
+
+    handleReplaceAction = () => {
+      const {
+        actionCanceledId, actionTypes, commercialActions
+      } = this.state;
+      let actionCanceled;
+      // eslint-disable-next-line array-callback-return
+      actionTypes.map(row => {
+        if (row.percentage === 0) actionCanceled = row;
+      });
+      // eslint-disable-next-line array-callback-return
+      commercialActions.map(line => {
+        if (line._id === actionCanceledId) {
+          // eslint-disable-next-line array-callback-return
+          line.contacts.map(row => { row.checked = true; });
+          line.contactsIds = line.contacts;
+          line.commercialActionType._id = actionCanceled.actionTypeId;
+          line.commercialActionId = line._id;
+          console.log(line);
+          CommercialActionService.updateCommercialAction(line).then(result => {
+            console.log(result);
+            this.setState({ openWarning: false, commercialActions: result.data.payload });
+          });
+        }
       });
     }
 
@@ -332,7 +371,7 @@ class CommercialActionsBlock extends React.Component {
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const {
-        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff,
+        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff, openWarning,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
       } = this.state;
       const { classes } = this.props;
@@ -571,7 +610,7 @@ class CommercialActionsBlock extends React.Component {
                                     type="checkbox"
                                     value={clt._id}
                                     onChange={this.handleCheckBox}
-                                    checked
+                                    checked={clt.checked}
                                   />
                                   {clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
                                 </label>
@@ -755,6 +794,42 @@ class CommercialActionsBlock extends React.Component {
               </Button>
               <Button variant="contained" color="primary" type="button" onClick={this.handleSave}>
                 Save
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={openWarning}
+            keepMounted
+            scroll="paper"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth=""
+            maxWidth=""
+          >
+            <DialogTitle id="alert-dialog-slide-title"> Operation Denied </DialogTitle>
+            <DialogContent dividers>
+              <Typography
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  opacity: 0.4,
+                  marginRight: 20,
+                  width: '100%'
+                }}
+              >
+                You cannot delete a commercial action. If you want to force delete,
+                this action will be moved to canceled actions.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button color="secondary" onClick={this.handleClose}>
+                Cancel
+              </Button>
+              <Button variant="contained" color="primary" onClick={this.handleReplaceAction}>
+                Delete
               </Button>
             </DialogActions>
           </Dialog>
