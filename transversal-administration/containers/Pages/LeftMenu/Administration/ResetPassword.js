@@ -8,8 +8,11 @@ import { ResetForm } from 'dan-components';
 import styles from '../../../../../app/components/Forms/user-jss';
 
 class ResetPassword extends React.Component {
-  state = {
-    valueForm: []
+  constructor(props) {
+    super(props);
+    this.state = {
+      valueForm: []
+    }
   }
 
   submitForm(values) {

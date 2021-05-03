@@ -193,18 +193,18 @@ export const AbsenceConsult = Loadable({
   loader: () => import('./Pages/AbsenceConsult'),
   loading: Loading
 });
-export const CountryConfig = Loadable({
+/*export const CountryConfig = Loadable({
   loader: () => import('./Pages/Configurations/Country'),
   loading: Loading
-});
+});*/
 export const Assignments = Loadable({
   loader: () => import('./Pages/Assignments'),
   loading: Loading
 });
-export const AddCountry = Loadable({
+/*export const AddCountry = Loadable({
   loader: () => import('./Pages/Configurations/Country/addCountry'),
   loading: Loading
-});
+});*/
 export const CommercialAssignment = Loadable({
   loader: () => import('./Pages/Assignments/Commercial'),
   loading: Loading

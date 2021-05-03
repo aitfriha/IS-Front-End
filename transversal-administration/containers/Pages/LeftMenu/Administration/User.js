@@ -155,7 +155,6 @@ class User extends React.Component {
 
   componentDidMount() {
     const {
-      // eslint-disable-next-line no-shadow
       getAllUsers, getAllRoles, getAllDepartments, getAllClient, changeTheme
     } = this.props;
     changeTheme('purpleRedTheme');
@@ -184,13 +183,12 @@ class User extends React.Component {
     return null;
   }
 
-
-    handleCloseDelete= () => {
-      this.setState({ openPopUp: false });
-    }
-
   selectedRows = () => {
     this.setState({ openPopUp: true });
+  }
+
+  handleCloseDelete= () => {
+    this.setState({ openPopUp: false });
   }
 
   /*  handleChangePassword= (event) => {
