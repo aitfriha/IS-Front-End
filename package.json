@@ -91,7 +91,6 @@
     ]
   },
   "dependencies": {
-    "@amcharts/amcharts4-geodata": "^4.1.14",
     "@babel/plugin-proposal-export-default-from": "^7.2.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
     "@babel/polyfill": "7.4.3",
@@ -184,7 +183,6 @@
     "react-helmet": "6.0.0-beta",
     "react-html5video": "^2.5.1",
     "react-image-lightbox": "^5.1.1",
-    "react-image-video-lightbox": "^2.0.4",
     "react-images": "^1.1.7",
     "react-intl": "2.8.0",
     "react-ionicons": "^2.1.6",

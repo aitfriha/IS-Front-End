@@ -307,16 +307,16 @@ function Application(props) {
           path="/app/gestion-commercial/clients/assignments"
           component={Assignments}
         />
-        <Route
+        {/*        <Route
           exact
           path="/app/configurations/countries"
           component={CountryConfig}
-        />
-        <Route
+        /> */}
+        {/*        <Route
           exact
           path="/app/configurations/country"
           component={AddCountry}
-        />
+        /> */}
         <Route
           exact
           path="/app/configurations/assignments/commercial-assignment"

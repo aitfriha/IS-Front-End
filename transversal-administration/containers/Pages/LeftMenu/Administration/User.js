@@ -34,7 +34,6 @@ import { getAllClient } from '../../../../../app/redux/client/actions';
 import FinancialCompanyService from '../../../../../app/containers/Services/FinancialCompanyService';
 import StaffService from '../../../../../app/containers/Services/StaffService';
 import { ThemeContext } from '../../../../../app/containers/App/ThemeWrapper';
-
 const useStyles = makeStyles();
 class User extends React.Component {
   constructor(props) {
@@ -173,7 +172,6 @@ class User extends React.Component {
       allRoles.forEach(m => {
         lookupRole[m.roleName] = m.roleName;
       });
-
       return lookupRole;
     };
     if (!isEmpty(props.allRoles) || !isEmpty(props.allDepartments)) {
@@ -183,13 +181,17 @@ class User extends React.Component {
     return null;
   }
 
-  selectedRows = () => {
+    handleChangeRoles= (ev) => {
+      this.setState({ [ev.target.name]: ev.target.value });
+    };
+
+  selectedRows = (data) => {
     this.setState({ openPopUp: true });
-  }
+  };
 
   handleCloseDelete= () => {
     this.setState({ openPopUp: false });
-  }
+  };
 
   /*  handleChangePassword= (event) => {
     this.setState({ userPassword: event.target.value });
@@ -197,18 +199,15 @@ class User extends React.Component {
 
     handleChangeActif = () => {
       const { actif } = this.state;
-      console.log(!actif);
-      console.log(React.version);
       this.setState({ actif: !actif });
-    }
+    };
 
     handleChangeCompany = (ev) => {
       this.setState({ [ev.target.name]: ev.target.value });
       StaffService.getAllStaffsByCompany(ev.target.value).then(result => {
-        console.log(result.data);
         this.setState({ xclients: result.data });
       });
-    }
+    };
 
     handleChangeStaff= (ev) => {
       const { xclients } = this.state;
@@ -223,11 +222,7 @@ class User extends React.Component {
           break;
         }
       }
-    }
-
-  handleChangeRoles= (ev) => {
-    this.setState({ [ev.target.name]: ev.target.value });
-  }
+    };
 
   addUser = () => {
     const {
@@ -261,7 +256,7 @@ class User extends React.Component {
       }
     });
     this.setState({ openPopUp: false });
-  }
+  };
 
   render() {
     const {
@@ -357,7 +352,7 @@ class User extends React.Component {
               // newData.userDepartment = newData.userDepartment.departmentCode;
               // update User action
               console.log(newData);
-            //  newData.userRolesIds = [newData.userRolesIds];
+              //  newData.userRolesIds = [newData.userRolesIds];
               updateUser(newData);
               this.editingPromiseResolveEdit = resolve;
             }).then((result) => {
