@@ -37,6 +37,7 @@ import CommercialActionService from '../../Services/CommercialActionService';
 import ActionTypeService from '../../Services/ActionTypeService';
 import history from '../../../utils/history';
 import AssignmentService from '../../Services/AssignmentService';
+// import style from './action-jss';
 const styles = theme => ({
   root: {
     maxWidth: 345,
@@ -57,6 +58,44 @@ const styles = theme => ({
   },
   avatar: {
     backgroundColor: red[500],
+  },
+  outerDropzone: {
+    height: '140px',
+  },
+  innerDropzone: {
+    height: '140px',
+  },
+  dropTarget: {
+    backgroundColor: '#29e',
+    borderColor: '#fff',
+    borderStyle: 'solid',
+  },
+  dropZone: {
+    backgroundColor: '#bfe4ff',
+    margin: '10px auto 30px',
+    padding: '10px',
+    width: '80%',
+    transition: 'background-color 0.3s',
+  },
+  dropActive: {
+    backgroundColor: '#29e',
+    borderColor: '#fff',
+    borderStyle: 'solid',
+  },
+  canDrop: {
+    color: '#000',
+    backgroundColor: '#4e4',
+  },
+  dragDrop: {
+    display: 'inline-block',
+    minWidth: '40px',
+    padding: '2em 0.5em',
+    margin: '1rem 0 0 1rem',
+    color: '#fff',
+    backgroundColor: '#29e',
+    border: 'solid 2px #fff',
+    touchAction: 'none',
+    transition: 'background-color 0.3s',
   },
 });
 const useStyles = makeStyles(styles);
@@ -88,6 +127,11 @@ class CommercialActionsBlock extends React.Component {
   }
 
   componentDidMount() {
+    let newCommercialActionType;
+    let currentActionId;
+    let nextActionTypeTitle;
+    let commercialActionsTab;
+    let actionTypesTab;
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
@@ -119,6 +163,7 @@ class CommercialActionsBlock extends React.Component {
         if (row.percentage > 90 && row.percentage <= 95) row.color = 'rgb(154,200,122)';
         if (row.percentage > 95 && row.percentage <= 100) row.color = 'rgb(120,182,89)';
       });
+      actionTypesTab = result.data;
       this.setState({ actionTypes: result.data });
     });
     AssignmentService.getAssignments().then(result => {
@@ -130,14 +175,14 @@ class CommercialActionsBlock extends React.Component {
         result2.data.payload.map(row => {
           // eslint-disable-next-line array-callback-return
           staffAssign.map(line => {
-            if (row.commercialOperation.client._id === line.client._id) {
-              tab.push(row);
-            }
+            if (row.commercialOperation.client._id === line.client._id) tab.push(row);
           });
         });
+        commercialActionsTab = tab;
         this.setState({ commercialActions: tab });
       });
     });
+
     interact('.resize-drag')
       .draggable({
         // enable autoScroll
@@ -169,6 +214,69 @@ class CommercialActionsBlock extends React.Component {
             target.setAttribute('data-y', y);
           }
         },
+      });
+    interact('.dropzone').dropzone({
+      // only accept elements matching this CSS selector
+      accept: '#yes-drop',
+      // Require a 75% element overlap for a drop to be possible
+      overlap: 0.10,
+
+      // listen for drop related events:
+
+      ondropactivate(event) {
+        // add active dropzone feedback
+        event.target.classList.add('dropActive');
+      },
+      ondragenter(event) {
+        currentActionId = event.relatedTarget.firstChild.id;
+        nextActionTypeTitle = event.currentTarget.innerText;
+        console.log('Dragged in');
+      },
+      // eslint-disable-next-line no-unused-vars
+      ondragleave(event) {
+        // event.relatedTarget.textContent = 'Dragged out';
+        console.log('Dragged out');
+      },
+      // eslint-disable-next-line no-unused-vars
+      ondrop(event) {
+        // event.relatedTarget.textContent = 'Dropped';
+        console.log('droppped');
+      },
+      ondropdeactivate(event) {
+        console.log(event);
+        // eslint-disable-next-line array-callback-return
+        actionTypesTab.map(row => {
+          if ((row.typeName + ' ' + row.percentage + ' %') === nextActionTypeTitle) {
+            newCommercialActionType = { _id: row.actionTypeId };
+            // eslint-disable-next-line array-callback-return
+            commercialActionsTab.map(line => {
+              if (line._id === currentActionId) {
+                // eslint-disable-next-line array-callback-return
+                line.contacts.map(column => { column.checked = true; });
+                line.contactsIds = line.contacts;
+                line.commercialActionId = line._id;
+                line.commercialActionType = newCommercialActionType;
+                CommercialActionService.updateCommercialAction(line).then(result => {
+                  this.setState({ commercialActions: result.data.payload });
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+    interact('.drag-drop')
+      .draggable({
+        inertia: true,
+        modifiers: [
+          interact.modifiers.restrictRect({
+            restriction: 'parent',
+            endOnly: true
+          })
+        ],
+        autoScroll: true,
+        // dragMoveListener from the dragging demo above
+        listeners: { move: this.dragMoveListener }
       });
   }
 
@@ -393,7 +501,16 @@ class CommercialActionsBlock extends React.Component {
           >
             {actionTypes.map((row) => (
               <Grid item xs={12} md={4}>
-                <div id={row.actionTypeId} className="drop-zone">
+                <div
+                  id="outerDropzone"
+                  className="dropzone"
+                  style={{
+                    backgroundColor: '#b999ff',
+                    padding: '10px',
+                    width: '100%',
+                    height: '15%',
+                  }}
+                >
                   <Chip
                     label={row.typeName + ' ' + row.percentage + ' %'}
                     color="default"
@@ -405,9 +522,9 @@ class CommercialActionsBlock extends React.Component {
                   />
                 </div>
                 {commercialActions.map((line) => (
-                  <div>
+                  <div id={line._id}>
                     {line.commercialActionType._id === row.actionTypeId ? (
-                      <div id={line._id} className="resize-drag">
+                      <div id="yes-drop" className="drag-drop">
                         {/* eslint-disable-next-line react/jsx-no-bind */}
                         <Card id={line._id} className={classes.root} style={{ cursor: 'pointer', maxWidth: 'fit-content' }}>
                           <CardHeader

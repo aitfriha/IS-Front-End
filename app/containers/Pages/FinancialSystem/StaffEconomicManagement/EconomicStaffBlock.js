@@ -129,7 +129,7 @@ class EconomicStaffBlock extends React.Component {
             customBodyRender: (staff) => (
               <React.Fragment>
                 {
-                  staff.firstName
+                  staff ? staff.firstName : ''
                 }
               </React.Fragment>
             )
@@ -830,6 +830,7 @@ class EconomicStaffBlock extends React.Component {
         extraordinaryDate, extraordinaryExpenses, extraordinaryObjectives, extraordinaryExpensesEuro, extraordinaryObjectivesEuro,
         currencies, currencyId, currencyCode
       } = this.state;
+      console.log(datas);
       const {
         logedUser
       } = this.props;
