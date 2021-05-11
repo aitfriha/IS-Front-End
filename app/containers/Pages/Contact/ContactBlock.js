@@ -388,7 +388,7 @@ class ContactBlock extends React.Component {
     getAllStateByCountry(data[21]);
     this.setState({ openPopUp: true });
     getAllCityByState(data[22]); */
-
+   // console.log(data);
     const { allContacts, getAllStateByCountry, getAllCityByState } = this.props;
     for (const key in allContacts) {
       if (allContacts[key].contactId === data[0]) {

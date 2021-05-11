@@ -79,6 +79,7 @@ class EditContact extends React.Component {
     const {
       getAllCountry, selectedContact, getAllStateByCountry, getAllClient,getAllCivilityTitleStatus
     } = this.props;
+    console.log("selectedContact");
     console.log(selectedContact);
     getAllCountry();
     // console.log(selectedContact)
@@ -92,7 +93,7 @@ class EditContact extends React.Component {
   }
 
   handleChange = ev => {
-    console.log(ev.target.name);
+   // console.log(ev.target.name);
     this.setState({ [ev.target.name]: ev.target.value });
   };
 
@@ -134,10 +135,9 @@ class EditContact extends React.Component {
     if (newProps.selectedContact !== this.props.selectedContact) {
       // console.log(newProps.selectedClient);
       for (const key in newProps.allCivilityTitles) {
-        console.log(newProps.allCivilityTitles[key].name);
-        console.log(newProps.selectedContact.civilityName);
+       // console.log(newProps.allCivilityTitles[key].name);
+        //console.log(newProps.selectedContact.civilityName);
         if (newProps.allCivilityTitles[key].name === newProps.selectedContact.civilityName) {
-          console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
           this.setState({ keycivility: newProps.allCivilityTitles[key] });
           break;
         }
@@ -145,7 +145,7 @@ class EditContact extends React.Component {
     }
     if (newProps.allStateCountrys === this.props.allStateCountrys) {
       for (const key in newProps.allStateCountrys) {
-        console.log(newProps.allStateCountrys);
+      //  console.log(newProps.allStateCountrys);
         if (newProps.allStateCountrys[key].stateCountryId === newProps.selectedContact.countryStateId) {
           this.setState({ keyState: newProps.allStateCountrys[key] });
           break;
@@ -176,6 +176,8 @@ class EditContact extends React.Component {
   handleChangeCivility = (ev, value) => {
     this.setState({ civilityId: value.civilityTitleId });
     this.setState({ keycivility: value });
+    console.log("keycivility");
+    console.log(value);
   };
 
   handleChangeState = (ev, value) => {
@@ -208,7 +210,8 @@ class EditContact extends React.Component {
       fullAddress,
       postCode,
       keyClient,
-      contactId
+      contactId,
+      civilityId
     } = this.state;
 
 
@@ -229,6 +232,7 @@ class EditContact extends React.Component {
       fullAddress,
       postCode,
       contactId,
+      civilityId,
       companyId: keyClient.clientId
     };
     console.log(contact);
@@ -311,8 +315,8 @@ class EditContact extends React.Component {
     } = this.state;
     (!isLoadingContact && contactResponse) && this.editingPromiseResolve(contactResponse);
     (!isLoadingContact && !contactResponse) && this.editingPromiseResolve(errorsContact);
-    console.log(allCivilityTitles);
-    console.log(keycivility);
+   // console.log(allCivilityTitles);
+    //console.log(keycivility);
     return (
       <div>
         <Dialog
