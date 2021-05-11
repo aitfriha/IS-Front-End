@@ -1,27 +1,17 @@
 import React from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
-import MaterialTable, { MTableEditField } from 'material-table';
 import { PropTypes } from 'prop-types';
 import { bindActionCreators } from 'redux';
 import {
-  isString, isEmpty, uniq, map, find, capitalize, isBoolean, pickBy
+  isString, isEmpty
 } from 'lodash';
 import { connect } from 'react-redux';
-import Grid from '@material-ui/core/Grid';
-import Chip from '@material-ui/core/Chip';
-import Icon from '@material-ui/core/Icon';
-import { red, teal } from '@material-ui/core/colors';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -29,7 +19,7 @@ import SendIcon from '@material-ui/icons/Send';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import { Button, InputLabel } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import { addAction, getAllActions } from '../../../../redux/actions/actions';
 import { getAllSubjects } from '../../../../redux/subjects/actions';
@@ -37,7 +27,6 @@ import notification from '../../../../../app/components/Notification/Notificatio
 import {
   addRole, deleteRole, getAllRoles, updateRole, addRoleAbilities
 } from '../../../../redux/rolesAbilities/actions';
-import ClientBlockMapped from '../../../../../app/containers/Pages/Clients/ClientBlock';
 import PapperBlock from '../../../../../app/components/PapperBlock/PapperBlock';
 const styles = (theme) => ({
   gridItemMargin: {
@@ -475,7 +464,7 @@ class RoleActions extends React.Component {
     }
   }
 
-  handleChangeRoleName= event => {
+  handleChangeRoleName= (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
 
@@ -491,13 +480,8 @@ class RoleActions extends React.Component {
     this.setState({ [event.target.name]: event.target.checked });
   };
 
-  handleChangeRole = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
-    console.log(event.target.value);
-  };
-
   handleSubmit = () => {
-    const { addAction, addRole } = this.props;
+    const { addRole } = this.props;
     const {
       roleName,
       oldRoleName,
