@@ -52,6 +52,7 @@ class AddContract extends React.Component {
       clients: [],
       operation: '',
       operations: [],
+      commercialOperations: [],
       company: '',
       state: '',
       status: [],
@@ -162,6 +163,11 @@ class AddContract extends React.Component {
 
     handleChange = (ev) => {
       let changeFactor;
+      if (ev.target.name === 'client') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const commercialOperations = this.state.operations.filter(row => row.client._id === ev.target.value);
+        this.setState({ commercialOperations });
+      }
       if (ev.target.name === 'currencyId') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const tradeValue = this.state.contractTradeVolume;
@@ -628,7 +634,7 @@ class AddContract extends React.Component {
     const {
       client, operation, company, state, taxeIdentityNumber, nbrConcepts, radio, status, currencies, contractTitle,
       conceptType, conceptValue, conceptValueEuro, conceptValueLocal, conceptTotalAmount, conceptTotalAmountEuro,
-      signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies, operations, clients, contractTradeVolumeEuro,
+      signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies, commercialOperations, clients, contractTradeVolumeEuro,
       penaltyMaxType, currencyId, currencyCode, paymentsBDDays, penalties, penaltyQuantity, penaltyValue, levels, amountInsuredEuro,
       penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, purchaseOrders,
       insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption
@@ -693,7 +699,7 @@ class AddContract extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      operations.map((clt) => (
+                      commercialOperations.map((clt) => (
                         <MenuItem key={clt.commercialOperationId} value={clt.commercialOperationId}>
                           {clt.name}
                         </MenuItem>

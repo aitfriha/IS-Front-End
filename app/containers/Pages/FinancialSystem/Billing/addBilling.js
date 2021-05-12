@@ -47,9 +47,11 @@ class AddBilling extends React.Component {
       clients: [],
       companies: [],
       operations: [],
+      commercialOperations: [],
       currencies: [],
       ivaStates: [],
       contracts: [],
+      clientContracts: [],
       ivas: [],
       ivasCountries: [],
       financialContractId: '',
@@ -126,6 +128,11 @@ class AddBilling extends React.Component {
   };
 
     handleChange = (ev) => {
+      if (ev.target.name === 'clientId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const commercialOperations = this.state.operations.filter(row => row.client._id === ev.target.value); const clientContracts = this.state.contracts.filter(row => row.client._id === ev.target.value);
+        this.setState({ commercialOperations, clientContracts });
+      }
       if (ev.target.name === 'reelPaymentDay') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         this.setState({ paymentDone: true });
@@ -141,6 +148,14 @@ class AddBilling extends React.Component {
         });
         this.setState({
           valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local - ((iva * local) / 100), totalAmountEuro: (local - ((iva * local) / 100)) * factor
+        });
+      }
+      if (ev.target.name === 'ivaCountry') {
+        const country = ev.target.value;
+        console.log(country);
+        IvaService.getIvaStates(country).then(result => {
+          console.log(result.data);
+          this.setState({ ivaStates: result.data });
         });
       }
       if (ev.target.name === 'localCurrency') {
@@ -164,14 +179,6 @@ class AddBilling extends React.Component {
           });
         });
         this.setState({ financialContractId: id });
-      }
-      if (ev.target.name === 'ivaCountry') {
-        const country = ev.target.value;
-        console.log(country);
-        IvaService.getIvaStates(country).then(result => {
-          console.log(result.data);
-          this.setState({ ivaStates: result.data });
-        });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
@@ -295,7 +302,7 @@ class AddBilling extends React.Component {
           label: '2',
         }];
       const {
-        code, invoiceDate, contractor, clients, companies, operations, currencies, ivasCountries, ivaStates, contracts,
+        code, invoiceDate, contractor, clients, companies, commercialOperations, currencies, ivasCountries, ivaStates, clientContracts,
         clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDone, reelPaymentDay,
         totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
@@ -427,7 +434,7 @@ class AddBilling extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      operations.map((type) => (
+                      commercialOperations.map((type) => (
                         <MenuItem key={type.commercialOperationId} value={type.commercialOperationId}>
                           {type.name}
                         </MenuItem>
@@ -463,7 +470,7 @@ class AddBilling extends React.Component {
                     onChange={this.handleChange}
                   >
                     {
-                      contracts.map((type) => (
+                      clientContracts.map((type) => (
                         type.purchaseOrderNumber.filter(rowi => rowi !== '0').map((row) => (
                           <MenuItem key={type.financialContractId} value={row}>
                             {row}

@@ -39,10 +39,13 @@ class EditBill extends React.Component {
       clients: [],
       companies: [],
       operations: [],
+      commercialOperations: [],
       currencies: [],
       ivaStates: [],
       contracts: [],
+      clientContracts: [],
       ivas: [],
+      ivasCountries: [],
       financialContractId: '',
       clientContractSigned: '',
       commercialOperationId: '',
@@ -82,16 +85,21 @@ class EditBill extends React.Component {
       this.setState({ companies: result.data });
     });
     CommercialOperationService.getCommercialOperation().then(result => {
-      this.setState({ operations: result.data.payload });
+      this.setState({ operations: result.data.payload, commercialOperations: result.data.payload });
     });
     ClientService.getClients().then(result => {
       this.setState({ clients: result.data.payload });
     });
     IvaService.getIva().then(result => {
+      console.log(result.data);
       this.setState({ ivas: result.data });
     });
+    IvaService.getIvaCountries().then(result => {
+      console.log(result.data);
+      this.setState({ ivasCountries: result.data });
+    });
     ContractService.getContract().then(result => {
-      this.setState({ contracts: result.data });
+      this.setState({ contracts: result.data, clientContracts: result.data });
     });
   }
 
@@ -109,6 +117,7 @@ class EditBill extends React.Component {
         financialContractId: bill.financialContract._id,
         clientContractSigned: bill.clientSigned._id,
         localCurrency: bill.currency._id,
+        factor: bill.currency.changeFactor,
         purchaseOrderNumber: bill.purchaseOrderNumber,
         totalEuro: bill.totalEuro,
         totalLocal: bill.totalLocal,
@@ -148,6 +157,11 @@ class EditBill extends React.Component {
     };
 
     handleChange = (ev) => {
+      if (ev.target.name === 'clientId') {
+        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
+        const commercialOperations = this.state.operations.filter(row => row.client._id === ev.target.value); const clientContracts = this.state.contracts.filter(row => row.client._id === ev.target.value);
+        this.setState({ commercialOperations, clientContracts });
+      }
       if (ev.target.name === 'reelPaymentDay') {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         this.setState({ paymentDone: true });
@@ -318,7 +332,7 @@ class EditBill extends React.Component {
           label: '2',
         }];
       const {
-        code, invoiceDate, contractor, clients, companies, operations, currencies, ivas, ivaStates, contracts,
+        code, invoiceDate, contractor, clients, companies, commercialOperations, currencies, ivasCountries, ivaStates, clientContracts,
         clientId, commercialOperationId, clientContractSigned, purchaseOrderNumber, nbrConcepts, paymentDone, reelPaymentDay,
         totalEuro, totalLocal, ivaCountry, ivaState, valueIVALocal, valueIVAEuro, totalAmountEuro, totalAmountLocal, localCurrency, desc, descTotalUSD
       } = this.state;
@@ -431,7 +445,7 @@ class EditBill extends React.Component {
                   onChange={this.handleChange}
                 >
                   {
-                    operations.map((type) => (
+                    commercialOperations.map((type) => (
                       <MenuItem key={type.commercialOperationId} value={type.commercialOperationId}>
                         {type.name}
                       </MenuItem>
@@ -467,7 +481,7 @@ class EditBill extends React.Component {
                   onChange={this.handleChange}
                 >
                   {
-                    contracts.map((type) => (
+                    clientContracts.map((type) => (
                       type.purchaseOrderNumber.filter(rowi => rowi !== '0').map((row) => (
                         <MenuItem key={type.financialContractId} value={row}>
                           {row}
@@ -617,9 +631,9 @@ class EditBill extends React.Component {
                   onChange={this.handleChange}
                 >
                   {
-                    ivas.map((clt) => (
-                      <MenuItem key={clt.stateCountry.country.countryName} value={clt.stateCountry.country.countryName}>
-                        {clt.stateCountry.country.countryName}
+                    ivasCountries.map((clt) => (
+                      <MenuItem key={clt} value={clt}>
+                        {clt}
                       </MenuItem>
                     ))
                   }
