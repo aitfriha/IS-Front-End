@@ -215,6 +215,7 @@ class CommercialActionsBlock extends React.Component {
           }
         },
       });
+    let newData;
     interact('.dropzone').dropzone({
       // only accept elements matching this CSS selector
       accept: '#yes-drop',
@@ -257,6 +258,7 @@ class CommercialActionsBlock extends React.Component {
                 line.commercialActionId = line._id;
                 line.commercialActionType = newCommercialActionType;
                 CommercialActionService.updateCommercialAction(line).then(result => {
+                  newData = result.data.payload;
                   this.setState({ commercialActions: result.data.payload });
                 });
               }
@@ -508,7 +510,7 @@ class CommercialActionsBlock extends React.Component {
                     backgroundColor: '#b999ff',
                     padding: '10px',
                     width: '100%',
-                    height: '15%',
+                    height: '13%',
                   }}
                 >
                   <Chip

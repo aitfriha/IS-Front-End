@@ -41,7 +41,7 @@ class ExternalSuppliersBlock extends React.Component {
       postCode: '',
       fullAddress: '',
       taxNumber: '',
-      URL: '',
+      url: '',
       openPopUp: false,
       addressId: '',
       datas: [],
@@ -451,7 +451,7 @@ class ExternalSuppliersBlock extends React.Component {
         firstName: result.data.firstName,
         fatherFamilyName: result.data.fatherFamilyName,
         motherFamilyName: result.data.motherFamilyName,
-        URL: result.data.url,
+        url: result.data.url,
         address: result.data.address,
         addressId: result.data.address.addressId,
         postCode: result.data.address.postCode,
@@ -474,14 +474,14 @@ class ExternalSuppliersBlock extends React.Component {
 
   handleSave = () => {
     const {
-      externalSupplierId, code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, URL
+      externalSupplierId, code, companyName, firstName, fatherFamilyName, motherFamilyName, email, currentCity, postCode, fullAddress, taxNumber, url, addressId
     } = this.state;
     const city = { _id: currentCity };
     const address = {
-      postCode, city, fullAddress
+      addressId, postCode, city, fullAddress
     };
     const ExternalSupplier = {
-      externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, URL, taxNumber, email, address
+      externalSupplierId, companyName, code, firstName, fatherFamilyName, motherFamilyName, url, taxNumber, email, address
     };
     ExternalSuppliersService.updateExternalSuppliers(ExternalSupplier).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
@@ -525,7 +525,7 @@ class ExternalSuppliersBlock extends React.Component {
     const {
       datas, columns, openPopUp,
       code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
-      postCode, fullAddress, taxNumber, URL
+      postCode, fullAddress, taxNumber, url
     } = this.state;
     const options = {
       filter: true,
@@ -664,8 +664,8 @@ class ExternalSuppliersBlock extends React.Component {
                 <TextField
                   label="Company URL"
                   variant="outlined"
-                  name="URL"
-                  value={URL}
+                  name="url"
+                  value={url}
                   required
                   fullWidth
                   onChange={this.handleChange}

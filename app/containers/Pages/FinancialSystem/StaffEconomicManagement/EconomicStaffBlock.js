@@ -93,8 +93,8 @@ class EconomicStaffBlock extends React.Component {
               <React.Fragment>
                 <IconButton>
                   <RadioButtonUncheckedIcon style={{
-                    backgroundColor: lowDate ? 'red' : '',
-                    color: lowDate ? 'red' : '',
+                    backgroundColor: lowDate ? 'red' : 'green',
+                    color: lowDate ? 'red' : 'green',
                     borderRadius: '100%'
                   }}
                   />

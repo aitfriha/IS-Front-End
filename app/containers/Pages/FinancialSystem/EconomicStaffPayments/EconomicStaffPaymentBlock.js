@@ -443,9 +443,7 @@ class EconomicStaffPaymentBlock extends React.Component {
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_access ? (
-                  <IconButton onClick={() => this.handleDetails(tableMeta)}>
-                    <DetailsIcon color="secondary" />
-                  </IconButton>
+                  <IconButton onClick={() => this.handleDetails(tableMeta)} />
                 ) : null}
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_delete ? (
                   <IconButton onClick={() => this.handleDelete(tableMeta)}>
@@ -878,9 +876,7 @@ class EconomicStaffPaymentBlock extends React.Component {
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_access ? (
-                  <IconButton onClick={() => this.handleDetailsMonth(tableMeta)}>
-                    <DetailsIcon color="secondary" />
-                  </IconButton>
+                  <IconButton onClick={() => this.handleDetailsMonth(tableMeta)} />
                 ) : null}
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_delete ? (
                   <IconButton onClick={() => this.handleDeleteMonth(tableMeta)}>
@@ -1213,9 +1209,7 @@ class EconomicStaffPaymentBlock extends React.Component {
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_access ? (
-                  <IconButton onClick={() => this.handleDetailsExtra(tableMeta)}>
-                    <DetailsIcon color="secondary" />
-                  </IconButton>
+                  <IconButton onClick={() => this.handleDetailsExtra(tableMeta)} />
                 ) : null}
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_delete ? (
                   <IconButton onClick={() => this.handleDeleteExtra(tableMeta)}>

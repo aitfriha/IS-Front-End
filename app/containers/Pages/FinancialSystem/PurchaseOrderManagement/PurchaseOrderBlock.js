@@ -724,7 +724,7 @@ class PurchaseOrderBlock extends React.Component {
                   </IconButton>
                 ) : null}
                 {thelogedUser.userRoles[0].actionsNames.financialModule_purchaseOrderAcceptance_export ? (
-                  <IconButton onClick={() => this.handlePrint(tableMeta)}>
+                  <IconButton onClick={() => this.handlePrint2(tableMeta)}>
                     <PrintIcon color="primary" />
                   </IconButton>
                 ) : null}
