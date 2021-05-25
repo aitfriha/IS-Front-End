@@ -105,10 +105,12 @@ class CommercialActionsBlock extends React.Component {
     super(props);
     this.state = {
       actionCanceledId: '',
+      userType: 1,
       staffAssign: [],
       currentAction: [],
       actionTypes: [],
       commercialActions: [],
+      allCommercialAction: [],
       nbrActions: ['1'],
       actionDescriptions: [],
       actionDates: [],
@@ -176,7 +178,7 @@ class CommercialActionsBlock extends React.Component {
           });
         });
         commercialActionsTab = tab;
-        this.setState({ commercialActions: tab });
+        this.setState({ commercialActions: tab, allCommercialAction: result2.data });
       });
     });
     interact('.resize-drag')
@@ -473,9 +475,18 @@ class CommercialActionsBlock extends React.Component {
       const { logedUser } = this.props;
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
+      const userTypes = [
+        {
+          value: 1,
+          label: 'Current User',
+        },
+        {
+          value: 2,
+          label: 'All Users',
+        }];
       const {
         openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff, openWarning,
-        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates
+        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType
       } = this.state;
       const { classes } = this.props;
       return (
@@ -486,6 +497,46 @@ class CommercialActionsBlock extends React.Component {
               <IconButton onClick={() => this.handleAdd()}>
                 <AddIcon color="secondary" />
               </IconButton>
+            </Grid>
+          </Grid>
+          <br />
+          <Grid
+            container
+            spacing={1}
+            direction="row"
+            justifyContent="left"
+            alignItems="start"
+          >
+            <Grid item xs={12} md={1}>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  color: '#000',
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '15px',
+                  fontWeight: 'bold',
+                  opacity: 0.4,
+                  marginRight: 20,
+                  width: '100%'
+                }}
+              >
+                Show :
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl style={{ width: '100%' }}>
+                <Select
+                  name="userType"
+                  value={userType}
+                  onChange={this.handleChange}
+                >
+                  {userTypes.map((clt) => (
+                    <MenuItem key={clt.value} value={clt.value}>
+                      {clt.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
           <br />

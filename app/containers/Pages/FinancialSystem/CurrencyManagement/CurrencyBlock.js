@@ -185,12 +185,12 @@ class CurrencyBlock extends React.Component {
     };
 
     handleChange = (ev) => {
-      const { currencies, AllDatas, datas } = this.state;
+      const { currencies, AllDatas } = this.state;
       if (ev.target.name === 'currencyNameFilter') {
         if (ev.target.value === 'All') {
           this.setState({ datas: AllDatas });
         } else {
-          const test = datas.filter(row => row.typeOfCurrency._id === ev.target.value);
+          const test = AllDatas.filter(row => row.typeOfCurrency._id === ev.target.value);
           this.setState({ datas: test });
         }
       }
