@@ -98,6 +98,7 @@ const styles = theme => ({
     transition: 'background-color 0.3s',
   },
 });
+let newData = [];
 const useStyles = makeStyles(styles);
 class CommercialActionsBlock extends React.Component {
   constructor(props) {
@@ -127,11 +128,7 @@ class CommercialActionsBlock extends React.Component {
   }
 
   componentDidMount() {
-    let newCommercialActionType;
-    let currentActionId;
-    let nextActionTypeTitle;
-    let commercialActionsTab;
-    let actionTypesTab;
+    let newCommercialActionType; let currentActionId; let nextActionTypeTitle; let commercialActionsTab; let actionTypesTab;
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
@@ -182,7 +179,6 @@ class CommercialActionsBlock extends React.Component {
         this.setState({ commercialActions: tab });
       });
     });
-
     interact('.resize-drag')
       .draggable({
         // enable autoScroll
@@ -215,15 +211,12 @@ class CommercialActionsBlock extends React.Component {
           }
         },
       });
-    let newData;
     interact('.dropzone').dropzone({
       // only accept elements matching this CSS selector
       accept: '#yes-drop',
       // Require a 75% element overlap for a drop to be possible
       overlap: 0.10,
-
       // listen for drop related events:
-
       ondropactivate(event) {
         // add active dropzone feedback
         event.target.classList.add('dropActive');
@@ -243,8 +236,8 @@ class CommercialActionsBlock extends React.Component {
         // event.relatedTarget.textContent = 'Dropped';
         console.log('droppped');
       },
+      // eslint-disable-next-line no-unused-vars
       ondropdeactivate(event) {
-        console.log(event);
         // eslint-disable-next-line array-callback-return
         actionTypesTab.map(row => {
           if ((row.typeName + ' ' + row.percentage + ' %') === nextActionTypeTitle) {
@@ -259,7 +252,7 @@ class CommercialActionsBlock extends React.Component {
                 line.commercialActionType = newCommercialActionType;
                 CommercialActionService.updateCommercialAction(line).then(result => {
                   newData = result.data.payload;
-                  this.setState({ commercialActions: result.data.payload });
+                  this.setState({ commercialActions: newData });
                 });
               }
             });
@@ -507,7 +500,7 @@ class CommercialActionsBlock extends React.Component {
                   id="outerDropzone"
                   className="dropzone"
                   style={{
-                    backgroundColor: '#b999ff',
+                    // backgroundColor: '#b999ff',
                     padding: '10px',
                     width: '100%',
                     height: '13%',
