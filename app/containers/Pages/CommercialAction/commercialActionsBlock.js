@@ -130,10 +130,12 @@ class CommercialActionsBlock extends React.Component {
   }
 
   componentDidMount() {
-    let newCommercialActionType; let currentActionId; let nextActionTypeTitle; let commercialActionsTab; let actionTypesTab;
+    let newCommercialActionType; let currentActionId; let nextActionTypeTitle; let actionTypesTab;
+    let { commercialActionsTab } = this.state;
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
+    console.log(thelogedUser);
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
@@ -166,19 +168,23 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ actionTypes: result.data });
     });
     AssignmentService.getAssignments().then(result => {
+      console.log(result.data);
       const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
       this.setState({ staffAssign, connectedStaff: thelogedUser.userFullName });
       CommercialActionService.getCommercialAction2().then(result2 => {
         const tab = [];
         // eslint-disable-next-line array-callback-return
-        result2.data.payload.map(row => {
-          // eslint-disable-next-line array-callback-return
-          staffAssign.map(line => {
-            if (row.commercialOperation.client._id === line.client._id) tab.push(row);
+        staffAssign.map(line => {
+          result2.data.payload.map(row => {
+            if (row.commercialOperation.client._id === line.client._id) {
+              if (tab.find(column => column._id === row._id)) console.log('exist');
+              else tab.push(row);
+            }
           });
         });
+        commercialActionsTab = [];
         commercialActionsTab = tab;
-        this.setState({ commercialActions: tab, allCommercialAction: result2.data });
+        this.setState({ commercialActions: tab, allCommercialAction: result2.data.payload, commercialActionsTab });
       });
     });
     interact('.resize-drag')
@@ -291,6 +297,14 @@ class CommercialActionsBlock extends React.Component {
   };
 
     handleChange = (ev) => {
+      const { commercialActionsTab, allCommercialAction } = this.state;
+      if (ev.target.name === 'userType') {
+        if (ev.target.value === 1) {
+          this.setState({ commercialActions: commercialActionsTab });
+        } else {
+          this.setState({ commercialActions: allCommercialAction });
+        }
+      }
       this.setState({ [ev.target.name]: ev.target.value });
     }
 
@@ -340,8 +354,8 @@ class CommercialActionsBlock extends React.Component {
     handleSave = () => {
       let { contactsIds } = this.state;
       const {
-        descriptions, objectifs, actionTypeId, commercialActionId, commercialOperation, currentAction,
-        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions, newcontactsIds
+        descriptions, objectifs, actionTypeId, commercialActionId, commercialOperation, currentAction, userType,
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions, newcontactsIds, staffAssign
       } = this.state;
       if (newcontactsIds.length === 0) {
         contactsIds = currentAction.contacts;
@@ -363,7 +377,25 @@ class CommercialActionsBlock extends React.Component {
         conclusions
       };
       CommercialActionService.updateCommercialAction(CommercialAction).then(result => {
-        this.setState({ openPopUp: false, commercialActions: result.data.payload });
+        const tab = [];
+        // eslint-disable-next-line array-callback-return
+        staffAssign.map(line => {
+          result.data.payload.map(row => {
+            if (row.commercialOperation.client._id === line.client._id) {
+              if (tab.find(column => column._id === row._id)) console.log('exist');
+              else tab.push(row);
+            }
+          });
+        });
+        if (userType === 1) {
+          this.setState({
+            openPopUp: false, commercialActions: tab, commercialActionsTab: tab, allCommercialAction: result.data.payload
+          });
+        } else {
+          this.setState({
+            openPopUp: false, commercialActions: result.data.payload, commercialActionsTab: tab, allCommercialAction: result.data.payload
+          });
+        }
       });
     }
 
@@ -445,7 +477,7 @@ class CommercialActionsBlock extends React.Component {
 
     handleReplaceAction = () => {
       const {
-        actionCanceledId, actionTypes, commercialActions
+        actionCanceledId, actionTypes, commercialActions, staffAssign, userType
       } = this.state;
       let actionCanceled;
       // eslint-disable-next-line array-callback-return
@@ -462,8 +494,24 @@ class CommercialActionsBlock extends React.Component {
           line.commercialActionId = line._id;
           console.log(line);
           CommercialActionService.updateCommercialAction(line).then(result => {
-            console.log(result);
-            this.setState({ openWarning: false, commercialActions: result.data.payload });
+            const tab = [];
+            staffAssign.map(line => {
+              result.data.payload.map(row => {
+                if (row.commercialOperation.client._id === line.client._id) {
+                  if (tab.find(column => column._id === row._id)) console.log('exist');
+                  else tab.push(row);
+                }
+              });
+            });
+            if (userType === 1) {
+              this.setState({
+                openWarning: false, commercialActions: tab, commercialActionsTab: tab, allCommercialAction: result.data.payload
+              });
+            } else {
+              this.setState({
+                openWarning: false, commercialActions: result.data.payload, commercialActionsTab: tab, allCommercialAction: result.data.payload
+              });
+            }
           });
         }
       });
@@ -471,10 +519,6 @@ class CommercialActionsBlock extends React.Component {
 
     render() {
       console.log(this.state);
-      // eslint-disable-next-line react/prop-types
-      const { logedUser } = this.props;
-      const thelogedUser = JSON.parse(logedUser);
-      console.log(thelogedUser);
       const userTypes = [
         {
           value: 1,

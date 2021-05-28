@@ -118,6 +118,7 @@ class AddCommercialAction extends React.Component {
       this.setState({ operations: result.data.payload });
     });
     AssignmentService.getAssignments().then(result => {
+      console.log(result.data);
       const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
       console.log(staffAssign);
       // eslint-disable-next-line array-callback-return
