@@ -107,6 +107,7 @@ class CommercialActionsBlock extends React.Component {
       actionCanceledId: '',
       userType: 1,
       staffAssign: [],
+      allStaffAssign: [],
       currentAction: [],
       actionTypes: [],
       commercialActions: [],
@@ -131,7 +132,7 @@ class CommercialActionsBlock extends React.Component {
 
   componentDidMount() {
     let newCommercialActionType; let currentActionId; let nextActionTypeTitle; let actionTypesTab;
-    let { commercialActionsTab } = this.state;
+    const { commercialActions } = this.state;
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
@@ -168,22 +169,21 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ actionTypes: result.data });
     });
     AssignmentService.getAssignments().then(result => {
-      console.log(result.data);
       const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
-      this.setState({ staffAssign, connectedStaff: thelogedUser.userFullName });
+      this.setState({ staffAssign, connectedStaff: thelogedUser.userFullName, allStaffAssign: result.data });
       CommercialActionService.getCommercialAction2().then(result2 => {
         const tab = [];
         // eslint-disable-next-line array-callback-return
         staffAssign.map(line => {
+          // eslint-disable-next-line array-callback-return
           result2.data.payload.map(row => {
             if (row.commercialOperation.client._id === line.client._id) {
-              if (tab.find(column => column._id === row._id)) console.log('exist');
+              if (tab.find(column => column._id === row._id)) console.log('Action exist');
               else tab.push(row);
             }
           });
         });
-        commercialActionsTab = [];
-        commercialActionsTab = tab;
+        const commercialActionsTab = tab;
         this.setState({ commercialActions: tab, allCommercialAction: result2.data.payload, commercialActionsTab });
       });
     });
@@ -251,7 +251,7 @@ class CommercialActionsBlock extends React.Component {
           if ((row.typeName + ' ' + row.percentage + ' %') === nextActionTypeTitle) {
             newCommercialActionType = { _id: row.actionTypeId };
             // eslint-disable-next-line array-callback-return
-            commercialActionsTab.map(line => {
+            commercialActions.map(line => {
               if (line._id === currentActionId) {
                 // eslint-disable-next-line array-callback-return
                 line.contacts.map(column => { column.checked = true; });
@@ -380,9 +380,10 @@ class CommercialActionsBlock extends React.Component {
         const tab = [];
         // eslint-disable-next-line array-callback-return
         staffAssign.map(line => {
+          // eslint-disable-next-line array-callback-return
           result.data.payload.map(row => {
             if (row.commercialOperation.client._id === line.client._id) {
-              if (tab.find(column => column._id === row._id)) console.log('exist');
+              if (tab.find(column => column._id === row._id)) console.log('Action exist');
               else tab.push(row);
             }
           });
@@ -495,7 +496,9 @@ class CommercialActionsBlock extends React.Component {
           console.log(line);
           CommercialActionService.updateCommercialAction(line).then(result => {
             const tab = [];
+            // eslint-disable-next-line array-callback-return,no-shadow
             staffAssign.map(line => {
+              // eslint-disable-next-line array-callback-return
               result.data.payload.map(row => {
                 if (row.commercialOperation.client._id === line.client._id) {
                   if (tab.find(column => column._id === row._id)) console.log('exist');
@@ -530,9 +533,16 @@ class CommercialActionsBlock extends React.Component {
         }];
       const {
         openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff, openWarning,
-        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType
+        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType, allStaffAssign
       } = this.state;
       const { classes } = this.props;
+      // eslint-disable-next-line array-callback-return
+      commercialActions.map(row => {
+        // eslint-disable-next-line array-callback-return
+        allStaffAssign.map(line => {
+          if (row.commercialOperation.client._id === line.client._id) row.assignment = line;
+        });
+      });
       return (
         <div>
           <Grid container spacing={1}>
@@ -632,7 +642,7 @@ class CommercialActionsBlock extends React.Component {
                             )}
                             variant="subtitle1"
                             color="primary"
-                            title={connectedStaff}
+                            title={line.assignment.staff.fullName}
                           />
                           <CardContent>
                             <Box fontWeight={500}>
@@ -746,7 +756,7 @@ class CommercialActionsBlock extends React.Component {
                             <CardHeader
                               variant="subtitle1"
                               color="primary"
-                              title={connectedStaff}
+                              title={currentAction.assignment ? currentAction.assignment.staff.fullName : ''}
                             />
                           </Grid>
                         </Grid>
