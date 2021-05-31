@@ -316,7 +316,7 @@ class CurrencyBlock extends React.Component {
                   value={currencyNameFilter}
                   onChange={this.handleChange}
                 >
-                  { currencies.map((clt) => (
+                  {currencies.map((clt) => (
                     <MenuItem key={clt.typeOfCurrencyId} value={clt.typeOfCurrencyId}>
                       {clt.currencyName}
                     </MenuItem>
@@ -361,12 +361,11 @@ class CurrencyBlock extends React.Component {
                         variant="outlined"
                         onChange={this.handleChange}
                       >
-                        {
-                          currencies.map((clt) => (
-                            <MenuItem key={clt.typeOfCurrencyId} value={clt.typeOfCurrencyId}>
-                              {clt.currencyName}
-                            </MenuItem>
-                          ))
+                        {currencies.map((clt) => (
+                          <MenuItem key={clt.typeOfCurrencyId} value={clt.typeOfCurrencyId}>
+                            {clt.currencyName}
+                          </MenuItem>
+                        ))
                         }
                       </Select>
                     </FormControl>

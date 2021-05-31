@@ -36,6 +36,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { Helmet } from 'react-helmet';
 import brand from 'dan-api/dummy/brand';
+import Tooltip from '@material-ui/core/Tooltip';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialOperationStatusService from '../../Services/CommercialOperationStatusService';
 import StaffService from '../../Services/StaffService';
@@ -310,9 +311,11 @@ class AddCommercialAction extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <br />
