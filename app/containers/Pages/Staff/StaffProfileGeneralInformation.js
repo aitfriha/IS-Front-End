@@ -32,7 +32,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack';
+import { Document, Page, pdfjs } from 'react-pdf';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
@@ -64,10 +64,11 @@ import {
   deleteStaffDocument
 } from '../../../redux/staffDocument/actions';
 import notification from '../../../components/Notification/Notification';
+pdfjs.GlobalWorkerOptions.workerSrc = '//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.1.266/pdf.worker.js';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
+/* pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${
   pdfjs.version
-}/pdf.worker.js`;
+}/pdf.worker.js`; */
 
 const inputDoc = React.createRef();
 
@@ -580,6 +581,7 @@ class StaffProfileGeneralInformation extends Component {
     !isLoadingCity && !cityResponse && this.editingPromiseResolve5(errorsCity);
     return (
       <div>
+        hello
         <Dialog
           maxWidth="lg"
           TransitionComponent={Transition}
@@ -599,7 +601,7 @@ class StaffProfileGeneralInformation extends Component {
                 onLoadSuccess={this.onDocumentLoadSuccess}
                 onLoadError={console.error}
               >
-                <Page pageNumber={pageNumber} />
+                {/* <Page pageNumber={1} /> */}
               </Document>
             ) : (
               <img src={this.renderFile()} alt="Document" />
@@ -614,6 +616,7 @@ class StaffProfileGeneralInformation extends Component {
             </Button>
           </DialogActions>
         </Dialog>
+
         <Dialog
           open={isAddDocumentation}
           disableBackdropClick

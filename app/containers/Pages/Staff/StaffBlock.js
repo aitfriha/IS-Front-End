@@ -4,11 +4,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Visibility from '@material-ui/icons/Visibility';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 import Avatar from '@material-ui/core/Avatar';
 import {
-  Button,
-  TableCell,
   Tooltip,
   Typography,
   Select,
@@ -20,13 +17,12 @@ import { connect } from 'react-redux';
 import { showSpinner } from 'dan-redux/actions/uiActions';
 import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 import styles from './staff-jss';
-import StaffService from '../../Services/StaffService';
+
 import { setStaff, getAllStaff } from '../../../redux/staff/actions';
 
 class StaffBlock extends React.Component {
   constructor(props) {
     super(props);
-    const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       staffs: [],
       columnsType: 'generalInformation',
@@ -437,6 +433,7 @@ class StaffBlock extends React.Component {
   };
 
   componentDidMount() {
+    console.log('Staffblock');
     const { getAllStaff } = this.props;
     const promise = new Promise(resolve => {
       // get client information
@@ -445,9 +442,6 @@ class StaffBlock extends React.Component {
     });
     promise.then(result => {
       const staffs = [];
-      console.log('result');
-      console.log(result);
-      console.log(this.props.allStaff);
       this.props.allStaff.forEach(staff => {
         const factor = staff.changeFactor;
         const contractSalaryInEuro = staff.contractSalary * factor;
@@ -484,12 +478,6 @@ class StaffBlock extends React.Component {
     setStaff(staffSelected);
     showSpinner(true);
     showProfile(true);
-  };
-
-  handleSetColumns = columnsType => {
-    this.setState({
-      columnsType
-    });
   };
 
   setCellProps = () => ({
@@ -537,7 +525,6 @@ class StaffBlock extends React.Component {
 
   render() {
     const {
-      allStaff,
       classes,
       isLoadingStaff,
       staffResponse,
@@ -584,15 +571,6 @@ class StaffBlock extends React.Component {
 
     return (
       <div>
-        {/* <Button onClick={() => this.handleSetColumns('generalInformation')}>
-          General information
-        </Button>
-        <Button onClick={() => this.handleSetColumns('contractInformation')}>
-          Contract information
-        </Button>
-        <Button onClick={() => this.handleSetColumns('economicInformation')}>
-          Economic information
-        </Button> */}
         <div className={classes.divInline}>
           <Typography
             variant="subtitle1"

@@ -150,5 +150,8 @@ module.exports = require('./webpack.base.babel')({
 
   performance: {
     assetFilter: assetFilename => !/(\.map$)|(^(main\.|favicon\.))/.test(assetFilename),
+    hints: false,
+    maxEntrypointSize: 400000,
+    maxAssetSize: 100000
   },
 });
