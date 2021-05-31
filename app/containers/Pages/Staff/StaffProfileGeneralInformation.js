@@ -601,7 +601,7 @@ class StaffProfileGeneralInformation extends Component {
                 onLoadSuccess={this.onDocumentLoadSuccess}
                 onLoadError={console.error}
               >
-                {/* <Page pageNumber={1} /> */}
+                {/* <Page pageNumber={10} />*/}
               </Document>
             ) : (
               <img src={this.renderFile()} alt="Document" />
