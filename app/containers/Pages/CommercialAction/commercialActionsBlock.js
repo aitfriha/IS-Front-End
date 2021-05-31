@@ -133,6 +133,7 @@ class CommercialActionsBlock extends React.Component {
   componentDidMount() {
     let newCommercialActionType; let currentActionId; let nextActionTypeTitle; let actionTypesTab;
     const { commercialActions } = this.state;
+    let { commercialActionsTab } = this.state;
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
@@ -183,7 +184,8 @@ class CommercialActionsBlock extends React.Component {
             }
           });
         });
-        const commercialActionsTab = tab;
+        commercialActionsTab = [];
+        commercialActionsTab = tab;
         this.setState({ commercialActions: tab, allCommercialAction: result2.data.payload, commercialActionsTab });
       });
     });
@@ -251,7 +253,7 @@ class CommercialActionsBlock extends React.Component {
           if ((row.typeName + ' ' + row.percentage + ' %') === nextActionTypeTitle) {
             newCommercialActionType = { _id: row.actionTypeId };
             // eslint-disable-next-line array-callback-return
-            commercialActions.map(line => {
+            commercialActionsTab.map(line => {
               if (line._id === currentActionId) {
                 // eslint-disable-next-line array-callback-return
                 line.contacts.map(column => { column.checked = true; });
@@ -532,7 +534,7 @@ class CommercialActionsBlock extends React.Component {
           label: 'All Users',
         }];
       const {
-        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, connectedStaff, openWarning,
+        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, openWarning,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType, allStaffAssign
       } = this.state;
       const { classes } = this.props;
