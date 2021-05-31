@@ -28,7 +28,6 @@ import '../Configurations/map/app.css';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Transition from '../../../components/Transition/transition';
@@ -304,7 +303,7 @@ export class StaffProfile extends Component {
     } = this.state;
     return (
       <div>
-        {isShowSpinner ? (
+        {/*        {isShowSpinner ? (
           <div>
             <img
               src="/images/spinner.gif"
@@ -312,13 +311,10 @@ export class StaffProfile extends Component {
               className={classes.circularProgress}
             />
           </div>
-        ) : (
-          <div />
-        )}
+        ) : ( */}
+        <div />
 
-        <div
-          style={isShowSpinner ? { pointerEvents: 'none', opacity: '0.4' } : {}}
-        >
+        <div>
           <Dialog
             maxWidth="lg"
             TransitionComponent={Transition}
@@ -1026,7 +1022,6 @@ export class StaffProfile extends Component {
                   >
                     <StaffProfileContractInformation />
                   </Paper>
-
                   <Paper
                     elevation={2}
                     style={{
