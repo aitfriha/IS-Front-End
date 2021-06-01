@@ -27,11 +27,13 @@ import { connect } from 'react-redux';
 import interact from 'interactjs';
 import Box from '@material-ui/core/Box';
 import AddIcon from '@material-ui/icons/Add';
+import ReloadIcon from '@material-ui/icons/Autorenew';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Tooltip from '@material-ui/core/Tooltip';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialActionService from '../../Services/CommercialActionService';
 import ActionTypeService from '../../Services/ActionTypeService';
@@ -124,7 +126,7 @@ class CommercialActionsBlock extends React.Component {
       objectifs: '',
       expanded: false,
       display: 'flex',
-      openPopUpImport: false,
+      reload: false,
       openPopUp: false,
       openWarning: false
     };
@@ -132,8 +134,7 @@ class CommercialActionsBlock extends React.Component {
 
   componentDidMount() {
     let newCommercialActionType; let currentActionId; let nextActionTypeTitle; let actionTypesTab;
-    const { commercialActions } = this.state;
-    let { commercialActionsTab } = this.state;
+    let { commercialActionsTab, allCommercialAction } = this.state;
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
@@ -174,6 +175,7 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ staffAssign, connectedStaff: thelogedUser.userFullName, allStaffAssign: result.data });
       CommercialActionService.getCommercialAction2().then(result2 => {
         const tab = [];
+        allCommercialAction = result2.data.payload;
         // eslint-disable-next-line array-callback-return
         staffAssign.map(line => {
           // eslint-disable-next-line array-callback-return
@@ -253,7 +255,7 @@ class CommercialActionsBlock extends React.Component {
           if ((row.typeName + ' ' + row.percentage + ' %') === nextActionTypeTitle) {
             newCommercialActionType = { _id: row.actionTypeId };
             // eslint-disable-next-line array-callback-return
-            commercialActionsTab.map(line => {
+            allCommercialAction.map(line => {
               if (line._id === currentActionId) {
                 // eslint-disable-next-line array-callback-return
                 line.contacts.map(column => { column.checked = true; });
@@ -262,7 +264,6 @@ class CommercialActionsBlock extends React.Component {
                 line.commercialActionType = newCommercialActionType;
                 CommercialActionService.updateCommercialAction(line).then(result => {
                   newData = result.data.payload;
-                  this.setState({ commercialActions: newData });
                 });
               }
             });
@@ -478,6 +479,32 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ openWarning: true, actionCanceledId: id });
     }
 
+    handleReload = () => {
+      const {
+        allCommercialAction, staffAssign, userType
+      } = this.state;
+      const tab = [];
+      // eslint-disable-next-line array-callback-return
+      staffAssign.map(line => {
+        // eslint-disable-next-line array-callback-return
+        newData.map(row => {
+          if (row.commercialOperation.client._id === line.client._id) {
+            if (tab.find(column => column._id === row._id)) console.log('Action exist');
+            else tab.push(row);
+          }
+        });
+      });
+      if (userType === 1) {
+        this.setState({
+          commercialActions: tab, commercialActionsTab: tab, allCommercialAction: newData
+        });
+      } else {
+        this.setState({
+          openPopUp: false, commercialActions: newData, commercialActionsTab: tab, allCommercialAction: newData
+        });
+      }
+    }
+
     handleReplaceAction = () => {
       const {
         actionCanceledId, actionTypes, commercialActions, staffAssign, userType
@@ -548,11 +575,18 @@ class CommercialActionsBlock extends React.Component {
       return (
         <div>
           <Grid container spacing={1}>
-            <Grid item xs={11} />
-            <Grid item xs={1}>
-              <IconButton onClick={() => this.handleAdd()}>
-                <AddIcon color="secondary" />
-              </IconButton>
+            <Grid item xs={10} />
+            <Grid item xs={2}>
+              <Tooltip title="Refresh the Action's Card List">
+                <IconButton onClick={() => this.handleReload()}>
+                  <ReloadIcon color="secondary" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add New Action">
+                <IconButton onClick={() => this.handleAdd()}>
+                  <AddIcon color="secondary" />
+                </IconButton>
+              </Tooltip>
             </Grid>
           </Grid>
           <br />
