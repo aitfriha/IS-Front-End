@@ -138,7 +138,6 @@ class CommercialActionsBlock extends React.Component {
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
-    console.log(thelogedUser);
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
@@ -325,7 +324,6 @@ class CommercialActionsBlock extends React.Component {
     }
 
     activateLasers = (line) => {
-      console.log(line);
       // eslint-disable-next-line array-callback-return
       line.contacts.map(row => { row.checked = true; });
       const { commercialOperation } = line;
@@ -475,13 +473,12 @@ class CommercialActionsBlock extends React.Component {
     }
 
     handleDelete = (id) => {
-      console.log(id);
       this.setState({ openWarning: true, actionCanceledId: id });
     }
 
     handleReload = () => {
       const {
-        allCommercialAction, staffAssign, userType
+        staffAssign, userType
       } = this.state;
       const tab = [];
       // eslint-disable-next-line array-callback-return
@@ -522,7 +519,6 @@ class CommercialActionsBlock extends React.Component {
           line.contactsIds = line.contacts;
           line.commercialActionType._id = actionCanceled.actionTypeId;
           line.commercialActionId = line._id;
-          console.log(line);
           CommercialActionService.updateCommercialAction(line).then(result => {
             const tab = [];
             // eslint-disable-next-line array-callback-return,no-shadow
@@ -530,7 +526,7 @@ class CommercialActionsBlock extends React.Component {
               // eslint-disable-next-line array-callback-return
               result.data.payload.map(row => {
                 if (row.commercialOperation.client._id === line.client._id) {
-                  if (tab.find(column => column._id === row._id)) console.log('exist');
+                  if (tab.find(column => column._id === row._id)) console.log('Action exist');
                   else tab.push(row);
                 }
               });

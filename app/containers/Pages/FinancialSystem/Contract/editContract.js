@@ -139,6 +139,9 @@ class EditContract extends React.Component {
     // eslint-disable-next-line react/prop-types
     const contract = props.Info; console.log(contract);
     if (contract._id) {
+      // eslint-disable-next-line no-shadow,react/prop-types
+      const { getAllStateByCountry } = this.props;
+      getAllStateByCountry(contract.address.city.stateCountry.country.countryId);
       this.setState({
         financialContractId: contract._id,
         contractTitle: contract.contractTitle,
@@ -149,6 +152,7 @@ class EditContract extends React.Component {
         taxeIdentityNumber: contract.taxeIdentityNumber,
         currentCity: contract.address.city._id,
         addressId: contract.address.addressId,
+        address: contract.address,
         level1: contract.functionalStructureLevel._id,
         level2: contract.functionalStructureLevel._id,
         level3: contract.functionalStructureLevel._id,

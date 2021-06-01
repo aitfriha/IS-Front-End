@@ -523,6 +523,9 @@ class EditBill extends React.Component {
                   multiline
                   rows={1}
                   onChange={event => this.handleConcept(event, row)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   fullWidth
                   required
                 />
@@ -535,6 +538,9 @@ class EditBill extends React.Component {
                   value={descTotalUSD[row]}
                   type="number"
                   onChange={event => this.handleConcept(event, row)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   fullWidth
                   required
                 />

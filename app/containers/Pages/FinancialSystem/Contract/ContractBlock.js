@@ -556,6 +556,7 @@ class ContractBlock extends React.Component {
     const id = this.state.datas[index].financialContractId;
     ContractService.getContractById(id).then(result => {
       const contract = result.data;
+      console.log(contract);
       this.setState({ openPopUp: true, contract });
     });
   }

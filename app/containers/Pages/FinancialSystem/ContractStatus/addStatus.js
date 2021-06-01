@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import Tooltip from '@material-ui/core/Tooltip';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import history from '../../../../utils/history';
 import ContractStatusService from '../../../Services/ContractStatusService';
@@ -86,9 +87,11 @@ class AddStatus extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <Grid
