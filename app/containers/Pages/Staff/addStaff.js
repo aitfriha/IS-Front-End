@@ -99,7 +99,7 @@ class AddStaff extends React.Component {
       companyMobilePhone: '',
       companyEmail: '',
       skype: '',
-      birthday: new Date(''),
+      birthday: new Date(),
       birthCountry: null,
       emergencyContactName: '',
       emergencyContactPhone: '',
