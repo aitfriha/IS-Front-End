@@ -9,11 +9,16 @@ import {
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import EditContract from './editContract';
 import ContractService from '../../../Services/ContractService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import styles from './contract-jss';
+import EditContact from '../../Contact/editContact';
+import { getAllContact } from '../../../../redux/contact/actions';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
 
 const useStyles = makeStyles(styles);
 
@@ -550,13 +555,18 @@ class ContractBlock extends React.Component {
 
   // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
+    // eslint-disable-next-line react/prop-types
+    const { getAllStateByCountry, getAllCityByState } = this.props;
     const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
         + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].financialContractId;
     ContractService.getContractById(id).then(result => {
       const contract = result.data;
-      console.log(contract);
+      console.log(contract.address.city.stateCountry.country.countryId);
+      console.log(contract.address.city.stateCountry._id);
+      getAllStateByCountry(contract.address.city.stateCountry.country.countryId);
+      getAllCityByState(contract.address.city.stateCountry._id);
       this.setState({ openPopUp: true, contract });
     });
   }
@@ -595,7 +605,7 @@ class ContractBlock extends React.Component {
       datas, columns, openPopUp, contract
     } = this.state;
     const {
-      logedUser
+      allStateCountrys, allCitys, logedUser
     } = this.props;
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
@@ -641,7 +651,7 @@ class ContractBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
           <DialogContent dividers>
-            <EditContract Info={contract} callbackFromParent={this.myCallback} />
+            <EditContract Info={contract} allStateCountrys={allStateCountrys} allCitys={allCitys} callbackFromParent={this.myCallback} />
           </DialogContent>
         </Dialog>
       </div>
@@ -649,11 +659,30 @@ class ContractBlock extends React.Component {
   }
 }
 
-const mapStateToProps = () => ({
+const mapStateToProps = (state) => ({
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
   logedUser: localStorage.getItem('logedUser'),
 });
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    getAllStateByCountry,
+    getAllCityByState
+  },
+  dispatch
+);
 const ContractBlockMapped = connect(
   mapStateToProps,
+  mapDispatchToProps,
   null
 )(ContractBlock);
 

@@ -101,6 +101,11 @@ class EditContract extends React.Component {
       contractDocumentation: [],
       contractDocumentations: ['1'],
       contractDocDescreption: [],
+      city: {},
+      keyCountry: {},
+      keyState: {},
+      keyCity: {},
+      keyClient: {},
       radio: '',
       open: false,
       open2: false,
@@ -138,10 +143,31 @@ class EditContract extends React.Component {
   componentWillReceiveProps(props) {
     // eslint-disable-next-line react/prop-types
     const contract = props.Info; console.log(contract);
+    console.log(props);
     if (contract._id) {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllStateByCountry } = this.props;
-      getAllStateByCountry(contract.address.city.stateCountry.country.countryId);
+      if (props.allStateCountrys) {
+        for (const key in props.allCountrys) {
+          if (props.allCountrys[key].countryName === contract.address.city.stateCountry.country.countryName) {
+            this.setState({ keyCountry: props.allCountrys[key] });
+            break;
+          }
+        }
+        for (const key in props.allStateCountrys) {
+          //  console.log(newProps.allStateCountrys);
+          if (props.allStateCountrys[key].stateCountryId === contract.address.city.stateCountry._id) {
+            this.setState({ keyState: props.allStateCountrys[key] });
+            break;
+          }
+        }
+        for (const key in props.allCitys) {
+          if (props.allCitys[key].cityName === contract.address.city.cityName) {
+            this.setState({ keyCity: props.allCitys[key] });
+            this.setState({ cityId: props.allCitys[key].cityId });
+            break;
+          }
+        }
+      }
+
       this.setState({
         financialContractId: contract._id,
         contractTitle: contract.contractTitle,
@@ -210,19 +236,20 @@ class EditContract extends React.Component {
   }
 
   handleChangeCountry = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllStateByCountry } = this.props;
     getAllStateByCountry(value.countryId);
+    this.setState({ keyCountry: value });
   };
 
   handleChangeState = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCityByState } = this.props;
     getAllCityByState(value.stateCountryId);
+    this.setState({ keyState: value });
   };
 
   handleChangeCity = (ev, value) => {
-    this.setState({ currentCity: value.cityId });
+    this.setState({ cityId: value.cityId });
+    this.setState({ keyCity: value });
   };
 
     handleChange = (ev) => {
@@ -705,7 +732,8 @@ class EditContract extends React.Component {
       signedDate, startDate, endDate, finalReelDate, contractTradeVolume, companies, commercialOperations, clients, contractTradeVolumeEuro,
       penaltyMaxType, currencyId, currencyCode, paymentsBDDays, penalties, penaltyQuantity, penaltyValue, levels, amountInsuredEuro,
       penaltyCost, penaltyPer, penaltyMaxValue, purchaseOrder, penaltiesListe, purchaseOrderNumber, purchaseOrderReceiveDate, purchaseOrders,
-      insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption
+      insure, firstDayInsured, lastDayInsured, amountInsured, proposal, open, open2, open3, open4, level1, level2, level3, openDoc, contractDocDescreption,
+      keyCountry, keyState, keyCity
     } = this.state;
     return (
       <div>
@@ -954,8 +982,8 @@ class EditContract extends React.Component {
                 id="combo-box-demo"
                 options={allCountrys}
                 getOptionLabel={option => option.countryName}
+                value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
                 onChange={this.handleChangeCountry}
-                style={{ marginTop: 15 }}
                 renderInput={params => (
                   <TextField
                     fullWidth
@@ -971,6 +999,7 @@ class EditContract extends React.Component {
                 id="combo-box-demo"
                 options={allStateCountrys}
                 getOptionLabel={option => option.stateName}
+                value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
                 onChange={this.handleChangeState}
                 style={{ marginTop: 15 }}
                 renderInput={params => (
@@ -988,6 +1017,7 @@ class EditContract extends React.Component {
                 id="combo-box-demo"
                 options={allCitys}
                 getOptionLabel={option => option.cityName}
+                value={allCitys.find(v => v.cityName === keyCity.cityName) || ''}
                 onChange={this.handleChangeCity}
                 style={{ marginTop: 15 }}
                 renderInput={params => (
