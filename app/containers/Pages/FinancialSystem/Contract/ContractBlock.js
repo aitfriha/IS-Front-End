@@ -4,7 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import {
-  Dialog, DialogContent, DialogTitle, Grid
+  Dialog, DialogContent, DialogTitle
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
@@ -15,8 +15,6 @@ import EditContract from './editContract';
 import ContractService from '../../../Services/ContractService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import styles from './contract-jss';
-import EditContact from '../../Contact/editContact';
-import { getAllContact } from '../../../../redux/contact/actions';
 import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
 import { getAllCityByState } from '../../../../redux/city/actions';
 
@@ -553,18 +551,13 @@ class ContractBlock extends React.Component {
     changeTheme('greyTheme');
   }
 
-  // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
-    // eslint-disable-next-line react/prop-types
     const { getAllStateByCountry, getAllCityByState } = this.props;
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].financialContractId;
     ContractService.getContractById(id).then(result => {
       const contract = result.data;
-      console.log(contract.address.city.stateCountry.country.countryId);
-      console.log(contract.address.city.stateCountry._id);
       getAllStateByCountry(contract.address.city.stateCountry.country.countryId);
       getAllCityByState(contract.address.city.stateCountry._id);
       this.setState({ openPopUp: true, contract });
@@ -660,6 +653,12 @@ class ContractBlock extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
+  // country
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+
   // state
   allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
   stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,

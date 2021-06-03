@@ -143,7 +143,6 @@ class EditContract extends React.Component {
   componentWillReceiveProps(props) {
     // eslint-disable-next-line react/prop-types
     const contract = props.Info; console.log(contract);
-    console.log(props);
     if (contract._id) {
       if (props.allStateCountrys) {
         for (const key in props.allCountrys) {
@@ -153,7 +152,6 @@ class EditContract extends React.Component {
           }
         }
         for (const key in props.allStateCountrys) {
-          //  console.log(newProps.allStateCountrys);
           if (props.allStateCountrys[key].stateCountryId === contract.address.city.stateCountry._id) {
             this.setState({ keyState: props.allStateCountrys[key] });
             break;
@@ -161,8 +159,7 @@ class EditContract extends React.Component {
         }
         for (const key in props.allCitys) {
           if (props.allCitys[key].cityName === contract.address.city.cityName) {
-            this.setState({ keyCity: props.allCitys[key] });
-            this.setState({ cityId: props.allCitys[key].cityId });
+            this.setState({ keyCity: props.allCitys[key], cityId: props.allCitys[key].cityId });
             break;
           }
         }
@@ -248,8 +245,7 @@ class EditContract extends React.Component {
   };
 
   handleChangeCity = (ev, value) => {
-    this.setState({ cityId: value.cityId });
-    this.setState({ keyCity: value });
+    this.setState({ cityId: value.cityId, keyCity: value });
   };
 
     handleChange = (ev) => {
@@ -571,7 +567,6 @@ class EditContract extends React.Component {
       };
       if (parseFloat(contractTradeVolume) === conceptTotalAmount) {
         ContractService.updateContract(FinancialContract).then(result => {
-          console.log(result);
           // eslint-disable-next-line react/prop-types,react/destructuring-assignment
           this.props.callbackFromParent(false);
         });
@@ -606,7 +601,6 @@ class EditContract extends React.Component {
   readURI(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      console.log(e.target.files);
       reader.onload = function (ev) {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const file = this.state.contractDocumentation;
@@ -620,7 +614,6 @@ class EditContract extends React.Component {
   readURI1(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      console.log(e.target.files);
       reader.onload = function (ev) {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const file = this.state.insureDocumentation;
@@ -634,7 +627,6 @@ class EditContract extends React.Component {
   readURI2(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      console.log(e.target.files);
       reader.onload = function (ev) {
         this.setState({ purchaseOrderDocumentation: ev.target.result });
       }.bind(this);
@@ -645,7 +637,6 @@ class EditContract extends React.Component {
   readURI3(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      console.log(e.target.files);
       reader.onload = function (ev) {
         this.setState({ proposalDocumentation: ev.target.result });
       }.bind(this);
@@ -656,7 +647,6 @@ class EditContract extends React.Component {
   readURI4(e) {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      console.log(e.target.files);
       reader.onload = function (ev) {
         // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
         const file = this.state.proposalDocumentationDuo;

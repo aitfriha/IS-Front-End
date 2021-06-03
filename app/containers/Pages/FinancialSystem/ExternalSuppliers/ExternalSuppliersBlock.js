@@ -31,6 +31,7 @@ class ExternalSuppliersBlock extends React.Component {
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       externalSupplierId: '',
+      cityId: '',
       code: '',
       companyName: '',
       firstName: '',
@@ -45,6 +46,10 @@ class ExternalSuppliersBlock extends React.Component {
       openPopUp: false,
       addressId: '',
       datas: [],
+      city: {},
+      keyCountry: {},
+      keyState: {},
+      keyCity: {},
       columns: [
         {
           name: 'code',
@@ -312,38 +317,6 @@ class ExternalSuppliersBlock extends React.Component {
         },
         {
           name: 'address',
-          label: 'City',
-          options: {
-            filter: true,
-            setCellProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: '0',
-                background: 'white',
-                zIndex: 100
-              }
-            }),
-            setCellHeaderProps: () => ({
-              style: {
-                whiteSpace: 'nowrap',
-                position: 'sticky',
-                left: 0,
-                background: 'white',
-                zIndex: 101
-              }
-            }),
-            customBodyRender: (address) => (
-              <React.Fragment>
-                {
-                  address ? address.city.cityName : ' '
-                }
-              </React.Fragment>
-            )
-          }
-        },
-        {
-          name: 'address',
           label: 'State',
           options: {
             filter: true,
@@ -369,6 +342,38 @@ class ExternalSuppliersBlock extends React.Component {
               <React.Fragment>
                 {
                   address ? address.city.stateCountry.stateName : ' '
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'address',
+          label: 'City',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (address) => (
+              <React.Fragment>
+                {
+                  address ? address.city.cityName : ' '
                 }
               </React.Fragment>
             )
@@ -436,38 +441,67 @@ class ExternalSuppliersBlock extends React.Component {
 
   // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const {
+      getAllStateByCountry, getAllCityByState, allCountrys, allStateCountrys, allCitys
+    } = this.props;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].externalSupplierId;
     ExternalSuppliersService.getExternalSuppliersById(id).then(result => {
-      console.log(result.data);
+      const externalSupplier = result.data;
       this.setState({
         externalSupplierId: id,
-        companyName: result.data.companyName,
-        code: result.data.code,
-        taxNumber: result.data.taxNumber,
-        email: result.data.email,
-        firstName: result.data.firstName,
-        fatherFamilyName: result.data.fatherFamilyName,
-        motherFamilyName: result.data.motherFamilyName,
-        url: result.data.url,
-        address: result.data.address,
-        addressId: result.data.address.addressId,
-        postCode: result.data.address.postCode,
-        fullAddress: result.data.address.fullAddress,
+        companyName: externalSupplier.companyName,
+        code: externalSupplier.code,
+        taxNumber: externalSupplier.taxNumber,
+        email: externalSupplier.email,
+        firstName: externalSupplier.firstName,
+        fatherFamilyName: externalSupplier.fatherFamilyName,
+        motherFamilyName: externalSupplier.motherFamilyName,
+        url: externalSupplier.url,
+        address: externalSupplier.address,
+        currentCity: externalSupplier.address.city._id,
+        addressId: externalSupplier.address.addressId,
+        postCode: externalSupplier.address.postCode,
+        fullAddress: externalSupplier.address.fullAddress,
         openPopUp: true
       });
+      if (externalSupplier.address) {
+        getAllStateByCountry(externalSupplier.address.city.stateCountry.country.countryId);
+        getAllCityByState(externalSupplier.address.city.stateCountry._id);
+        if (externalSupplier.address.city.stateCountry.country) {
+          for (const key in allCountrys) {
+            if (allCountrys[key].countryName === externalSupplier.address.city.stateCountry.country.countryName) {
+              this.setState({ keyCountry: allCountrys[key] });
+              break;
+            }
+          }
+        }
+        if (externalSupplier.address.city.stateCountry) {
+          for (const key in allStateCountrys) {
+            if (allStateCountrys[key].stateCountryId === externalSupplier.address.city.stateCountry._id) {
+              this.setState({ keyState: allStateCountrys[key] });
+              break;
+            }
+          }
+        }
+        if (externalSupplier.address.city) {
+          for (const key in allCitys) {
+            if (allCitys[key].cityName === externalSupplier.address.city.cityName) {
+              this.setState({ keyCity: allCitys[key], cityId: allCitys[key].cityId });
+              break;
+            }
+          }
+        }
+      }
     });
   }
 
   handleDelete = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].externalSupplierId;
     ExternalSuppliersService.deleteExternalSuppliers(id).then(result => {
-      console.log(result.data);
       this.setState({ datas: result.data });
     });
   };
@@ -493,19 +527,19 @@ class ExternalSuppliersBlock extends React.Component {
   };
 
   handleChangeCountry = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllStateByCountry } = this.props;
     getAllStateByCountry(value.countryId);
+    this.setState({ keyCountry: value });
   };
 
   handleChangeState = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCityByState } = this.props;
     getAllCityByState(value.stateCountryId);
+    this.setState({ keyState: value });
   };
 
   handleChangeCity = (ev, value) => {
-    this.setState({ currentCity: value.cityId });
+    this.setState({ cityId: value.cityId, keyCity: value, currentCity: value.cityId });
   };
 
   handleChange = (ev) => {
@@ -525,7 +559,7 @@ class ExternalSuppliersBlock extends React.Component {
     const {
       datas, columns, openPopUp,
       code, companyName, firstName, fatherFamilyName, motherFamilyName, email,
-      postCode, fullAddress, taxNumber, url
+      postCode, fullAddress, taxNumber, url, keyCountry, keyState, keyCity
     } = this.state;
     const options = {
       filter: true,
@@ -679,6 +713,7 @@ class ExternalSuppliersBlock extends React.Component {
                   id="combo-box-demo"
                   options={allCountrys}
                   getOptionLabel={option => option.countryName}
+                  value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
                   onChange={this.handleChangeCountry}
                   renderInput={params => (
                     <TextField
@@ -693,6 +728,7 @@ class ExternalSuppliersBlock extends React.Component {
                   id="combo-box-demo"
                   options={allStateCountrys}
                   getOptionLabel={option => option.stateName}
+                  value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
                   onChange={this.handleChangeState}
                   style={{ marginTop: 15 }}
                   renderInput={params => (
@@ -708,6 +744,7 @@ class ExternalSuppliersBlock extends React.Component {
                   id="combo-box-demo"
                   options={allCitys}
                   getOptionLabel={option => option.cityName}
+                  value={allCitys.find(v => v.cityName === keyCity.cityName) || ''}
                   onChange={this.handleChangeCity}
                   style={{ marginTop: 15 }}
                   renderInput={params => (
