@@ -542,7 +542,6 @@ class ContractBlock extends React.Component {
         if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
       });
       this.setState({ datas: result.data });
-      console.log(this.state);
     });
     const {
       // eslint-disable-next-line react/prop-types
@@ -590,7 +589,21 @@ class ContractBlock extends React.Component {
   };
 
   myCallback = (dataFromChild) => {
-    this.setState({ openPopUp: dataFromChild });
+    ContractService.getContract().then(result => {
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        const date1 = new Date(row.finalReelDate);
+        const date2 = new Date(row.startDate);
+        const durationS = date1.getTime() - date2.getTime();
+        const durationM = Math.round(((durationS / 86400000) / 30) + 0.4);
+        row.duration = durationM;
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length > 1) row.isActive = 'Yes';
+        if (row.purchaseOrderNumber.length <= 1) row.isActive = 'No';
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
+      });
+      this.setState({ datas: result.data, openPopUp: dataFromChild });
+      console.log(this.state);
+    });
   };
 
   render() {
