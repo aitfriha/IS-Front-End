@@ -43,7 +43,6 @@ class IvaBlock extends React.Component {
       endingDate: '',
       electronicInvoice: false,
       datas: [],
-      city: {},
       keyCountry: {},
       keyState: {},
       keyCity: {},
@@ -165,19 +164,15 @@ class IvaBlock extends React.Component {
       this.setState({ datas: result.data });
     });
     // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllCountry } = this.props;
+    const { getAllCountry, changeTheme } = this.props;
     getAllCountry();
-    const {
-      // eslint-disable-next-line react/prop-types
-      changeTheme
-    } = this.props;
     changeTheme('greyTheme');
   }
 
     // eslint-disable-next-line react/sort-comp
     handleDetails = (tableMeta) => {
       const {
-        getAllStateByCountry, getAllCityByState, allCountrys, allStateCountrys, allCitys
+        getAllStateByCountry, allCountrys, allStateCountrys
       } = this.props;
       const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
@@ -247,17 +242,17 @@ class IvaBlock extends React.Component {
       });
     };
 
-  handleChangeCountry = (ev, value) => {
-    const { getAllStateByCountry } = this.props;
-    getAllStateByCountry(value.countryId);
-    this.setState({ keyCountry: value });
-  };
+    handleChangeCountry = (ev, value) => {
+      const { getAllStateByCountry } = this.props;
+      getAllStateByCountry(value.countryId);
+      this.setState({ keyCountry: value });
+    };
 
-  handleChangeState = (ev, value) => {
-    const { getAllCityByState } = this.props;
-    getAllCityByState(value.stateCountryId);
-    this.setState({ keyState: value, state: value.stateCountryId });
-  };
+    handleChangeState = (ev, value) => {
+      const { getAllCityByState } = this.props;
+      getAllCityByState(value.stateCountryId);
+      this.setState({ keyState: value, state: value.stateCountryId });
+    };
 
     handleClose = () => {
       this.setState({ openPopUp: false });

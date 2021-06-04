@@ -1246,8 +1246,7 @@ class EconomicStaffPaymentBlock extends React.Component {
 
     // eslint-disable-next-line react/sort-comp
     handleDetails = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-          + tableMeta.rowIndex;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.economicStaffsYear[index].economicStaffYearId;
       console.log(id);
@@ -1255,8 +1254,7 @@ class EconomicStaffPaymentBlock extends React.Component {
 
     // eslint-disable-next-line react/sort-comp
     handleDetailsMonth = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.economicStaffsMonth[index].economicStaffMonthId;
       console.log(id);
@@ -1264,8 +1262,7 @@ class EconomicStaffPaymentBlock extends React.Component {
 
     // eslint-disable-next-line react/sort-comp
     handleDetailsExtra = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-          + tableMeta.rowIndex;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.economicStaffsExtra[index].economicStaffExtraId;
       console.log(id);
@@ -1279,23 +1276,20 @@ class EconomicStaffPaymentBlock extends React.Component {
     };
 
     handleDelete = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.economicStaffsYear[index].economicStaffYearId;
-      console.log(id);
       EconomicStaffYearService.deleteEconomicStaffYear(id).then(result => {
         this.setState({ economicStaffsYear: result.data });
       });
     };
 
     handleDeleteMonth = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.economicStaffsMonth[index].economicStaffMonthId;
       EconomicStaffMonthService.deleteEconomicStaffMonth(id).then(result => {
-        this.setState({ economicStaffSMonth: result.data });
+        this.setState({ economicStaffsMonth: result.data, openPopUp: true });
       });
     };
 
@@ -1305,102 +1299,99 @@ class EconomicStaffPaymentBlock extends React.Component {
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.economicStaffsExtra[index].economicStaffExtraId;
       EconomicStaffExtraService.deleteEconomicStaffExtra(id).then(result => {
-        this.setState({ economicStaffSExtra: result.data });
+        this.setState({ economicStaffsExtra: result.data, openPopUp: true });
       });
     };
 
-  handleClose = () => {
-    this.setState({ openPopUp: false });
-  };
+    render() {
+      console.log(this.state);
+      const {
+        economicStaffsYear, economicStaffsMonth, economicStaffsExtra, columnsYear, columnsMonth, columnsExtra
+      } = this.state;
+      const {
+        logedUser
+      } = this.props;
+      const thelogedUser = JSON.parse(logedUser);
+      let exportButton = false;
+      if (thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export) {
+        exportButton = true;
+      }
+      const options = {
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
+        rowsPerPage: 10,
+        customToolbar: () => (
+          <CustomToolbar
+            csvData={economicStaffsYear}
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
+          />
+        )
+      };
 
-  render() {
-    const {
-      economicStaffsYear, economicStaffsMonth, economicStaffsExtra, columnsYear, columnsMonth, columnsExtra
-    } = this.state;
-    const {
-      logedUser
-    } = this.props;
-    const thelogedUser = JSON.parse(logedUser);
-    let exportButton = false;
-    if (thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export) {
-      exportButton = true;
+      const options2 = {
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
+        rowsPerPage: 10,
+        customToolbar: () => (
+          <CustomToolbar
+            csvData={economicStaffsMonth}
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
+          />
+        )
+      };
+
+      const options3 = {
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        download: exportButton,
+        print: exportButton,
+        rowsPerPage: 10,
+        customToolbar: () => (
+          <CustomToolbar
+            csvData={economicStaffsExtra}
+            hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
+            hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
+          />
+        )
+      };
+
+      return (
+        <div>
+          <MUIDataTable
+            title="Year Payment"
+            data={economicStaffsYear}
+            columns={columnsYear}
+            options={options}
+          />
+          <br />
+          <MUIDataTable
+            title="Month Payment"
+            data={economicStaffsMonth}
+            columns={columnsMonth}
+            options={options2}
+          />
+          <br />
+          <MUIDataTable
+            title="Extraordinary Payment"
+            data={economicStaffsExtra}
+            columns={columnsExtra}
+            options={options3}
+          />
+        </div>
+      );
     }
-    const options = {
-      filter: true,
-      selectableRows: false,
-      filterType: 'dropdown',
-      responsive: 'stacked',
-      download: exportButton,
-      print: exportButton,
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar
-          csvData={economicStaffsYear}
-          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
-          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
-        />
-      )
-    };
-
-    const options2 = {
-      filter: true,
-      selectableRows: false,
-      filterType: 'dropdown',
-      responsive: 'stacked',
-      download: exportButton,
-      print: exportButton,
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar
-          csvData={economicStaffsMonth}
-          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
-          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
-        />
-      )
-    };
-
-    const options3 = {
-      filter: true,
-      selectableRows: false,
-      filterType: 'dropdown',
-      responsive: 'stacked',
-      download: exportButton,
-      print: exportButton,
-      rowsPerPage: 10,
-      customToolbar: () => (
-        <CustomToolbar
-          csvData={economicStaffsExtra}
-          hasAddRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_create}
-          hasExportRole={thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicPayments_export}
-        />
-      )
-    };
-
-    return (
-      <div>
-        <MUIDataTable
-          title="Year Payment"
-          data={economicStaffsYear}
-          columns={columnsYear}
-          options={options}
-        />
-        <br />
-        <MUIDataTable
-          title="Month Payment"
-          data={economicStaffsMonth}
-          columns={columnsMonth}
-          options={options2}
-        />
-        <br />
-        <MUIDataTable
-          title="Extraordinary Payment"
-          data={economicStaffsExtra}
-          columns={columnsExtra}
-          options={options3}
-        />
-      </div>
-    );
-  }
 }
 
 const mapStateToProps = () => ({

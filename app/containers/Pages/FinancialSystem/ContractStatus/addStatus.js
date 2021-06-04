@@ -24,11 +24,15 @@ class AddStatus extends React.Component {
     this.state = {
       statusCode: 0,
       statusName: '',
+      datas: [],
       description: ''
     };
   }
 
   componentDidMount() {
+    ContractStatusService.getContractStatus().then(result => {
+      this.setState({ datas: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -38,16 +42,20 @@ class AddStatus extends React.Component {
 
     handleSubmit = () => {
       const {
-        statusCode, statusName, description
+        statusCode, statusName, description, datas
       } = this.state;
+      let exist = false;
       const ContractStatus = {
         statusCode, statusName, description
       };
-      if (statusCode !== '10') {
+      datas.map(row => {
+        if (row.statusCode === 10) exist = true;
+      });
+      if (statusCode !== '10' || !exist) {
         ContractStatusService.saveContractStatus(ContractStatus).then(result => {
           console.log(result);
+          history.push('/app/gestion-financial/Contract-Status');
         });
-        history.push('/app/gestion-financial/Contract-Status');
       }
     }
 

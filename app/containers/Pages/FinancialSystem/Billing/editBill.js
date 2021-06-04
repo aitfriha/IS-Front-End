@@ -122,7 +122,9 @@ class EditBill extends React.Component {
         totalEuro: bill.totalEuro,
         totalLocal: bill.totalLocal,
         ivaCountry: bill.iva.stateCountry.country.countryName,
-        ivaState: bill.iva.stateCountry.stateName,
+        ivaState: bill.iva._id,
+        ivaCountryId: bill.iva.stateCountry.country.countryId,
+        iva: bill.iva,
         valueIVALocal: bill.valueIVALocal,
         valueIVAEuro: bill.valueIVAEuro,
         totalAmountLocal: bill.totalAmountLocal,
@@ -137,24 +139,12 @@ class EditBill extends React.Component {
         registerDate: bill.registerDate.toString().slice(0, 10),
         openDoc: true
       });
+      IvaService.getIvaStates(bill.iva.stateCountry.country.countryName).then(results => {
+        console.log(results.data);
+        this.setState({ ivaStates: results.data });
+      });
     }
   }
-
-    handleChangeCountry = (ev, value) => {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllStateByCountry } = this.props;
-      getAllStateByCountry(value.countryId);
-    };
-
-    handleChangeState = (ev, value) => {
-      // eslint-disable-next-line no-shadow,react/prop-types
-      const { getAllCityByState } = this.props;
-      getAllCityByState(value.stateCountryId);
-    };
-
-    handleChangeCity = (ev, value) => {
-      this.setState({ currentCity: value.cityId });
-    };
 
     handleChange = (ev) => {
       if (ev.target.name === 'clientId') {
@@ -176,7 +166,7 @@ class EditBill extends React.Component {
           if (row.ivaId === id) iva = row.value;
         });
         this.setState({
-          valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local - ((iva * local) / 100), totalAmountEuro: (local - ((iva * local) / 100)) * factor
+          ivaState: id, valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local - ((iva * local) / 100), totalAmountEuro: (local - ((iva * local) / 100)) * factor
         });
       }
       if (ev.target.name === 'localCurrency') {
@@ -203,9 +193,10 @@ class EditBill extends React.Component {
       }
       if (ev.target.name === 'ivaCountry') {
         const country = ev.target.value;
-        // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
-        const ivaStates = this.state.ivas.filter(row => row.stateCountry.country.countryName === country);
-        this.setState({ ivaStates });
+        console.log(country);
+        IvaService.getIvaStates(country).then(result => {
+          this.setState({ ivaStates: result.data });
+        });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     };
