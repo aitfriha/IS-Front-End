@@ -28,6 +28,7 @@ import interact from 'interactjs';
 import Box from '@material-ui/core/Box';
 import AddIcon from '@material-ui/icons/Add';
 import ReloadIcon from '@material-ui/icons/Autorenew';
+import HistoryIcon from '@material-ui/icons/History';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -128,6 +129,7 @@ class CommercialActionsBlock extends React.Component {
       display: 'flex',
       reload: false,
       openPopUp: false,
+      openHistory: false,
       openWarning: false
     };
   }
@@ -349,7 +351,7 @@ class CommercialActionsBlock extends React.Component {
     };
 
     handleClose = () => {
-      this.setState({ openPopUp: false, openWarning: false });
+      this.setState({ openPopUp: false, openWarning: false, openHistory: false });
     };
 
     handleSave = () => {
@@ -476,6 +478,10 @@ class CommercialActionsBlock extends React.Component {
       this.setState({ openWarning: true, actionCanceledId: id });
     }
 
+    handleHistory = () => {
+      this.setState({ openHistory: true });
+    }
+
     handleReload = () => {
       const {
         staffAssign, userType
@@ -557,7 +563,7 @@ class CommercialActionsBlock extends React.Component {
           label: 'All Users',
         }];
       const {
-        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, openWarning,
+        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, openWarning, openHistory,
         descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType, allStaffAssign
       } = this.state;
       const { classes } = this.props;
@@ -576,6 +582,11 @@ class CommercialActionsBlock extends React.Component {
               <Tooltip title="Refresh the Action's Card List">
                 <IconButton onClick={() => this.handleReload()}>
                   <ReloadIcon color="secondary" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Check History">
+                <IconButton onClick={() => this.handleHistory()}>
+                  <HistoryIcon color="secondary" />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Add New Action">
@@ -1079,6 +1090,51 @@ class CommercialActionsBlock extends React.Component {
               </Button>
               <Button variant="contained" color="primary" onClick={this.handleReplaceAction}>
                 Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={openHistory}
+            keepMounted
+            scroll="paper"
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+            fullWidth="md"
+            maxWidth="md"
+          >
+            <DialogTitle id="alert-dialog-slide-title"> Commercial Action History </DialogTitle>
+            <DialogContent dividers>
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+                justify="center"
+              >
+                <Grid item xs={4}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Select Commercial Operation</InputLabel>
+                    <Select
+                      name="actionTypeId"
+                      value={actionTypeId}
+                      onChange={this.handleChange}
+                    >
+                      {
+                        actionTypes.map((clt) => (
+                          <MenuItem key={clt.actionTypeId} value={clt.actionTypeId}>
+                            {clt.typeName}
+                          </MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button color="secondary" onClick={this.handleClose}>
+                Cancel
               </Button>
             </DialogActions>
           </Dialog>

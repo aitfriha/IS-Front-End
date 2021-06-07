@@ -139,7 +139,15 @@ class AddCommercialAction extends React.Component {
   }
 
     handleChange = (ev) => {
-      this.setState({ [ev.target.name]: ev.target.value });
+      let actionTypeName;
+      if (ev.target.name === 'actionTypeId') {
+        this.state.actionTypes.map(row => {
+          if (row.actionTypeId === ev.target.value) {
+            actionTypeName = row.typeName;
+          }
+        });
+      }
+      this.setState({ [ev.target.name]: ev.target.value, actionTypeName });
     }
 
     handleCheckBox = (event) => {
@@ -174,10 +182,13 @@ class AddCommercialAction extends React.Component {
 
     handleSave = () => {
       const {
-        descriptions, objectifs, currentOperation, actionTypeId, contactsIds,
-        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions
+        descriptions, objectifs, currentOperation, actionTypeId, contactsIds, staffName, actionTypeName,
+        nbrActions, actionDescriptions, actionDates, nbrConclusions, conclusions, clientName
       } = this.state;
       const commercialOperation = currentOperation;
+      const operationName = currentOperation.name;
+      const { stateName, paymentDate, estimatedTradeVolumeInEuro } = currentOperation;
+      const sector = currentOperation.client.sector1;
       commercialOperation._id = currentOperation.commercialOperationId;
       const commercialActionType = { _id: actionTypeId };
       const CommercialAction = {
@@ -192,9 +203,18 @@ class AddCommercialAction extends React.Component {
         actionDescriptions,
         actionDates
       };
-      console.log(CommercialAction);
+      const actionHistory = {
+        staffName,
+        clientName,
+        operationName,
+        stateName,
+        actionTypeName,
+        sector,
+        paymentDate,
+        estimatedTradeVolumeInEuro
+      };
+      console.log(actionHistory);
       CommercialActionService.saveCommercialAction(CommercialAction).then(result => {
-        console.log(result);
         this.setState({ openPopUp: false });
       });
     }
