@@ -210,6 +210,7 @@ class AddContractType extends React.Component {
                   data={allContractTypeByState}
                   type="code"
                   attribute="code"
+                  lenghtCode="10"
                 />
               </div>
               <div

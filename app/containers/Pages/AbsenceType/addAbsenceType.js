@@ -217,6 +217,7 @@ class AddAbsenceType extends React.Component {
     return (
       <div>
         <PapperBlock
+          desc=""
           title="Add absence type"
           icon="ios-paper-outline"
           noMargin
@@ -297,6 +298,7 @@ class AddAbsenceType extends React.Component {
                   data={allAbsenceTypeByState}
                   type="code"
                   attribute="code"
+                  lenghtCode="10"
                 />
               </div>
               <div
