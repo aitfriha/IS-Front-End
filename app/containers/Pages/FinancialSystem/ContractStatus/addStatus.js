@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import Tooltip from '@material-ui/core/Tooltip';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import history from '../../../../utils/history';
 import ContractStatusService from '../../../Services/ContractStatusService';
@@ -23,11 +24,15 @@ class AddStatus extends React.Component {
     this.state = {
       statusCode: 0,
       statusName: '',
+      datas: [],
       description: ''
     };
   }
 
   componentDidMount() {
+    ContractStatusService.getContractStatus().then(result => {
+      this.setState({ datas: result.data });
+    });
     const {
       // eslint-disable-next-line react/prop-types
       changeTheme
@@ -37,16 +42,20 @@ class AddStatus extends React.Component {
 
     handleSubmit = () => {
       const {
-        statusCode, statusName, description
+        statusCode, statusName, description, datas
       } = this.state;
+      let exist = false;
       const ContractStatus = {
         statusCode, statusName, description
       };
-      if (statusCode !== '10') {
+      datas.map(row => {
+        if (row.statusCode === 10) exist = true;
+      });
+      if (statusCode !== '10' || !exist) {
         ContractStatusService.saveContractStatus(ContractStatus).then(result => {
           console.log(result);
+          history.push('/app/gestion-financial/Contract-Status');
         });
-        history.push('/app/gestion-financial/Contract-Status');
       }
     }
 
@@ -86,9 +95,11 @@ class AddStatus extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <Grid

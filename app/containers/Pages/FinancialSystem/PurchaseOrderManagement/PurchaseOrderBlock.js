@@ -42,7 +42,6 @@ import ClientService from '../../../Services/ClientService';
 import ContractService from '../../../Services/ContractService';
 import PrintButton from './PrintButton';
 
-
 const useStyles = makeStyles(styles);
 
 class PurchaseOrderBlock extends React.Component {
@@ -743,7 +742,6 @@ class PurchaseOrderBlock extends React.Component {
 
   componentDidMount() {
     PurchaseOrderService.getPurchaseOrder().then(result => {
-      console.log(result);
       this.setState({ datas: result.data });
     });
     FinancialCompanyService.getCompany().then(result => {
@@ -767,16 +765,13 @@ class PurchaseOrderBlock extends React.Component {
       this.setState({ contracts: result.data, contractsClient: result.data });
       console.log(this.state);
     });
-    const {
-      // eslint-disable-next-line react/prop-types
-      changeTheme
-    } = this.props;
+    // eslint-disable-next-line no-shadow,react/prop-types
+    const { changeTheme } = this.props;
     changeTheme('greyTheme');
   }
 
   handlePrint2 = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].purchaseOrderId;
     PurchaseOrderService.getPurchaseOrderById(id).then(result => {
@@ -788,73 +783,77 @@ class PurchaseOrderBlock extends React.Component {
     });
   }
 
-  // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].purchaseOrderId;
     PurchaseOrderService.getPurchaseOrderById(id).then(result => {
+      const purchaseOrder = result.data;
+      console.log(purchaseOrder);
       this.setState({
         purchaseOrderId: id,
-        purchaseNumber: result.data.purchaseNumber,
-        companyDataEmit: result.data.companyEmit._id,
-        companyLogo: result.data.companyLogo,
-        internLogo: result.data.internLogo,
-        companyNIF: result.data.companyNIF,
-        companyAddress: result.data.companyAddress,
-        receptionSupplierExternal: result.data.externalSupplierReception ? result.data.externalSupplierReception._id : '',
-        receptionSupplierInternal: result.data.internalSupplierReception ? result.data.internalSupplierReception._id : '',
-        receptionSupplierType: result.data.receptionSupplierType,
-        supplierNIF: result.data.supplierNIF,
-        supplierResponsible: result.data.supplierResponsible,
-        supplierAddress: result.data.supplierAddress,
-        ivaState: result.data.iva._id,
-        ivaCountry: result.data.iva.stateCountry.country.countryName,
-        nbrConcepts: result.data.nbrConcepts,
-        termsListe: result.data.termsListe,
-        itemNames: result.data.itemNames,
-        description: result.data.description,
-        unityValue: result.data.unityValue,
-        unity: result.data.unity,
-        valor: result.data.valor,
-        unityNumber: result.data.unityNumber,
-        givingDate: result.data.givingDate,
-        paymentDate: result.data.paymentDate,
-        billingDate: result.data.billingDate,
-        termTitle: result.data.termTitle,
-        termDescription: result.data.termDescription,
-        totalEuro: result.data.totalEuro,
-        totalLocal: result.data.totalLocal,
-        valueIVAEuro: result.data.valueIVAEuro,
-        valueIVALocal: result.data.valueIVALocal,
-        totalAmountEuro: result.data.totalAmountEuro,
-        totalAmountLocal: result.data.totalAmountLocal,
-        factor: result.data.factor,
-        ivaRetentions: result.data.ivaRetentions,
-        totalAmountRetentions: result.data.totalAmountRetentions,
-        totalIvaRetention: result.data.totalIvaRetention,
-        paymentMethod: result.data.paymentMethod,
-        localCurrency: result.data.currency._id,
-        typeClient: result.data.typeClient,
-        clientId: result.data.client._id,
-        contractId: result.data.typeClient === 'contract' ? result.data.financialContract._id : '',
-        haveExternal: result.data.type === 'external',
-        haveInternal: result.data.type === 'internal',
-        poClient: result.data.typeClient === 'po',
-        contractClient: result.data.typeClient === 'contract',
+        purchaseNumber: purchaseOrder.purchaseNumber,
+        companyDataEmit: purchaseOrder.companyEmit._id,
+        companyLogo: purchaseOrder.companyLogo,
+        internLogo: purchaseOrder.internLogo,
+        companyNIF: purchaseOrder.companyNIF,
+        companyAddress: purchaseOrder.companyAddress,
+        receptionSupplierExternal: purchaseOrder.externalSupplierReception ? purchaseOrder.externalSupplierReception._id : '',
+        receptionSupplierInternal: purchaseOrder.internalSupplierReception ? purchaseOrder.internalSupplierReception._id : '',
+        receptionSupplierType: purchaseOrder.receptionSupplierType,
+        supplierNIF: purchaseOrder.supplierNIF,
+        supplierResponsible: purchaseOrder.supplierResponsible,
+        supplierAddress: purchaseOrder.supplierAddress,
+        ivaState: purchaseOrder.iva._id,
+        ivaCountry: purchaseOrder.iva.stateCountry.country.countryName,
+        ivaCountryId: purchaseOrder.iva.stateCountry.country.countryId,
+        iva: purchaseOrder.iva,
+        nbrConcepts: purchaseOrder.nbrConcepts,
+        termsListe: purchaseOrder.termsListe,
+        itemNames: purchaseOrder.itemNames,
+        description: purchaseOrder.description,
+        unityValue: purchaseOrder.unityValue,
+        unity: purchaseOrder.unity,
+        valor: purchaseOrder.valor,
+        unityNumber: purchaseOrder.unityNumber,
+        givingDate: purchaseOrder.givingDate,
+        paymentDate: purchaseOrder.paymentDate,
+        billingDate: purchaseOrder.billingDate,
+        termTitle: purchaseOrder.termTitle,
+        termDescription: purchaseOrder.termDescription,
+        totalEuro: purchaseOrder.totalEuro,
+        totalLocal: purchaseOrder.totalLocal,
+        valueIVAEuro: purchaseOrder.valueIVAEuro,
+        valueIVALocal: purchaseOrder.valueIVALocal,
+        totalAmountEuro: purchaseOrder.totalAmountEuro,
+        totalAmountLocal: purchaseOrder.totalAmountLocal,
+        factor: purchaseOrder.factor,
+        ivaRetentions: purchaseOrder.ivaRetentions,
+        totalAmountRetentions: purchaseOrder.totalAmountRetentions,
+        totalIvaRetention: purchaseOrder.totalIvaRetention,
+        paymentMethod: purchaseOrder.paymentMethod,
+        localCurrency: purchaseOrder.currency._id,
+        typeClient: purchaseOrder.typeClient,
+        clientId: purchaseOrder.client._id,
+        contractId: purchaseOrder.typeClient === 'contract' ? purchaseOrder.financialContract._id : '',
+        haveExternal: purchaseOrder.type === 'external',
+        haveInternal: purchaseOrder.type === 'internal',
+        poClient: purchaseOrder.typeClient === 'po',
+        contractClient: purchaseOrder.typeClient === 'contract',
         openPopUp: true
+      });
+      IvaService.getIvaStates(purchaseOrder.iva.stateCountry.country.countryName).then(results => {
+        console.log(results.data);
+        this.setState({ ivaStates: results.data });
       });
     });
   }
 
   handleDelete = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].purchaseOrderId;
     PurchaseOrderService.deletePurchaseOrder(id).then(result => {
-      console.log(result.data);
       this.setState({ datas: result.data });
     });
   };
@@ -975,7 +974,7 @@ class PurchaseOrderBlock extends React.Component {
           if (row.ivaId === id) iva = row.value;
         });
         this.setState({
-          valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local + ((iva * local) / 100), totalAmountEuro: (local + ((iva * local) / 100)) * factor
+          ivaState: id, valueIVALocal: (iva * local) / 100, valueIVAEuro: ((iva * local) / 100) * factor, totalAmountLocal: local + ((iva * local) / 100), totalAmountEuro: (local + ((iva * local) / 100)) * factor
         });
       }
       if (ev.target.name === 'localCurrency') {
@@ -993,7 +992,6 @@ class PurchaseOrderBlock extends React.Component {
         const country = ev.target.value;
         console.log(country);
         IvaService.getIvaStates(country).then(result => {
-          console.log(result.data);
           this.setState({ ivaStates: result.data });
         });
       }
@@ -1157,10 +1155,6 @@ class PurchaseOrderBlock extends React.Component {
           termsListe: newDocs, termTitle: newDocs2, termDescription: newDocs3
         });
       }
-    }
-
-    handlePrintChild = () => {
-      this.setState({ print: true, print2: false });
     }
 
     handleClose = () => {
@@ -2077,12 +2071,9 @@ PurchaseOrderBlock.propTypes = {
 const mapStateToProps = () => ({
   logedUser: localStorage.getItem('logedUser'),
 });
-const mapDispatchToProps = dispatch => bindActionCreators({
-}, dispatch);
 
 const ExternalSuppliersBlockMapped = connect(
   mapStateToProps,
-  mapDispatchToProps
 )(PurchaseOrderBlock);
 
 export default () => {

@@ -767,8 +767,7 @@ class BillingBlock extends React.Component {
 
   // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].billId;
     BillService.getBillById(id).then(result => {

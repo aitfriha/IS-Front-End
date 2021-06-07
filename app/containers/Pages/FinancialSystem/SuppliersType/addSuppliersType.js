@@ -12,6 +12,7 @@ import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { connect } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Tooltip from '@material-ui/core/Tooltip';
 import history from '../../../../utils/history';
 import SuppliersTypeService from '../../../Services/SuppliersTypeService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
@@ -96,9 +97,11 @@ class AddSuppliersType extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <br />

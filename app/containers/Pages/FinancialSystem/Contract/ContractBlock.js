@@ -4,16 +4,19 @@ import IconButton from '@material-ui/core/IconButton';
 import DetailsIcon from '@material-ui/icons/Details';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import {
-  Dialog, DialogContent, DialogTitle, Grid
+  Dialog, DialogContent, DialogTitle
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import CustomToolbar from '../../../../components/CustomToolbar/CustomToolbar';
 import EditContract from './editContract';
 import ContractService from '../../../Services/ContractService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import styles from './contract-jss';
+import { getAllStateByCountry } from '../../../../redux/stateCountry/actions';
+import { getAllCityByState } from '../../../../redux/city/actions';
 
 const useStyles = makeStyles(styles);
 
@@ -539,7 +542,6 @@ class ContractBlock extends React.Component {
         if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
       });
       this.setState({ datas: result.data });
-      console.log(this.state);
     });
     const {
       // eslint-disable-next-line react/prop-types
@@ -548,14 +550,15 @@ class ContractBlock extends React.Component {
     changeTheme('greyTheme');
   }
 
-  // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const { getAllStateByCountry, getAllCityByState } = this.props;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].financialContractId;
     ContractService.getContractById(id).then(result => {
       const contract = result.data;
+      getAllStateByCountry(contract.address.city.stateCountry.country.countryId);
+      getAllCityByState(contract.address.city.stateCountry._id);
       this.setState({ openPopUp: true, contract });
     });
   }
@@ -586,7 +589,21 @@ class ContractBlock extends React.Component {
   };
 
   myCallback = (dataFromChild) => {
-    this.setState({ openPopUp: dataFromChild });
+    ContractService.getContract().then(result => {
+      // eslint-disable-next-line array-callback-return
+      result.data.map(row => {
+        const date1 = new Date(row.finalReelDate);
+        const date2 = new Date(row.startDate);
+        const durationS = date1.getTime() - date2.getTime();
+        const durationM = Math.round(((durationS / 86400000) / 30) + 0.4);
+        row.duration = durationM;
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length > 1) row.isActive = 'Yes';
+        if (row.purchaseOrderNumber.length <= 1) row.isActive = 'No';
+        if (row.purchaseOrderNumber.length > 1 && row.contractDocumentation.length === 0) row.isActive = 'Zombie';
+      });
+      this.setState({ datas: result.data, openPopUp: dataFromChild });
+      console.log(this.state);
+    });
   };
 
   render() {
@@ -594,7 +611,7 @@ class ContractBlock extends React.Component {
       datas, columns, openPopUp, contract
     } = this.state;
     const {
-      logedUser
+      allStateCountrys, allCitys, logedUser
     } = this.props;
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
@@ -640,7 +657,7 @@ class ContractBlock extends React.Component {
         >
           <DialogTitle id="alert-dialog-slide-title"> View Details</DialogTitle>
           <DialogContent dividers>
-            <EditContract Info={contract} callbackFromParent={this.myCallback} />
+            <EditContract Info={contract} allStateCountrys={allStateCountrys} allCitys={allCitys} callbackFromParent={this.myCallback} />
           </DialogContent>
         </Dialog>
       </div>
@@ -648,11 +665,36 @@ class ContractBlock extends React.Component {
   }
 }
 
-const mapStateToProps = () => ({
+const mapStateToProps = (state) => ({
+  // country
+  allCountrys: state.getIn(['countries']).allCountrys,
+  countryResponse: state.getIn(['countries']).countryResponse,
+  isLoading: state.getIn(['countries']).isLoading,
+  errors: state.getIn(['countries']).errors,
+
+  // state
+  allStateCountrys: state.getIn(['stateCountries']).allStateCountrys,
+  stateCountryResponse: state.getIn(['stateCountries']).stateCountryResponse,
+  isLoadingState: state.getIn(['stateCountries']).isLoading,
+  errorsState: state.getIn(['stateCountries']).errors,
+
+  // city
+  allCitys: state.getIn(['cities']).allCitys,
+  cityResponse: state.getIn(['cities']).cityResponse,
+  isLoadingCity: state.getIn(['cities']).isLoading,
+  errorsCity: state.getIn(['cities']).errors,
   logedUser: localStorage.getItem('logedUser'),
 });
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    getAllStateByCountry,
+    getAllCityByState
+  },
+  dispatch
+);
 const ContractBlockMapped = connect(
   mapStateToProps,
+  mapDispatchToProps,
   null
 )(ContractBlock);
 

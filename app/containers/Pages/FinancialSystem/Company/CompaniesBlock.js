@@ -33,6 +33,7 @@ class CompaniesBlock extends React.Component {
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       financialCompanyId: '',
+      cityId: '',
       name: '',
       code: '',
       taxNumber: '',
@@ -47,6 +48,10 @@ class CompaniesBlock extends React.Component {
       currentCity: '',
       addressId: '',
       datas: [],
+      city: {},
+      keyCountry: {},
+      keyState: {},
+      keyCity: {},
       columns: [
         {
           name: 'logo',
@@ -388,7 +393,6 @@ class CompaniesBlock extends React.Component {
 
   componentDidMount() {
     FinancialCompanyService.getCompany().then(result => {
-      console.log(result);
       this.setState({ datas: result.data });
     });
     // eslint-disable-next-line no-shadow,react/prop-types
@@ -403,37 +407,66 @@ class CompaniesBlock extends React.Component {
 
   // eslint-disable-next-line react/sort-comp
   handleDetails = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const {
+      getAllStateByCountry, getAllCityByState, allCountrys, allStateCountrys, allCitys
+    } = this.props;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].financialCompanyId;
     FinancialCompanyService.getCompanyById(id).then(result => {
-      console.log(result.data);
+      const company = result.data;
       this.setState({
-        financialCompanyId: result.data._id,
-        name: result.data.name,
-        code: result.data.code,
-        taxNumber: result.data.taxNumber,
-        email: result.data.email,
-        phone1: result.data.phone1,
-        phone2: result.data.phone2,
-        logo: result.data.logo,
-        address: result.data.address,
-        addressId: result.data.address.addressId,
-        postCode: result.data.address.postCode,
-        fullAddress: result.data.address.fullAddress,
+        financialCompanyId: company._id,
+        name: company.name,
+        code: company.code,
+        taxNumber: company.taxNumber,
+        email: company.email,
+        phone1: company.phone1,
+        phone2: company.phone2,
+        logo: company.logo,
+        address: company.address,
+        currentCity: company.address.city._id,
+        addressId: company.address.addressId,
+        postCode: company.address.postCode,
+        fullAddress: company.address.fullAddress,
         openPopUp: true
       });
+      if (company.address) {
+        getAllStateByCountry(company.address.city.stateCountry.country.countryId);
+        getAllCityByState(company.address.city.stateCountry._id);
+        if (company.address.city.stateCountry.country) {
+          for (const key in allCountrys) {
+            if (allCountrys[key].countryName === company.address.city.stateCountry.country.countryName) {
+              this.setState({ keyCountry: allCountrys[key] });
+              break;
+            }
+          }
+        }
+        if (company.address.city.stateCountry) {
+          for (const key in allStateCountrys) {
+            if (allStateCountrys[key].stateCountryId === company.address.city.stateCountry._id) {
+              this.setState({ keyState: allStateCountrys[key] });
+              break;
+            }
+          }
+        }
+        if (company.address.city) {
+          for (const key in allCitys) {
+            if (allCitys[key].cityName === company.address.city.cityName) {
+              this.setState({ keyCity: allCitys[key], cityId: allCitys[key].cityId });
+              break;
+            }
+          }
+        }
+      }
     });
   }
 
   handleDelete = (tableMeta) => {
-    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+    const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
     // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
     const id = this.state.datas[index].financialCompanyId;
     FinancialCompanyService.deleteCompany(id).then(result => {
-      console.log(result.data);
       this.setState({ datas: result.data });
     });
   };
@@ -449,7 +482,6 @@ class CompaniesBlock extends React.Component {
     const FinancialCompany = {
       financialCompanyId, name, code, taxNumber, email, phone1, phone2, logo, address
     };
-
     FinancialCompanyService.updateCompany(FinancialCompany).then(result => {
       this.setState({ datas: result.data, openPopUp: false });
     });
@@ -460,19 +492,19 @@ class CompaniesBlock extends React.Component {
   };
 
   handleChangeCountry = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllStateByCountry } = this.props;
     getAllStateByCountry(value.countryId);
+    this.setState({ keyCountry: value });
   };
 
   handleChangeState = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
     const { getAllCityByState } = this.props;
     getAllCityByState(value.stateCountryId);
+    this.setState({ keyState: value });
   };
 
   handleChangeCity = (ev, value) => {
-    this.setState({ currentCity: value.cityId });
+    this.setState({ cityId: value.cityId, keyCity: value, currentCity: value.cityId });
   };
 
   handleChange = (ev) => {
@@ -496,6 +528,7 @@ class CompaniesBlock extends React.Component {
   };
 
   render() {
+    console.log(this.state);
     const {
       // eslint-disable-next-line react/prop-types
       allCountrys, allStateCountrys, allCitys, logedUser
@@ -503,7 +536,7 @@ class CompaniesBlock extends React.Component {
     const {
       datas, columns, openPopUp,
       name, code, taxNumber, email, phone1, phone2, logo,
-      postCode, fullAddress
+      postCode, fullAddress, keyCountry, keyState, keyCity
     } = this.state;
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
@@ -666,6 +699,7 @@ class CompaniesBlock extends React.Component {
                   id="combo-box-demo"
                   options={allCountrys}
                   getOptionLabel={option => option.countryName}
+                  value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
                   onChange={this.handleChangeCountry}
                   renderInput={params => (
                     <TextField
@@ -680,6 +714,7 @@ class CompaniesBlock extends React.Component {
                   id="combo-box-demo"
                   options={allStateCountrys}
                   getOptionLabel={option => option.stateName}
+                  value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
                   onChange={this.handleChangeState}
                   style={{ marginTop: 15 }}
                   renderInput={params => (
@@ -695,6 +730,7 @@ class CompaniesBlock extends React.Component {
                   id="combo-box-demo"
                   options={allCitys}
                   getOptionLabel={option => option.cityName}
+                  value={allCitys.find(v => v.cityName === keyCity.cityName) || ''}
                   onChange={this.handleChangeCity}
                   style={{ marginTop: 15 }}
                   renderInput={params => (

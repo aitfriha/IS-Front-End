@@ -72,7 +72,7 @@ class EditEconomicStaff extends React.Component {
           contributionSalaryEuro: economicStaff.contributionSalaryEuro,
           companyCostEuro: economicStaff.companyCostEuro,
           currencyId: economicStaff.currency._id,
-          currencyCode: economicStaff.currency.currencyCode
+          currencyCode: economicStaff.currency.typeOfCurrency.currencyCode
         });
       }
     }

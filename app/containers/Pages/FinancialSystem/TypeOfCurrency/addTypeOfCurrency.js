@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { connect } from 'react-redux';
+import Tooltip from '@material-ui/core/Tooltip';
 import history from '../../../../utils/history';
 import TypeOfCurrencylService from '../../../Services/TypeOfCurrencylService';
 
@@ -84,9 +85,11 @@ class AddTypeOfCurrency extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <Grid

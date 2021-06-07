@@ -504,14 +504,14 @@ class EconomicStaffBlock extends React.Component {
                     Year
                   </Button>
                 </IconButton>
-                <IconButton size="small" onClick={() => this.handleStaffs(tableMeta)}>
-                  <Button size="small" variant="contained" style={{ color: red[700], fontSize: 12 }}>
-                    Staff
-                  </Button>
-                </IconButton>
                 <IconButton size="small" onClick={() => this.handleExtra(tableMeta)}>
                   <Button size="small" variant="contained" style={{ color: green[700], fontSize: 12 }}>
                     Extra
+                  </Button>
+                </IconButton>
+                <IconButton size="small" onClick={() => this.handleStaffs(tableMeta)}>
+                  <Button size="small" variant="contained" style={{ color: red[700], fontSize: 12 }}>
+                    Staff
                   </Button>
                 </IconButton>
                 {thelogedUser.userRoles[0].actionsNames.financialModule_staffEconomicManagement_access ? (

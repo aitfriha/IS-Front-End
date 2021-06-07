@@ -15,6 +15,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { bindActionCreators } from 'redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import Tooltip from '@material-ui/core/Tooltip';
 import { ThemeContext } from '../../../App/ThemeWrapper';
 import history from '../../../../utils/history';
 import IvaService from '../../../Services/IvaService';
@@ -120,9 +121,11 @@ class AddIVA extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <Grid

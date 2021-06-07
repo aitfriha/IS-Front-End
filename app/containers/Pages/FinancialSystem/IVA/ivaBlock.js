@@ -34,6 +34,7 @@ class IvaBlock extends React.Component {
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       ivaId: '',
+      cityId: '',
       ivaCode: '',
       stateCountry: '',
       state: '',
@@ -42,6 +43,9 @@ class IvaBlock extends React.Component {
       endingDate: '',
       electronicInvoice: false,
       datas: [],
+      keyCountry: {},
+      keyState: {},
+      keyCity: {},
       openPopUp: false,
       columns: [
         {
@@ -157,41 +161,58 @@ class IvaBlock extends React.Component {
 
   componentDidMount() {
     IvaService.getIva().then(result => {
-      console.log(result);
       this.setState({ datas: result.data });
     });
     // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllCountry } = this.props;
+    const { getAllCountry, changeTheme } = this.props;
     getAllCountry();
-    const {
-      // eslint-disable-next-line react/prop-types
-      changeTheme
-    } = this.props;
     changeTheme('greyTheme');
   }
 
     // eslint-disable-next-line react/sort-comp
     handleDetails = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-          + tableMeta.rowIndex;
+      const {
+        getAllStateByCountry, allCountrys, allStateCountrys
+      } = this.props;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].ivaId;
       IvaService.getIvaById(id).then(result => {
+        const iva = result.data;
+        console.log(iva);
         this.setState({
-          ivaId: result.data._id,
-          ivaCode: result.data.ivaCode,
-          state: result.data.stateCountry._id,
-          stateName: result.data.stateCountry.stateName,
-          countryName: result.data.stateCountry.country.countryName,
-          stateCountry: result.data.stateCountry.country.countryId,
-          value: result.data.value,
-          startingDate: result.data.startingDate.substr(0, 10),
-          endingDate: result.data.endingDate !== null ? result.data.endingDate.substr(0, 10) : '',
-          electronicInvoice: result.data.electronicInvoice,
+          ivaId: iva._id,
+          ivaCode: iva.ivaCode,
+          state: iva.stateCountry._id,
+          stateName: iva.stateCountry.stateName,
+          countryName: iva.stateCountry.country.countryName,
+          stateCountry: iva.stateCountry.country.countryId,
+          value: iva.value,
+          startingDate: iva.startingDate.substr(0, 10),
+          endingDate: iva.endingDate !== null ? result.data.endingDate.substr(0, 10) : '',
+          electronicInvoice: iva.electronicInvoice,
           openPopUp: true
         });
-        console.log(this.state);
-        console.log(this.props);
+        if (iva.stateCountry) {
+          getAllStateByCountry(iva.stateCountry.country.countryId);
+          // getAllCityByState(company.address.city.stateCountry._id);
+          if (iva.stateCountry.country) {
+            for (const key in allCountrys) {
+              if (allCountrys[key].countryName === iva.stateCountry.country.countryName) {
+                this.setState({ keyCountry: allCountrys[key] });
+                break;
+              }
+            }
+          }
+          if (iva.stateCountry) {
+            for (const key in allStateCountrys) {
+              if (allStateCountrys[key].stateCountryId === iva.stateCountry._id) {
+                this.setState({ keyState: allStateCountrys[key] });
+                break;
+              }
+            }
+          }
+        }
       });
     }
 
@@ -213,8 +234,7 @@ class IvaBlock extends React.Component {
     };
 
     handleDelete = (tableMeta) => {
-      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage
-        + tableMeta.rowIndex;
+      const index = tableMeta.tableState.page * tableMeta.tableState.rowsPerPage + tableMeta.rowIndex;
       // eslint-disable-next-line react/destructuring-assignment,react/no-access-state-in-setstate
       const id = this.state.datas[index].ivaId;
       IvaService.deleteIva(id).then(result => {
@@ -222,18 +242,17 @@ class IvaBlock extends React.Component {
       });
     };
 
-  handleChangeCountry = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllStateByCountry } = this.props;
-    getAllStateByCountry(value.countryId);
-  };
+    handleChangeCountry = (ev, value) => {
+      const { getAllStateByCountry } = this.props;
+      getAllStateByCountry(value.countryId);
+      this.setState({ keyCountry: value });
+    };
 
-  handleChangeState = (ev, value) => {
-    // eslint-disable-next-line no-shadow,react/prop-types
-    const { getAllCityByState } = this.props;
-    getAllCityByState(value.stateCountryId);
-    this.setState({ state: value.stateCountryId });
-  };
+    handleChangeState = (ev, value) => {
+      const { getAllCityByState } = this.props;
+      getAllCityByState(value.stateCountryId);
+      this.setState({ keyState: value, state: value.stateCountryId });
+    };
 
     handleClose = () => {
       this.setState({ openPopUp: false });
@@ -251,7 +270,7 @@ class IvaBlock extends React.Component {
         allCountrys, allStateCountrys, logedUser
       } = this.props;
       const {
-        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode
+        columns, openPopUp, datas, value, startingDate, endingDate, electronicInvoice, ivaCode, keyCountry, keyState
       } = this.state;
       const thelogedUser = JSON.parse(logedUser);
       let exportButton = false;
@@ -324,12 +343,13 @@ class IvaBlock extends React.Component {
                     />
                   </Grid>
                   <Grid item xs={12} md={4} sm={4}>
+                    <br />
                     <Autocomplete
                       id="combo-box-demo"
                       options={allCountrys}
                       getOptionLabel={option => option.countryName}
+                      value={allCountrys.find(v => v.countryName === keyCountry.countryName) || ''}
                       onChange={this.handleChangeCountry}
-                      style={{ marginTop: 15 }}
                       renderInput={params => (
                         <TextField
                           fullWidth
@@ -345,6 +365,7 @@ class IvaBlock extends React.Component {
                       id="combo-box-demo"
                       options={allStateCountrys}
                       getOptionLabel={option => option.stateName}
+                      value={allStateCountrys.find(v => v.stateName === keyState.stateName) || ''}
                       onChange={this.handleChangeState}
                       style={{ marginTop: 15 }}
                       renderInput={params => (

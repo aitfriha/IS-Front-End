@@ -119,17 +119,22 @@ class StatusBlock extends React.Component {
 
   handleSave = () => {
     const {
-      statusCode, statusName, description, contractStatusId
+      statusCode, statusName, description, contractStatusId, datas
     } = this.state;
+    let exist = false;
     const ContractStatus = {
       statusCode, statusName, description, contractStatusId
     };
-    if (statusCode !== 10 && statusName !== 'FINISHED') {
-      ContractStatusService.updateContractStatus(ContractStatus).then(result => {
-        this.setState({ datas: result.data });
-      });
+    datas.map(row => {
+      if (row.statusCode === 10) exist = true;
+    });
+    if (statusCode !== '10' || !exist) {
+      if (statusName.toUpperCase() !== 'FINISHED') {
+        ContractStatusService.updateContractStatus(ContractStatus).then(result => {
+          this.setState({ datas: result.data, openPopUp: false });
+        });
+      }
     }
-    this.setState({ openPopUp: false });
   };
 
   handleChange = (ev) => {
@@ -137,6 +142,7 @@ class StatusBlock extends React.Component {
   };
 
   render() {
+    console.log(this.state);
     const {
       columns, openPopUp, datas, statusCode, statusName, description
     } = this.state;

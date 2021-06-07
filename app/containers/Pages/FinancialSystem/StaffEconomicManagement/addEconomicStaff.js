@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { bindActionCreators } from 'redux';
+import Tooltip from '@material-ui/core/Tooltip';
 import history from '../../../../utils/history';
 import EconomicStaffService from '../../../Services/EconomicStaffService';
 import { ThemeContext } from '../../../App/ThemeWrapper';
@@ -219,9 +220,11 @@ class AddEconomicStaff extends React.Component {
             <Grid container spacing={1}>
               <Grid item xs={11} />
               <Grid item xs={1}>
-                <IconButton onClick={() => this.handleGoBack()}>
-                  <KeyboardBackspaceIcon color="secondary" />
-                </IconButton>
+                <Tooltip title="Back to List">
+                  <IconButton onClick={() => this.handleGoBack()}>
+                    <KeyboardBackspaceIcon color="secondary" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <Typography variant="subtitle2" component="h2" color="primary">
