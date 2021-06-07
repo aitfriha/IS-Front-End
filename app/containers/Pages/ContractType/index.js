@@ -430,6 +430,7 @@ class ContractType extends React.Component {
               required
               className={classes.textField}
               onChange={this.handleChange}
+              inputProps={{ maxLength: 10 }}
             />
             <TextField
               id="outlined-basic"

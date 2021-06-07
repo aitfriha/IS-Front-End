@@ -98,7 +98,7 @@ class AddContractModel extends React.Component {
     return (
       <div>
         <PapperBlock
-          title="Add contract type"
+          title="Add contract model"
           icon="ios-paper-outline"
           noMargin
           whiteBg
