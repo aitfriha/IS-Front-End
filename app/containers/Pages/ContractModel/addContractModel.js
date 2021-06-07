@@ -127,6 +127,7 @@ class AddContractModel extends React.Component {
                   data={allContractModel}
                   type="code"
                   attribute="code"
+                  lenghtCode="10"
                 />
               </div>
               <div style={{ width: '40%' }}>
