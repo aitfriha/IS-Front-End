@@ -13,7 +13,9 @@ import styles from './AutoComplete-jss';
 // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
 const escapeRegexCharacters = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 function renderInput(inputProps) {
-  const { classes, ref, ...other } = inputProps;
+  const {
+    classes, ref, lenghtCode, ...other
+  } = inputProps;
   return (
     <TextField
       variant="outlined"
@@ -22,6 +24,7 @@ function renderInput(inputProps) {
         inputRef: ref,
         ...other
       }}
+      inputProps={{ maxLength: lenghtCode }}
       fullWidth
     />
   );
@@ -133,13 +136,14 @@ class AutoComplete extends React.Component {
   render() {
     const { value, suggestions } = this.state;
     const {
-      classes, style, placeholder, data
+      classes, style, placeholder, data,lenghtCode
     } = this.props;
     const inputProps = {
       classes,
       placeholder,
       value,
       style,
+      lenghtCode,
       onChange: this.onChange
     };
     return (

@@ -522,7 +522,7 @@ class AbsenceRequest extends React.Component {
           </DialogActions>
         </Dialog>
         <PapperBlock
-          title="Staff Absence Requests"
+          title="Staff Absence Consult Requests"
           icon="ios-paper-outline"
           noMargin
         >

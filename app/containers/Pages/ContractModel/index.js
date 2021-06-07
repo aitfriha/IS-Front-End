@@ -170,6 +170,34 @@ class ContractModel extends React.Component {
     });
   };
 
+  /*  handleOpenDeleteDialog = tableMeta => {
+    const { allContractModel, getAllStaffContractByContractModel } = this.props;
+    const promise = new Promise(resolve => {
+      // get client information
+      getAllStaffContractByContractModel(tableMeta.rowData[0]);
+      this.editingPromiseResolve2 = resolve;
+    });
+    promise.then(result => {
+      if (this.props.allStaffContractByContractModel.length === 0) {
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: false,
+          oldId: tableMeta.rowData[0]
+        });
+      } else {
+        const replaceContractModelList = allContractModel.filter(
+            model => model.contractModelId !== tableMeta.rowData[0]
+        );
+
+        this.setState({
+          isDeleteDialogOpen: true,
+          isRelated: true,
+          oldId: tableMeta.rowData[0],
+          replaceContractModelList
+        });
+      }
+    });
+  }; */
   handleOpenDeleteDialog = tableMeta => {
     const { allContractModel, getAllStaffContractByContractModel } = this.props;
     const promise = new Promise(resolve => {
@@ -182,16 +210,17 @@ class ContractModel extends React.Component {
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: false,
-          oldId: allContractModel[index].contractModelId
+          oldId: tableMeta.rowData[0]
         });
       } else {
         const replaceContractModelList = allContractModel.filter(
-          model => model.contractModelId !== allContractModel[index].contractModelId
+          model => model.contractModelId !== tableMeta.rowData[0]
         );
+
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: true,
-          oldId: allContractModel[index].contractModelId,
+          oldId: tableMeta.rowData[0],
           replaceContractModelList
         });
       }
