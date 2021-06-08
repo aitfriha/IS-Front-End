@@ -44,6 +44,7 @@ import CommercialOperationService from '../../Services/CommercialOperationServic
 import CommercialActionService from '../../Services/CommercialActionService';
 import AssignmentService from '../../Services/AssignmentService';
 import ActionTypeService from '../../Services/ActionTypeService';
+import HistoryActionService from '../../Services/HistoryActionService';
 import history from '../../../utils/history';
 import PapperBlock from '../../../components/PapperBlock/PapperBlock';
 const styles = theme => ({
@@ -102,6 +103,7 @@ class AddCommercialAction extends React.Component {
   componentDidMount() {
     let respoNumber = 0;
     let respoAssistance = 0;
+    const newTab = [];
     // eslint-disable-next-line react/prop-types
     const { logedUser } = this.props;
     const thelogedUser = JSON.parse(logedUser);
@@ -119,18 +121,18 @@ class AddCommercialAction extends React.Component {
       this.setState({ operations: result.data.payload });
     });
     AssignmentService.getAssignments().then(result => {
-      console.log(result.data);
       const staffAssign = result.data.filter(row => (row.staff.companyEmail === thelogedUser.userEmail));
-      console.log(staffAssign);
       // eslint-disable-next-line array-callback-return
       staffAssign.map(row => {
         // eslint-disable-next-line no-plusplus
         if (row.typeStaff === 'Responsible Commercial') respoNumber++;
         // eslint-disable-next-line no-plusplus
         if (row.typeStaff === 'Assistant Commercial') respoAssistance++;
+        if (newTab.find(column => column.client._id === row.client._id)) console.log('assign exist');
+        else newTab.push(row);
       });
       this.setState({
-        assignments: result.data, staffName: staffAssign[0].staff.fullName, staffId: staffAssign[0].staff.staffId, staffAssign, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
+        assignments: result.data, staffName: staffAssign[0].staff.fullName, staffId: staffAssign[0].staff.staffId, staffAssign: newTab, numberClientResponsible: respoNumber, numberClientAssistant: respoAssistance
       });
     });
     ActionTypeService.getActionType().then(result => {
@@ -139,15 +141,17 @@ class AddCommercialAction extends React.Component {
   }
 
     handleChange = (ev) => {
-      let actionTypeName;
+      let actionTypeName = '';
       if (ev.target.name === 'actionTypeId') {
+        // eslint-disable-next-line array-callback-return,react/destructuring-assignment
         this.state.actionTypes.map(row => {
           if (row.actionTypeId === ev.target.value) {
             actionTypeName = row.typeName;
+            this.setState({ actionTypeName });
           }
         });
       }
-      this.setState({ [ev.target.name]: ev.target.value, actionTypeName });
+      this.setState({ [ev.target.name]: ev.target.value });
     }
 
     handleCheckBox = (event) => {
@@ -166,7 +170,6 @@ class AddCommercialAction extends React.Component {
     }
 
     activateLasers = (commercialOperation) => {
-      console.log(commercialOperation);
       this.setState({
         openPopUp: true, currentOperation: commercialOperation, objectifs: commercialOperation.objectif, descriptions: commercialOperation.description
       });
@@ -203,7 +206,7 @@ class AddCommercialAction extends React.Component {
         actionDescriptions,
         actionDates
       };
-      const actionHistory = {
+      const ActionHistory = {
         staffName,
         clientName,
         operationName,
@@ -213,8 +216,10 @@ class AddCommercialAction extends React.Component {
         paymentDate,
         estimatedTradeVolumeInEuro
       };
-      console.log(actionHistory);
       CommercialActionService.saveCommercialAction(CommercialAction).then(result => {
+        this.setState({ openPopUp: false });
+      });
+      HistoryActionService.saveActionHistory(ActionHistory).then(result => {
         this.setState({ openPopUp: false });
       });
     }

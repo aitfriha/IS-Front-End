@@ -35,11 +35,15 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Tooltip from '@material-ui/core/Tooltip';
+import MUIDataTable from 'mui-datatables';
 import { ThemeContext } from '../../App/ThemeWrapper';
 import CommercialActionService from '../../Services/CommercialActionService';
+import CommercialOperationService from '../../Services/CommercialOperationService';
 import ActionTypeService from '../../Services/ActionTypeService';
 import history from '../../../utils/history';
 import AssignmentService from '../../Services/AssignmentService';
+import HistoryActionService from '../../Services/HistoryActionService';
+import CustomToolbar from '../../../components/CustomToolbar/CustomToolbar';
 // import style from './action-jss';
 const styles = theme => ({
   root: {
@@ -108,6 +112,7 @@ class CommercialActionsBlock extends React.Component {
     super(props);
     this.state = {
       actionCanceledId: '',
+      operationName: '',
       userType: 1,
       staffAssign: [],
       allStaffAssign: [],
@@ -122,6 +127,9 @@ class CommercialActionsBlock extends React.Component {
       newcontactsIds: [],
       nbrConclusions: ['1'],
       conclusions: [],
+      actionshistory: [],
+      commercialOperations: [],
+      actionsHistoryTab: [],
       descriptions: '',
       actionTypeId: '',
       objectifs: '',
@@ -130,7 +138,248 @@ class CommercialActionsBlock extends React.Component {
       reload: false,
       openPopUp: false,
       openHistory: false,
-      openWarning: false
+      openWarning: false,
+      columns: [
+        {
+          name: 'staffName',
+          label: 'Responsible Name',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'clientName',
+          label: 'Client Name',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'operationName',
+          label: 'Operation Name',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'stateName',
+          label: 'Operation Status',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'actionTypeName',
+          label: 'Action Status',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'sector',
+          label: 'Client Sector',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'estimatedTradeVolumeInEuro',
+          label: 'Trade Volume (€)',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            })
+          }
+        },
+        {
+          name: 'paymentDate',
+          label: 'Payment Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value ? value.toString().slice(0, 10) : ''
+                }
+              </React.Fragment>
+            )
+          }
+        },
+        {
+          name: 'actionDate',
+          label: 'Action Date',
+          options: {
+            filter: true,
+            setCellProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: '0',
+                background: 'white',
+                zIndex: 100
+              }
+            }),
+            setCellHeaderProps: () => ({
+              style: {
+                whiteSpace: 'nowrap',
+                position: 'sticky',
+                left: 0,
+                background: 'white',
+                zIndex: 101
+              }
+            }),
+            customBodyRender: (value) => (
+              <React.Fragment>
+                {
+                  value ? value.toString().slice(0, 10) : ''
+                }
+              </React.Fragment>
+            )
+          }
+        }
+      ]
     };
   }
 
@@ -143,6 +392,12 @@ class CommercialActionsBlock extends React.Component {
     // eslint-disable-next-line react/prop-types
     const { changeTheme } = this.props;
     changeTheme('redTheme');
+    HistoryActionService.getActionHistory().then(result => {
+      this.setState({ actionshistory: result.data });
+    });
+    CommercialOperationService.getCommercialOperation().then(result => {
+      this.setState({ commercialOperations: result.data.payload });
+    });
     ActionTypeService.getActionType().then(result => {
       result.data.sort((a, b) => a.percentage - b.percentage);
       // eslint-disable-next-line array-callback-return
@@ -237,12 +492,9 @@ class CommercialActionsBlock extends React.Component {
       ondragenter(event) {
         currentActionId = event.relatedTarget.firstChild.id;
         nextActionTypeTitle = event.currentTarget.innerText;
-        console.log('Dragged in');
       },
       // eslint-disable-next-line no-unused-vars
       ondragleave(event) {
-        // event.relatedTarget.textContent = 'Dragged out';
-        console.log('Dragged out');
       },
       // eslint-disable-next-line no-unused-vars
       ondrop(event) {
@@ -302,12 +554,18 @@ class CommercialActionsBlock extends React.Component {
 
     handleChange = (ev) => {
       const { commercialActionsTab, allCommercialAction } = this.state;
+      let { actionsHistoryTab } = this.state;
       if (ev.target.name === 'userType') {
         if (ev.target.value === 1) {
           this.setState({ commercialActions: commercialActionsTab });
         } else {
           this.setState({ commercialActions: allCommercialAction });
         }
+      }
+      if (ev.target.name === 'operationName') {
+        // eslint-disable-next-line react/destructuring-assignment
+        actionsHistoryTab = this.state.actionshistory.filter(row => (row.operationName === ev.target.value));
+        this.setState({ actionsHistoryTab });
       }
       this.setState({ [ev.target.name]: ev.target.value });
     }
@@ -553,6 +811,10 @@ class CommercialActionsBlock extends React.Component {
 
     render() {
       console.log(this.state);
+      const {
+        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, openWarning, openHistory, commercialOperations, operationName,
+        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType, allStaffAssign, actionsHistoryTab, columns
+      } = this.state;
       const userTypes = [
         {
           value: 1,
@@ -562,10 +824,16 @@ class CommercialActionsBlock extends React.Component {
           value: 2,
           label: 'All Users',
         }];
-      const {
-        openPopUp, commercialActions, currentAction, nbrConclusions, conclusions, openWarning, openHistory,
-        descriptions, objectifs, actionTypes, actionTypeId, nbrActions, actionDescriptions, actionDates, userType, allStaffAssign
-      } = this.state;
+      const options = {
+        filter: true,
+        selectableRows: false,
+        filterType: 'dropdown',
+        responsive: 'stacked',
+        download: true,
+        print: true,
+        rowsPerPage: 10
+      };
+
       const { classes } = this.props;
       // eslint-disable-next-line array-callback-return
       commercialActions.map(row => {
@@ -1116,19 +1384,34 @@ class CommercialActionsBlock extends React.Component {
                   <FormControl fullWidth required>
                     <InputLabel>Select Commercial Operation</InputLabel>
                     <Select
-                      name="actionTypeId"
-                      value={actionTypeId}
+                      name="operationName"
+                      value={operationName}
                       onChange={this.handleChange}
                     >
                       {
-                        actionTypes.map((clt) => (
-                          <MenuItem key={clt.actionTypeId} value={clt.actionTypeId}>
-                            {clt.typeName}
+                        commercialOperations.map((clt) => (
+                          <MenuItem key={clt.name} value={clt.name}>
+                            {clt.name}
                           </MenuItem>
                         ))
                       }
                     </Select>
                   </FormControl>
+                </Grid>
+              </Grid>
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+                direction="row"
+                justify="center"
+              >
+                <Grid item xs={11}>
+                  <MUIDataTable
+                    data={actionsHistoryTab}
+                    columns={columns}
+                    options={options}
+                  />
                 </Grid>
               </Grid>
             </DialogContent>
