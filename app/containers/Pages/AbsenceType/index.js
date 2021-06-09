@@ -306,7 +306,6 @@ class AbsenceType extends React.Component {
           absenceTypeSelected
         });
       } else {
-        console.log(allAbsenceType);
         const replaceAbsenceTypeList = allAbsenceType.filter(
           absenceType => absenceType.absenceTypeId !== absenceTypeSelected.absenceTypeId
             && absenceType.stateName === absenceTypeSelected.stateName
@@ -587,9 +586,15 @@ class AbsenceType extends React.Component {
             <Button autoFocus color="primary" onClick={this.handleClose}>
               Cancel
             </Button>
-            <Button color="primary" onClick={this.handleDeleteType}>
-              Delete
-            </Button>
+            {isRelated ? (
+              <Button color="primary" onClick={this.handleDeleteType} disabled={newId === ''}>
+                  Replace and delete
+              </Button>
+            ) : (
+              <Button color="primary" onClick={this.handleDeleteType}>
+                      Delete
+              </Button>
+            )}
           </DialogActions>
         </Dialog>
         <Dialog
