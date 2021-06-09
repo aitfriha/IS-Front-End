@@ -16,9 +16,10 @@ export const updateAbsenceType = absenceTypeWithId => ({
   absenceTypeWithId
 });
 
-export const deleteAbsenceType = absenceTypeId => ({
+export const deleteAbsenceType = (absenceTypeId, newAbsenceTypeId) => ({
   type: DELETE_ABSENCETYPE,
-  absenceTypeId
+  absenceTypeId,
+  newAbsenceTypeId
 });
 
 export const getAllAbsenceType = () => ({

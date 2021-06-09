@@ -150,11 +150,13 @@ class AddAbsenceType extends React.Component {
 
   handleChangeStaff = (ev, value) => {
     const { getAllAbsenceTypeByState } = this.props;
+    console.log(value);
     getAllAbsenceTypeByState(value.contractTypeStateId);
     this.setState({ staff: value });
   };
 
   handleChangeAbsenceType = (ev, value) => {
+    console.log(value);
     this.setState({ absenceType: value });
   };
 
@@ -324,7 +326,7 @@ class AddAbsenceType extends React.Component {
     return (
       <div>
         <PapperBlock
-          title="Add absence type"
+          title="Add Absence Request"
           icon="ios-paper-outline"
           noMargin
           whiteBg

@@ -13,7 +13,7 @@ import {
   TextField,
   makeStyles,
   Button,
-  Typography
+  Typography, FormControl, InputLabel, Select, MenuItem
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
@@ -64,6 +64,8 @@ class AbsenceType extends React.Component {
       doc: {},
       docExtension: '',
       pageNumber: 1,
+      oldId: '',
+      newId: '',
       replaceContractTypeList: [],
       columns: [
         {
@@ -300,16 +302,19 @@ class AbsenceType extends React.Component {
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: false,
+          oldId: tableMeta.rowData[0],
           absenceTypeSelected
         });
       } else {
+        console.log(allAbsenceType);
         const replaceAbsenceTypeList = allAbsenceType.filter(
-          type => type.absenceTypeId !== absenceTypeSelected.absenceTypeId
-            && type.stateName === absenceTypeSelected.stateName
+          absenceType => absenceType.absenceTypeId !== absenceTypeSelected.absenceTypeId
+            && absenceType.stateName === absenceTypeSelected.stateName
         );
         this.setState({
           isDeleteDialogOpen: true,
           isRelated: true,
+          oldId: tableMeta.rowData[0],
           replaceAbsenceTypeList,
           absenceTypeSelected
         });
@@ -357,7 +362,6 @@ class AbsenceType extends React.Component {
   renderFile = () => {
     const { allAbsenceType } = this.props;
     const { absenceTypeSelected, docExtension } = this.state;
-    console.log(docExtension);
     return `data:${this.handleFileDataType(docExtension)};base64,${
       absenceTypeSelected.document
     }`;
@@ -365,9 +369,11 @@ class AbsenceType extends React.Component {
 
   handleDeleteType = () => {
     const { getAllAbsenceType, deleteAbsenceType } = this.props;
-    const { absenceTypeSelected } = this.state;
+    const { oldId, newId } = this.state;
+    console.log(oldId);
+    console.log(newId);
     const promise = new Promise(resolve => {
-      deleteAbsenceType(absenceTypeSelected.absenceTypeId);
+      deleteAbsenceType(oldId, newId);
       this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
@@ -455,7 +461,9 @@ class AbsenceType extends React.Component {
       pageNumber,
       isDeleteDialogOpen,
       isRelated,
-      columns
+      columns,
+      replaceAbsenceTypeList,
+      newId
     } = this.state;
     let exportButton = false;
     if (thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_export) {
@@ -528,6 +536,29 @@ class AbsenceType extends React.Component {
                   you delete this type all the absence requests related in the
                   system will be automatically deleted.
                 </Typography>
+                <div>
+                  <FormControl
+                    className={classes.formControl}
+                    required
+                    style={{ width: '30%' }}
+                  >
+                    <InputLabel>absence type</InputLabel>
+                    <Select
+                      name="newId"
+                      value={newId}
+                      onChange={this.handleChange}
+                    >
+                      {replaceAbsenceTypeList.map(absenceType => (
+                        <MenuItem
+                          key={absenceType.code}
+                          value={absenceType.absenceTypeId}
+                        >
+                          {absenceType.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
                 <Typography
                   variant="subtitle1"
                   style={{
@@ -753,6 +784,7 @@ class AbsenceType extends React.Component {
           </DialogActions>
         </Dialog>
         <PapperBlock
+          desc=""
           title="Types of staff absence"
           icon="ios-paper-outline"
           noMargin

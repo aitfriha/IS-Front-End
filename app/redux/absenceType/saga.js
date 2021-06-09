@@ -66,11 +66,15 @@ function* updateAbsenceType(action) {
 
 function* deleteAbsenceType(action) {
   try {
-    const { absenceTypeId } = action;
+    const { absenceTypeId, newAbsenceTypeId } = action;
 
     const request = yield axios({
       method: 'delete',
-      url: ENDPOINTS.ABSENCETYPE + '/delete/' + absenceTypeId
+      url: ENDPOINTS.ABSENCETYPE
+          + '/delete/oldId='
+          + absenceTypeId
+          + '&newId='
+          + newAbsenceTypeId
     });
 
     yield put({
