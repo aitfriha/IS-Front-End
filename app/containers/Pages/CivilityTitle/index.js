@@ -69,7 +69,6 @@ handleClose = (event, rowData) => {
 
 deleteConfirme= () => {
   const { rowDataCivilityTitleId } = this.state;
-  console.log(rowDataCivilityTitleId);
   const { deleteCivilityTitleStatus, getAllCivilityTitleStatus } = this.props;
   new Promise((resolve) => {
     // delete CommercialOperationStatus action

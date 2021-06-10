@@ -529,6 +529,7 @@ class AddSelectionProcess extends React.Component {
                 label="Energy"
                 variant="outlined"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 name="energy"
                 value={energy}
                 style={{ width: '17%' }}
@@ -540,6 +541,7 @@ class AddSelectionProcess extends React.Component {
                 label="Adaptability"
                 variant="outlined"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 name="adaptability"
                 value={adaptability}
                 style={{ width: '17%' }}
@@ -551,6 +553,7 @@ class AddSelectionProcess extends React.Component {
                 label="Integrity"
                 variant="outlined"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 name="integrity"
                 value={integrity}
                 style={{ width: '17%' }}
@@ -562,6 +565,7 @@ class AddSelectionProcess extends React.Component {
                 label="Interpersonal Sensitivity"
                 variant="outlined"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 name="interpersonalSensitivity"
                 value={interpersonalSensitivity}
                 style={{ width: '17%' }}
@@ -691,6 +695,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="economicCandidateProposal"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 style={{ width: '40%' }}
                 value={economicCandidateProposal}
                 className={classes.textField}
@@ -702,6 +707,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="economicCandidateProposalInEuro"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 style={{ width: '40%' }}
                 value={economicCandidateProposalInEuro}
                 className={classes.textField}
@@ -724,6 +730,7 @@ class AddSelectionProcess extends React.Component {
                   variant="outlined"
                   name="economicClaimsValue"
                   type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   style={{ width: '40%' }}
                   value={economicClaimsValue}
                   className={classes.textField}
@@ -735,6 +742,7 @@ class AddSelectionProcess extends React.Component {
                   variant="outlined"
                   name="economicClaimsValueInEuro"
                   type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   style={{ width: '40%' }}
                   value={economicClaimsValueInEuro}
                   className={classes.textField}
@@ -758,6 +766,7 @@ class AddSelectionProcess extends React.Component {
                   variant="outlined"
                   name="economicClaimsRange1"
                   type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   style={{ width: '23%' }}
                   value={economicClaimsRange1}
                   className={classes.textField}
@@ -769,6 +778,7 @@ class AddSelectionProcess extends React.Component {
                   variant="outlined"
                   name="economicClaimsRange1InEuro"
                   type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   style={{ width: '23%' }}
                   value={economicClaimsRange1InEuro}
                   className={classes.textField}
@@ -780,6 +790,7 @@ class AddSelectionProcess extends React.Component {
                   variant="outlined"
                   name="economicClaimsRange2"
                   type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   style={{ width: '23%' }}
                   value={economicClaimsRange2}
                   className={classes.textField}
@@ -791,6 +802,7 @@ class AddSelectionProcess extends React.Component {
                   variant="outlined"
                   name="economicClaimsRange2InEuro"
                   type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   style={{ width: '23%' }}
                   value={economicClaimsRange2InEuro}
                   className={classes.textField}
@@ -875,6 +887,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="economicCompanyProposal"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 style={{ width: '15%' }}
                 value={economicCompanyProposal}
                 className={classes.textField}
@@ -886,6 +899,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="economicCompanyProposalInEuro"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 style={{ width: '15%' }}
                 value={economicCompanyProposalInEuro}
                 className={classes.textField}
@@ -897,6 +911,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="objectives"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 style={{ width: '15%' }}
                 value={objectives}
                 className={classes.textField}
@@ -908,6 +923,7 @@ class AddSelectionProcess extends React.Component {
                 variant="outlined"
                 name="objectivesInEuro"
                 type="number"
+                InputProps={{ inputProps: { min: 0 } }}
                 style={{ width: '15%' }}
                 value={objectivesInEuro}
                 className={classes.textField}
@@ -987,6 +1003,7 @@ class AddSelectionProcess extends React.Component {
                           variant="outlined"
                           name={index}
                           type="number"
+                          InputProps={{ inputProps: { min: 0 } }}
                           style={{ marginBottom: 10 }}
                           value={experience}
                           className={classes.textField}
