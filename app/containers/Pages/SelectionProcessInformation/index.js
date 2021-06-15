@@ -68,6 +68,7 @@ class SelectionProcessInformation extends React.Component {
     super(props);
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.editingPromiseResolve = () => {};
+    this.editingPromiseResolveUpdate = () => {};
     this.state = {
       isEditDialogOpen: false,
       isDeleteDialogOpen: false,
@@ -645,9 +646,6 @@ class SelectionProcessInformation extends React.Component {
         })
       );
     }
-    console.log(curriculumDoc);
-    console.log(curriculumDoc.constructor);
-    console.log(curriculumDoc.constructor === File);
     if (curriculumDoc.constructor === File) {
       formData.append('curriculumDoc', curriculumDoc);
     } else {
@@ -673,16 +671,62 @@ class SelectionProcessInformation extends React.Component {
 
     const promise = new Promise(resolve => {
       updateSelectionProcessInformation(formData);
-      this.editingPromiseResolve = resolve;
+      this.editingPromiseResolveUpdate = resolve;
     });
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
-        getAllSelectionProcessInformation();
-        console.log(result);
+        const promiseUpdate = new Promise(resolve => {
+          getAllSelectionProcessInformation();
+          this.editingPromiseResolve = resolve;
+        });
+        promiseUpdate.then(result => {
+          const allSelectionProcesses = [];
+          this.props.allSelectionProcessInformation.forEach(process => {
+            const factor = process.changeFactor;
+            const economicCandidateProposalInEuro = process.economicCandidateProposal * factor;
+            let economicClaimsValueInEuro = process.economicClaimsValue * factor;
+            let economicClaimsRange1InEuro = process.economicClaimsRange1 * factor;
+            let economicClaimsRange2InEuro = process.economicClaimsRange2 * factor;
+            const economicCompanyProposalInEuro = process.economicCompanyProposal * factor;
+            const objectivesInEuro = process.objectives * factor;
+            if (process.economicClaimsType === 'Number') {
+              economicClaimsRange1InEuro = '-';
+              economicClaimsRange2InEuro = '-';
+            } else {
+              economicClaimsValueInEuro = '-';
+            }
+            const newProcess = {
+              ...process,
+              economicCandidateProposalInEuro: economicCandidateProposalInEuro.toFixed(
+                5
+              ),
+              economicClaimsValueInEuro:
+                  process.economicClaimsType === 'Number'
+                    ? economicClaimsValueInEuro.toFixed(5)
+                    : economicClaimsValueInEuro,
+              economicClaimsRange1InEuro:
+                  process.economicClaimsType === 'Range'
+                    ? economicClaimsRange1InEuro.toFixed(5)
+                    : economicClaimsRange1InEuro,
+              economicClaimsRange2InEuro:
+                  process.economicClaimsType === 'Range'
+                    ? economicClaimsRange2InEuro.toFixed(5)
+                    : economicClaimsRange2InEuro,
+              economicCompanyProposalInEuro: economicCompanyProposalInEuro.toFixed(
+                5
+              ),
+              objectivesInEuro: objectivesInEuro.toFixed(5)
+            };
+            allSelectionProcesses.push(newProcess);
+          });
+          this.setState({
+            allSelectionProcesses,
+            filteredSelectionProcesses: allSelectionProcesses
+          });
+        });
         this.handleClose();
       } else {
-        console.log(result);
         notification('danger', result);
       }
     });
@@ -695,7 +739,6 @@ class SelectionProcessInformation extends React.Component {
       selectionProcessInformation => selectionProcessInformation.selectionProcessId === tableMeta.rowData[0]
     )[0];
     const factor = parseFloat(selectionProcessInformationSelected.changeFactor);
-    console.log(factor);
     const economicCandidateProposalInEuro = parseFloat(
       selectionProcessInformationSelected.economicCandidateProposal
     ) * factor;
@@ -845,7 +888,57 @@ class SelectionProcessInformation extends React.Component {
     promise.then(result => {
       if (isString(result)) {
         notification('success', result);
-        getAllSelectionProcessInformation();
+        //
+        const promiseUpdate = new Promise(resolve => {
+          getAllSelectionProcessInformation();
+          this.editingPromiseResolve = resolve;
+        });
+        promiseUpdate.then(result => {
+          const allSelectionProcesses = [];
+          this.props.allSelectionProcessInformation.forEach(process => {
+            const factor = process.changeFactor;
+            const economicCandidateProposalInEuro = process.economicCandidateProposal * factor;
+            let economicClaimsValueInEuro = process.economicClaimsValue * factor;
+            let economicClaimsRange1InEuro = process.economicClaimsRange1 * factor;
+            let economicClaimsRange2InEuro = process.economicClaimsRange2 * factor;
+            const economicCompanyProposalInEuro = process.economicCompanyProposal * factor;
+            const objectivesInEuro = process.objectives * factor;
+            if (process.economicClaimsType === 'Number') {
+              economicClaimsRange1InEuro = '-';
+              economicClaimsRange2InEuro = '-';
+            } else {
+              economicClaimsValueInEuro = '-';
+            }
+            const newProcess = {
+              ...process,
+              economicCandidateProposalInEuro: economicCandidateProposalInEuro.toFixed(
+                5
+              ),
+              economicClaimsValueInEuro:
+                  process.economicClaimsType === 'Number'
+                    ? economicClaimsValueInEuro.toFixed(5)
+                    : economicClaimsValueInEuro,
+              economicClaimsRange1InEuro:
+                  process.economicClaimsType === 'Range'
+                    ? economicClaimsRange1InEuro.toFixed(5)
+                    : economicClaimsRange1InEuro,
+              economicClaimsRange2InEuro:
+                  process.economicClaimsType === 'Range'
+                    ? economicClaimsRange2InEuro.toFixed(5)
+                    : economicClaimsRange2InEuro,
+              economicCompanyProposalInEuro: economicCompanyProposalInEuro.toFixed(
+                5
+              ),
+              objectivesInEuro: objectivesInEuro.toFixed(5)
+            };
+            allSelectionProcesses.push(newProcess);
+          });
+          this.setState({
+            allSelectionProcesses,
+            filteredSelectionProcesses: allSelectionProcesses
+          });
+        });
+        //
         this.handleClose();
       } else {
         notification('danger', result);
@@ -931,11 +1024,9 @@ class SelectionProcessInformation extends React.Component {
       experiencesList.push(0);
     } else {
       const index = checkedKnowledgesList.indexOf(name);
-      console.log(index);
       checkedKnowledgesList.splice(index, 1);
       experiencesList.splice(index, 1);
     }
-    console.log(experiencesList);
     this.setState({
       checkedKnowledges: checkedKnowledgesList,
       experiences: experiencesList
@@ -954,11 +1045,9 @@ class SelectionProcessInformation extends React.Component {
       filterExperiencesList.push(0);
     } else {
       const index = filterCheckedKnowledgesList.indexOf(name);
-      console.log(index);
       filterCheckedKnowledgesList.splice(index, 1);
       filterExperiencesList.splice(index, 1);
     }
-    console.log(filterExperiencesList);
     this.setState({
       filterCheckedKnowledges: filterCheckedKnowledgesList,
       filterExperiences: filterExperiencesList
@@ -974,11 +1063,7 @@ class SelectionProcessInformation extends React.Component {
     let processesToCheck = JSON.parse(JSON.stringify(allSelectionProcesses));
     let filteredProcessesList = [];
     filterCheckedKnowledges.forEach((elem, index) => {
-      console.log(processesToCheck);
       filteredProcessesList = processesToCheck.filter(process => {
-        console.log(process.knowledge);
-        console.log(elem);
-        console.log(process.knowledge.some(obj => obj._id === elem));
         const objIndex = process.knowledge.findIndex(obj => obj._id === elem);
         //
         if (filterExperiences[index] === 'all') {
@@ -991,7 +1076,6 @@ class SelectionProcessInformation extends React.Component {
         );
       });
       processesToCheck = JSON.parse(JSON.stringify(filteredProcessesList));
-      console.log(filteredProcessesList);
     });
 
     this.setState({
@@ -1002,8 +1086,6 @@ class SelectionProcessInformation extends React.Component {
 
   handleChangeExperiences = event => {
     const { experiences } = this.state;
-    console.log(event.target.name);
-    console.log(event.target.value);
     experiences[event.target.name] = event.target.value;
     this.setState({
       experiences
@@ -1012,8 +1094,6 @@ class SelectionProcessInformation extends React.Component {
 
   handleChangeFilterExperiences = event => {
     const { filterExperiences } = this.state;
-    console.log(event.target.name);
-    console.log(event.target.value);
     filterExperiences[event.target.name] = event.target.value;
     this.setState({
       filterExperiences
@@ -1236,13 +1316,16 @@ class SelectionProcessInformation extends React.Component {
         />
       )
     };
-    console.log(selectionProcessInformationSelected ? 'exist' : 'not exist');
+
     !isLoadingSelectionProcessInformation
       && selectionProcessInformationResponse
       && this.editingPromiseResolve(selectionProcessInformationResponse);
     !isLoadingSelectionProcessInformation
       && !selectionProcessInformationResponse
       && this.editingPromiseResolve(errorSelectionProcessInformation);
+
+    (!isLoadingSelectionProcessInformation && selectionProcessInformationResponse) && this.editingPromiseResolveUpdate(selectionProcessInformationResponse);
+    (!isLoadingSelectionProcessInformation && !selectionProcessInformationResponse) && this.editingPromiseResolveUpdate(errorSelectionProcessInformation);
 
     const proposalTypes = ['Month', 'Year'];
 
@@ -1535,6 +1618,7 @@ class SelectionProcessInformation extends React.Component {
                     label="Energy"
                     variant="outlined"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     name="energy"
                     value={energy}
                     style={{ width: '17%' }}
@@ -1546,6 +1630,7 @@ class SelectionProcessInformation extends React.Component {
                     label="Adaptability"
                     variant="outlined"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     name="adaptability"
                     value={adaptability}
                     style={{ width: '17%' }}
@@ -1557,6 +1642,7 @@ class SelectionProcessInformation extends React.Component {
                     label="Integrity"
                     variant="outlined"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     name="integrity"
                     value={integrity}
                     style={{ width: '17%' }}
@@ -1568,6 +1654,7 @@ class SelectionProcessInformation extends React.Component {
                     label="Interpersonal Sensitivity"
                     variant="outlined"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     name="interpersonalSensitivity"
                     value={interpersonalSensitivity}
                     style={{ width: '17%' }}
@@ -1697,6 +1784,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="economicCandidateProposal"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     style={{ width: '40%' }}
                     value={economicCandidateProposal}
                     className={classes.textField}
@@ -1708,6 +1796,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="economicCandidateProposalInEuro"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     style={{ width: '40%' }}
                     value={economicCandidateProposalInEuro}
                     className={classes.textField}
@@ -1730,6 +1819,7 @@ class SelectionProcessInformation extends React.Component {
                       variant="outlined"
                       name="economicClaimsValue"
                       type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
                       style={{ width: '40%' }}
                       value={economicClaimsValue}
                       className={classes.textField}
@@ -1741,6 +1831,7 @@ class SelectionProcessInformation extends React.Component {
                       variant="outlined"
                       name="economicClaimsValueInEuro"
                       type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
                       style={{ width: '40%' }}
                       value={economicClaimsValueInEuro}
                       className={classes.textField}
@@ -1764,6 +1855,7 @@ class SelectionProcessInformation extends React.Component {
                       variant="outlined"
                       name="economicClaimsRange1"
                       type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
                       style={{ width: '23%' }}
                       value={economicClaimsRange1}
                       className={classes.textField}
@@ -1775,6 +1867,7 @@ class SelectionProcessInformation extends React.Component {
                       variant="outlined"
                       name="economicClaimsRange1InEuro"
                       type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
                       style={{ width: '23%' }}
                       value={economicClaimsRange1InEuro}
                       className={classes.textField}
@@ -1786,6 +1879,7 @@ class SelectionProcessInformation extends React.Component {
                       variant="outlined"
                       name="economicClaimsRange2"
                       type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
                       style={{ width: '23%' }}
                       value={economicClaimsRange2}
                       className={classes.textField}
@@ -1797,6 +1891,7 @@ class SelectionProcessInformation extends React.Component {
                       variant="outlined"
                       name="economicClaimsRange2InEuro"
                       type="number"
+                      InputProps={{ inputProps: { min: 0 } }}
                       style={{ width: '23%' }}
                       value={economicClaimsRange2InEuro}
                       className={classes.textField}
@@ -1881,6 +1976,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="economicCompanyProposal"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     style={{ width: '15%' }}
                     value={economicCompanyProposal}
                     className={classes.textField}
@@ -1892,6 +1988,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="economicCompanyProposalInEuro"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     style={{ width: '15%' }}
                     value={economicCompanyProposalInEuro}
                     className={classes.textField}
@@ -1903,6 +2000,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="objectives"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     style={{ width: '15%' }}
                     value={objectives}
                     className={classes.textField}
@@ -1914,6 +2012,7 @@ class SelectionProcessInformation extends React.Component {
                     variant="outlined"
                     name="objectivesInEuro"
                     type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
                     style={{ width: '15%' }}
                     value={objectivesInEuro}
                     className={classes.textField}

@@ -6,7 +6,7 @@ import {
   Typography,
   makeStyles,
   IconButton,
-  Tooltip
+  Tooltip, DialogContent
 } from '@material-ui/core';
 import PublishIcon from '@material-ui/icons/Publish';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
@@ -24,7 +24,7 @@ import {
   saveAbsenceRequest,
   getAllAbsenceRequest
 } from '../../../redux/absenceRequest/actions';
-import { getAllAbsenceTypeByState } from '../../../redux/absenceType/actions';
+import { getAllAbsenceType, getAllAbsenceTypeByState } from '../../../redux/absenceType/actions';
 import { getAllStaff } from '../../../redux/staff/actions';
 import notification from '../../../components/Notification/Notification';
 import DateFnsUtils from '@date-io/date-fns';
@@ -41,6 +41,7 @@ class AddAbsenceType extends React.Component {
   constructor(props) {
     super(props);
     this.editingPromiseResolve = () => {};
+    this.editingPromiseResolveA = () => {};
     this.state = {
       staff: null,
       absenceType: null,
@@ -51,6 +52,8 @@ class AddAbsenceType extends React.Component {
       isEndDateError: false,
       hourRate: 0,
       doc: {},
+      displayIt: true,
+      countryOfPerson: '',
       docExtension: '',
       isSubmit: false,
       docList: [{ inputDoc: React.createRef(), doc: {}, docExtension: '' }]
@@ -58,10 +61,16 @@ class AddAbsenceType extends React.Component {
   }
 
   componentDidMount() {
-    const { changeTheme, getAllStaff } = this.props;
+    const { changeTheme, getAllStaff, getAllAbsenceType } = this.props;
     changeTheme('blueCyanTheme');
     getAllStaff();
+    getAllAbsenceType();
   }
+
+  /*  componentWillReceiveProps(newProps) {
+   console.log(newProps.allAbsenceTypeByState.length);
+
+  } */
 
   handleChange = ev => {
     const { name, value } = ev.target;
@@ -78,8 +87,6 @@ class AddAbsenceType extends React.Component {
       hourRate,
       docList
     } = this.state;
-    console.log(staff);
-    console.log(absenceType);
 
     const absenceRequest = {
       startDate:
@@ -139,10 +146,8 @@ class AddAbsenceType extends React.Component {
       if (isString(result)) {
         notification('success', result);
         getAllAbsenceRequest();
-        console.log(result);
         history.push('/app/hh-rr/absenceRequest');
       } else {
-        console.log(result);
         notification('danger', result);
       }
     });
@@ -150,7 +155,22 @@ class AddAbsenceType extends React.Component {
 
   handleChangeStaff = (ev, value) => {
     const { getAllAbsenceTypeByState } = this.props;
-    getAllAbsenceTypeByState(value.contractTypeStateId);
+    console.log(value);
+    new Promise((resolve) => {
+      // delete CommercialOperationStatus action
+      getAllAbsenceTypeByState(value.contractTypeStateId);
+      this.editingPromiseResolveA = resolve;
+    }).then((result) => {
+      if (this.props.allAbsenceTypeByState.length !== 0) {
+        this.setState({ displayIt: true });
+        this.setState({ countryOfPerson: '' });
+      } else {
+        notification('danger', 'For this person you have to include the absence type for this country : ' + value.contractTypeCountry);
+        this.setState({ displayIt: false });
+        this.setState({ countryOfPerson: value.contractTypeCountry });
+      }
+    });
+
     this.setState({ staff: value });
   };
 
@@ -172,7 +192,6 @@ class AddAbsenceType extends React.Component {
   };
 
   handleValueChange = (value, type) => {
-    console.log(value, type);
     this.setState({ [type]: value });
   };
 
@@ -233,17 +252,12 @@ class AddAbsenceType extends React.Component {
     if (end.day() == 6) --lastWeekDays; // -1 if end with saturday
     const workingDays = firstWeekDays + Math.floor(days) + lastWeekDays;
 
-    console.log(startDate);
-    console.log(endDate);
-    console.log(workingDays);
 
     return workingDays;
   };
 
   handleUploadDocClick = index => {
     const { docList } = this.state;
-    console.log(index);
-    console.log(docList[index]);
     docList[index].inputDoc.current.click();
   };
 
@@ -272,7 +286,6 @@ class AddAbsenceType extends React.Component {
         && parseFloat(hourRate) <= 1
         && parseFloat(hourRate) > 0
       ) {
-        console.log('return false');
         return false;
       }
       return true;
@@ -295,7 +308,8 @@ class AddAbsenceType extends React.Component {
       allStaff,
       isLoadingAbsenceRequest,
       absenceRequestResponse,
-      errorAbsenceRequest
+      errorAbsenceRequest,
+      absenceTypeResponse, isLoading, errors
     } = this.props;
     const {
       staff,
@@ -307,13 +321,10 @@ class AddAbsenceType extends React.Component {
       isEndDateError,
       hourRate,
       isSubmit,
-      docList
+      docList,
+      displayIt,
+      countryOfPerson
     } = this.state;
-    console.log(
-      moment()
-        .startOf(startDate)
-        .from(endDate)
-    );
 
     !isLoadingAbsenceRequest
       && absenceRequestResponse
@@ -321,10 +332,13 @@ class AddAbsenceType extends React.Component {
     !isLoadingAbsenceRequest
       && !absenceRequestResponse
       && this.editingPromiseResolve(errorAbsenceRequest);
+
+    (!isLoading && absenceTypeResponse) && this.editingPromiseResolveA(absenceTypeResponse);
+    (!isLoading && !absenceTypeResponse) && this.editingPromiseResolveA(errors);
     return (
       <div>
         <PapperBlock
-          title="Add absence type"
+          title="Add Absence Request"
           icon="ios-paper-outline"
           noMargin
           whiteBg
@@ -368,25 +382,40 @@ class AddAbsenceType extends React.Component {
                   />
                 )}
               />
-              <Autocomplete
-                id="combo-box-demo"
-                value={absenceType}
-                options={allAbsenceTypeByState}
-                getOptionLabel={option => `${option.name}`}
-                getOptionSelected={(option, value) => option.absenceRequestId === value.absenceRequestId
-                }
-                onChange={this.handleChangeAbsenceType}
-                style={{ width: '40%', marginTop: 1 }}
-                clearOnEscape
-                renderInput={params => (
-                  <TextField
-                    fullWidth
-                    {...params}
-                    label="Absence Type"
-                    variant="outlined"
-                  />
-                )}
-              />
+              {displayIt ? (
+                <Autocomplete
+                  id="combo-box-demo"
+                  value={absenceType}
+                  options={allAbsenceTypeByState}
+                  getOptionLabel={option => `${option.name}`}
+                  getOptionSelected={(option, value) => option.absenceRequestId === value.absenceRequestId
+                  }
+                  onChange={this.handleChangeAbsenceType}
+                  style={{ width: '40%', marginTop: 1 }}
+                  clearOnEscape
+                  renderInput={params => (
+                    <TextField
+                      fullWidth
+                      {...params}
+                      label="Absence Type"
+                      variant="outlined"
+                    />
+                  )}
+                />
+              ) : (
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    color: '#dc3545',
+                    fontFamily: 'sans-serif , Arial',
+                    fontSize: '17px'
+                  }}
+                >
+                  include the absencee type of :
+                  {' '}
+                  {countryOfPerson}
+                </Typography>
+              )}
             </Grid>
             {absenceType !== null && absenceType.durationType === 'day' ? (
               <Grid
@@ -599,6 +628,10 @@ class AddAbsenceType extends React.Component {
 
 const mapStateToProps = state => ({
   allAbsenceTypeByState: state.getIn(['absenceTypes']).allAbsenceTypeByState,
+  isLoading: state.getIn(['absenceTypes']).isLoading,
+  errors: state.getIn(['absenceTypes']).errors,
+  absenceTypeResponse: state.getIn(['absenceTypes']).absenceTypeResponse,
+
   allStaff: state.getIn(['staffs']).allStaff,
   absenceRequestResponse: state.getIn(['absenceRequests'])
     .absenceRequestResponse,
@@ -610,7 +643,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     saveAbsenceRequest,
     getAllAbsenceRequest,
     getAllAbsenceTypeByState,
-    getAllStaff
+    getAllStaff,
+    getAllAbsenceType
   },
   dispatch
 );
