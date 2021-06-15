@@ -558,7 +558,33 @@ class CommercialActionHistory extends React.Component {
                       </Grid>
                       <Grid item xs={3} />
                       <Grid item xs={0} />
-                      <Grid item xs={7} />
+                      <Grid item xs={4}>
+                        <ExpansionPanel>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                          >
+                            <Typography> Client Contacts</Typography>
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            {
+                              current.contacts ? current.contacts.map((clt) => (
+                                // eslint-disable-next-line jsx-a11y/label-has-associated-control,jsx-a11y/label-has-for
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    value={clt._id}
+                                    checked
+                                  />
+                                  {clt.firstName + ' ' + clt.fatherFamilyName + ' ' + clt.motherFamilyName}
+                                </label>
+                              )) : (<div />)
+                            }
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                      </Grid>
+                      <Grid item xs={3} />
                       <Grid item xs={2}>
                         <TextField
                           id="operaDate"
@@ -587,6 +613,7 @@ class CommercialActionHistory extends React.Component {
                       </Grid>
                       <Grid item xs={11}>
                         <Typography variant="body1" color="textPrimary" component="p">
+                          <br />
                           <TextField
                             label="Objectives"
                             value={current.objectifs}
