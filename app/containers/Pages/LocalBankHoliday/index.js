@@ -61,7 +61,7 @@ class LocalBankHoliday extends React.Component {
       isStartDateError: false,
       isEndDateError: false,
       isDialogOpen: false,
-      isRelated: false,
+      isDeleteDialogOpen: false,
       localBankHolidaySelected: {},
       columns: [
         {
@@ -143,7 +143,7 @@ class LocalBankHoliday extends React.Component {
                   ) : null}
                 {thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_delete
                   ? (
-                    <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <IconButton onClick={() => this.handleDeleteDialog(tableMeta)}>
                       <DeleteIcon color="primary" />
                     </IconButton>
                   ) : null}
@@ -207,7 +207,6 @@ class LocalBankHoliday extends React.Component {
           isDialogOpen: false
         });
       } else {
-        console.log(result);
         notification('danger', result);
       }
     });
@@ -218,7 +217,6 @@ class LocalBankHoliday extends React.Component {
     const localBankHolidaySelected = allLocalBankHoliday.filter(
       localBankHoliday => localBankHoliday.localBankHolidayId === tableMeta.rowData[0]
     )[0];
-    console.log(localBankHolidaySelected.financialCompanyId);
     getAllLocalBankHolidayByCompany(
       localBankHolidaySelected.financialCompanyId
     );
@@ -238,14 +236,20 @@ class LocalBankHoliday extends React.Component {
   handleClose = () => {
     this.setState({
       isDialogOpen: false,
+      isDeleteDialogOpen: false,
       newId: ''
     });
   };
 
-  handleDelete = tableMeta => {
+  handleDeleteDialog = tableMeta => {
+    this.setState({ isDeleteDialogOpen: true, oldId: tableMeta.rowData[0] });
+  };
+
+  handleDelete = () => {
     const { getAllLocalBankHoliday, deleteLocalBankHoliday } = this.props;
+    const { oldId } = this.state;
     const promise = new Promise(resolve => {
-      deleteLocalBankHoliday(tableMeta.rowData[0]);
+      deleteLocalBankHoliday(oldId);
       this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
@@ -320,7 +324,6 @@ class LocalBankHoliday extends React.Component {
   };
 
   handleValueChange = (value, type) => {
-    console.log(value, type);
     this.setState({ [type]: value });
   };
 
@@ -353,9 +356,9 @@ class LocalBankHoliday extends React.Component {
       isStartDateError,
       isEndDateError,
       isDialogOpen,
-      columns
+      columns,
+      isDeleteDialogOpen
     } = this.state;
-    console.log(allLocalBankHolidayByCompany);
     const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
@@ -402,6 +405,38 @@ class LocalBankHoliday extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          open={isDeleteDialogOpen}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+          TransitionComponent={Transition}
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete Local bank holiday
+          </DialogTitle>
+          <DialogContent>
+            <Typography
+              variant="subtitle1"
+              style={{
+                fontFamily: 'sans-serif , Arial',
+                fontSize: '17px'
+              }}
+            >
+                 Are you sure you want to delete this Local Bank Holiday ?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.handleDelete}>
+                  Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={isDialogOpen}
           disableBackdropClick

@@ -537,16 +537,17 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
               </Tooltip>
               {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_modify
-                  ? (
-              <Tooltip title="Edit">
-                <Button
-                  name="personalInformation"
-                  style={{ backgroundColor: 'transparent' }}
-                  disableRipple
-                  endIcon={<EditIcon />}
-                  onClick={this.handleOpenEdit}
-                />
-              </Tooltip>):null}
+                ? (
+                  <Tooltip title="Edit">
+                    <Button
+                      name="personalInformation"
+                      style={{ backgroundColor: 'transparent' }}
+                      disableRipple
+                      endIcon={<EditIcon />}
+                      onClick={this.handleOpenEdit}
+                    />
+                  </Tooltip>
+                ) : null}
             </div>
           ) : (
             <div />
@@ -1078,7 +1079,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1096,7 +1097,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1140,7 +1141,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1161,7 +1162,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1205,7 +1206,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1223,7 +1224,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1267,7 +1268,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1288,7 +1289,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1332,7 +1333,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1350,7 +1351,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1394,7 +1395,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1415,7 +1416,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1463,7 +1464,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"
@@ -1481,7 +1482,7 @@ class StaffProfileEconomicContractInformation extends Component {
                 </MuiPickersUtilsProvider>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"

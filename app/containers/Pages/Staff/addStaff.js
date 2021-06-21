@@ -119,7 +119,7 @@ class AddStaff extends React.Component {
       townContract: '',
       personalNumber: '',
       highDate: new Date(),
-      lowDate: new Date(),
+      lowDate: null,
       registrationDate: new Date(),
       preContractDate: new Date(),
       internalRulesDoc: {},
@@ -292,13 +292,6 @@ class AddStaff extends React.Component {
       totalCompanyCostDateOut,
       localCurrency
     } = this.state;
-
-    console.log(city);
-    console.log(contractType);
-    console.log(legalCategoryType);
-
-    console.log(company.financialCompanyId);
-
     const total = parseInt(companyContractCost)
       + parseInt(companyExpensesCost)
       + parseInt(companyObjectivesCost);
@@ -317,8 +310,6 @@ class AddStaff extends React.Component {
       companyMobilePhone,
       companyEmail,
       skype,
-      birthday: birthday.toISOString().slice(0, 10),
-      birthCountry: birthCountry.countryName,
       emergencyContactName,
       emergencyContactPhone,
       photo,
@@ -335,7 +326,8 @@ class AddStaff extends React.Component {
       townContract,
       personalNumber,
       highDate: highDate.toISOString().slice(0, 10),
-      lowDate: lowDate.toISOString().slice(0, 10),
+      // lowDate: lowDate.toISOString().slice(0, 10),
+      lowDate: '',
       registrationDate: registrationDate.toISOString().slice(0, 10),
       preContractDate: preContractDate.toISOString().slice(0, 10),
       contractTypeId: contractType,
@@ -406,7 +398,12 @@ class AddStaff extends React.Component {
 
       createdAt: new Date().toISOString().slice(0, 10)
     };
-
+    if (birthCountry !== null) {
+      staff.birthCountry = birthCountry.countryName;
+    }
+    if (birthday !== null) {
+      staff.birthday = birthday.toISOString().slice(0, 10);
+    }
     const formData = new FormData();
     Object.keys(staff).forEach(e => formData.append(e, staff[e]));
     if (contractDoc.constructor === File) {
@@ -961,7 +958,7 @@ class AddStaff extends React.Component {
                   />
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1008,6 +1005,7 @@ class AddStaff extends React.Component {
                   <TextField
                     id="outlined-basic"
                     label="Personal phone"
+                    inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                     variant="outlined"
                     name="personalPhone"
                     fullWidth
@@ -1030,6 +1028,7 @@ class AddStaff extends React.Component {
                   <TextField
                     id="outlined-basic"
                     label="Comapany phone"
+                    inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                     variant="outlined"
                     name="companyPhone"
                     fullWidth
@@ -1040,9 +1039,11 @@ class AddStaff extends React.Component {
                   <TextField
                     id="outlined-basic"
                     label="Comapany mobile phone"
+                    inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                     variant="outlined"
                     name="companyMobilePhone"
                     fullWidth
+                    type=""
                     value={companyMobilePhone}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1053,6 +1054,7 @@ class AddStaff extends React.Component {
                     variant="outlined"
                     name="companyEmail"
                     fullWidth
+                    required
                     value={companyEmail}
                     className={classes.textField}
                     onChange={this.handleChange}
@@ -1080,6 +1082,7 @@ class AddStaff extends React.Component {
                   <TextField
                     id="outlined-basic"
                     label="Emergency contact phone"
+                    inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                     variant="outlined"
                     name="emergencyContactPhone"
                     fullWidth
@@ -1337,7 +1340,7 @@ class AddStaff extends React.Component {
                   />
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1355,7 +1358,7 @@ class AddStaff extends React.Component {
                   </MuiPickersUtilsProvider>
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1394,7 +1397,7 @@ class AddStaff extends React.Component {
                   />
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1412,7 +1415,7 @@ class AddStaff extends React.Component {
                   </MuiPickersUtilsProvider>
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1451,7 +1454,7 @@ class AddStaff extends React.Component {
                   />
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1472,7 +1475,7 @@ class AddStaff extends React.Component {
                   </MuiPickersUtilsProvider>
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1514,7 +1517,7 @@ class AddStaff extends React.Component {
                   />
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1532,7 +1535,7 @@ class AddStaff extends React.Component {
                   </MuiPickersUtilsProvider>
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
-                      disableToolbar
+                      inputProps={{ readOnly: true }}
                       variant="inline"
                       format="dd/MM/yyyy"
                       margin="normal"
@@ -1893,7 +1896,7 @@ class AddStaff extends React.Component {
                     <div className={classes.divSpace} style={{ width: '100%' }}>
                       <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
-                          disableToolbar
+                          inputProps={{ readOnly: true }}
                           variant="inline"
                           format="dd/MM/yyyy"
                           margin="normal"
@@ -1909,7 +1912,7 @@ class AddStaff extends React.Component {
                           style={{ width: ' 23%' }}
                         />
                       </MuiPickersUtilsProvider>
-                      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                      {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
                           disableToolbar
                           variant="inline"
@@ -1926,10 +1929,10 @@ class AddStaff extends React.Component {
                           }}
                           style={{ width: ' 23%' }}
                         />
-                      </MuiPickersUtilsProvider>
+                      </MuiPickersUtilsProvider> */}
                       <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
-                          disableToolbar
+                          inputProps={{ readOnly: true }}
                           variant="inline"
                           format="dd/MM/yyyy"
                           margin="normal"
@@ -1948,7 +1951,7 @@ class AddStaff extends React.Component {
                       </MuiPickersUtilsProvider>
                       <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
-                          disableToolbar
+                          inputProps={{ readOnly: true }}
                           variant="inline"
                           format="dd/MM/yyyy"
                           margin="normal"
