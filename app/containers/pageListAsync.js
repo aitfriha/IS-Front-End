@@ -237,20 +237,29 @@ export const OperationsAssignment = Loadable({
   loader: () => import('./Pages/Assignments/Operations/addOperation'),
   loading: Loading
 });
+// Add by Aymane
 export const CommercialOperation = Loadable({
   loader: () => import('./Pages/CommercialOperation/commercialOperationList'),
   loading: Loading
 });
+// Add by Aymane
 export const CommercialAction = Loadable({
   loader: () => import('./Pages/CommercialAction/index'),
   loading: Loading
 });
+// Add by Aymane
 export const AddCommercialAction = Loadable({
   loader: () => import('./Pages/CommercialAction/addCommercialActions'),
   loading: Loading
 });
+// Add by Aymane
 export const AddCommercialOperation = Loadable({
   loader: () => import('./Pages/CommercialOperation/addCommercialOperation'),
+  loading: Loading
+});
+// Add by Aymane
+export const CommercialActionHistory = Loadable({
+  loader: () => import('./Pages/CommercialAction/commercialActionHistory'),
   loading: Loading
 });
 // Add by Aymane

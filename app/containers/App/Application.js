@@ -44,6 +44,7 @@ import {
   DocumentManager,
   CommercialAction,
   AddCommercialAction,
+  CommercialActionHistory,
   AddCommercialOperation,
   FinancialCompany,
   AddFinancialCompany,
@@ -358,6 +359,11 @@ function Application(props) {
           exact
           path="/app/commercial-action/Add-Action"
           component={AddCommercialAction}
+        />
+        <Route
+          exact
+          path="/app/commercial-action/Commercial-Action History"
+          component={CommercialActionHistory}
         />
         <Route
           exact
