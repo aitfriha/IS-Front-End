@@ -213,6 +213,7 @@ class LocalBankHoliday extends React.Component {
   };
 
   handleOpenDialog = tableMeta => {
+    console.log('1111');
     const { allLocalBankHoliday, getAllLocalBankHolidayByCompany } = this.props;
     const localBankHolidaySelected = allLocalBankHoliday.filter(
       localBankHoliday => localBankHoliday.localBankHolidayId === tableMeta.rowData[0]
@@ -226,11 +227,14 @@ class LocalBankHoliday extends React.Component {
       code: localBankHolidaySelected.code,
       type: localBankHolidaySelected.type,
       description: localBankHolidaySelected.description,
-      startDate: new Date(localBankHolidaySelected.startDate),
-      endDate: new Date(localBankHolidaySelected.endDate),
+      /*         startDate: new Date(localBankHolidaySelected.startDate),
+         endDate: new Date(localBankHolidaySelected.endDate), */
       companyId: localBankHolidaySelected.financialCompanyId,
       isDialogOpen: true
     });
+    this.setState({ startDate: new Date(localBankHolidaySelected.startDate) });
+    this.setState({ endDate: new Date(localBankHolidaySelected.endDate) });
+    console.log(new Date(localBankHolidaySelected.startDate));
   };
 
   handleClose = () => {
@@ -277,7 +281,7 @@ class LocalBankHoliday extends React.Component {
   };
 
   onErrorDate = (error, value, input) => {
-    if (error !== '') {
+    /*   if (error !== '') {
       if (input === 'startDate') {
         this.setState({
           isStartDateError: true
@@ -287,7 +291,7 @@ class LocalBankHoliday extends React.Component {
           isEndDateError: true
         });
       }
-    }
+    } */
   };
 
   onAcceptDate = (value, input) => {
@@ -315,11 +319,6 @@ class LocalBankHoliday extends React.Component {
     let lastWeekDays = end.day() - startLastWeek.day(); // check startLastWeek week
     if (end.day() == 6) --lastWeekDays; // -1 if end with saturday
     const workingDays = firstWeekDays + Math.floor(days) + lastWeekDays;
-
-    console.log(startDate);
-    console.log(endDate);
-    console.log(workingDays);
-
     return workingDays;
   };
 
@@ -453,21 +452,46 @@ class LocalBankHoliday extends React.Component {
           </DialogTitle>
           <DialogContent>
             <div style={{ width: '100%' }}>
-              <AutoComplete
+              {/*              <AutoComplete
                 value={this.handleValueChange}
                 placeholder="Name"
                 data={allLocalBankHolidayByCompany}
                 type="name"
                 attribute="name"
+              /> */}
+              <TextField
+                id="outlined-basic"
+                label="name"
+                variant="outlined"
+                name="name"
+                value={name}
+                fullWidth
+                required
+                className={classes.textField}
+                onChange={this.handleChange}
+              /*  style={{ marginBottom: 10 }} */
               />
             </div>
             <div style={{ width: '100%' }}>
-              <AutoComplete
+{/*              <AutoComplete
                 value={this.handleValueChange}
                 placeholder="Code"
                 data={allLocalBankHolidayByCompany}
                 type="code"
                 attribute="code"
+              />*/}
+              <TextField
+                  id="outlined-basic"
+                  label="Code"
+                  variant="outlined"
+                  name="code"
+                  value={code}
+                  inputProps={{ maxLength: 10 }}
+                  fullWidth
+                  required
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                  /*  style={{ marginBottom: 10 }} */
               />
             </div>
             <FormControl
@@ -498,7 +522,6 @@ class LocalBankHoliday extends React.Component {
             <div style={{ width: '100%', marginTop: 1 }}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
-                  disableToolbar
                   variant="inline"
                   format="dd/MM/yyyy"
                   margin="normal"
@@ -520,7 +543,6 @@ class LocalBankHoliday extends React.Component {
             <div style={{ width: '100%', marginTop: 1 }}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
-                  disableToolbar
                   variant="inline"
                   format="dd/MM/yyyy"
                   margin="normal"
@@ -558,6 +580,7 @@ class LocalBankHoliday extends React.Component {
           title="Local bank holidays"
           icon="ios-paper-outline"
           noMargin
+          desc=""
         >
           <MUIDataTable
             title=""
