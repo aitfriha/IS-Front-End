@@ -61,7 +61,7 @@ class LocalBankHoliday extends React.Component {
       isStartDateError: false,
       isEndDateError: false,
       isDialogOpen: false,
-      isRelated: false,
+      isDeleteDialogOpen: false,
       localBankHolidaySelected: {},
       columns: [
         {
@@ -143,7 +143,7 @@ class LocalBankHoliday extends React.Component {
                   ) : null}
                 {thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_delete
                   ? (
-                    <IconButton onClick={() => this.handleDelete(tableMeta)}>
+                    <IconButton onClick={() => this.handleDeleteDialog(tableMeta)}>
                       <DeleteIcon color="primary" />
                     </IconButton>
                   ) : null}
@@ -207,18 +207,17 @@ class LocalBankHoliday extends React.Component {
           isDialogOpen: false
         });
       } else {
-        console.log(result);
         notification('danger', result);
       }
     });
   };
 
   handleOpenDialog = tableMeta => {
+    console.log('1111');
     const { allLocalBankHoliday, getAllLocalBankHolidayByCompany } = this.props;
     const localBankHolidaySelected = allLocalBankHoliday.filter(
       localBankHoliday => localBankHoliday.localBankHolidayId === tableMeta.rowData[0]
     )[0];
-    console.log(localBankHolidaySelected.financialCompanyId);
     getAllLocalBankHolidayByCompany(
       localBankHolidaySelected.financialCompanyId
     );
@@ -228,24 +227,33 @@ class LocalBankHoliday extends React.Component {
       code: localBankHolidaySelected.code,
       type: localBankHolidaySelected.type,
       description: localBankHolidaySelected.description,
-      startDate: new Date(localBankHolidaySelected.startDate),
-      endDate: new Date(localBankHolidaySelected.endDate),
+      /*         startDate: new Date(localBankHolidaySelected.startDate),
+         endDate: new Date(localBankHolidaySelected.endDate), */
       companyId: localBankHolidaySelected.financialCompanyId,
       isDialogOpen: true
     });
+    this.setState({ startDate: new Date(localBankHolidaySelected.startDate) });
+    this.setState({ endDate: new Date(localBankHolidaySelected.endDate) });
+    console.log(new Date(localBankHolidaySelected.startDate));
   };
 
   handleClose = () => {
     this.setState({
       isDialogOpen: false,
+      isDeleteDialogOpen: false,
       newId: ''
     });
   };
 
-  handleDelete = tableMeta => {
+  handleDeleteDialog = tableMeta => {
+    this.setState({ isDeleteDialogOpen: true, oldId: tableMeta.rowData[0] });
+  };
+
+  handleDelete = () => {
     const { getAllLocalBankHoliday, deleteLocalBankHoliday } = this.props;
+    const { oldId } = this.state;
     const promise = new Promise(resolve => {
-      deleteLocalBankHoliday(tableMeta.rowData[0]);
+      deleteLocalBankHoliday(oldId);
       this.editingPromiseResolve1 = resolve;
     });
     promise.then(result => {
@@ -273,7 +281,7 @@ class LocalBankHoliday extends React.Component {
   };
 
   onErrorDate = (error, value, input) => {
-    if (error !== '') {
+    /*   if (error !== '') {
       if (input === 'startDate') {
         this.setState({
           isStartDateError: true
@@ -283,7 +291,7 @@ class LocalBankHoliday extends React.Component {
           isEndDateError: true
         });
       }
-    }
+    } */
   };
 
   onAcceptDate = (value, input) => {
@@ -311,16 +319,10 @@ class LocalBankHoliday extends React.Component {
     let lastWeekDays = end.day() - startLastWeek.day(); // check startLastWeek week
     if (end.day() == 6) --lastWeekDays; // -1 if end with saturday
     const workingDays = firstWeekDays + Math.floor(days) + lastWeekDays;
-
-    console.log(startDate);
-    console.log(endDate);
-    console.log(workingDays);
-
     return workingDays;
   };
 
   handleValueChange = (value, type) => {
-    console.log(value, type);
     this.setState({ [type]: value });
   };
 
@@ -353,9 +355,9 @@ class LocalBankHoliday extends React.Component {
       isStartDateError,
       isEndDateError,
       isDialogOpen,
-      columns
+      columns,
+      isDeleteDialogOpen
     } = this.state;
-    console.log(allLocalBankHolidayByCompany);
     const title = brand.name + ' - Types of legal category';
     const { desc } = brand;
     const options = {
@@ -403,6 +405,38 @@ class LocalBankHoliday extends React.Component {
           <meta property="twitter:description" content={desc} />
         </Helmet>
         <Dialog
+          open={isDeleteDialogOpen}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+          TransitionComponent={Transition}
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete Local bank holiday
+          </DialogTitle>
+          <DialogContent>
+            <Typography
+              variant="subtitle1"
+              style={{
+                fontFamily: 'sans-serif , Arial',
+                fontSize: '17px'
+              }}
+            >
+                 Are you sure you want to delete this Local Bank Holiday ?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.handleDelete}>
+                  Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
           open={isDialogOpen}
           disableBackdropClick
           disableEscapeKeyDown
@@ -418,21 +452,46 @@ class LocalBankHoliday extends React.Component {
           </DialogTitle>
           <DialogContent>
             <div style={{ width: '100%' }}>
-              <AutoComplete
+              {/*              <AutoComplete
                 value={this.handleValueChange}
                 placeholder="Name"
                 data={allLocalBankHolidayByCompany}
                 type="name"
                 attribute="name"
+              /> */}
+              <TextField
+                id="outlined-basic"
+                label="name"
+                variant="outlined"
+                name="name"
+                value={name}
+                fullWidth
+                required
+                className={classes.textField}
+                onChange={this.handleChange}
+              /*  style={{ marginBottom: 10 }} */
               />
             </div>
             <div style={{ width: '100%' }}>
-              <AutoComplete
+{/*              <AutoComplete
                 value={this.handleValueChange}
                 placeholder="Code"
                 data={allLocalBankHolidayByCompany}
                 type="code"
                 attribute="code"
+              />*/}
+              <TextField
+                  id="outlined-basic"
+                  label="Code"
+                  variant="outlined"
+                  name="code"
+                  value={code}
+                  inputProps={{ maxLength: 10 }}
+                  fullWidth
+                  required
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                  /*  style={{ marginBottom: 10 }} */
               />
             </div>
             <FormControl
@@ -463,7 +522,6 @@ class LocalBankHoliday extends React.Component {
             <div style={{ width: '100%', marginTop: 1 }}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
-                  disableToolbar
                   variant="inline"
                   format="dd/MM/yyyy"
                   margin="normal"
@@ -485,7 +543,6 @@ class LocalBankHoliday extends React.Component {
             <div style={{ width: '100%', marginTop: 1 }}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
-                  disableToolbar
                   variant="inline"
                   format="dd/MM/yyyy"
                   margin="normal"
@@ -523,6 +580,7 @@ class LocalBankHoliday extends React.Component {
           title="Local bank holidays"
           icon="ios-paper-outline"
           noMargin
+          desc=""
         >
           <MUIDataTable
             title=""

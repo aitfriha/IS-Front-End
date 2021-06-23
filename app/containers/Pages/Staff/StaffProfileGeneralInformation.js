@@ -581,7 +581,6 @@ class StaffProfileGeneralInformation extends Component {
     !isLoadingCity && !cityResponse && this.editingPromiseResolve5(errorsCity);
     return (
       <div>
-        hello
         <Dialog
           maxWidth="lg"
           TransitionComponent={Transition}
@@ -704,7 +703,7 @@ class StaffProfileGeneralInformation extends Component {
             />
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
-                disableToolbar
+                inputProps={{ readOnly: true }}
                 variant="inline"
                 format="dd/MM/yyyy"
                 margin="normal"
@@ -722,7 +721,7 @@ class StaffProfileGeneralInformation extends Component {
             </MuiPickersUtilsProvider>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
-                disableToolbar
+                inputProps={{ readOnly: true }}
                 variant="inline"
                 format="dd/MM/yyyy"
                 margin="normal"
@@ -1182,7 +1181,7 @@ class StaffProfileGeneralInformation extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    disableToolbar
+                    inputProps={{ readOnly: true }}
                     variant="inline"
                     format="dd/MM/yyyy"
                     margin="normal"

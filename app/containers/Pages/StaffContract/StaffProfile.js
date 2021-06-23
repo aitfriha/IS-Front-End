@@ -44,7 +44,6 @@ export class StaffProfile extends Component {
   render() {
     const { classes, staff } = this.props;
     const { value } = this.state;
-    console.log(staff);
     return (
       <div>
         <div>

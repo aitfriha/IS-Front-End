@@ -81,7 +81,7 @@ class StaffProfileContractInformation extends Component {
     townContract: '',
     personalNumber: '',
     highDate: new Date(),
-    lowDate: new Date(),
+    lowDate: null,
     registrationDate: new Date(),
     preContractDate: new Date(),
     internalRulesDoc: {},
@@ -195,7 +195,7 @@ class StaffProfileContractInformation extends Component {
       townContract: staff.townContract,
       personalNumber: staff.personalNumber,
       highDate: new Date(staff.highDate),
-      lowDate: new Date(staff.lowDate),
+      //  lowDate: new Date(staff.lowDate),
       registrationDate: new Date(staff.registrationDate),
       preContractDate: new Date(staff.preContractDate),
       internalRulesDoc: staff.internalRulesDoc,
@@ -205,6 +205,9 @@ class StaffProfileContractInformation extends Component {
       newContractDoc: {},
       newPreContractDoc: {}
     };
+    if (staff.lowDate !== '') {
+      staffContract.lowDate = new Date(staff.lowDate);
+    }
     this.setState({
       ...staffContract,
       isEditData: false,
@@ -476,7 +479,7 @@ class StaffProfileContractInformation extends Component {
       townContract,
       personalNumber,
       highDate: highDate.toISOString().slice(0, 10),
-      lowDate: lowDate.toISOString().slice(0, 10),
+      // lowDate: lowDate.toISOString().slice(0, 10),
       registrationDate: registrationDate.toISOString().slice(0, 10),
       preContractDate: preContractDate.toISOString().slice(0, 10),
       contractTypeId: contractType,
@@ -484,6 +487,13 @@ class StaffProfileContractInformation extends Component {
       contractModelId: contractModel,
       updatedAt: new Date().toISOString().slice(0, 10)
     };
+    console.log(lowDate !== '' || lowDate !== null);
+    if (lowDate === '' || lowDate === null) {
+      contract.lowDate = '';
+    }
+    else {
+      contract.lowDate = lowDate.toISOString().slice(0, 10);
+    }
 
     const formData = new FormData();
     Object.keys(contract).forEach(e => formData.append(e, contract[e]));
@@ -636,6 +646,7 @@ class StaffProfileContractInformation extends Component {
     !isLoadingStaffContract
       && !staffContractResponse
       && this.editingPromiseResolve(errorStaffContract);
+
     return (
       <div>
         <Dialog
@@ -1021,7 +1032,9 @@ class StaffProfileContractInformation extends Component {
                         : classes.normalTypography
                     }
                   >
-                    {lowDate.toISOString().slice(0, 10)}
+                    { (lowDate === null || lowDate === '') ? (lowDate) : (
+                      lowDate.toISOString().slice(0, 10))
+                    }
                   </Typography>
                 </div>
               </div>
@@ -1543,7 +1556,7 @@ class StaffProfileContractInformation extends Component {
                   <div className={classes.divSpace} style={{ width: '100%' }}>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
-                        disableToolbar
+                        inputProps={{ readOnly: true }}
                         variant="inline"
                         format="dd/MM/yyyy"
                         margin="normal"
@@ -1561,7 +1574,7 @@ class StaffProfileContractInformation extends Component {
                     </MuiPickersUtilsProvider>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
-                        disableToolbar
+                        inputProps={{ readOnly: true }}
                         variant="inline"
                         format="dd/MM/yyyy"
                         margin="normal"
@@ -1579,7 +1592,7 @@ class StaffProfileContractInformation extends Component {
                     </MuiPickersUtilsProvider>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
-                        disableToolbar
+                        inputProps={{ readOnly: true }}
                         variant="inline"
                         format="dd/MM/yyyy"
                         margin="normal"
@@ -1598,7 +1611,7 @@ class StaffProfileContractInformation extends Component {
                     </MuiPickersUtilsProvider>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
-                        disableToolbar
+                        inputProps={{ readOnly: true }}
                         variant="inline"
                         format="dd/MM/yyyy"
                         margin="normal"

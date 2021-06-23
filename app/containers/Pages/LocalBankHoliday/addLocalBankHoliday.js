@@ -287,6 +287,7 @@ class AddLocalBankHoliday extends React.Component {
                   value={this.handleValueChange}
                   placeholder="Code"
                   data={allLocalBankHolidayByCompany}
+                  lenghtCode="10"
                   type="code"
                   attribute="code"
                 />
