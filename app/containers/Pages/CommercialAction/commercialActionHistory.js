@@ -30,8 +30,9 @@ import brand from 'dan-api/dummy/brand';
 import Tooltip from '@material-ui/core/Tooltip';
 import MUIDataTable from 'mui-datatables';
 import DetailsIcon from '@material-ui/icons/Details';
+import { bindActionCreators } from 'redux';
 import { ThemeContext } from '../../App/ThemeWrapper';
-import CommercialOperationService from '../../Services/CommercialOperationService';
+import { getAllClient } from '../../../redux/client/actions';
 import HistoryActionService from '../../Services/HistoryActionService';
 import history from '../../../utils/history';
 import PapperBlock from '../../../components/PapperBlock/PapperBlock';
@@ -65,6 +66,7 @@ class CommercialActionHistory extends React.Component {
       actionsHistory: [],
       actionsHistoryTab: [],
       commercialOperations: [],
+      clientName: '',
       current: {},
       openPopUp: false,
       columns: [
@@ -354,14 +356,12 @@ class CommercialActionHistory extends React.Component {
     }
 
     componentDidMount() {
-    // eslint-disable-next-line react/prop-types
-      const { changeTheme } = this.props;
+      // eslint-disable-next-line react/prop-types,no-shadow
+      const { changeTheme, getAllClient } = this.props;
       changeTheme('redTheme');
+      getAllClient();
       HistoryActionService.getActionHistory().then(result => {
         this.setState({ actionsHistory: result.data });
-      });
-      CommercialOperationService.getCommercialOperation().then(result => {
-        this.setState({ commercialOperations: result.data.payload });
       });
     }
 
@@ -375,6 +375,16 @@ class CommercialActionHistory extends React.Component {
 
     handleChange = (ev) => {
       let { actionsHistoryTab } = this.state;
+      const tab = [];
+      if (ev.target.name === 'clientName') {
+        // eslint-disable-next-line react/destructuring-assignment
+        actionsHistoryTab = this.state.actionsHistory.filter(row => (row.clientName === ev.target.value));
+        actionsHistoryTab.map(row => {
+          if (tab.find(column => column.operationName === row.operationName)) console.log('Operation exist');
+          else tab.push(row);
+        });
+        this.setState({ commercialOperations: tab, actionsHistoryTab });
+      }
       if (ev.target.name === 'operationName') {
         // eslint-disable-next-line react/destructuring-assignment
         actionsHistoryTab = this.state.actionsHistory.filter(row => (row.operationName === ev.target.value));
@@ -385,8 +395,9 @@ class CommercialActionHistory extends React.Component {
 
     render() {
       console.log(this.state);
+      console.log(this.props);
       // eslint-disable-next-line react/prop-types
-      const { logedUser } = this.props;
+      const { logedUser, allClients } = this.props;
       const thelogedUser = JSON.parse(logedUser);
       console.log(thelogedUser);
       const options = {
@@ -399,7 +410,7 @@ class CommercialActionHistory extends React.Component {
         rowsPerPage: 10
       };
       const {
-        actionsHistoryTab, columns, commercialOperations, operationName, openPopUp, current
+        actionsHistoryTab, columns, commercialOperations, operationName, openPopUp, current, clientName
       } = this.state;
       const title = brand.name + ' - Commercial Actions History';
       const description = brand.desc;
@@ -440,6 +451,23 @@ class CommercialActionHistory extends React.Component {
             >
               <Grid item xs={4}>
                 <FormControl fullWidth required>
+                  <InputLabel> Select Client </InputLabel>
+                  <Select
+                    name="clientName"
+                    value={clientName}
+                    onChange={this.handleChange}
+                  >
+                    {
+                      allClients.map((clt) => (
+                        <MenuItem key={clt.name} value={clt.name}>
+                          {clt.name}
+                        </MenuItem>
+                      ))
+                    }
+                  </Select>
+                </FormControl>
+                <br />
+                <FormControl fullWidth required>
                   <InputLabel>Select Commercial Operation</InputLabel>
                   <Select
                     name="operationName"
@@ -448,8 +476,8 @@ class CommercialActionHistory extends React.Component {
                   >
                     {
                       commercialOperations.map((clt) => (
-                        <MenuItem key={clt.name} value={clt.name}>
-                          {clt.name}
+                        <MenuItem key={clt.operationName} value={clt.operationName}>
+                          {clt.operationName}
                         </MenuItem>
                       ))
                     }
@@ -731,16 +759,24 @@ class CommercialActionHistory extends React.Component {
     }
 }
 CommercialActionHistory.propTypes = {
-  // eslint-disable-next-line react/no-unused-prop-types
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  allClients: PropTypes.array.isRequired,
 };
 
-const mapStateToProps = () => ({
+const mapStateToProps = state => ({
+  allClients: state.getIn(['clients']).allClients,
+  clientResponse: state.getIn(['clients']).clientResponse,
+  isLoading: state.getIn(['clients']).isLoading,
+  errors: state.getIn(['clients']).errors,
   logedUser: localStorage.getItem('logedUser')
 });
+const mapDispatchToProps = dispatch => bindActionCreators({
+  getAllClient,
+}, dispatch);
 
 const CommercialActionHistoryMapped = connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(CommercialActionHistory);
 
 export default () => {
