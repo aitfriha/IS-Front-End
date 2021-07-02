@@ -11,7 +11,7 @@ import {
   DialogContent,
   DialogActions,
   makeStyles,
-  Button
+  Button, Typography, FormControl, InputLabel, Select, MenuItem
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -42,10 +42,12 @@ class AbsenceRequest extends React.Component {
     const thelogedUser = JSON.parse(this.props.logedUser);
     this.state = {
       isOpenDocument: false,
+      absenceRequestToDelete:'',
       isOpenDocumentsList: false,
       docExtension: '',
       docIndex: 0,
       pageNumber: 1,
+      isDeleteDialogOpen: false,
       absenceRequestSelected: {},
       columns: [
         {
@@ -155,24 +157,14 @@ class AbsenceRequest extends React.Component {
   };
 
   handleDeleteRequest = tableMeta => {
-    const { getAllAbsenceRequest, deleteAbsenceRequest } = this.props;
-    const promise = new Promise(resolve => {
-      deleteAbsenceRequest(tableMeta.rowData[0]);
-      this.editingPromiseResolve = resolve;
-    });
-    promise.then(result => {
-      if (isString(result)) {
-        notification('success', result);
-        getAllAbsenceRequest();
-      } else {
-        notification('danger', result);
-      }
+    this.setState({
+      isDeleteDialogOpen: true,
+      absenceRequestToDelete: tableMeta.rowData[0]
     });
   };
 
   handleOpenDocumentDialog = index => {
     const { absenceRequestSelected } = this.state;
-    console.log(absenceRequestSelected);
     this.setState({
       isOpenDocument: true,
       docExtension: absenceRequestSelected.docExtensionList[index],
@@ -234,10 +226,35 @@ class AbsenceRequest extends React.Component {
 
   renderFile = () => {
     const { absenceRequestSelected, docExtension, docIndex } = this.state;
-    console.log(docExtension);
     return `data:${this.handleFileDataType(docExtension)};base64,${
       absenceRequestSelected.documentList[docIndex]
     }`;
+  };
+
+  handleClose = () => {
+    this.setState({
+      isDeleteDialogOpen: false,
+    });
+  };
+
+  handleDeleteAbsenceRequest = () => {
+    this.setState({
+      isDeleteDialogOpen: false,
+    });
+    const { absenceRequestToDelete } = this.state;
+    const { getAllAbsenceRequest, deleteAbsenceRequest } = this.props;
+    const promise = new Promise(resolve => {
+      deleteAbsenceRequest(absenceRequestToDelete);
+      this.editingPromiseResolve = resolve;
+    });
+    promise.then(result => {
+      if (isString(result)) {
+        notification('success', result);
+        getAllAbsenceRequest();
+      } else {
+        notification('danger', result);
+      }
+    });
   };
 
   handleDownload = () => {
@@ -270,7 +287,8 @@ class AbsenceRequest extends React.Component {
       isOpenDocument,
       absenceRequestSelected,
       docExtension,
-      columns
+      columns,
+      isDeleteDialogOpen
     } = this.state;
     const thelogedUser = JSON.parse(logedUser);
     let exportButton = false;
@@ -303,7 +321,6 @@ class AbsenceRequest extends React.Component {
     !isLoadingAbsenceRequest
       && !absenceRequestResponse
       && this.editingPromiseResolve(errorAbsenceRequest);
-    console.log(allAbsenceRequest);
     return (
       <div>
         <Helmet>
@@ -314,6 +331,37 @@ class AbsenceRequest extends React.Component {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={desc} />
         </Helmet>
+        <Dialog
+          open={isDeleteDialogOpen}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle id="alert-dialog-title">Delete Absence Type</DialogTitle>
+          <DialogContent>
+            <div>
+              <Typography
+                variant="subtitle1"
+                style={{
+                  fontFamily: 'sans-serif , Arial',
+                  fontSize: '17px'
+                }}
+              >
+                Are you sure you want to delete this absence request ?
+              </Typography>
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus color="primary" onClick={this.handleClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={this.handleDeleteAbsenceRequest}>
+                  Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           maxWidth="xs"
           TransitionComponent={Transition}

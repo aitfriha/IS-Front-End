@@ -46,7 +46,7 @@ class Staff extends React.Component {
             direction="right"
             in={!isShowProfile}
             style={{ transitionDelay: !isShowProfile ? '500ms' : '0ms' }}
-            noMargin={!isShowProfile}
+            /*noMargin={!isShowProfile}*/
             mountOnEnter
             unmountOnExit
           >

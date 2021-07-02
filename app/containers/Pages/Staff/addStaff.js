@@ -1027,7 +1027,7 @@ class AddStaff extends React.Component {
                   />
                   <TextField
                     id="outlined-basic"
-                    label="Comapany phone"
+                    label="Company phone"
                     inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                     variant="outlined"
                     name="companyPhone"
@@ -1038,7 +1038,7 @@ class AddStaff extends React.Component {
                   />
                   <TextField
                     id="outlined-basic"
-                    label="Comapany mobile phone"
+                    label="Company mobile phone"
                     inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                     variant="outlined"
                     name="companyMobilePhone"

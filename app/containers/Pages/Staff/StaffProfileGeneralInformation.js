@@ -1248,10 +1248,11 @@ class StaffProfileGeneralInformation extends Component {
                 />
                 <TextField
                   id="outlined-basic"
-                  label="Comapany phone"
+                  label="Company phone"
                   variant="outlined"
                   name="companyPhone"
                   fullWidth
+                  inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                   value={companyPhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1262,6 +1263,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="companyMobilePhone"
                   fullWidth
+                  inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                   value={companyMobilePhone}
                   className={classes.textField}
                   onChange={this.handleChange}
@@ -1302,6 +1304,7 @@ class StaffProfileGeneralInformation extends Component {
                   variant="outlined"
                   name="emergencyContactPhone"
                   fullWidth
+                  inputProps={{ pattern: '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$', maxLength: 13 }}
                   value={emergencyContactPhone}
                   className={classes.textField}
                   onChange={this.handleChange}

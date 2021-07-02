@@ -467,7 +467,7 @@ class AddStaff extends React.Component {
                   />
                   <TextField
                     id="outlined-basic"
-                    label="Comapany phone"
+                    label="Company phone"
                     variant="outlined"
                     name="companyPhone"
                     fullWidth

@@ -303,18 +303,19 @@ class StaffProfileContractInformation extends Component {
 
   restoreData = () => {
     const { staff } = this.props;
+    const { states } = this.state;
     this.setState({
       contractType: staff.contractTypeId,
       legalCategoryType: staff.legalCategoryTypeId,
       associateOffice: staff.associateOffice,
       contractModel: staff.contractModelId,
       hiringCountryName: staff.hiringCountry,
-      hiringState: staff.contractTypeState,
+      // hiringState: staff.contractTypeState,
       hiringStateName: staff.contractTypeState,
       townContract: staff.townContract,
       personalNumber: staff.personalNumber,
       highDate: new Date(staff.highDate),
-      lowDate: new Date(staff.lowDate),
+     // lowDate: new Date(staff.lowDate),
       registrationDate: new Date(staff.registrationDate),
       preContractDate: new Date(staff.preContractDate),
       internalRulesDoc: staff.internalRulesDoc,
@@ -326,6 +327,17 @@ class StaffProfileContractInformation extends Component {
       newInternalRulesDoc: {},
       newPreContractDoc: {}
     });
+    const hiringState = states.filter(
+      state => state.stateCountryId === staff.contractTypeStateId
+    )[0];
+    this.setState({
+      hiringState
+    });
+    if (staff.lowDate === '' || staff.lowDate === null) {
+      this.setState({ lowDate: null });
+    } else {
+      this.setState({ lowDate: new Date(staff.lowDate) });
+    }
   };
 
   handleOpenEdit = () => {
@@ -425,7 +437,6 @@ class StaffProfileContractInformation extends Component {
     const { allStaffContractHistoryByContract } = this.props;
     const index = tableMeta.rowIndex;
     const data = allStaffContractHistoryByContract[index];
-
     this.setState({
       contractType: data.contractTypeId,
       legalCategoryType: data.legalCategoryTypeId,
@@ -437,7 +448,7 @@ class StaffProfileContractInformation extends Component {
       townContract: data.townContract,
       personalNumber: data.personalNumber,
       highDate: new Date(data.highDate),
-      lowDate: new Date(data.lowDate),
+      // lowDate: new Date(data.lowDate),
       registrationDate: new Date(data.registrationDate),
       preContractDate: new Date(data.preContractDate),
       internalRulesDoc: data.internalRulesDoc,
@@ -445,6 +456,11 @@ class StaffProfileContractInformation extends Component {
       preContractDoc: data.preContractDoc,
       isViewHistory: true
     });
+    if (data.lowDate === '' || data.lowDate === null) {
+      this.setState({ lowDate: null });
+    } else {
+      this.setState({ lowDate: new Date(data.lowDate) });
+    }
   };
 
   handleUpdate = () => {
@@ -487,11 +503,9 @@ class StaffProfileContractInformation extends Component {
       contractModelId: contractModel,
       updatedAt: new Date().toISOString().slice(0, 10)
     };
-    console.log(lowDate !== '' || lowDate !== null);
     if (lowDate === '' || lowDate === null) {
       contract.lowDate = '';
-    }
-    else {
+    } else {
       contract.lowDate = lowDate.toISOString().slice(0, 10);
     }
 
@@ -646,7 +660,6 @@ class StaffProfileContractInformation extends Component {
     !isLoadingStaffContract
       && !staffContractResponse
       && this.editingPromiseResolve(errorStaffContract);
-
     return (
       <div>
         <Dialog
@@ -1032,7 +1045,7 @@ class StaffProfileContractInformation extends Component {
                         : classes.normalTypography
                     }
                   >
-                    { (lowDate === null || lowDate === '') ? (lowDate) : (
+                    { (lowDate === null || lowDate === '' || lowDate === 'Invalid Date') ? (lowDate) : (
                       lowDate.toISOString().slice(0, 10))
                     }
                   </Typography>
