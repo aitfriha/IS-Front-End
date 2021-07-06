@@ -324,15 +324,27 @@ class SelectionTypesBlock extends React.Component {
           maxWidth="sm"
           TransitionComponent={Transition}
         >
-          <DialogTitle id="alert-dialog-title">Edit Selection Type</DialogTitle>
+          <DialogTitle id="alert-dialog-title">Edit Selection Typexxxx</DialogTitle>
           <DialogContent>
             <div style={{ width: '100%' }}>
-              <AutoComplete
+              {/*              <AutoComplete
                 value={this.handleValueChange}
                 placeholder="Selection Type Name"
                 data={this.getSelectionTypes()}
                 type="selectionTypeName"
                 attribute="name"
+              /> */}
+              <TextField
+                id="outlined-basic"
+                label="Selection Type Name"
+                variant="outlined"
+                name="selectionTypeName"
+                value={selectionTypeName}
+                fullWidth
+                required
+                className={classes.textField}
+                onChange={this.handleChange}
+                style={{ marginBottom: 10 }}
               />
             </div>
             <TextField

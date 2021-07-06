@@ -761,6 +761,7 @@ class SelectionProcessInformation extends React.Component {
       firstName: selectionProcessInformationSelected.firstName,
       fatherFamilyName: selectionProcessInformationSelected.fatherFamilyName,
       motherFamilyName: selectionProcessInformationSelected.motherFamilyName,
+      profile: selectionProcessInformationSelected.profile,
       testDate: new Date(selectionProcessInformationSelected.testDate),
       energy: selectionProcessInformationSelected.energy,
       adaptability: selectionProcessInformationSelected.adaptability,

@@ -126,9 +126,7 @@ class AutoComplete extends React.Component {
   onSuggestionSelected = (event, { suggestion }) => {
     const { choosedSuggestion } = this.props;
     if (suggestion.isAddNew) {
-      console.log('Add new:', this.state.value);
     } else {
-      console.log(suggestion);
       choosedSuggestion(suggestion);
     }
   };
