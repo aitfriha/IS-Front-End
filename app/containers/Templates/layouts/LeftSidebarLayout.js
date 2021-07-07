@@ -226,7 +226,8 @@ class LeftSidebarLayout extends React.Component {
       this.access('hhrrSystem', 'hhrr_basic_table', 'legalCategoryType');
     }
     // operative system
-
+    // console.log("thelogedUser.userRoles[0].actionsNames");
+    // console.log(thelogedUser.userRoles[0].actionsNames);
     if (thelogedUser.userRoles[0].actionsNames.operativeModule_staffAssignments_access == false) {
       for (const k in dataMenu) {
         if (dataMenu[k].key === 'operativeSystem') {
@@ -234,6 +235,7 @@ class LeftSidebarLayout extends React.Component {
         }
       }
     }
+
     if (thelogedUser.userRoles[0].actionsNames.operativeModule_workParts_access == false) {
       for (const k in dataMenu) {
         if (dataMenu[k].key === 'operativeSystem') {
@@ -256,7 +258,8 @@ class LeftSidebarLayout extends React.Component {
         }
       }
     }
-    if (thelogedUser.userRoles[0].actionsNames.translationModule_translationSentences_access == false) {
+    //  console.log(dataMenu);
+    /*    if (thelogedUser.userRoles[0].actionsNames.translationModule_translationSentences_access == false) {
       for (const k in dataMenu) {
         if (dataMenu[k].key === 'translation') {
           this.removeByAttr(dataMenu[k].child, 'key', 'translationSentences');
@@ -265,7 +268,7 @@ class LeftSidebarLayout extends React.Component {
           }
         }
       }
-    }
+    } */
   }
 
   access = function (lev3, lev4, lev5) {
@@ -317,27 +320,47 @@ class LeftSidebarLayout extends React.Component {
        handleOpenGuide
      } = this.props;
      if (this.props.moduleName === 'Welcome to commercial module') {
-       dataMenux = [dataMenu[0]];
+       for (const k in dataMenu) {
+         if (dataMenu[k].key === 'commercial') {
+           dataMenux = [dataMenu[k]];
+         }
+       }
      }
      if (this.props.moduleName === 'Welcome to financial module') {
-       dataMenux = [dataMenu[1]];
+       for (const k in dataMenu) {
+         if (dataMenu[k].key === 'financial') {
+           dataMenux = [dataMenu[k]];
+         }
+       }
      }
      if (this.props.moduleName === 'Welcome to human resources module') {
-       dataMenux = [dataMenu[2]];
+       for (const k in dataMenu) {
+         if (dataMenu[k].key === 'hhrrSystem') {
+           dataMenux = [dataMenu[k]];
+         }
+       }
      }
      if (this.props.moduleName === 'Welcome to operating systems module') {
-       dataMenux = [dataMenu[3]];
+       for (const k in dataMenu) {
+         if (dataMenu[k].key === 'operativeSystem') {
+           dataMenux = [dataMenu[k]];
+         }
+       }
      }
      if (this.props.moduleName === 'Welcome to administration module') {
-       dataMenux = [dataMenu[4]];
+       for (const k in dataMenu) {
+         if (dataMenu[k].key === 'administration') {
+           dataMenux = [dataMenu[k]];
+         }
+       }
      }
-     if (this.props.moduleName === 'Welcome to administration module') {
+     /*     if (this.props.moduleName === 'Welcome to administration module') {
        dataMenux = [dataMenu[4]];
-     }
+     } */
      if (window.location.pathname === '/app') {
-       dataMenux=[];
+       dataMenux = [];
      }
-     //console.log(this.props.moduleName);
+     console.log(dataMenu[3]);
 
      return (
        <Fragment>

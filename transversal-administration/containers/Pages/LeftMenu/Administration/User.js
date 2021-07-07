@@ -353,6 +353,8 @@ class User extends React.Component {
               // update User action
               console.log(newData);
               //  newData.userRolesIds = [newData.userRolesIds];
+              // newData.userRolesIds = [];
+              newData.userRolesIds = [newData.userRolesIds];
               updateUser(newData);
               this.editingPromiseResolveEdit = resolve;
             }).then((result) => {

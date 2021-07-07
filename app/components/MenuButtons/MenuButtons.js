@@ -16,13 +16,14 @@ const styles = {
 class MenuButtons extends React.Component {
   render() {
     const {
-      classes, buttonPath, buttonTitle, color , icon
+      classes, buttonPath, buttonTitle, color , icon,disabled
     } = this.props;
     return (
       <Button
         className={classes.buttonSpacing}
         variant="contained"
         size="large"
+        disabled={disabled}
        /* component={Link}*/
        /* to={buttonPath}*/
         style={{ backgroundColor: color, color: '#fff' }}

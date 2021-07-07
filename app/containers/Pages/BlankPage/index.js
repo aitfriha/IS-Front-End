@@ -34,9 +34,10 @@ class BlankPage extends React.Component {
     this.state = {
     };
   }
+
   componentDidMount() {
-    window.addEventListener("beforeunload", this._confirm);
-    window.history.pushState(null, "", window.location.href);
+    window.addEventListener('beforeunload', this._confirm);
+    window.history.pushState(null, '', window.location.href);
     window.onpopstate = this._backConfirm;
   }
 
@@ -94,10 +95,13 @@ class BlankPage extends React.Component {
       localStorage.setItem('picture', welcomeAdministration);
       localStorage.setItem('moduleName', 'Welcome to administration module');
     }
-
   }
 
   render() {
+    const {
+      logedUser
+    } = this.props;
+    const thelogedUser = JSON.parse(logedUser);
     const {
       whiteBg,
       noMargin,
@@ -121,49 +125,118 @@ class BlankPage extends React.Component {
           <div className="MuiGrid-root jss2678 MuiGrid-container">
             <Grid container spacing={1}>
               <Grid container item xs={12} spacing={3}>
-                <Grid item xs={4} onClick={() => this.gowTo('commercial')}>
-                  <MenuButtons
+                { thelogedUser.userRoles[0].actionsNames.commercial_titleType_access ? (
+                  <Grid item xs={4} onClick={() => this.gowTo('commercial')}>
+                    <MenuButtons
                     /*      buttonPath="/app/gestion-commercial/welcome" */
-                    buttonTitle="Commercial"
-                    color="red"
-                    icon="ios-folder-open-outline"
+                      buttonTitle="Commercial"
+                      color="red"
+                      icon="ios-folder-open-outline"
+                      disabled={false}
                     /* onClick={() => this.gowTo('commercial', 'commercial')} */
-                  />
-                </Grid>
-                <Grid item xs={4} onClick={() => this.gowTo('financial')}>
-                  <MenuButtons
-                    buttonPath="/app/gestion-financial/Contracts"
-                    buttonTitle="financial"
-                    color="#90A4AE"
-                    icon="ios-cash-outline"
-                  />
-                </Grid>
-                <Grid item xs={4} onClick={() => this.gowTo('rh')}>
-                  <MenuButtons
-                    buttonPath="/app/hh-rr/staff"
-                    buttonTitle="hh.rr system"
-                    color="#00BCD4"
-                    icon="ios-people-outline"
-                  />
-                </Grid>
+                    />
+                  </Grid>
+                )
+                  : (
+                    <Grid item xs={4} >
+                      <MenuButtons
+                      /*      buttonPath="/app/gestion-commercial/welcome" */
+                        buttonTitle="Commercial"
+                        color="red"
+                        icon="ios-folder-open-outline"
+                        disabled={true}
+                      /* onClick={() => this.gowTo('commercial', 'commercial')} */
+                      />
+                    </Grid>
+                  )}
+                { thelogedUser.userRoles[0].actionsNames.financialModule_expensesManagement_access ? (
+                  <Grid item xs={4} onClick={() => this.gowTo('financial')}>
+                    <MenuButtons
+                      buttonPath="/app/gestion-financial/Contracts"
+                      buttonTitle="financial"
+                      color="#90A4AE"
+                      icon="ios-cash-outline"
+                      disabled={false}
+                    />
+                  </Grid>
+                )
+                  : (
+                    <Grid item xs={4} >
+                      <MenuButtons
+                        buttonPath="/app/gestion-financial/Contracts"
+                        buttonTitle="financial"
+                        color="#90A4AE"
+                        icon="ios-cash-outline"
+                        disabled={true}
+                      />
+                    </Grid>
+                  )}
+                { thelogedUser.userRoles[0].actionsNames.hh_absenceRequest_access ? (
+                  <Grid item xs={4} onClick={() => this.gowTo('rh')}>
+                    <MenuButtons
+                      buttonPath="/app/hh-rr/staff"
+                      buttonTitle="hh.rr system"
+                      color="#00BCD4"
+                      icon="ios-people-outline"
+                      disabled={false}
+                    />
+                  </Grid>
+                ) : (
+                  <Grid item xs={4} >
+                    <MenuButtons
+                      buttonPath="/app/hh-rr/staff"
+                      buttonTitle="hh.rr system"
+                      color="#00BCD4"
+                      icon="ios-people-outline"
+                      disabled={true}
+                    />
+                  </Grid>
+                ) }
               </Grid>
               <Grid container item xs={12} spacing={3}>
-                <Grid item xs={4} onClick={() => this.gowTo('operative module')}>
-                  <MenuButtons
-                    buttonPath="/app/operative-system/staff-assignment"
-                    buttonTitle="operative module"
-                    color="#689F38"
-                    icon="ios-briefcase-outline"
-                  />
-                </Grid>
-                <Grid item xs={4} onClick={() => this.gowTo('administration')}>
-                  <MenuButtons
-                    buttonPath="/app/data/administration/users"
-                    buttonTitle="administration"
-                    color="#B388FF"
-                    icon="ios-person"
-                  />
-                </Grid>
+                { thelogedUser.userRoles[0].actionsNames.operativeModule_AssignmentType_access ? (
+                  <Grid item xs={4} onClick={() => this.gowTo('operative module')}>
+                    <MenuButtons
+                      buttonPath="/app/operative-system/staff-assignment"
+                      buttonTitle="operative module"
+                      color="#689F38"
+                      icon="ios-briefcase-outline"
+                      disabled={false}
+                    />
+                  </Grid>
+                )
+                  : (
+                    <Grid item xs={4} >
+                      <MenuButtons
+                        buttonPath="/app/operative-system/staff-assignment"
+                        buttonTitle="operative module"
+                        color="#689F38"
+                        icon="ios-briefcase-outline"
+                        disabled={true}
+                      />
+                    </Grid>
+                  )}
+                { thelogedUser.userRoles[0].actionsNames.admin_roles_management_access ? (
+                  <Grid item xs={4} onClick={() => this.gowTo('administration')}>
+                    <MenuButtons
+                      buttonPath="/app/data/administration/users"
+                      buttonTitle="administration"
+                      color="#B388FF"
+                      icon="ios-person"
+                      disabled={false}
+                    />
+                  </Grid>
+                ) : (
+                  <Grid item xs={4} >
+                    <MenuButtons
+                      buttonPath="/app/data/administration/users"
+                      buttonTitle="administration"
+                      color="#B388FF"
+                      icon="ios-person"
+                      disabled={true}
+                    />
+                  </Grid>
+                ) }
                 <Grid item xs={4}>
                   <MenuButtons
                     buttonPath="/app/translation/default-sentences"
@@ -187,8 +260,11 @@ PapperBlock.defaultProps = {
   icon: 'ios-bookmark-outline',
   desc: ''
 };
+const mapStateToProps = () => ({
+  logedUser: localStorage.getItem('logedUser')
+});
 const BlankPageMapped = connect(
-  null,
+  mapStateToProps,
   null
 )(BlankPage);
 // export default BlankPage;
