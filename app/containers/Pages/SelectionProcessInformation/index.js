@@ -467,7 +467,7 @@ class SelectionProcessInformation extends React.Component {
                       <EditIcon color="secondary" />
                     </IconButton>
                   ) : null}
-                {thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_modify
+                {thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_delete
                   ? (
                     <IconButton onClick={() => this.handleOpenDeleteDialog(tableMeta)}>
                       <DeleteIcon color="primary" />

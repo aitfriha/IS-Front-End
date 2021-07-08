@@ -85,10 +85,16 @@ class SelectionTypesBlock extends React.Component {
           options: {
             customBodyRender: (value, tableMeta) => (
               <React.Fragment>
-                {thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_modify
+                {thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_modify
                   ? (
                     <IconButton onClick={() => this.handleOpenEdit(tableMeta)}>
                       <EditIcon color="secondary" />
+                    </IconButton>
+                  ) : null}
+                {thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_delete
+                  ? (
+                    <IconButton onClick={() => this.handleOpenDelete(tableMeta)}>
+                      <DeleteIcon color="secondary" />
                     </IconButton>
                   ) : null}
               </React.Fragment>
@@ -126,7 +132,6 @@ class SelectionTypesBlock extends React.Component {
     const selectionTypeSelected = allSelectionTypeEvaluation.filter(
       selectinType => selectinType.selectionTypeId === tableMeta.rowData[0]
     )[0];
-    console.log(selectionTypeSelected);
     this.setState({
       selectionType: selectionTypeSelected,
       isSelectionTypeDelete: true
@@ -209,9 +214,6 @@ class SelectionTypesBlock extends React.Component {
   handleDeleteType = () => {
     const { deleteSelectionTypeEvaluation } = this.props;
     const { selectionType } = this.state;
-
-    console.log(selectionType.selectionTypeId);
-
     const promise = new Promise(resolve => {
       deleteSelectionTypeEvaluation(selectionType.selectionTypeId);
       this.editingPromiseResolve = resolve;
@@ -324,7 +326,7 @@ class SelectionTypesBlock extends React.Component {
           maxWidth="sm"
           TransitionComponent={Transition}
         >
-          <DialogTitle id="alert-dialog-title">Edit Selection Typexxxx</DialogTitle>
+          <DialogTitle id="alert-dialog-title">Edit Selection Type</DialogTitle>
           <DialogContent>
             <div style={{ width: '100%' }}>
               {/*              <AutoComplete
