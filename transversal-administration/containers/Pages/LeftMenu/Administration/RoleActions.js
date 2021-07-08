@@ -2501,6 +2501,10 @@ class RoleActions extends React.Component {
                     label="Modify"
                   />
                   <FormControlLabel
+                    control={<Checkbox checked={hh_selectionTypesEvaluation_delete} onChange={this.handleChange} name="hh_selectionTypesEvaluation_delete" />}
+                    label="Delete"
+                  />
+                  <FormControlLabel
                     control={<Checkbox checked={hh_selectionTypesEvaluation_export} onChange={this.handleChange} name="hh_selectionTypesEvaluation_export" />}
                     label="Export"
                   />
