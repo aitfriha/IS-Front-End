@@ -138,13 +138,13 @@ class BlankPage extends React.Component {
                   </Grid>
                 )
                   : (
-                    <Grid item xs={4} >
+                    <Grid item xs={4}>
                       <MenuButtons
                       /*      buttonPath="/app/gestion-commercial/welcome" */
                         buttonTitle="Commercial"
                         color="red"
                         icon="ios-folder-open-outline"
-                        disabled={true}
+                        disabled
                       /* onClick={() => this.gowTo('commercial', 'commercial')} */
                       />
                     </Grid>
@@ -161,37 +161,53 @@ class BlankPage extends React.Component {
                   </Grid>
                 )
                   : (
-                    <Grid item xs={4} >
+                    <Grid item xs={4}>
                       <MenuButtons
                         buttonPath="/app/gestion-financial/Contracts"
                         buttonTitle="financial"
                         color="#90A4AE"
                         icon="ios-cash-outline"
-                        disabled={true}
+                        disabled
                       />
                     </Grid>
                   )}
-                { thelogedUser.userRoles[0].actionsNames.hh_absenceRequest_access ? (
-                  <Grid item xs={4} onClick={() => this.gowTo('rh')}>
-                    <MenuButtons
-                      buttonPath="/app/hh-rr/staff"
-                      buttonTitle="hh.rr system"
-                      color="#00BCD4"
-                      icon="ios-people-outline"
-                      disabled={false}
-                    />
-                  </Grid>
-                ) : (
-                  <Grid item xs={4} >
-                    <MenuButtons
-                      buttonPath="/app/hh-rr/staff"
-                      buttonTitle="hh.rr system"
-                      color="#00BCD4"
-                      icon="ios-people-outline"
-                      disabled={true}
-                    />
-                  </Grid>
-                ) }
+                { thelogedUser.userRoles[0].actionsNames.hh_absenceConsult_access
+                || thelogedUser.userRoles[0].actionsNames.hh_absenceRequest_access
+                || thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureAssignation_access
+                || thelogedUser.userRoles[0].actionsNames.hh_administrativeStructureDefinition_access
+                || thelogedUser.userRoles[0].actionsNames.hh_contractModels_access
+                || thelogedUser.userRoles[0].actionsNames.hh_functionalStructureAssignation_access
+                || thelogedUser.userRoles[0].actionsNames.hh_functionalStructureDefinition_access
+                || thelogedUser.userRoles[0].actionsNames.hh_localBankHolidays_access
+                || thelogedUser.userRoles[0].actionsNames.hh_selectionProcessInformation_access
+                || thelogedUser.userRoles[0].actionsNames.hh_selectionTypesEvaluation_access
+                || thelogedUser.userRoles[0].actionsNames.hh_staff_contractInformationManagement_access
+                || thelogedUser.userRoles[0].actionsNames.hh_staff_economicObjectiveManagement_access
+                || thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_access
+                || thelogedUser.userRoles[0].actionsNames.hh_typesOfAbsences_access
+                || thelogedUser.userRoles[0].actionsNames.hh_typesOfContracts_access
+                || thelogedUser.userRoles[0].actionsNames.hh_typesOfLegalCategory_access
+                  ? (
+                    <Grid item xs={4} onClick={() => this.gowTo('rh')}>
+                      <MenuButtons
+                        buttonPath="/app/hh-rr/staff"
+                        buttonTitle="hh.rr system"
+                        color="#00BCD4"
+                        icon="ios-people-outline"
+                        disabled={false}
+                      />
+                    </Grid>
+                  ) : (
+                    <Grid item xs={4}>
+                      <MenuButtons
+                        buttonPath="/app/hh-rr/staff"
+                        buttonTitle="hh.rr system"
+                        color="#00BCD4"
+                        icon="ios-people-outline"
+                        disabled
+                      />
+                    </Grid>
+                  ) }
               </Grid>
               <Grid container item xs={12} spacing={3}>
                 { thelogedUser.userRoles[0].actionsNames.operativeModule_AssignmentType_access ? (
@@ -206,13 +222,13 @@ class BlankPage extends React.Component {
                   </Grid>
                 )
                   : (
-                    <Grid item xs={4} >
+                    <Grid item xs={4}>
                       <MenuButtons
                         buttonPath="/app/operative-system/staff-assignment"
                         buttonTitle="operative module"
                         color="#689F38"
                         icon="ios-briefcase-outline"
-                        disabled={true}
+                        disabled
                       />
                     </Grid>
                   )}
@@ -227,13 +243,13 @@ class BlankPage extends React.Component {
                     />
                   </Grid>
                 ) : (
-                  <Grid item xs={4} >
+                  <Grid item xs={4}>
                     <MenuButtons
                       buttonPath="/app/data/administration/users"
                       buttonTitle="administration"
                       color="#B388FF"
                       icon="ios-person"
-                      disabled={true}
+                      disabled
                     />
                   </Grid>
                 ) }

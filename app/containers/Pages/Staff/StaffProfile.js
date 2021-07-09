@@ -288,7 +288,7 @@ export class StaffProfile extends Component {
 
   render() {
     const {
-      classes, staff, isEdit, isShowSpinner
+      classes, staff, isEdit, isShowSpinner, logedUser
     } = this.props;
     const {
       value,
@@ -301,6 +301,7 @@ export class StaffProfile extends Component {
       isChangeProfilePic,
       photo
     } = this.state;
+    const thelogedUser = JSON.parse(logedUser);
     return (
       <div>
         {/*        {isShowSpinner ? (
@@ -990,9 +991,18 @@ export class StaffProfile extends Component {
                       textColor="primary"
                       centered
                     >
-                      <Tab label="General Information" />
-                      <Tab label="General Contract Information" />
-                      <Tab label="Economic Contract Information" />
+                      {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_access ? (
+                        <Tab label="General Information" />
+                      ) : (<Tab label="General Informatio" disabled />)
+                      }
+                      {thelogedUser.userRoles[0].actionsNames.hh_staff_contractInformationManagement_access ? (
+                        <Tab label="General Contract Information" />
+                      ) : (<Tab label="General Contract Information" disabled />)
+                      }
+                      {thelogedUser.userRoles[0].actionsNames.hh_staff_economicObjectiveManagement_access ? (
+                        <Tab label="Economic Contract Information" />
+                      ) : (<Tab label="Economic Contract Information" disabled />)
+                      }
                     </Tabs>
                   </Paper>
                 </div>
@@ -1047,7 +1057,8 @@ export class StaffProfile extends Component {
 const mapStateToProps = state => ({
   staff: state.getIn(['staffs']).selectedStaff,
   isEdit: state.getIn(['staffs']).isEditStaff,
-  isShowSpinner: state.getIn(['ui', 'showSpinner'])
+  isShowSpinner: state.getIn(['ui', 'showSpinner']),
+  logedUser: localStorage.getItem('logedUser')
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

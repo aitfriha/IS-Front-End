@@ -10,7 +10,7 @@ import {
   Typography,
   Select,
   MenuItem,
-  FormControl
+  FormControl, Tabs
 } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -564,6 +564,7 @@ class StaffBlock extends React.Component {
       { name: 'Economic Information', value: 'economicInformation' }
     ];
 
+
     !isLoadingStaff
       && staffResponse
       && this.editingPromiseResolve(staffResponse);
@@ -591,11 +592,35 @@ class StaffBlock extends React.Component {
               value={columnsType}
               onChange={this.handleChange}
             >
-              {menuItems.map(item => (
-                <MenuItem key={item.name} value={item.value}>
-                  {item.name}
-                </MenuItem>
-              ))}
+              {menuItems.map(item => {
+                if (item.value == 'generalInformation' && thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_access) {
+                  return (
+                    <MenuItem key={item.name} value={item.value}>
+                      {item.name}
+                    </MenuItem>
+                  );
+                }
+                if (item.value == 'contractInformation' && thelogedUser.userRoles[0].actionsNames.hh_staff_contractInformationManagement_access) {
+                  return (
+                    <MenuItem key={item.name} value={item.value}>
+                      {item.name}
+                    </MenuItem>
+                  );
+                }
+                if (item.value == 'economicInformation' && thelogedUser.userRoles[0].actionsNames.hh_staff_economicObjectiveManagement_access) {
+                  return (
+                    <MenuItem key={item.name} value={item.value}>
+                      {item.name}
+                    </MenuItem>
+                  );
+                }
+
+                return (
+                  <MenuItem key={item.name} value={item.value} disabled>
+                    {item.name}
+                  </MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
         </div>
