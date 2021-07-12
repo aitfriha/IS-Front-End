@@ -716,7 +716,7 @@ class StaffProfileContractInformation extends Component {
                   disabled={!isViewHistory}
                 />
               </Tooltip>
-              {thelogedUser.userRoles[0].actionsNames.hh_staff_personalInformationManagement_modify
+              {thelogedUser.userRoles[0].actionsNames.hh_staff_contractInformationManagement_modify
                 ? (
                   <Tooltip title="Edit">
                     <Button
